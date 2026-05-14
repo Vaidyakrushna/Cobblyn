@@ -1,0 +1,1 @@
+import AdminMaterials from '../../../src/views/admin/AdminMaterials'; export default function Page() { return <AdminMaterials />; }

@@ -1,0 +1,1 @@
+import AdminCustomers from '../../../src/views/admin/AdminCustomers'; export default function Page() { return <AdminCustomers />; }

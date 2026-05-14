@@ -1,0 +1,1 @@
+import AdminProduction from '../../../src/views/admin/AdminProduction'; export default function Page() { return <AdminProduction />; }

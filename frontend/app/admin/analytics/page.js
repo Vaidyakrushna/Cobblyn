@@ -1,0 +1,1 @@
+import AdminAnalytics from '../../../src/views/admin/AdminAnalytics'; export default function Page() { return <AdminAnalytics />; }

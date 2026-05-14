@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - byond_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URL=mongodb://mongodb:27017
+      - DB_NAME=byond_db
+      - FRONTEND_URL=http://localhost:3000
+      - ADMIN_EMAIL=admin@byond.com
+      - ADMIN_PASSWORD=Byond@2026
+    depends_on:
+      - mongodb
+    networks:
+      - byond_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+    depends_on:
+      - backend
+    networks:
+      - byond_network
+
+volumes:
+  mongodb_data:
+
+networks:
+  byond_network:

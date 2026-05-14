@@ -1,0 +1,1 @@
+import ProductListPage from '../../src/views/ProductListPage'; export default function Page() { return <ProductListPage gender='all' title='All Collections' subtitle='Explore our entire range' />; }

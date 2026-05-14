@@ -1,0 +1,1 @@
+import AdminVisits from '../../../src/views/admin/AdminVisits'; export default function Page() { return <AdminVisits />; }

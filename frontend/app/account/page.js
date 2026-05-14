@@ -1,0 +1,1 @@
+import MyAccountPage from '../../src/views/MyAccountPage'; export default function Page() { return <MyAccountPage />; }

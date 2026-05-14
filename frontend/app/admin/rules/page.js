@@ -1,0 +1,1 @@
+import AdminRules from '../../../src/views/admin/AdminRules'; export default function Page() { return <AdminRules />; }

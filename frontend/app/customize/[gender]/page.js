@@ -1,0 +1,1 @@
+import CustomizePage from '../../../src/views/CustomizePage'; export default function Page() { return <CustomizePage />; }

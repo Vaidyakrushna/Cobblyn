@@ -1,0 +1,1 @@
+import AdminInventory from '../../../src/views/admin/AdminInventory'; export default function Page() { return <AdminInventory />; }

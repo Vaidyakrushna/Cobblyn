@@ -1,0 +1,1 @@
+import ProductListPage from '../../src/views/ProductListPage'; export default function Page() { return <ProductListPage gender='accessories' title='Accessories' subtitle='Premium accessories' />; }

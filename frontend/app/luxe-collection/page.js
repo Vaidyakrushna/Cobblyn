@@ -1,0 +1,1 @@
+import ProductListPage from '../../src/views/ProductListPage'; export default function Page() { return <ProductListPage gender='' title='Luxe Collection' subtitle='Our most coveted styles' />; }

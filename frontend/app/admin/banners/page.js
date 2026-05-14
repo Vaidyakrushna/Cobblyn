@@ -1,0 +1,1 @@
+import AdminBanners from '../../../src/views/admin/AdminBanners'; export default function Page() { return <AdminBanners />; }
