@@ -228,6 +228,15 @@ export const api = {
   getWorkers: () => apiFetch('/api/admin/production/workers'),
   addWorker: (data) => apiFetch('/api/admin/production/workers', { method: 'POST', body: JSON.stringify(data) }),
   removeWorker: (id) => apiFetch(`/api/admin/production/workers/${id}`, { method: 'DELETE' }),
+
+  // Scheduled Visits
+  scheduleVisit: (data) => apiFetch('/api/visits/schedule', { method: 'POST', body: JSON.stringify(data) }),
+  myVisits: () => apiFetch('/api/visits/my'),
+  cancelMyVisit: (id) => apiFetch(`/api/visits/my/${id}/cancel`, { method: 'PATCH' }),
+  rescheduleMyVisit: (id, data) => apiFetch(`/api/visits/my/${id}/reschedule`, { method: 'PATCH', body: JSON.stringify(data) }),
+  listVisits: (params = '') => apiFetch(`/api/visits${params}`),
+  updateVisitStatus: (id, status) => apiFetch(`/api/visits/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  deleteVisit: (id) => apiFetch(`/api/visits/${id}`, { method: 'DELETE' }),
 };
 
 export default api;

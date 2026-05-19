@@ -27,8 +27,11 @@ const nextConfig = {
     };
     return config;
   },
-  eslint: {
-    ignoreDuringBuilds: true,
+  turbopack: {
+    root: __dirname,
+    resolveAlias: {
+      '@': './src',
+    },
   },
 };
 

@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
 
 const CartPage = () => {
-  const navigate = useRouter();
+  const router = useRouter();
   const { isAuthenticated } = useAuth();
   const [cartItems, setCartItems] = useState([]);
   const [cartTotal, setCartTotal] = useState(0);
@@ -50,7 +50,7 @@ const CartPage = () => {
   const total = subtotal + shipping;
 
   const handleCheckout = () => {
-    router.push('/checkout', { state: { cartItems, subtotal, shipping, total } });
+    router.push('/checkout');
   };
 
   if (!isAuthenticated) {

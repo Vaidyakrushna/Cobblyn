@@ -1,22 +1,19 @@
 "use client";
-﻿import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-
+import { useRouter } from 'next/navigation';
 import { ChevronRight, ArrowRight, ArrowLeft, User, MapPin, CreditCard, Lock, CheckCircle2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { api } from '../api';
 
 const CheckoutPage = () => {
-  const location = usePathname();
-  const navigate = useRouter();
-  const { cartItems = [], subtotal = 15000, shipping = 0, total = 15000 } = location.state || {};
+  const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
 
-  const fallbackItems = cartItems.length ? cartItems : [
-    { id: 1, name: 'Classic Oxford', material: 'Full-Grain Italian Leather', size: '9', color: 'Black', price: 8500, quantity: 1, image: 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=300&q=80&fit=crop' },
-    { id: 6, name: 'Heritage Jutis', material: 'Embroidered Silk & Leather', size: '8', color: 'Gold', price: 6500, quantity: 1, image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=300&q=80&fit=crop' },
-  ];
-
-  const computedSubtotal = fallbackItems.reduce((s, i) => s + i.price * i.quantity, 0);
-  const computedTotal = computedSubtotal + shipping;
+  // Cart data fetched from API
+  const [cartItems, setCartItems] = useState([]);
+  const [cartTotal, setCartTotal] = useState(0);
+  const [cartLoading, setCartLoading] = useState(true);
 
   const [step, setStep] = useState(0);
   const [guestData, setGuestData] = useState({ email: '', isGuest: true });
@@ -25,6 +22,43 @@ const CheckoutPage = () => {
   const [payment, setPayment] = useState({ method: 'cod', cardNumber: '', cardName: '', expiry: '', cvv: '' });
   const [errors, setErrors] = useState({});
   const [coupon, setCoupon] = useState(null);
+  const [placing, setPlacing] = useState(false);
+  const [orderError, setOrderError] = useState('');
+
+  // Fetch cart from API
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const data = await api.getCart();
+        setCartItems(data.items || []);
+        setCartTotal(data.total || 0);
+      } catch (err) {
+        console.error('Failed to fetch cart:', err);
+      }
+      setCartLoading(false);
+    };
+    fetchCart();
+  }, []);
+
+  // Pre-fill user data if logged in
+  useEffect(() => {
+    if (user) {
+      setGuestData(prev => ({ ...prev, email: user.email || '' }));
+      const nameParts = (user.name || '').split(' ');
+      setPersonal(prev => ({
+        ...prev,
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+      }));
+      // Skip guest step if logged in
+      if (isAuthenticated) {
+        setStep(1);
+      }
+    }
+  }, [user, isAuthenticated]);
+
+  const computedSubtotal = cartTotal;
+  const computedTotal = computedSubtotal;
 
   const steps = [
     { label: 'Login', icon: <User size={18} /> },
@@ -62,32 +96,87 @@ const CheckoutPage = () => {
     return Object.keys(errs).length === 0;
   };
 
+  const handlePlaceOrder = async () => {
+    setOrderError('');
+    setPlacing(true);
+    try {
+      const orderData = {
+        items: cartItems.map(item => ({
+          product_id: item.product_id,
+          name: item.name,
+          size: item.size,
+          color: item.color,
+          quantity: item.quantity,
+          price: item.price,
+          material: item.material || '',
+        })),
+        shipping_address: {
+          name: `${personal.firstName} ${personal.lastName}`.trim(),
+          phone: personal.phone,
+          address: [address.line1, address.line2].filter(Boolean).join(', '),
+          city: address.city,
+          state: address.state,
+          pincode: address.pincode,
+        },
+        payment_method: payment.method,
+        coupon_code: coupon?.code || null,
+      };
+
+      const result = await api.createOrder(orderData);
+
+      // Clear cart after successful order
+      try { await api.clearCart(); } catch (e) {}
+      window.dispatchEvent(new Event('byond-cart-update'));
+
+      router.push('/order-confirmation?order=' + encodeURIComponent(result.order_number || result.id || ''));
+    } catch (err) {
+      setOrderError(err.message || 'Failed to place order. Please try again.');
+    }
+    setPlacing(false);
+  };
+
   const handleNext = () => {
     if (!validateStep()) return;
     if (step < 3) {
       setStep(step + 1);
       setErrors({});
     } else {
-      const orderId = 'BYD-' + Date.now().toString(36).toUpperCase();
-      router.push('/order-confirmation', {
-        state: {
-          orderId,
-          items: fallbackItems,
-          personal,
-          address,
-          payment: { method: payment.method },
-          total: computedTotal,
-          email: guestData.email,
-        }
-      });
+      handlePlaceOrder();
     }
   };
 
   const handleBack = () => {
-    if (step > 0) { setStep(step - 1); setErrors({}); }
+    if (step > (isAuthenticated ? 1 : 0)) { setStep(step - 1); setErrors({}); }
   };
 
   const indianStates = ['Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Delhi', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal'];
+
+  if (cartLoading) {
+    return (
+      <div className="checkout-page" data-testid="checkout-page">
+        <div style={{ padding: '100px', textAlign: 'center' }}>Loading checkout...</div>
+      </div>
+    );
+  }
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="checkout-page" data-testid="checkout-page">
+        <div className="breadcrumbs">
+          <Link href="/">Home</Link>
+          <ChevronRight size={14} />
+          <span>Checkout</span>
+        </div>
+        <div style={{ padding: '80px 20px', textAlign: 'center' }}>
+          <h2>Your bag is empty</h2>
+          <p style={{ color: '#6B7280', marginTop: 8 }}>Add items to your bag before checking out.</p>
+          <Link href="/" style={{ display: 'inline-block', marginTop: 24, padding: '12px 32px', background: '#1a1a1a', color: '#fff', textDecoration: 'none', borderRadius: 4 }}>
+            Continue Shopping
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="checkout-page" data-testid="checkout-page">
@@ -202,7 +291,7 @@ const CheckoutPage = () => {
 
               <div className="ck-field">
                 <label>Email</label>
-                <input type="email" value={guestData.email} disabled className="disabled-input" />
+                <input type="email" value={guestData.email || user?.email || ''} disabled className="disabled-input" />
               </div>
             </div>
           )}
@@ -361,15 +450,21 @@ const CheckoutPage = () => {
             </div>
           )}
 
+          {orderError && (
+            <div style={{ color: '#EF4444', padding: '12px 16px', background: '#FEF2F2', borderRadius: 6, marginTop: 12, fontSize: 14 }} data-testid="order-error">
+              {orderError}
+            </div>
+          )}
+
           {/* Navigation Buttons */}
           <div className="ck-nav-buttons">
-            {step > 0 && (
+            {step > (isAuthenticated ? 1 : 0) && (
               <button className="ck-btn-back" onClick={handleBack} data-testid="checkout-back">
                 <ArrowLeft size={16} /> Back
               </button>
             )}
-            <button className="ck-btn-next" onClick={handleNext} data-testid="checkout-next">
-              {step === 3 ? 'Place Order' : 'Continue'} <ArrowRight size={16} />
+            <button className="ck-btn-next" onClick={handleNext} disabled={placing} data-testid="checkout-next">
+              {placing ? 'Placing Order...' : step === 3 ? 'Place Order' : 'Continue'} {!placing && <ArrowRight size={16} />}
             </button>
           </div>
         </div>
@@ -379,8 +474,8 @@ const CheckoutPage = () => {
           <h3 className="ck-summary-title">Order Summary</h3>
 
           <div className="ck-summary-items">
-            {fallbackItems.map((item) => (
-              <div key={item.id} className="ck-summary-item" data-testid={`ck-item-${item.id}`}>
+            {cartItems.map((item, idx) => (
+              <div key={`${item.product_id}-${item.size}-${idx}`} className="ck-summary-item" data-testid={`ck-item-${idx}`}>
                 <div className="ck-summary-img">
                   <img src={item.image} alt={item.name} />
                   <span className="ck-summary-qty">{item.quantity}</span>
@@ -389,7 +484,7 @@ const CheckoutPage = () => {
                   <h4>{item.name}</h4>
                   <p>Size: {item.size} | {item.color}</p>
                 </div>
-                <span className="ck-summary-price">â‚¹{(item.price * item.quantity).toLocaleString()}</span>
+                <span className="ck-summary-price">{'\u20B9'}{(item.price * item.quantity).toLocaleString()}</span>
               </div>
             ))}
           </div>
@@ -458,7 +553,7 @@ const CouponInput = ({ subtotal, onApply, applied }) => {
           style={{ flex: 1, padding: '8px 10px', border: '1px solid #E5E7EB', borderRadius: 4, fontSize: 13 }} />
         <button onClick={apply} disabled={busy} data-testid="coupon-apply"
           style={{ padding: '8px 14px', background: '#1a1a1a', color: '#fff', border: 'none', cursor: busy ? 'wait' : 'pointer', fontSize: 12, fontWeight: 600 }}>
-          {busy ? 'â€¦' : 'APPLY'}
+          {busy ? '…' : 'APPLY'}
         </button>
       </div>
       {err && <div style={{ color: '#EF4444', fontSize: 12, marginTop: 6 }} data-testid="coupon-error">{err}</div>}
@@ -467,4 +562,3 @@ const CouponInput = ({ subtotal, onApply, applied }) => {
 };
 
 export default CheckoutPage;
-
