@@ -39,6 +39,29 @@ const ProductPDP = ({ gender = 'men' }) => {
   const [cartTotal, setCartTotal] = useState(0);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
+  // Feature B: Sizing Fit Profiler States
+  const [showFitProfiler, setShowFitProfiler] = useState(false);
+  const [fitBrand, setFitBrand] = useState('Nike');
+  const [fitSize, setFitSize] = useState('9');
+  const [fitWidth, setFitWidth] = useState('Standard');
+  const [fitResult, setFitResult] = useState(null);
+
+  const calculateRecommendedSize = () => {
+    const numSize = Number(fitSize);
+    let recommended = numSize;
+    if (fitBrand === 'Nike' || fitBrand === 'Adidas') {
+      recommended = numSize - 1;
+    } else {
+      recommended = numSize;
+    }
+    if (fitWidth === 'Wide') {
+      recommended = Math.min(12, recommended + 0.5);
+    } else if (fitWidth === 'Narrow') {
+      recommended = Math.max(6, recommended - 0.5);
+    }
+    setFitResult(recommended);
+  };
+
   // Fetch product
   useEffect(() => {
     const fetchProduct = async () => {
@@ -67,6 +90,28 @@ const ProductPDP = ({ gender = 'men' }) => {
     setQuantity(1);
   }, [id, gender, isAuthenticated]);
 
+  // Real-time variant stock polling (every 30 seconds)
+  useEffect(() => {
+    if (!id) return;
+    const interval = setInterval(async () => {
+      try {
+        const data = await api.getProduct(id);
+        if (data && data.size_stock) {
+          setProduct(prev => {
+            if (!prev) return data;
+            return {
+              ...prev,
+              size_stock: data.size_stock
+            };
+          });
+        }
+      } catch (err) {
+        console.error('Failed to poll variant stock:', err);
+      }
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [id]);
+
   if (loading || !product) {
     return <div className="pdp-container" style={{ padding: '80px 48px', textAlign: 'center' }}>Loading...</div>;
   }
@@ -79,6 +124,15 @@ const ProductPDP = ({ gender = 'men' }) => {
 
   const handleAddToCart = async () => {
     if (!selectedSize) { alert('Please select a size'); return; }
+    
+    // Check dynamic variant stock limits
+    const sizeStock = product.size_stock || {};
+    const stockCount = sizeStock[String(selectedSize)] !== undefined ? Number(sizeStock[String(selectedSize)]) : 10;
+    if (stockCount === 0) {
+      alert(`Size UK ${selectedSize} is currently out of stock. Please select another size or contact support.`);
+      return;
+    }
+
     if (!isAuthenticated) { setLoginPanel(true); return; }
     try {
       await api.addToCart({ product_id: product.id, size: selectedSize, color: selectedColor, quantity });
@@ -122,6 +176,24 @@ const ProductPDP = ({ gender = 'men' }) => {
   };
 
   const basePath = gender === 'women' ? '/women' : '/men';
+
+  const getCustomizeUrl = () => {
+    const model = product.model || product.category || (product.specifications && (product.specifications['Category'] || product.specifications['Style'])) || '';
+    const submodel = product.name || '';
+    const leather = product.leather || (product.specifications && (product.specifications['Material'] || product.specifications['Leather Type'] || product.specifications['Leather'])) || '';
+    const color = selectedColor || '';
+    const sole = product.sole || (product.specifications && (product.specifications['Sole'] || product.specifications['Sole Type'])) || '';
+    
+    const qs = new URLSearchParams({
+      gender: gender,
+      model: model,
+      submodel: submodel,
+      leather: leather,
+      color: color,
+      sole: sole
+    }).toString();
+    return `/customize/${gender}?${qs}`;
+  };
 
   return (
     <div className="pdp-container" data-testid="product-pdp">
@@ -212,25 +284,131 @@ const ProductPDP = ({ gender = 'men' }) => {
             <div className="pdp-block-header">
               <label className="pdp-block-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span>Select Size (UK)</span>
-                <button type="button" onClick={() => setSizeGuideOpen(true)} data-testid="open-size-guide"
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, color: '#6B7280', fontSize: 12, textDecoration: 'underline', textTransform: 'none', letterSpacing: 0 }}>
-                  <Ruler size={12} /> Size Guide
-                </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <button type="button" onClick={() => setShowFitProfiler(true)} data-testid="open-fit-profiler"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, color: '#C9A84C', fontSize: 12, textDecoration: 'underline', textTransform: 'none', letterSpacing: 0, fontWeight: '600' }}>
+                    <Star size={12} fill="#C9A84C" /> Find My Fit
+                  </button>
+                  <button type="button" onClick={() => setSizeGuideOpen(true)} data-testid="open-size-guide"
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, color: '#6B7280', fontSize: 12, textDecoration: 'underline', textTransform: 'none', letterSpacing: 0 }}>
+                    <Ruler size={12} /> Size Guide
+                  </button>
+                </div>
               </label>
               <button className="find-size-link" data-testid="find-size-link">Size Chart</button>
             </div>
-            <div className="pdp-size-row">
-              {(product.sizes || []).map((size) => (
-                <button
-                  key={size}
-                  className={`pdp-size-box ${selectedSize === size ? 'active' : ''}`}
-                  onClick={() => setSelectedSize(size)}
-                  data-testid={`size-${size}`}
-                >
-                  {size}
-                </button>
-              ))}
+            <div className="pdp-size-row" style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {(product.sizes || []).map((size) => {
+                const sizeStock = product.size_stock || {};
+                const stockCount = sizeStock[String(size)] !== undefined ? Number(sizeStock[String(size)]) : 10;
+                const isOutOfStock = stockCount === 0;
+                const isLowStock = !isOutOfStock && stockCount <= 3;
+                
+                return (
+                  <button
+                    key={size}
+                    className={`pdp-size-box ${selectedSize === size ? 'active' : ''} ${isOutOfStock ? 'out-of-stock' : ''}`}
+                    onClick={() => isOutOfStock ? null : setSelectedSize(size)}
+                    data-testid={`size-${size}`}
+                    style={{
+                      width: '48px',
+                      height: '48px',
+                      opacity: isOutOfStock ? 0.4 : 1,
+                      cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                      border: selectedSize === size 
+                        ? '2px solid #C9A84C' 
+                        : isLowStock 
+                          ? '1.5px solid rgba(201, 168, 76, 0.6)' 
+                          : '1px solid #E5E7EB',
+                      borderStyle: isOutOfStock ? 'dashed' : 'solid',
+                      backgroundColor: isOutOfStock 
+                        ? '#F3F4F6' 
+                        : selectedSize === size 
+                          ? '#FAF9F6' 
+                          : isLowStock 
+                            ? 'rgba(201, 168, 76, 0.03)' 
+                            : 'inherit',
+                      textDecoration: isOutOfStock ? 'line-through' : 'none',
+                      position: 'relative',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '14px',
+                      fontWeight: selectedSize === size ? '700' : '500',
+                      color: isOutOfStock ? '#9CA3AF' : '#1F2937',
+                      transition: 'all 0.2s ease',
+                    }}
+                    title={isOutOfStock ? `UK ${size} - Out of Stock` : `UK ${size} - In Stock`}
+                  >
+                    {size}
+                    
+                    {/* Subtle low stock warning dot indicator (no exact numbers shown) */}
+                    {isLowStock && (
+                      <span style={{
+                        position: 'absolute',
+                        top: '4px',
+                        right: '4px',
+                        width: '5px',
+                        height: '5px',
+                        borderRadius: '50%',
+                        background: '#C9A84C',
+                        boxShadow: '0 0 4px rgba(201,168,76,0.8)'
+                      }} />
+                    )}
+                  </button>
+                );
+              })}
             </div>
+            
+            {/* Real-Time Variant Stock Alerts Banner */}
+            {selectedSize && (() => {
+              const sizeStock = product.size_stock || {};
+              const stockCount = sizeStock[String(selectedSize)] !== undefined ? Number(sizeStock[String(selectedSize)]) : 10;
+              
+              if (stockCount === 0) {
+                return (
+                  <div style={{ marginTop: '12px', padding: '10px 14px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '6px', fontSize: '0.75rem', color: 'rgb(220, 38, 38)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    ❌ Size UK {selectedSize} is currently out of stock. Contact our concierge to request a custom restock.
+                  </div>
+                );
+              }
+              if (stockCount <= 3) {
+                return (
+                  <div 
+                    style={{ 
+                      marginTop: '12px', 
+                      padding: '12px 14px', 
+                      background: 'rgba(201, 168, 76, 0.07)', 
+                      border: '1px solid rgba(201, 168, 76, 0.4)', 
+                      borderRadius: '6px', 
+                      fontSize: '0.75rem', 
+                      color: '#9A7D32', 
+                      fontWeight: 700, 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '8px',
+                      boxShadow: '0 0 10px rgba(201, 168, 76, 0.15)',
+                      animation: 'pdpGlow 2s infinite ease-in-out'
+                    }}
+                  >
+                    <span style={{ fontSize: '14px' }}>⚠️</span>
+                    <span>Only a few pairs left in size UK {selectedSize}! Order soon to secure your fit.</span>
+                    <style>{`
+                      @keyframes pdpGlow {
+                        0% { box-shadow: 0 0 6px rgba(201, 168, 76, 0.1); }
+                        50% { box-shadow: 0 0 14px rgba(201, 168, 76, 0.3); border-color: rgba(201, 168, 76, 0.6); }
+                        100% { box-shadow: 0 0 6px rgba(201, 168, 76, 0.1); }
+                      }
+                    `}</style>
+                  </div>
+                );
+              }
+              return (
+                <div style={{ marginTop: '12px', padding: '10px 14px', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '6px', fontSize: '0.75rem', color: '#059669', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  ✓ Size UK {selectedSize} is in stock and ready for immediate dispatch.
+                </div>
+              );
+            })()}
           </div>
 
           <div className="pdp-delivery-block">
@@ -261,7 +439,7 @@ const ProductPDP = ({ gender = 'men' }) => {
             </button>
           </div>
 
-          <Link href={`/customize/${gender}`} className="pdp-customize-btn" data-testid="customize-button">
+          <Link href={getCustomizeUrl()} className="pdp-customize-btn" data-testid="customize-button">
             <Palette size={18} />
             Customize This Style
           </Link>
@@ -361,9 +539,86 @@ const ProductPDP = ({ gender = 'men' }) => {
 
       <SizeGuide open={sizeGuideOpen} onClose={() => setSizeGuideOpen(false)} gender={gender} />
 
+      {/* Sizing Fit Profiler Modal */}
+      {showFitProfiler && (
+        <div className="interstitial-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div className="interstitial-panel glass-gilded" style={{ maxWidth: 440, width: '100%', border: '1px solid rgba(201, 168, 76, 0.3)', borderRadius: '16px', padding: '24px 32px', position: 'relative' }}>
+            <button className="interstitial-close" onClick={() => { setShowFitProfiler(false); setFitResult(null); }} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', color: '#6B7280' }}>
+              <X size={20} />
+            </button>
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
+              <Ruler size={32} color="#C9A84C" style={{ margin: '0 auto 8px' }} />
+              <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.4rem', color: '#1a1a1a', margin: 0, fontStyle: 'italic' }}>Bespoke Sizing Concierge</h3>
+              <p style={{ fontSize: '11px', color: '#6B7280', margin: '4px 0 0 0' }}>Map your current footwear sizes to our handcrafted Italian lasts.</p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#4B5563', textTransform: 'uppercase', marginBottom: 6 }}>Reference Brand You Wear</label>
+                <select value={fitBrand} onChange={(e) => { setFitBrand(e.target.value); setFitResult(null); }} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '13px', background: '#fff' }}>
+                  <option value="Nike">Nike (Running)</option>
+                  <option value="Adidas">Adidas (Athletic)</option>
+                  <option value="Clarks">Clarks (Heritage Dress)</option>
+                  <option value="Allen Edmonds">Allen Edmonds (Premium Dress)</option>
+                  <option value="Birkenstock">Birkenstock (Sandals)</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#4B5563', textTransform: 'uppercase', marginBottom: 6 }}>Reference Size (UK/US)</label>
+                  <select value={fitSize} onChange={(e) => { setFitSize(e.target.value); setFitResult(null); }} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '13px', background: '#fff' }}>
+                    {['6', '7', '8', '9', '10', '11', '12'].map(s => (
+                      <option key={s} value={s}>UK {s}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#4B5563', textTransform: 'uppercase', marginBottom: 6 }}>Foot Width Profile</label>
+                  <select value={fitWidth} onChange={(e) => { setFitWidth(e.target.value); setFitResult(null); }} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #D1D5DB', fontSize: '13px', background: '#fff' }}>
+                    <option value="Narrow">Narrow Width</option>
+                    <option value="Standard">Standard (Medium)</option>
+                    <option value="Wide">Wide Width</option>
+                  </select>
+                </div>
+              </div>
+
+              {!fitResult ? (
+                <button onClick={calculateRecommendedSize} style={{ width: '100%', padding: '12px', background: '#111', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '12px', letterSpacing: '0.04em', textTransform: 'uppercase', marginTop: 8 }}>
+                  Calculate Recommended Fit
+                </button>
+              ) : (
+                <div style={{ marginTop: 10, padding: '14px', background: 'rgba(201, 168, 76, 0.08)', border: '1px solid rgba(201, 168, 76, 0.3)', borderRadius: '8px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '11px', color: '#9A7D32', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Our Recommendation</div>
+                  <div style={{ fontSize: '15px', color: '#1a1a1a', fontWeight: '800' }}>
+                    UK {Math.floor(fitResult)} <span style={{ fontWeight: '400', fontSize: '13px', color: '#4B5563' }}>({fitWidth === 'Wide' ? 'Wide last adjustment' : fitWidth === 'Narrow' ? 'Narrow last adjustment' : 'Standard Fit'})</span>
+                  </div>
+                  <p style={{ fontSize: '10px', color: '#6B7280', margin: '6px 0 12px 0', lineHeight: 1.4 }}>
+                    {fitBrand === 'Nike' || fitBrand === 'Adidas' 
+                      ? 'Athletic running shoes run tighter. Handcrafted leather dress shoes map 1 size down for standard last molds.' 
+                      : 'Perfect 1:1 match. Handcrafted to original heritage sizing profiles.'}
+                  </p>
+                  <button 
+                    onClick={() => {
+                      setSelectedSize(Math.floor(fitResult));
+                      setShowFitProfiler(false);
+                      setFitResult(null);
+                    }}
+                    style={{ width: '100%', padding: '10px', background: '#C9A84C', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '700', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}
+                  >
+                    Apply Recommended Size UK {Math.floor(fitResult)}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {loginPanel && (
-        <div className="interstitial-overlay" data-testid="pdp-login-interstitial" onClick={() => setLoginPanel(false)}>
-          <div className="interstitial-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="interstitial-overlay" data-testid="pdp-login-interstitial" onClick={() => setLoginPanel(false)} style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }}>
+          <div className="interstitial-panel glass-gilded" onClick={(e) => e.stopPropagation()} style={{ border: '1px solid rgba(201, 168, 76, 0.3)' }}>
             <button className="interstitial-close" onClick={() => setLoginPanel(false)} data-testid="pdp-interstitial-close">
               <X size={20} />
             </button>
@@ -381,8 +636,8 @@ const ProductPDP = ({ gender = 'men' }) => {
       )}
 
       {cartInterstitial && (
-        <div className="interstitial-overlay" data-testid="add-to-cart-interstitial" onClick={() => setCartInterstitial(false)}>
-          <div className="interstitial-panel" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 540 }}>
+        <div className="interstitial-overlay" data-testid="add-to-cart-interstitial" onClick={() => setCartInterstitial(false)} style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }}>
+          <div className="interstitial-panel glass-gilded" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 540, border: '1px solid rgba(201, 168, 76, 0.3)' }}>
             <button className="interstitial-close" onClick={() => setCartInterstitial(false)} data-testid="cart-interstitial-close">
               <X size={20} />
             </button>

@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Package, Layers, Calculator, ShoppingCart, Users,
   MessageSquare, Warehouse, Factory, CalendarCheck, Image as ImageIcon,
   Tag, RotateCcw, BarChart3, Shield, ChevronRight, Briefcase, UserCog,
-  FolderTree
+  FolderTree, ShoppingBag, Cpu
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -16,10 +16,12 @@ const NAV_STRUCTURE = [
 
   { type: 'group', key: 'assets', icon: <Briefcase size={18} />, label: 'Asset Listing', items: [
     { to: '/admin/products', icon: <Package size={16} />, label: 'Products' },
+    { to: '/admin/accessories', icon: <ShoppingBag size={16} />, label: 'Accessories' },
     { to: '/admin/categories', icon: <FolderTree size={16} />, label: 'Categories' },
     { to: '/admin/banners', icon: <ImageIcon size={16} />, label: 'Banners' },
     { to: '/admin/rules', icon: <Calculator size={16} />, label: 'Rules Engine' },
     { to: '/admin/materials', icon: <Layers size={16} />, label: 'Material' },
+    { to: '/admin/assets', icon: <Layers size={16} />, label: 'Customizer CDN Swatches' },
     { to: '/admin/coupons', icon: <Tag size={16} />, label: 'Coupons' },
   ]},
 
@@ -35,7 +37,9 @@ const NAV_STRUCTURE = [
     { to: '/admin/returns', icon: <RotateCcw size={16} />, label: 'Return' },
   ]},
 
+  { type: 'item', to: '/admin/jobs', icon: <Cpu size={18} />, label: 'Background Tasks' },
   { type: 'item', to: '/admin/users', icon: <Shield size={18} />, label: 'Users and Roles' },
+  { type: 'item', to: '/admin/audit-logs', icon: <Shield size={18} />, label: 'Security Audit Logs' },
   { type: 'item', to: '/admin/analytics', icon: <BarChart3 size={18} />, label: 'Analytics' },
   { type: 'item', to: '/admin/tickets', icon: <MessageSquare size={18} />, label: 'Support' },
 ];

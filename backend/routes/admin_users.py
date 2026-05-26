@@ -60,12 +60,22 @@ async def update_role(user_id: str, payload: RoleUpdate, request: Request):
                                                              "updated_at": datetime.now(timezone.utc).isoformat()}})
     if res.matched_count == 0:
         raise HTTPException(404, "User not found")
+        
+    from auth_utils import log_security_event
+    await log_security_event(
+        db,
+        actor_id=actor["id"],
+        actor_email=actor["email"],
+        action="update_user_role",
+        target=user_id,
+        details={"new_role": payload.role}
+    )
     return {"message": "Role updated", "role": payload.role}
 
 
 @router.patch("/{user_id}/block")
 async def block_user(user_id: str, payload: BlockUpdate, request: Request):
-    await _require_perm(request, "block_customers")
+    actor = await _require_perm(request, "block_customers")
     try:
         oid = ObjectId(user_id)
     except Exception:
@@ -74,4 +84,14 @@ async def block_user(user_id: str, payload: BlockUpdate, request: Request):
                                                              "updated_at": datetime.now(timezone.utc).isoformat()}})
     if res.matched_count == 0:
         raise HTTPException(404, "User not found")
+        
+    from auth_utils import log_security_event
+    await log_security_event(
+        db,
+        actor_id=actor["id"],
+        actor_email=actor["email"],
+        action="update_user_block_status",
+        target=user_id,
+        details={"blocked": payload.blocked}
+    )
     return {"message": "Block status updated", "blocked": payload.blocked}

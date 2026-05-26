@@ -1,7 +1,10 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight, CalendarDays, MapPin, Ruler, Package2, Sparkles, Shield, Clock, Phone } from 'lucide-react';
+import {
+  ChevronRight, CalendarDays, MapPin, Ruler, Package2,
+  Sparkles, Shield, Clock, Phone, Star, Quote, ArrowRight
+} from 'lucide-react';
 import { useAuth } from '../../src/context/AuthContext';
 import { api } from '../../src/api';
 
@@ -13,6 +16,58 @@ const initialForm = {
   visitDate: '', style: '', material: '', materialType: '',
   visitFor: '', pinCode: '', notes: ''
 };
+
+const TESTIMONIALS = [
+  {
+    name: 'Rohan Mehta',
+    city: 'Mumbai',
+    rating: 5,
+    text: 'The artisan arrived exactly on time. Within an hour we had chosen leather, style, and measurements. My Oxfords arrived in 18 days — perfect fit, first try.',
+  },
+  {
+    name: 'Ananya Kapoor',
+    city: 'Delhi',
+    rating: 5,
+    text: 'I was gifted a BYOND bespoke visit for my birthday. It was genuinely one of the most luxurious experiences I\'ve had. The Jutis are extraordinary.',
+  },
+  {
+    name: 'Vikram Singhania',
+    city: 'Bengaluru',
+    rating: 5,
+    text: 'Three bespoke pairs in two years. The quality keeps improving. Heirloom-grade shoes at an honest price — nothing else like it in India.',
+  },
+];
+
+const PROCESS_STEPS = [
+  {
+    num: '01',
+    icon: <CalendarDays size={32} />,
+    title: 'You Schedule',
+    sub: '5 minutes',
+    desc: 'Fill out the form below. Pick a date that suits you — weekdays or weekends. Our team confirms within a few hours.',
+  },
+  {
+    num: '02',
+    icon: <MapPin size={32} />,
+    title: 'We Come to You',
+    sub: 'At your home or office',
+    desc: 'A trained BYOND artisan visits with a full swatch library, sample shoes in every major style, and all necessary tools.',
+  },
+  {
+    num: '03',
+    icon: <Ruler size={32} />,
+    title: 'Design & Measure',
+    sub: '60–90 minutes',
+    desc: 'We take 12 precise measurements of each foot. You select leather, lining, sole, colour, and every detail — guided by our expert.',
+  },
+  {
+    num: '04',
+    icon: <Package2 size={32} />,
+    title: 'Handcrafted & Delivered',
+    sub: '15–20 working days',
+    desc: 'Master cobblers handcraft your pair in our Jaipur atelier. Shipped free in the signature BYOND box, directly to your door.',
+  },
+];
 
 export default function BespokePage() {
   const { isAuthenticated } = useAuth();
@@ -62,25 +117,59 @@ export default function BespokePage() {
 
   return (
     <div className="bespoke-standalone" data-testid="bespoke-page">
-      {/* Hero Banner */}
-      <div className="bespoke-hero">
-        <div className="bespoke-hero-overlay" />
-        <div className="bespoke-hero-content">
-          <div className="bespoke-hero-breadcrumbs">
+
+      {/* ── CINEMATIC HERO ──────────────────────────────────── */}
+      <section className="bespoke-hero-v2">
+        <div className="bespoke-hero-v2-bg">
+          <img
+            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1600&q=85&fit=crop"
+            alt="BYOND Bespoke"
+          />
+          <div className="bespoke-hero-v2-overlay" />
+        </div>
+        <div className="bespoke-hero-v2-content">
+          <div className="breadcrumbs bespoke-breadcrumbs">
             <Link href="/">Home</Link>
             <ChevronRight size={14} />
             <span>Bespoke Experience</span>
           </div>
-          <div className="bespoke-hero-label">THE BESPOKE EXPERIENCE</div>
-          <h1 className="bespoke-hero-title">Your Shoes,<br />Crafted At Your<br />Doorstep</h1>
-          <p className="bespoke-hero-sub">
-            No showroom. No compromise. Our master artisan visits you personally — 
-            with swatches, samples, and decades of craftsmanship.
+          <div className="section-label" style={{ color: 'var(--accent)', marginBottom: '20px' }}>THE BESPOKE EXPERIENCE</div>
+          <h1 className="bespoke-hero-v2-title">
+            Your Shoes,<br />
+            <em>Crafted at Your</em><br />
+            Doorstep
+          </h1>
+          <p className="bespoke-hero-v2-sub">
+            No showroom. No compromise. Our master artisan visits you personally —
+            with swatches, samples, and decades of craftsmanship in hand.
           </p>
+          <div className="bespoke-hero-v2-actions">
+            <a href="#bespoke-form" className="btn-hero-primary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+              Schedule My Visit <ArrowRight size={15} />
+            </a>
+            <Link href="/size-guide" className="btn-hero-ghost" style={{ textDecoration: 'none' }}>
+              <Ruler size={14} /> Size Guide
+            </Link>
+          </div>
         </div>
-      </div>
+        {/* Floating stat cards */}
+        <div className="bespoke-hero-v2-stats">
+          <div className="bespoke-stat-card">
+            <div className="bespoke-stat-num">500+</div>
+            <div className="bespoke-stat-label">Bespoke pairs crafted</div>
+          </div>
+          <div className="bespoke-stat-card">
+            <div className="bespoke-stat-num">15–20</div>
+            <div className="bespoke-stat-label">Days to delivery</div>
+          </div>
+          <div className="bespoke-stat-card">
+            <div className="bespoke-stat-num">12</div>
+            <div className="bespoke-stat-label">Precise measurements</div>
+          </div>
+        </div>
+      </section>
 
-      {/* Trust Bar */}
+      {/* ── TRUST BAR ───────────────────────────────────────── */}
       <div className="bespoke-trust-bar">
         <div className="bespoke-trust-item">
           <Sparkles size={20} />
@@ -100,48 +189,111 @@ export default function BespokePage() {
         </div>
       </div>
 
-      {/* How It Works */}
-      <div className="bespoke-how-it-works">
+      {/* ── PROCESS STEPS ───────────────────────────────────── */}
+      <section className="bespoke-how-it-works">
         <div className="bespoke-section-label">HOW IT WORKS</div>
-        <h2 className="bespoke-section-title">Four Simple Steps to Your Dream Pair</h2>
-        <div className="bespoke-steps-grid">
-          <div className="bespoke-step-card">
-            <div className="bespoke-step-number">01</div>
-            <div className="bespoke-step-icon"><CalendarDays size={28} /></div>
-            <h3>Schedule</h3>
-            <p>Pick a convenient date and share your address. Our team confirms within a few hours.</p>
+        <h2 className="bespoke-section-title">Four Steps to Your Dream Pair</h2>
+        <p style={{ textAlign: 'center', color: 'var(--mid-grey)', maxWidth: '520px', margin: '0 auto 56px', fontSize: '0.88rem', lineHeight: '1.85' }}>
+          From scheduling to delivery — a seamless, unhurried experience designed around you.
+        </p>
+        <div className="bespoke-steps-v2-grid">
+          {PROCESS_STEPS.map((step, i) => (
+            <div key={i} className="bespoke-step-v2-card">
+              <div className="bespoke-step-v2-number">{step.num}</div>
+              <div className="bespoke-step-v2-icon">{step.icon}</div>
+              <h3 className="bespoke-step-v2-title">{step.title}</h3>
+              <div className="bespoke-step-v2-sub">{step.sub}</div>
+              <p className="bespoke-step-v2-desc">{step.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── MATERIALS STRIP ─────────────────────────────────── */}
+      <section className="bespoke-materials-strip">
+        <div className="bespoke-materials-inner">
+          <div className="bespoke-materials-content">
+            <div className="bespoke-section-label" style={{ textAlign: 'left', color: 'var(--accent)' }}>OUR LEATHERS</div>
+            <h2 className="bespoke-section-title" style={{ textAlign: 'left', color: 'var(--white)' }}>Sourced from the World&apos;s Finest Tanneries</h2>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', lineHeight: '1.85', marginBottom: '32px', maxWidth: '440px' }}>
+              From Italian full-grain calf to rare shell cordovan — our artisan brings
+              over 40 leather swatches, so you can feel every option before you decide.
+            </p>
+            <div className="bespoke-materials-tags">
+              {materialOptions.map(m => (
+                <span key={m} className="bespoke-material-tag">{m}</span>
+              ))}
+            </div>
           </div>
-          <div className="bespoke-step-card">
-            <div className="bespoke-step-number">02</div>
-            <div className="bespoke-step-icon"><MapPin size={28} /></div>
-            <h3>Visit</h3>
-            <p>A trained artisan visits you with material swatches, sample shoes, and the complete style catalogue.</p>
-          </div>
-          <div className="bespoke-step-card">
-            <div className="bespoke-step-number">03</div>
-            <div className="bespoke-step-icon"><Ruler size={28} /></div>
-            <h3>Measure &amp; Order</h3>
-            <p>We take precise foot measurements, finalise design details, and lock the order — all offline.</p>
-          </div>
-          <div className="bespoke-step-card">
-            <div className="bespoke-step-number">04</div>
-            <div className="bespoke-step-icon"><Package2 size={28} /></div>
-            <h3>Handcrafted &amp; Delivered</h3>
-            <p>Master cobblers handcraft your pair in 15–20 days. Shipped free, in the signature BYOND box.</p>
+          <div className="bespoke-materials-img">
+            <img
+              src="https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=700&q=85&fit=crop"
+              alt="Leather swatches"
+            />
+            <div className="bespoke-materials-badge">
+              <Shield size={16} fill="currentColor" />
+              <span>100% Genuine Leather</span>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Form Section */}
+      {/* ── TESTIMONIALS ────────────────────────────────────── */}
+      <section className="bespoke-testimonials">
+        <div className="bespoke-section-label">CLIENT STORIES</div>
+        <h2 className="bespoke-section-title">What Our Bespoke Clients Say</h2>
+        <div className="bespoke-testimonials-grid">
+          {TESTIMONIALS.map((t, i) => (
+            <div key={i} className="bespoke-testimonial-card">
+              <Quote size={28} className="bespoke-quote-icon" />
+              <p className="bespoke-testimonial-text">{t.text}</p>
+              <div className="bespoke-testimonial-footer">
+                <div className="bespoke-testimonial-stars">
+                  {[1,2,3,4,5].map(s => (
+                    <Star key={s} size={12} fill="#C9A84C" color="#C9A84C" />
+                  ))}
+                </div>
+                <div className="bespoke-testimonial-author">
+                  <strong>{t.name}</strong>
+                  <span>{t.city}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── FORM SECTION ────────────────────────────────────── */}
       <div className="bespoke-form-section" id="bespoke-form">
         <div className="bespoke-form-wrapper">
+
+          {/* Left column — context */}
           <div className="bespoke-form-left">
-            <div className="bespoke-section-label">SCHEDULE A VISIT</div>
-            <h2 className="bespoke-section-title" style={{ textAlign: 'left' }}>Ready to Begin<br />Your Journey?</h2>
+            <div className="bespoke-section-label" style={{ textAlign: 'left' }}>SCHEDULE A VISIT</div>
+            <h2 className="bespoke-section-title" style={{ textAlign: 'left' }}>
+              Ready to Begin<br />Your Journey?
+            </h2>
             <p className="bespoke-form-intro">
-              Fill out the form and our team will reach out within 24 hours to confirm your visit. 
-              No obligations — just the first step towards your perfect pair.
+              Fill out the form and our team will reach out within 24 hours to confirm
+              your visit. No obligations — just the first step towards your perfect pair.
             </p>
+
+            {/* What to expect */}
+            <div className="bespoke-expect-list">
+              {[
+                'Our artisan arrives with 40+ leather swatches',
+                'All major shoe styles available to try on',
+                '12 precise foot measurements taken',
+                'Full design customisation in one visit',
+                'No payment collected until your order is confirmed',
+              ].map((item, i) => (
+                <div key={i} className="bespoke-expect-item">
+                  <span className="bespoke-expect-tick">✓</span>
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+
             <div className="bespoke-form-contact">
               <div className="bespoke-contact-item">
                 <Phone size={18} />
@@ -160,6 +312,7 @@ export default function BespokePage() {
             </div>
           </div>
 
+          {/* Right column — form card */}
           <div className="bespoke-form-right">
             {submitted ? (
               <div className="bespoke-success-card" data-testid="visit-success">
@@ -170,7 +323,9 @@ export default function BespokePage() {
                   <div className="bespoke-success-signup">
                     <h4>Track Your Visit</h4>
                     <p>Sign up to easily track this visit from your account dashboard.</p>
-                    <Link href="/login" className="bespoke-btn-signup" data-testid="visit-signup-prompt">Sign Up / Log In</Link>
+                    <Link href="/login" className="bespoke-btn-signup" data-testid="visit-signup-prompt">
+                      Sign Up / Log In
+                    </Link>
                   </div>
                 )}
                 <button type="button" className="bespoke-btn-another" onClick={() => setSubmitted(false)} data-testid="visit-schedule-another">
@@ -178,8 +333,11 @@ export default function BespokePage() {
                 </button>
               </div>
             ) : (
-              <form className="bespoke-form-card" onSubmit={handleSubmit} data-testid="schedule-visit-form">
-                <h3 className="bespoke-form-card-title">Schedule Your Visit</h3>
+              <form className="bespoke-form-card bespoke-form-card-v2" onSubmit={handleSubmit} data-testid="schedule-visit-form">
+                <div className="bespoke-form-card-header">
+                  <h3 className="bespoke-form-card-title">Schedule Your Visit</h3>
+                  <p style={{ color: 'var(--mid-grey)', fontSize: '0.82rem', margin: 0 }}>All fields marked * are required</p>
+                </div>
 
                 <div className="bespoke-form-row">
                   <div className="bespoke-field">
@@ -265,20 +423,26 @@ export default function BespokePage() {
 
                 <div className="bespoke-field">
                   <label>Notes (optional)</label>
-                  <textarea rows="3" placeholder="Preferred time, special requirements..."
+                  <textarea rows="3" placeholder="Preferred time of day, special requirements, occasion..."
                     value={formData.notes} onChange={(e) => handleChange('notes', e.target.value)} data-testid="visit-notes" />
                 </div>
 
                 {error && <div className="bespoke-error" data-testid="visit-error">{error}</div>}
 
                 <button type="submit" className="bespoke-submit-btn" disabled={submitting} data-testid="visit-submit-btn">
-                  {submitting ? 'Scheduling…' : 'Schedule My Visit'}
+                  {submitting ? 'Scheduling…' : 'Schedule My Visit →'}
                 </button>
+
+                <p className="bespoke-form-disclaimer">
+                  By submitting, you agree to be contacted by our team. Your data is never shared with third parties.
+                  View our <Link href="/privacy" style={{ color: 'var(--accent)' }}>Privacy Policy</Link>.
+                </p>
               </form>
             )}
           </div>
         </div>
       </div>
+
     </div>
   );
 }

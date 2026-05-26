@@ -56,9 +56,21 @@ const AdminCustomers = () => {
       arch_type: fp.arch_type || 'medium',
       uk_size: fp.uk_size || '',
       scan_source: fp.scan_source || 'manual',
-      notes: fp.notes || ''
+      notes: fp.notes || '',
+      heatmap_image: fp.heatmap_image || '',
+      arch_imprint_image: fp.arch_imprint_image || ''
     });
     setShowFitForm(true);
+  };
+
+  const handleImageUpload = (e, field) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFitForm(prev => ({ ...prev, [field]: reader.result }));
+    };
+    reader.readAsDataURL(file);
   };
 
   // Pagination
@@ -188,7 +200,42 @@ const AdminCustomers = () => {
                 <div className="af-field"><label>Scan Source</label><select value={fitForm.scan_source} onChange={e => setFitForm({...fitForm, scan_source: e.target.value})}><option value="manual">Manual</option><option value="lidar">LiDAR</option><option value="3d_scanner">3D Scanner</option></select></div>
               </div>
               <div className="af-field" style={{ marginTop: 16 }}><label>Notes</label><textarea value={fitForm.notes} onChange={e => setFitForm({...fitForm, notes: e.target.value})} rows="2" /></div>
-              <button className="admin-btn-primary" onClick={saveFitProfile} style={{ marginTop: 16 }}>Save Fit Profile</button>
+              
+              <div className="af-row" style={{ marginTop: 16 }}>
+                <div className="af-field">
+                  <label>Foot Pressure Heatmap (Aramed Scan)</label>
+                  <input type="file" accept="image/*" onChange={e => handleImageUpload(e, 'heatmap_image')} style={{ display: 'none' }} id="heatmap-upload-input" />
+                  <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 6 }}>
+                    <label htmlFor="heatmap-upload-input" className="admin-btn-secondary" style={{ marginTop: 0, padding: '8px 12px', fontSize: '0.72rem', cursor: 'pointer' }}>
+                      Choose Scan File
+                    </label>
+                    {fitForm.heatmap_image ? (
+                      <div style={{ position: 'relative' }}>
+                        <img src={fitForm.heatmap_image} alt="Heatmap preview" style={{ width: 44, height: 44, borderRadius: 4, border: '1px solid #C9A84C', objectFit: 'cover' }} />
+                        <button type="button" onClick={() => setFitForm({...fitForm, heatmap_image: ''})} style={{ position: 'absolute', top: -6, right: -6, background: '#EF4444', color: '#fff', border: 'none', borderRadius: '50%', width: 14, height: 14, fontSize: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>&times;</button>
+                      </div>
+                    ) : <span style={{ fontSize: '0.68rem', color: '#a8a29e' }}>No scan file uploaded</span>}
+                  </div>
+                </div>
+
+                <div className="af-field">
+                  <label>Foam Box Side Arch Imprint</label>
+                  <input type="file" accept="image/*" onChange={e => handleImageUpload(e, 'arch_imprint_image')} style={{ display: 'none' }} id="arch-upload-input" />
+                  <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 6 }}>
+                    <label htmlFor="arch-upload-input" className="admin-btn-secondary" style={{ marginTop: 0, padding: '8px 12px', fontSize: '0.72rem', cursor: 'pointer' }}>
+                      Choose Imprint File
+                    </label>
+                    {fitForm.arch_imprint_image ? (
+                      <div style={{ position: 'relative' }}>
+                        <img src={fitForm.arch_imprint_image} alt="Imprint preview" style={{ width: 44, height: 44, borderRadius: 4, border: '1px solid #C9A84C', objectFit: 'cover' }} />
+                        <button type="button" onClick={() => setFitForm({...fitForm, arch_imprint_image: ''})} style={{ position: 'absolute', top: -6, right: -6, background: '#EF4444', color: '#fff', border: 'none', borderRadius: '50%', width: 14, height: 14, fontSize: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>&times;</button>
+                      </div>
+                    ) : <span style={{ fontSize: '0.68rem', color: '#a8a29e' }}>No imprint file uploaded</span>}
+                  </div>
+                </div>
+              </div>
+
+              <button className="admin-btn-primary" onClick={saveFitProfile} style={{ marginTop: 20 }}>Save Fit Profile</button>
             </div>
           </div>
         </div>

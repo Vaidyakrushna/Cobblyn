@@ -9,14 +9,18 @@ import { api } from '../api';
 const LuxeCollection = () => {
   const { isAuthenticated } = useAuth();
   
-  const handleAddToCart = async (e, item) => {
+  const handleInstantAddToCart = async (e, item, sz) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!isAuthenticated) { alert('Please login to add to cart'); return; }
     try {
-      await api.addToCart({ product_id: item.id, size: '9', color: 'Black', quantity: 1 });
+      const activeColor = item.colors && item.colors.length > 0 ? item.colors[0].name : 'Black';
+      await api.addToCart({ product_id: item.id, size: String(sz), color: activeColor, quantity: 1 });
       window.dispatchEvent(new Event('byond-cart-update'));
-      alert(`${item.name} added to cart!`);
-    } catch (err) { alert('Failed: ' + err.message); }
+      alert(`✨ Added ${item.name} (UK ${sz}) to cart!`);
+    } catch (err) { 
+      alert('Failed to add to cart: ' + err.message); 
+    }
   };
 
   const [products, setProducts] = useState([]);
@@ -106,21 +110,61 @@ const LuxeCollection = () => {
             key={product.id} 
             className="sig-card"
             data-testid={`luxe-card-${product.id}`}
+            style={{ position: 'relative', overflow: 'hidden' }}
           >
             <div className="sig-card-tag">{product.tag}</div>
-            <div className="sig-card-img">
+            <div className="sig-card-img" style={{ position: 'relative' }}>
               <Link href={`/${product.gender || 'women'}/product/${product.id}`}>
                 <Image src={product.image} alt={product.name} fill sizes="(max-width: 768px) 100vw, 25vw" style={{ objectFit: 'cover', cursor: 'pointer' }} />
               </Link>
+              
+              {/* Pierre Cardin Sizing Quick Add Hover Overlay */}
+              <div className="sig-hover-overlay" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(10, 10, 10, 0.88)' }}>
+                <span className="size-label" style={{ color: '#fff', fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', marginBottom: '8px' }}>QUICK ADD SIZE (UK)</span>
+                <div className="size-options" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                  {sizes.map((sz) => (
+                    <button
+                      key={sz}
+                      onClick={(e) => handleInstantAddToCart(e, product, sz)}
+                      className="size-opt"
+                      style={{
+                        width: '34px',
+                        height: '34px',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        border: '1px solid rgba(255, 255, 255, 0.4)',
+                        background: 'transparent',
+                        color: '#fff',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}
+                      onMouseEnter={(el) => {
+                        el.target.style.borderColor = '#C9A84C';
+                        el.target.style.color = '#C9A84C';
+                      }}
+                      onMouseLeave={(el) => {
+                        el.target.style.borderColor = 'rgba(255, 255, 255, 0.4)';
+                        el.target.style.color = '#fff';
+                      }}
+                    >
+                      {sz}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
             <div className="sig-card-info">
               <h3 className="sig-card-name">{product.name}</h3>
               <p className="sig-card-material">{product.material}</p>
               <div className="sig-card-bottom" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span className="sig-card-price">{product.price}</span>
-                <button className="sig-btn-cart" onClick={(e) => handleAddToCart(e, product)} style={{ background: 'var(--black)', color: 'white', border: 'none', padding: '6px', borderRadius: '50%', cursor: 'pointer', display: 'flex' }} title="Add to Cart">
+                <Link href={`/${product.gender || 'women'}/product/${product.id}`} className="sig-btn-cart" style={{ background: 'var(--black)', color: 'white', border: 'none', padding: '6px', borderRadius: '50%', cursor: 'pointer', display: 'flex' }} title="View Product Details">
                   <ShoppingCart size={14} />
-                </button>
+                </Link>
               </div>
             </div>
           </div>

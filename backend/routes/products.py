@@ -102,6 +102,15 @@ async def get_product(product_id: str):
         doc = await db.products.find_one({"numericId": int(product_id)})
     if not doc:
         raise HTTPException(status_code=404, detail="Product not found")
+        
+    # Coalesce and merge real-time inventory size stock
+    inv = await db.inventory.find_one({"product_id": doc["_id"]})
+    if inv:
+        doc["size_stock"] = inv.get("size_stock", {})
+    else:
+        # Graceful fallback: seed standard stock levels for sizes if inventory record is missing
+        doc["size_stock"] = {str(s): 10 for s in doc.get("sizes", [])}
+        
     return serialize_product(doc)
 
 

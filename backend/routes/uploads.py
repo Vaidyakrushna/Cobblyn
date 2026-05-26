@@ -49,6 +49,15 @@ async def upload_image(request: Request, file: UploadFile = File(...)):
     if len(contents) == 0:
         raise HTTPException(status_code=400, detail="Empty file")
 
+    # Verify structural integrity of image file content using Pillow (PIL)
+    from PIL import Image
+    import io
+    try:
+        img = Image.open(io.BytesIO(contents))
+        img.verify()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid image content or corrupt file")
+
     new_name = f"{uuid.uuid4().hex}{suffix}"
     dest = UPLOAD_DIR / new_name
     dest.write_bytes(contents)

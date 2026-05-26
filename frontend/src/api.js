@@ -181,10 +181,18 @@ export const api = {
   getOrders: (params = '') => apiFetch(`/api/orders${params}`),
   getOrder: (id) => apiFetch(`/api/orders/${id}`),
   updateOrderStatus: (id, data) => apiFetch(`/api/orders/${id}/status`, { method: 'PUT', body: JSON.stringify(data) }),
+  directModifyOrder: (id, data) => apiFetch(`/api/orders/${id}/direct-modify`, { method: 'PUT', body: JSON.stringify(data) }),
+  proposeOrderModification: (id, data) => apiFetch(`/api/orders/${id}/propose-modification`, { method: 'POST', body: JSON.stringify(data) }),
+  approveOrderModification: (id) => apiFetch(`/api/orders/${id}/approve-modification`, { method: 'POST' }),
+  rejectOrderModification: (id) => apiFetch(`/api/orders/${id}/reject-modification`, { method: 'POST' }),
+  calculateOrderPrice: (id, data) => apiFetch(`/api/orders/${id}/calculate-price`, { method: 'POST', body: JSON.stringify(data) }),
+  recordOrderPayment: (id, data) => apiFetch(`/api/orders/${id}/record-payment`, { method: 'POST', body: JSON.stringify(data) }),
+  updateOrderOperational: (id, data) => apiFetch(`/api/orders/${id}/operational`, { method: 'PUT', body: JSON.stringify(data) }),
 
   // Customers (Admin)
   getCustomers: (params = '') => apiFetch(`/api/customers${params}`),
   getCustomer: (id) => apiFetch(`/api/customers/${id}`),
+  getFitProfile: (id) => apiFetch(`/api/customers/${id}/fit-profile`),
   updateFitProfile: (id, data) => apiFetch(`/api/customers/${id}/fit-profile`, { method: 'PUT', body: JSON.stringify(data) }),
 
   // Support Tickets
@@ -193,6 +201,10 @@ export const api = {
   adminGetTickets: (params = '') => apiFetch(`/api/customers/admin/tickets${params}`),
   adminReplyTicket: (id, data) => apiFetch(`/api/customers/admin/tickets/${id}/reply`, { method: 'POST', body: JSON.stringify(data) }),
   adminUpdateTicketStatus: (id, status) => apiFetch(`/api/customers/admin/tickets/${id}/status`, { method: 'PUT', body: JSON.stringify({ status }) }),
+  customerReplyTicket: (id, data) => apiFetch(`/api/customers/me/tickets/${id}/reply`, { method: 'POST', body: JSON.stringify(data) }),
+  createDraftModification: (ticketId, data) => apiFetch(`/api/customers/admin/tickets/${ticketId}/draft-modification`, { method: 'POST', body: JSON.stringify(data) }),
+  confirmDraftModification: (ticketId) => apiFetch(`/api/customers/me/tickets/${ticketId}/confirm-draft`, { method: 'POST' }),
+  rejectDraftModification: (ticketId) => apiFetch(`/api/customers/me/tickets/${ticketId}/reject-draft`, { method: 'POST' }),
 
   // Account (Customer Dashboard)
   getProfile: () => apiFetch('/api/account/profile'),
@@ -237,6 +249,24 @@ export const api = {
   listVisits: (params = '') => apiFetch(`/api/visits${params}`),
   updateVisitStatus: (id, status) => apiFetch(`/api/visits/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
   deleteVisit: (id) => apiFetch(`/api/visits/${id}`, { method: 'DELETE' }),
+
+  // Accessories (Admin + Storefront)
+  getAccessories: (params = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    return apiFetch(`/api/accessories${qs ? '?' + qs : ''}`);
+  },
+  getAccessory: (id) => apiFetch(`/api/accessories/${id}`),
+  createAccessory: (data) => apiFetch('/api/accessories', { method: 'POST', body: JSON.stringify(data) }),
+  updateAccessory: (id, data) => apiFetch(`/api/accessories/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteAccessory: (id) => apiFetch(`/api/accessories/${id}`, { method: 'DELETE' }),
+  bulkUploadAccessories: async (file) => {
+    const fd = new FormData(); fd.append('file', file);
+    const token = localStorage.getItem('byond_token');
+    const res = await fetch(`${API_BASE}/api/accessories/bulk/upload`, { method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {}, body: fd });
+    if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || 'Upload failed'); }
+    return res.json();
+  },
+  getAuditLogs: (params = '') => apiFetch(`/api/admin/audit-logs${params}`),
 };
 
 export default api;

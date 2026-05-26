@@ -52,7 +52,9 @@ async def get_dashboard_stats(request: Request, period: Optional[str] = None, va
         except (ValueError, TypeError):
             order_date_filter = {}
 
-    total_products = await db.products.count_documents({})
+    total_shoes = await db.products.count_documents({})
+    total_accessories = await db.accessories.count_documents({})
+    total_products = total_shoes + total_accessories
     total_users = await db.users.count_documents({"role": "user"})
     total_orders = await db.orders.count_documents(order_date_filter)
     pending_orders = await db.orders.count_documents({**order_date_filter, "status": {"$in": ["pending", "confirmed"]}})

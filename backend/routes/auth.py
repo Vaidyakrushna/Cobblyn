@@ -1,17 +1,20 @@
 from fastapi import APIRouter, HTTPException, Request, Response, BackgroundTasks
-from pydantic import BaseModel, EmailStr
-from datetime import datetime, timezone
+from pydantic import BaseModel, EmailStr, field_validator
+from datetime import datetime, timezone, timedelta
 from bson import ObjectId
 import secrets
 import logging
+import html
 
 from auth_utils import (
     hash_password, verify_password,
     create_access_token, create_refresh_token,
-    set_auth_cookies, get_current_user, get_jwt_secret, JWT_ALGORITHM
+    set_auth_cookies, get_current_user, get_jwt_secret, JWT_ALGORITHM,
+    validate_password_strength
 )
 import jwt
 from email_utils import send_verification_email, send_password_reset_email
+from rate_limiter import limiter
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +34,12 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
 
+    @field_validator("password")
+    @classmethod
+    def check_password_strength(cls, v: str) -> str:
+        validate_password_strength(v)
+        return v
+
 
 class LoginRequest(BaseModel):
     email: EmailStr
@@ -44,6 +53,13 @@ class ForgotPasswordRequest(BaseModel):
 class ResetPasswordRequest(BaseModel):
     token: str
     new_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def check_password_strength(cls, v: str) -> str:
+        validate_password_strength(v)
+        return v
+
 
 
 def user_response(user: dict) -> dict:
@@ -82,6 +98,7 @@ async def record_failed_attempt(identifier: str):
 
 
 @router.post("/register")
+@limiter.limit("5/minute")
 async def register(req: RegisterRequest, request: Request, response: Response, background_tasks: BackgroundTasks):
     # Rate limit: 5 registration attempts per IP per hour
     client_ip = request.client.host if request.client else "unknown"
@@ -104,7 +121,7 @@ async def register(req: RegisterRequest, request: Request, response: Response, b
 
     hashed = hash_password(req.password)
     user_doc = {
-        "name": req.name.strip(),
+        "name": html.escape(req.name.strip()),
         "email": email,
         "password_hash": hashed,
         "role": "user",
@@ -129,6 +146,7 @@ async def register(req: RegisterRequest, request: Request, response: Response, b
 
 
 @router.post("/login")
+@limiter.limit("5/minute")
 async def login(req: LoginRequest, request: Request, response: Response):
     email = req.email.lower().strip()
     client_ip = request.client.host if request.client else "unknown"
@@ -147,7 +165,7 @@ async def login(req: LoginRequest, request: Request, response: Response):
     await db.login_attempts.delete_one({"identifier": identifier})
 
     user_id = str(user["_id"])
-    access_token = create_access_token(user_id, email)
+    access_token = create_access_token(user_id, email, role=user.get("role", "user"))
     refresh_token = create_refresh_token(user_id)
     set_auth_cookies(response, access_token, refresh_token)
 
@@ -155,7 +173,44 @@ async def login(req: LoginRequest, request: Request, response: Response):
 
 
 @router.post("/logout")
-async def logout(response: Response):
+async def logout(request: Request, response: Response):
+    access_token = request.cookies.get("access_token")
+    refresh_token = request.cookies.get("refresh_token")
+
+    # Blacklist access token
+    if access_token:
+        try:
+            payload = jwt.decode(access_token, get_jwt_secret(), algorithms=[JWT_ALGORITHM])
+            jti = payload.get("jti")
+            exp = payload.get("exp")
+            if jti:
+                expires_at = datetime.fromtimestamp(exp, tz=timezone.utc) if exp else datetime.now(timezone.utc) + timedelta(minutes=15)
+                await db.blacklisted_tokens.insert_one({
+                    "jti": jti,
+                    "expires_at": expires_at,
+                    "type": "access",
+                    "created_at": datetime.now(timezone.utc)
+                })
+        except Exception:
+            pass
+
+    # Blacklist refresh token
+    if refresh_token:
+        try:
+            payload = jwt.decode(refresh_token, get_jwt_secret(), algorithms=[JWT_ALGORITHM])
+            jti = payload.get("jti")
+            exp = payload.get("exp")
+            if jti:
+                expires_at = datetime.fromtimestamp(exp, tz=timezone.utc) if exp else datetime.now(timezone.utc) + timedelta(days=7)
+                await db.blacklisted_tokens.insert_one({
+                    "jti": jti,
+                    "expires_at": expires_at,
+                    "type": "refresh",
+                    "created_at": datetime.now(timezone.utc)
+                })
+        except Exception:
+            pass
+
     response.delete_cookie("access_token", path="/")
     response.delete_cookie("refresh_token", path="/")
     return {"message": "Logged out"}
@@ -180,19 +235,10 @@ async def refresh_token(request: Request, response: Response):
         if not user:
             raise HTTPException(status_code=401, detail="User not found")
         user_id = str(user["_id"])
-        new_access = create_access_token(user_id, user["email"])
+        new_access = create_access_token(user_id, user["email"], role=user.get("role", "user"))
         new_refresh = create_refresh_token(user_id)
         
-        response.set_cookie(
-            key="access_token", value=new_access,
-            httponly=True, secure=False, samesite="lax",
-            max_age=900, path="/"
-        )
-        response.set_cookie(
-            key="refresh_token", value=new_refresh,
-            httponly=True, secure=False, samesite="lax",
-            max_age=7*24*3600, path="/"
-        )
+        set_auth_cookies(response, new_access, new_refresh)
         return {"message": "Token refreshed"}
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Refresh token expired")
@@ -247,7 +293,8 @@ async def resend_verification(req: ResendVerificationRequest, background_tasks: 
 
 
 @router.post("/forgot-password")
-async def forgot_password(req: ForgotPasswordRequest, background_tasks: BackgroundTasks):
+@limiter.limit("5/minute")
+async def forgot_password(req: ForgotPasswordRequest, request: Request, background_tasks: BackgroundTasks):
     email = req.email.lower().strip()
     user = await db.users.find_one({"email": email})
     if not user:
@@ -269,7 +316,8 @@ async def forgot_password(req: ForgotPasswordRequest, background_tasks: Backgrou
 
 
 @router.post("/reset-password")
-async def reset_password(req: ResetPasswordRequest):
+@limiter.limit("5/minute")
+async def reset_password(req: ResetPasswordRequest, request: Request):
     record = await db.password_reset_tokens.find_one({"token": req.token, "used": False})
     if not record:
         raise HTTPException(status_code=400, detail="Invalid or expired reset token")
@@ -277,6 +325,10 @@ async def reset_password(req: ResetPasswordRequest):
         raise HTTPException(status_code=400, detail="Reset token expired")
 
     new_hash = hash_password(req.new_password)
-    await db.users.update_one({"_id": record["user_id"]}, {"$set": {"password_hash": new_hash}})
+    now_iso = datetime.now(timezone.utc).isoformat()
+    await db.users.update_one(
+        {"_id": record["user_id"]},
+        {"$set": {"password_hash": new_hash, "password_changed_at": now_iso}}
+    )
     await db.password_reset_tokens.update_one({"token": req.token}, {"$set": {"used": True}})
     return {"message": "Password reset successfully"}

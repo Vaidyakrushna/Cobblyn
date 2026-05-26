@@ -7,6 +7,7 @@ import { AuthProvider } from '../src/context/AuthContext';
 import TopBar from '../src/components/TopBar';
 import Navigation from '../src/components/Navigation';
 import Footer from '../src/components/Footer';
+import ConciergeWidget from '../src/components/ConciergeWidget';
 
 export const metadata = {
   title: 'BYOND | Luxury Handcrafted Footwear',
@@ -35,6 +36,7 @@ export default function RootLayout({ children }) {
             <Navigation />
             {children}
             <Footer />
+            <ConciergeWidget />
           </AuthProvider>
         </div>
       </body>

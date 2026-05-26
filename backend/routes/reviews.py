@@ -85,13 +85,15 @@ async def create_review(product_id: str, payload: ReviewCreate, request: Request
     if existing:
         raise HTTPException(400, "You have already reviewed this product")
     verified = await _has_purchased(user_id, product_id)
+    
+    import html
     doc = {
         "product_id": product_id,
         "user_id": user_id,
-        "user_name": user.get("name", "Customer"),
+        "user_name": html.escape(user.get("name", "Customer")),
         "rating": payload.rating,
-        "title": payload.title.strip(),
-        "body": payload.body.strip(),
+        "title": html.escape(payload.title.strip()),
+        "body": html.escape(payload.body.strip()),
         "verified_purchase": verified,
         "created_at": datetime.now(timezone.utc).isoformat(),
     }

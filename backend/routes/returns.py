@@ -68,9 +68,11 @@ async def create_return(payload: ReturnCreate, request: Request):
     if not has_item:
         raise HTTPException(400, "Product not found in this order")
 
+    import html
     doc = payload.model_dump()
+    doc["reason"] = html.escape(doc.get("reason", "").strip())
     doc["user_id"] = user_id
-    doc["user_name"] = user.get("name", "Customer")
+    doc["user_name"] = html.escape(user.get("name", "Customer"))
     doc["status"] = "pending"
     doc["created_at"] = datetime.now(timezone.utc).isoformat()
     res = await db.returns.insert_one(doc)
@@ -103,7 +105,8 @@ async def update_return_status(return_id: str, payload: ReturnStatusUpdate, requ
         raise HTTPException(400, "Invalid return id")
     update = {"status": payload.status, "updated_at": datetime.now(timezone.utc).isoformat()}
     if payload.admin_notes is not None:
-        update["admin_notes"] = payload.admin_notes
+        import html
+        update["admin_notes"] = html.escape(payload.admin_notes.strip())
     if payload.refund_amount is not None:
         update["refund_amount"] = payload.refund_amount
     res = await db.returns.update_one({"_id": oid}, {"$set": update})

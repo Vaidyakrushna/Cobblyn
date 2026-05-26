@@ -36,6 +36,12 @@ from routes import bulk as bulk_routes
 from routes import admin_users as admin_user_routes
 from routes import wishlist_extra as wishlist_extra_routes
 from routes import categories as category_routes
+from routes import accessories as accessory_routes
+from routes import vendors as vendor_routes
+from routes import materials_planning as materials_planning_routes
+from routes import audit_logs as audit_log_routes
+from routes import jobs as jobs_routes
+from routes import assets as asset_routes
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -66,6 +72,13 @@ bulk_routes.set_db(db)
 admin_user_routes.set_db(db)
 wishlist_extra_routes.set_db(db)
 category_routes.set_db(db)
+accessory_routes.set_db(db)
+vendor_routes.set_db(db)
+materials_planning_routes.set_db(db)
+audit_log_routes.set_db(db)
+jobs_routes.set_db(db)
+asset_routes.set_db(db)
+
 
 app = FastAPI()
 
@@ -78,6 +91,23 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Custom Security Headers Middleware
+from fastapi import Request
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "img-src 'self' data: https:; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' https://fonts.gstatic.com;"
+    )
+    return response
+
 
 # Include routers
 app.include_router(auth_routes.router)
@@ -103,15 +133,22 @@ app.include_router(bulk_routes.router)
 app.include_router(admin_user_routes.router)
 app.include_router(wishlist_extra_routes.router)
 app.include_router(category_routes.router)
+app.include_router(accessory_routes.router)
+app.include_router(vendor_routes.router)
+app.include_router(materials_planning_routes.router)
+app.include_router(audit_log_routes.router)
+app.include_router(jobs_routes.router)
+app.include_router(asset_routes.router)
+
 
 # ---- Rate limiting (slowapi) ----
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from slowapi import _rate_limit_exceeded_handler
+from rate_limiter import limiter
 
-limiter = Limiter(key_func=get_remote_address, default_limits=["200/minute"])
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 
 # Serve uploaded images statically (admin uploads via /api/uploads/image)
 from pathlib import Path as _PathStatic
@@ -135,6 +172,10 @@ from seed import seed_all
 @app.on_event("startup")
 async def startup():
     await seed_all(db)
+    
+    # Start the asyncio background jobs queue worker thread
+    from jobs_queue import start_worker
+    start_worker()
 
     # Write test credentials
     creds_path = Path("/app/memory/test_credentials.md")

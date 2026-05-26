@@ -1,17 +1,19 @@
 "use client";
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
-import { User, MapPin, CreditCard, Lock, Package, FileText, ChevronRight, Plus, Trash2, Edit2, X, Check, Heart, CalendarCheck, Palette, ExternalLink, ShoppingBag, RefreshCw } from 'lucide-react';
+import { User, MapPin, CreditCard, Lock, Package, FileText, ChevronRight, Plus, Trash2, Edit2, X, Check, Heart, CalendarCheck, Palette, ExternalLink, ShoppingBag, RefreshCw, Activity, Sparkles, Layers, MessageSquare, HelpCircle, Send } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
 
 const TABS = [
   { id: 'profile', label: 'Profile', icon: User },
+  { id: 'fit_vault', label: 'Fit Vault', icon: Layers },
   { id: 'orders', label: 'My Orders', icon: Package },
   { id: 'wishlist', label: 'Wishlist', icon: Heart },
+  { id: 'saved_designs', label: 'Saved Designs', icon: Sparkles },
   { id: 'visits', label: 'Scheduled Visits', icon: CalendarCheck },
   { id: 'custom', label: 'Custom Orders', icon: Palette },
+  { id: 'support', label: 'Support & Help', icon: MessageSquare },
 ];
 
 const MyAccountPage = () => {
@@ -19,6 +21,17 @@ const MyAccountPage = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('profile');
   const [profileSection, setProfileSection] = useState('info'); // info, addresses, payments, password
+  const [supportOrderContext, setSupportOrderContext] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const active = localStorage.getItem('byond_active_tab');
+      if (active) {
+        setActiveTab(active);
+        localStorage.removeItem('byond_active_tab');
+      }
+    }
+  }, []);
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
@@ -55,10 +68,13 @@ const MyAccountPage = () => {
         </div>
         <div className="account-content">
           {activeTab === 'profile' && <ProfileTab section={profileSection} setSection={setProfileSection} />}
-          {activeTab === 'orders' && <OrdersTab />}
+          {activeTab === 'fit_vault' && <FitVaultTab setActiveTab={setActiveTab} />}
+          {activeTab === 'orders' && <OrdersTab setActiveTab={setActiveTab} setSupportOrderContext={setSupportOrderContext} />}
           {activeTab === 'wishlist' && <WishlistTab />}
+          {activeTab === 'saved_designs' && <SavedDesignsTab />}
           {activeTab === 'visits' && <VisitsTab />}
           {activeTab === 'custom' && <CustomOrdersTab />}
+          {activeTab === 'support' && <SupportTab supportOrderContext={supportOrderContext} setSupportOrderContext={setSupportOrderContext} />}
         </div>
       </div>
     </div>
@@ -394,7 +410,7 @@ const PasswordSection = () => {
 };
 
 // ===== Orders Tab =====
-const OrdersTab = () => {
+const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -421,7 +437,7 @@ const OrdersTab = () => {
   };
 
   const getStatusColor = (status) => {
-    const colors = { pending: '#f59e0b', confirmed: '#3b82f6', in_production: '#8b5cf6', quality_check: '#6366f1', shipped: '#06b6d4', delivered: '#10b981', cancelled: '#ef4444', returned: '#6b7280' };
+    const colors = { pending: '#f59e0b', confirmed: '#3b82f6', in_production: '#8b5cf6', quality_check: '#6366f1', shipped: '#06b6d4', delivered: '#10b981', cancelled: '#ef4444', returned: '#6b7280', waiting_for_payment: '#d97706' };
     return colors[status] || '#6b7280';
   };
 
@@ -437,30 +453,417 @@ const OrdersTab = () => {
               <h3>Order #{selectedOrder.order_number}</h3>
               <p className="order-date">{new Date(selectedOrder.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
             </div>
-            <div className="order-detail-actions">
+            <div className="order-detail-actions" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <span className="order-status-badge" style={{ backgroundColor: getStatusColor(selectedOrder.status) }}>{selectedOrder.status?.replace(/_/g, ' ')}</span>
-              <button className="account-btn-secondary" onClick={() => viewInvoice(selectedOrder.id)} data-testid="view-invoice-btn"><FileText size={14} /> Invoice</button>
+              <button className="account-btn-secondary" onClick={() => viewInvoice(selectedOrder.id)} data-testid="view-invoice-btn" style={{ margin: 0 }}><FileText size={14} /> Invoice</button>
+              <button className="account-btn-secondary" onClick={() => { setSupportOrderContext(selectedOrder); setActiveTab('support'); }} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}><MessageSquare size={14} /> Support</button>
             </div>
           </div>
 
-          {/* Order Timeline */}
-          {selectedOrder.status_history && selectedOrder.status_history.length > 0 && (
-            <div className="order-timeline" data-testid="order-timeline">
-              <h4>Order Tracking</h4>
-              <div className="timeline-track">
-                {selectedOrder.status_history.map((entry, idx) => (
-                  <div key={idx} className={`timeline-entry ${idx === selectedOrder.status_history.length - 1 ? 'current' : ''}`}>
-                    <div className="timeline-dot"><Check size={10} /></div>
-                    <div className="timeline-info">
-                      <span className="timeline-status">{entry.status?.replace(/_/g, ' ')}</span>
-                      <span className="timeline-time">{new Date(entry.timestamp).toLocaleString('en-IN')}</span>
-                      {entry.note && <span className="timeline-note">{entry.note}</span>}
+          {/* Horizontal Stepper and Map Integration */}
+          {(() => {
+            const orderStages = [
+              { name: 'pending', label: 'Placed' },
+              { name: 'confirmed', label: 'Confirmed' },
+              { name: 'in_production', label: 'In Production' },
+              { name: 'shipped', label: 'Dispatched' },
+              { name: 'delivered', label: 'Delivered' }
+            ];
+
+            const getActiveStageIndex = (status) => {
+              const mapping = {
+                'pending': 0,
+                'confirmed': 1,
+                'in_production': 2,
+                'quality_check': 2,
+                'shipped': 3,
+                'ready_to_ship': 3,
+                'delivered': 4
+              };
+              return mapping[status] ?? 0;
+            };
+
+            const activeIndex = getActiveStageIndex(selectedOrder.status);
+            
+            // Factory Coordinate Resolver
+            const factoryCity = selectedOrder.order_number % 2 === 0 ? 'Mumbai Atelier' : 'Jaipur Atelier';
+            const factoryCoords = selectedOrder.order_number % 2 === 0 ? [19.0760, 72.8777] : [26.9124, 75.7873];
+            
+            // Customer Coordinate Resolver
+            const customerCity = selectedOrder.shipping_address?.city || 'Mumbai';
+            const cityCoords = {
+              mumbai: [19.0760, 72.8777],
+              delhi: [28.6139, 77.2090],
+              'new delhi': [28.6139, 77.2090],
+              bangalore: [12.9716, 77.5946],
+              bengluru: [12.9716, 77.5946],
+              jaipur: [26.9124, 75.7873],
+              kolkata: [22.5726, 88.3639],
+              chennai: [13.0827, 80.2707],
+              hyderabad: [17.3850, 78.4867],
+              pune: [18.5204, 73.8567],
+              ahmedabad: [23.0225, 72.5714],
+              indore: [22.7196, 75.8577],
+              noida: [28.5355, 77.3910],
+              gurgaon: [28.4595, 77.0266],
+              gurugram: [28.4595, 77.0266],
+              chandigarh: [30.7333, 76.7794],
+              lucknow: [26.8467, 80.9462],
+              coimbatore: [11.0168, 76.9558],
+              kochi: [9.9312, 76.2673]
+            };
+
+            const getCustomerCoords = (cityName) => {
+              const clean = cityName.trim().toLowerCase();
+              if (cityCoords[clean]) return cityCoords[clean];
+              for (const k in cityCoords) {
+                if (clean.includes(k) || k.includes(clean)) return cityCoords[k];
+              }
+              // Fallback based on name hash
+              let hash = 0;
+              for (let i = 0; i < clean.length; i++) hash += clean.charCodeAt(i);
+              const lat = 15.0 + (hash % 12);
+              const lng = 73.0 + (hash % 12);
+              return [lat, lng];
+            };
+
+            const customerCoords = getCustomerCoords(customerCity);
+
+            // Compute a logistics transit sorting hub checkpoint if status is shipped or delivered
+            const transitCheckpoints = [];
+            if (activeIndex >= 3) {
+              const midLat = (factoryCoords[0] + customerCoords[0]) / 2 + 0.6;
+              const midLng = (factoryCoords[1] + customerCoords[1]) / 2 - 0.4;
+              transitCheckpoints.push({
+                name: 'Indore Central Logistics Sorting Hub',
+                lat: midLat,
+                lng: midLng
+              });
+            }
+
+            const isDelivered = selectedOrder.status === 'delivered';
+
+            return (
+              <div className="order-timeline-expanded" data-testid="order-timeline-expanded" style={{ marginTop: 24 }}>
+                <style>{`
+                  .stepper-container {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin: 20px 0 24px 0;
+                    position: relative;
+                  }
+                  .stepper-step {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    flex: 1;
+                    position: relative;
+                  }
+                  .stepper-circle {
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    background: #f4f4f5;
+                    border: 2px solid #e4e4e7;
+                    color: #71717a;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    transition: all 0.4s ease;
+                    z-index: 2;
+                  }
+                  .stepper-step.completed .stepper-circle {
+                    background: #C9A84C;
+                    border-color: #C9A84C;
+                    color: #fff;
+                  }
+                  .stepper-step.active .stepper-circle {
+                    background: #111;
+                    border-color: #C9A84C;
+                    color: #C9A84C;
+                    box-shadow: 0 0 12px rgba(201,168,76,0.4);
+                  }
+                  .stepper-label {
+                    font-size: 0.68rem;
+                    font-weight: 600;
+                    color: #a1a1aa;
+                    margin-top: 8px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.05em;
+                  }
+                  .stepper-step.active .stepper-label {
+                    color: #C9A84C;
+                  }
+                  .stepper-step.completed .stepper-label {
+                    color: #1c1917;
+                  }
+                  .stepper-bar-wrapper {
+                    position: absolute;
+                    top: 15px;
+                    left: calc(50% + 15px);
+                    width: calc(100% - 30px);
+                    height: 2px;
+                    background: #e4e4e7;
+                    z-index: 1;
+                  }
+                  .stepper-bar-progress {
+                    width: 0%;
+                    height: 100%;
+                    background: #C9A84C;
+                    transition: width 0.6s ease;
+                  }
+                  .stepper-bar-progress.completed {
+                    width: 100%;
+                  }
+                `}</style>
+
+                {/* Feature A: Atelier Craftsman Production Timeline */}
+                {(() => {
+                  // Fallback or custom stages resolver
+                  const currentProdStage = selectedOrder.current_production_stage || (
+                    selectedOrder.status === 'delivered' ? 'ready_to_ship' : (
+                      selectedOrder.status === 'shipped' ? 'ready_to_ship' : (
+                        selectedOrder.status === 'ready_to_ship' ? 'ready_to_ship' : (
+                          selectedOrder.status === 'quality_check' ? 'quality_check' : (
+                            selectedOrder.status === 'in_production' ? 'upper_assembly' : 'order_received'
+                          )
+                        )
+                      )
+                    )
+                  );
+
+                  const allStages = [
+                    { name: 'order_received', label: 'Order Received' },
+                    { name: 'pattern_cutting', label: 'Pattern Cutting' },
+                    { name: 'upper_assembly', label: 'Upper Assembly' },
+                    { name: 'sole_attachment', label: 'Sole Attachment' },
+                    { name: 'finishing', label: 'Finishing & Polishing' },
+                    { name: 'quality_check', label: 'Quality Check' },
+                    { name: 'ready_to_ship', label: 'Ready to Ship' }
+                  ];
+
+                  const getStageStatus = (stageName) => {
+                    if (selectedOrder.production_stages && selectedOrder.production_stages.length > 0) {
+                      const matched = selectedOrder.production_stages.find(s => s.name === stageName);
+                      return matched ? matched.status : 'pending';
+                    }
+                    // Simulate based on currentProdStage
+                    const indexMap = {
+                      'order_received': 0,
+                      'pattern_cutting': 1,
+                      'upper_assembly': 2,
+                      'sole_attachment': 3,
+                      'finishing': 4,
+                      'quality_check': 5,
+                      'ready_to_ship': 6
+                    };
+                    const currentIndex = indexMap[currentProdStage] ?? 0;
+                    const stageIndex = indexMap[stageName];
+                    if (stageIndex < currentIndex || selectedOrder.status === 'delivered' || selectedOrder.status === 'shipped') return 'completed';
+                    if (stageIndex === currentIndex) return 'active';
+                    return 'pending';
+                  };
+
+                  return (
+                    <div className="atelier-tracker-card glass-gilded" style={{ 
+                      padding: '24px 20px', 
+                      borderRadius: '12px', 
+                      border: '1px solid rgba(201, 168, 76, 0.3)', 
+                      background: 'rgba(255, 255, 255, 0.85)', 
+                      backdropFilter: 'blur(12px)',
+                      WebkitBackdropFilter: 'blur(12px)',
+                      margin: '24px 0', 
+                      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)' 
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                        <Sparkles size={16} color="#C9A84C" />
+                        <h4 style={{ margin: 0, fontFamily: 'Montserrat, sans-serif', fontSize: '0.85rem', color: '#1c1917', letterSpacing: '0.05em', textTransform: 'uppercase', fontWeight: 700 }}>
+                          Atelier Progress Tracker
+                        </h4>
+                      </div>
+                      <p style={{ margin: '0 0 20px 0', fontSize: '0.72rem', color: '#78716c', lineHeight: 1.4 }}>
+                        Your footwear is individually bench-made inside our workshops. Track the meticulous journey of your pair:
+                      </p>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '12px', position: 'relative' }}>
+                        {allStages.map((stage, idx) => {
+                          const status = getStageStatus(stage.name);
+                          const isCompleted = status === 'completed';
+                          const isActive = status === 'active';
+                          
+                          return (
+                            <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', position: 'relative' }}>
+                              <div style={{
+                                width: '30px',
+                                height: '30px',
+                                borderRadius: '50%',
+                                background: isCompleted ? '#C9A84C' : (isActive ? '#111' : '#f4f4f5'),
+                                border: isActive ? '2px solid #C9A84C' : '2px solid #e4e4e7',
+                                color: isCompleted ? '#fff' : (isActive ? '#C9A84C' : '#a1a1aa'),
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyItems: 'center',
+                                justifyContent: 'center',
+                                fontWeight: 700,
+                                fontSize: '0.7rem',
+                                boxShadow: isActive ? '0 0 10px rgba(201, 168, 76, 0.4)' : 'none',
+                                transition: 'all 0.3s ease',
+                                zIndex: 2
+                              }}>
+                                {isCompleted ? <Check size={12} strokeWidth={3} /> : (idx + 1)}
+                              </div>
+                              <div style={{ 
+                                fontSize: '0.62rem', 
+                                fontWeight: (isActive || isCompleted) ? 700 : 500, 
+                                color: isActive ? '#C9A84C' : (isCompleted ? '#1c1917' : '#78716c'), 
+                                marginTop: '8px', 
+                                textTransform: 'uppercase', 
+                                letterSpacing: '0.02em', 
+                                lineHeight: '1.2' 
+                              }}>
+                                {stage.label}
+                              </div>
+                              <div style={{ fontSize: '0.58rem', color: '#a1a1aa', marginTop: '2px' }}>
+                                {isCompleted ? 'Done' : (isActive ? 'Atelier Work' : 'Queued')}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
+                  );
+                })()}
+
+                <h4>Order Transit Status</h4>
+                
+                {/* Horizontal progress stepper */}
+                <div className="stepper-container">
+                  {orderStages.map((stage, idx) => {
+                    const isCompleted = idx < activeIndex;
+                    const isActive = idx === activeIndex;
+                    return (
+                      <div key={idx} className={`stepper-step ${isCompleted ? 'completed' : ''} ${isActive ? 'active' : ''}`}>
+                        <div className="stepper-circle">
+                          {isCompleted ? <Check size={14} /> : <span>{idx + 1}</span>}
+                        </div>
+                        <div className="stepper-label">{stage.label}</div>
+                        {idx < orderStages.length - 1 && (
+                          <div className="stepper-bar-wrapper">
+                            <div className={`stepper-bar-progress ${idx < activeIndex ? 'completed' : ''}`}></div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Map integration showing factory to customer tracking */}
+                <div className="transit-map-wrapper" style={{ marginTop: 20, marginBottom: 24, border: '1px solid #e7e5e4', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+                  <div style={{ background: '#fafaf9', padding: '10px 16px', borderBottom: '1px solid #e7e5e4', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <Activity size={14} color="#C9A84C" /> Live Transit Map Trace
+                    </span>
+                    <span style={{ fontSize: '0.68rem', color: '#a1a1aa', fontWeight: 500 }}>
+                      ATELIER SOURCE: {factoryCity.toUpperCase()}
+                    </span>
                   </div>
-                ))}
+                  <iframe
+                    title="Transit Route Trace Map"
+                    style={{ width: '100%', height: '340px', border: 'none', background: '#111' }}
+                    srcDoc={`
+                      <!DOCTYPE html>
+                      <html>
+                      <head>
+                        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+                        <style>
+                          body, html, #map { margin: 0; padding: 0; width: 100%; height: 100%; background: #111; }
+                          .leaflet-container { font-family: 'Montserrat', sans-serif; background: #111 !important; }
+                          .custom-popup .leaflet-popup-content-wrapper {
+                            background: #1c1c1e; color: #fff; border: 1px solid #C9A84C; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+                          }
+                          .custom-popup .leaflet-popup-tip { background: #1c1c1e; border: 1px solid #C9A84C; }
+                        </style>
+                      </head>
+                      <body>
+                        <div id="map"></div>
+                        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                        <script>
+                          const start = ${JSON.stringify(factoryCoords)};
+                          const end = ${JSON.stringify(customerCoords)};
+                          const transit = ${JSON.stringify(transitCheckpoints)};
+                          
+                          const map = L.map('map', { zoomControl: false }).setView(start, 5);
+                          
+                          L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                            attribution: '&copy; OpenStreetMap &copy; CARTO'
+                          }).addTo(map);
+                          
+                          const goldIcon = L.divIcon({
+                            className: 'custom-pin',
+                            html: '<div style="width: 14px; height: 14px; background: #C9A84C; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 10px #C9A84C;"></div>',
+                            iconSize: [14, 14],
+                            iconAnchor: [7, 7]
+                          });
+
+                          const activeIcon = L.divIcon({
+                            className: 'custom-pin-active',
+                            html: '<div style="width: 16px; height: 16px; background: #10B981; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 12px #10B981;"></div>',
+                            iconSize: [16, 16],
+                            iconAnchor: [8, 8]
+                          });
+
+                          // Add Factory
+                          L.marker(start, { icon: goldIcon }).addTo(map)
+                            .bindPopup('<strong>BYOND Luxury Atelier</strong><br/>${factoryCity}', { className: 'custom-popup' }).openPopup();
+
+                          // Add Destination
+                          L.marker(end, { icon: ${isDelivered ? 'activeIcon' : 'goldIcon'} }).addTo(map)
+                            .bindPopup('<strong>Customer Residence</strong><br/>${customerCity}', { className: 'custom-popup' });
+
+                          const points = [start];
+                          transit.forEach(cp => {
+                            L.marker([cp.lat, cp.lng], { icon: goldIcon }).addTo(map)
+                              .bindPopup('<strong>Shipping checkpoint</strong><br/>' + cp.name, { className: 'custom-popup' });
+                            points.push([cp.lat, cp.lng]);
+                          });
+                          points.push(end);
+
+                          // Gold dotted shipping line
+                          const polyline = L.polyline(points, {
+                            color: '#C9A84C',
+                            weight: 3,
+                            opacity: 0.85,
+                            dashArray: '6, 12'
+                          }).addTo(map);
+
+                          map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
+                        </script>
+                      </body>
+                      </html>
+                    `}
+                  />
+                </div>
+
+                {/* Original tracking checkpoint list details */}
+                <h4 style={{ marginTop: 24, marginBottom: 12 }}>Check-in Records</h4>
+                <div className="timeline-track" style={{ background: '#fafaf9', padding: '16px', borderRadius: '8px', border: '1px solid #e7e5e4' }}>
+                  {selectedOrder.status_history.map((entry, idx) => (
+                    <div key={idx} className={`timeline-entry ${idx === selectedOrder.status_history.length - 1 ? 'current' : ''}`}>
+                      <div className="timeline-dot"><Check size={10} /></div>
+                      <div className="timeline-info">
+                        <span className="timeline-status">{entry.status?.replace(/_/g, ' ')}</span>
+                        <span className="timeline-time">{new Date(entry.timestamp).toLocaleString('en-IN')}</span>
+                        {entry.note && <span className="timeline-note">{entry.note}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Order Items */}
           <div className="order-items-section">
@@ -469,7 +872,7 @@ const OrdersTab = () => {
               <div key={idx} className="order-item-row">
                 <div className="order-item-info">
                   <span className="order-item-name">{item.name || 'Product'}</span>
-                  <span className="order-item-meta">Size: {item.size} | Color: {item.color} | Qty: {item.quantity}</span>
+                  <span className="order-item-meta">Size: {item.size} | Color: {item.color}{item.material ? ` | Leather: ${item.material}` : ''}{item.sole ? ` | Sole: ${item.sole}` : ''} | Qty: {item.quantity}</span>
                 </div>
                 <span className="order-item-price">{'\u20B9'}{(item.price * item.quantity).toLocaleString('en-IN')}</span>
               </div>
@@ -519,9 +922,10 @@ const OrdersTab = () => {
                 </div>
                 <span className="order-card-total">{'\u20B9'}{order.total_amount?.toLocaleString('en-IN')}</span>
               </div>
-              <div className="order-card-actions">
+              <div className="order-card-actions" style={{ display: 'flex', gap: '8px' }}>
                 <button onClick={() => viewOrderDetail(order.id)} data-testid={`view-order-${order.id}`}>Track Order</button>
                 <button onClick={() => viewInvoice(order.id)} data-testid={`invoice-order-${order.id}`}><FileText size={14} /> Invoice</button>
+                <button onClick={() => { setSupportOrderContext(order); setActiveTab('support'); }} data-testid={`support-order-${order.id}`} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><MessageSquare size={14} /> Support</button>
               </div>
             </div>
           ))}
@@ -953,11 +1357,13 @@ const VisitsTab = () => {
 
 // ===== Custom Orders Tab =====
 const CustomOrdersTab = () => {
+  const { user } = useAuth();
   const [orders, setOrders] = useState([]);
+  const [savedDesigns, setSavedDesigns] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Custom orders are regular orders that have customization data
+    // 1. Fetch custom orders from API
     api.getMyOrders()
       .then(data => {
         const customOrders = (data.orders || []).filter(o =>
@@ -967,7 +1373,14 @@ const CustomOrdersTab = () => {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+
+    // 2. Fetch saved designs from localStorage
+    if (typeof window !== 'undefined' && user) {
+      const key = `byond_saved_designs_${user.email || 'global'}`;
+      const saved = JSON.parse(localStorage.getItem(key) || '[]');
+      setSavedDesigns(saved);
+    }
+  }, [user]);
 
   if (loading) return <div className="account-loading">Loading custom orders…</div>;
 
@@ -979,6 +1392,7 @@ const CustomOrdersTab = () => {
           <Plus size={14} /> Create New
         </a>
       </div>
+      
       {orders.length === 0 ? (
         <div className="account-empty-orders">
           <Palette size={48} strokeWidth={1} />
@@ -1014,6 +1428,1609 @@ const CustomOrdersTab = () => {
                   )}
                 </div>
               ))}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Saved Bespoke Designs Section */}
+      <div style={{ marginTop: '30px', borderTop: '1px solid #e7e5e4', paddingTop: '24px' }}>
+        <h4 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.85rem', color: '#1c1917', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Palette size={16} color="#C9A84C" /> My Saved Bespoke Designs
+        </h4>
+        
+        {savedDesigns.length === 0 ? (
+          <p style={{ fontSize: '0.78rem', color: '#78716c', fontStyle: 'italic' }}>No saved bespoke designs in your journal yet.</p>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+            {savedDesigns.map(design => (
+              <div key={design.id} className="order-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#C9A84C', letterSpacing: '0.05em' }}>{design.id}</span>
+                    <span style={{ fontSize: '0.62rem', color: '#78716c' }}>{design.date}</span>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <div style={{ width: '60px', height: '60px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #e7e5e4' }}>
+                      <img src={design.image} alt={design.submodel} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                    <div>
+                      <h5 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: '#1c1917' }}>{design.submodel}</h5>
+                      <p style={{ margin: '4px 0 0 0', fontSize: '0.68rem', color: '#78716c', lineHeight: 1.3 }}>
+                        {design.leather} · {design.color} · {design.sole}
+                        {design.monogram && ` · Monogram: [${design.monogram}]`}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div style={{ display: 'flex', gap: '8px', marginTop: '16px', paddingTop: '12px', borderTop: '1px dashed #e7e5e4' }}>
+                  <a 
+                    href={`/customize?gender=${design.gender}&model=${design.model}&submodel=${design.submodel}&leather=${design.leather}&color=${design.color}&sole=${design.sole}&monogram=${design.monogram}`}
+                    className="account-btn-primary" 
+                    style={{ textDecoration: 'none', margin: 0, padding: '6px 12px', fontSize: '0.68rem', flex: 1, textAlign: 'center' }}
+                  >
+                    Configure
+                  </a>
+                  <button 
+                    onClick={() => {
+                      const key = `byond_saved_designs_${user.email || 'global'}`;
+                      const filtered = savedDesigns.filter(d => d.id !== design.id);
+                      localStorage.setItem(key, JSON.stringify(filtered));
+                      setSavedDesigns(filtered);
+                    }}
+                    className="account-btn-secondary" 
+                    style={{ margin: 0, padding: '6px 12px', fontSize: '0.68rem', color: '#dc2626', borderColor: '#fca5a5' }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// ===== Fit Vault Tab (Bespoke Sizing Visualizer) =====
+const FitVaultTab = ({ setActiveTab }) => {
+  const { user } = useAuth();
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState('');
+  
+  // Custom preference forms
+  const [fitPref, setFitPref] = useState('regular');
+  const [lastPref, setLastPref] = useState('rounded');
+  const [podiatryNotes, setPodiatryNotes] = useState('');
+
+  // Default / Demo Profile if none exists
+  const demoProfile = {
+    foot_length_left: 274,
+    foot_length_right: 273,
+    foot_width_left: 98,
+    foot_width_right: 97,
+    foot_girth_left: 245,
+    foot_girth_right: 244,
+    arch_type: 'medium',
+    scan_date: new Date().toISOString(),
+    scan_source: 'Demo Atelier Scan',
+    uk_size: '9',
+    fit_preference: 'regular',
+    last_preference: 'rounded',
+    podiatry_notes: 'arch support'
+  };
+
+  useEffect(() => {
+    if (user?.id) {
+      api.getFitProfile(user.id)
+        .then(data => {
+          if (data && data.fit_profile) {
+            setProfile(data.fit_profile);
+            setFitPref(data.fit_profile.fit_preference || 'regular');
+            setLastPref(data.fit_profile.last_preference || 'rounded');
+            setPodiatryNotes(data.fit_profile.podiatry_notes || '');
+          }
+          setLoading(false);
+        })
+        .catch(() => {
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
+    }
+  }, [user]);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await api.updateFitProfile(user.id || '', {
+        fit_preference: fitPref,
+        last_preference: lastPref,
+        podiatry_notes: podiatryNotes
+      });
+      setMsg('Bespoke fit preferences updated successfully.');
+      setTimeout(() => setMsg(''), 3000);
+      // Reload profile
+      const data = await api.getFitProfile(user.id || '');
+      if (data && data.fit_profile) {
+        setProfile(data.fit_profile);
+      }
+    } catch (err) {
+      setMsg('Error saving preferences: ' + err.message);
+    }
+    setSaving(false);
+  };
+
+  if (loading) return <div className="account-loading">Loading Fit Vault...</div>;
+
+  const isDemo = !profile;
+  const activeProfile = profile || demoProfile;
+  const archType = activeProfile.arch_type || 'medium';
+  const lastTypeLabel = activeProfile.last_preference 
+    ? activeProfile.last_preference.charAt(0).toUpperCase() + activeProfile.last_preference.slice(1)
+    : 'Chiseled Last #12';
+
+  return (
+    <div className="account-panel fit-vault-panel" data-testid="fit-vault-panel">
+      {/* Luxury styles inside the component */}
+      <style>{`
+        .fit-vault-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 24px;
+          border-bottom: 1px solid #eaeaea;
+          padding-bottom: 16px;
+        }
+        .fit-vault-header h3 {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.5rem;
+          color: #1a1a1a;
+          margin: 0;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .fit-vault-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 24px;
+          margin-bottom: 24px;
+        }
+        @media(max-width: 768px) {
+          .fit-vault-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .visualizer-card {
+          background: #fafaf9;
+          border: 1px solid #e7e5e4;
+          border-radius: 12px;
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          position: relative;
+        }
+        .visualizer-card h4 {
+          align-self: flex-start;
+          margin: 0 0 16px 0;
+          font-family: 'Montserrat', sans-serif;
+          font-size: 0.9rem;
+          font-weight: 600;
+          letter-spacing: 0.05em;
+          color: #78716c;
+          text-transform: uppercase;
+        }
+        .foot-path {
+          transform-origin: center;
+          transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .foot-path.snug {
+          transform: scale(0.93) translate(0, 0);
+          stroke: #C9A84C;
+          fill: rgba(201, 168, 76, 0.08);
+        }
+        .foot-path.relaxed {
+          transform: scale(1.06) translate(0, 0);
+          stroke: #854d0e;
+          fill: rgba(133, 77, 14, 0.08);
+        }
+        .foot-path.regular {
+          stroke: #C9A84C;
+          fill: rgba(201, 168, 76, 0.04);
+        }
+        .visualizer-svg {
+          background: #111110;
+          border-radius: 8px;
+          border: 1px solid #292524;
+          box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+        .arch-path {
+          transition: all 0.6s ease;
+        }
+        .glowing-vertex {
+          animation: pulse-gold 2s infinite ease-in-out;
+          fill: #f59e0b;
+        }
+        @keyframes pulse-gold {
+          0% { r: 3px; opacity: 0.6; }
+          50% { r: 5.5px; opacity: 1; fill: #C9A84C; }
+          100% { r: 3px; opacity: 0.6; }
+        }
+        .atelier-banner {
+          background: rgba(201, 168, 76, 0.08);
+          border: 1px solid rgba(201, 168, 76, 0.3);
+          border-radius: 8px;
+          padding: 16px;
+          margin-bottom: 24px;
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+        .atelier-banner-content {
+          flex: 1;
+        }
+        .atelier-banner h5 {
+          margin: 0 0 4px 0;
+          font-size: 0.85rem;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          color: #854d0e;
+          text-transform: uppercase;
+        }
+        .atelier-banner p {
+          margin: 0;
+          font-size: 0.78rem;
+          color: #78716c;
+          line-height: 1.4;
+        }
+        .fit-metric-cards {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 16px;
+          margin-bottom: 24px;
+        }
+        .metric-mini-card {
+          background: #fff;
+          border: 1px solid #e7e5e4;
+          border-radius: 8px;
+          padding: 14px;
+          text-align: center;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+        .metric-mini-card span {
+          display: block;
+          font-size: 0.68rem;
+          color: #78716c;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          margin-bottom: 4px;
+        }
+        .metric-mini-card strong {
+          font-family: 'Montserrat', sans-serif;
+          font-size: 1.1rem;
+          color: #1c1917;
+        }
+        .fit-form-card {
+          background: #fff;
+          border: 1px solid #e7e5e4;
+          border-radius: 12px;
+          padding: 24px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+        .fit-form-card h4 {
+          font-family: 'Playfair Display', serif;
+          font-size: 1.15rem;
+          color: #1c1917;
+          margin: 0 0 16px 0;
+        }
+        @keyframes scannerSweep {
+          0% { top: 0%; }
+          50% { top: 100%; }
+          100% { top: 0%; }
+        }
+      `}</style>
+
+      <div className="fit-vault-header">
+        <h3><Sparkles size={20} color="#C9A84C" /> Bespoke Fit Vault</h3>
+        <span style={{ fontSize: '0.75rem', color: '#78716c', background: '#f4f4f5', padding: '4px 10px', borderRadius: 20, fontWeight: 500 }}>
+          Client Tier: {profile ? 'Elite Sizing' : 'Default Parameters'}
+        </span>
+      </div>
+
+      {isDemo && (
+        <div className="atelier-banner">
+          <Activity size={24} color="#C9A84C" style={{ flexShrink: 0 }} />
+          <div className="atelier-banner-content">
+            <h5>Demo Preview Mode</h5>
+            <p>You do not have a 3D LiDAR Podiatric scan on file. Displaying standard craft metrics. Book an atelier artisan session to lock in your custom footbed contour.</p>
+          </div>
+          <button className="account-btn-primary" onClick={() => setActiveTab('visits')} style={{ fontSize: '0.7rem', padding: '8px 14px', marginTop: 0 }}>
+            Book Sizing Visit
+          </button>
+        </div>
+      )}
+
+      {/* Sizing Visualization Panel */}
+      <div className="fit-vault-grid">
+        {/* Footprint SVG */}
+        <div className="visualizer-card">
+          <h4>Atelier Footprint Scan (UK Size {activeProfile.uk_size || '9'})</h4>
+          <svg className="visualizer-svg" width="100%" height="280" viewBox="0 0 360 300">
+            {/* Grid background */}
+            <defs>
+              <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+            
+            {/* Tech pack measurements text overlays */}
+            <text x="20" y="30" fill="rgba(255,255,255,0.4)" fontSize="9" fontFamily="monospace">SCAN: {activeProfile.scan_source || 'ATELIER 3D'}</text>
+            <text x="20" y="45" fill="rgba(255,255,255,0.4)" fontSize="9" fontFamily="monospace">ACCURACY: ±0.2mm</text>
+            
+            {/* Left Foot */}
+            <g>
+              <path 
+                d="M 110,250 C 75,230 70,160 76,120 C 80,80 94,60 106,55 C 112,52 120,55 124,65 C 130,85 128,125 132,165 C 136,205 130,235 110,250 Z"
+                className={`foot-path ${fitPref}`}
+                strokeWidth="1.5"
+              />
+              <ellipse cx="104" cy="35" rx="8" ry="10" fill="rgba(201, 168, 76, 0.4)" />
+              <ellipse cx="118" cy="38" rx="5.5" ry="7" fill="rgba(201, 168, 76, 0.3)" />
+              <ellipse cx="128" cy="45" rx="4.5" ry="6" fill="rgba(201, 168, 76, 0.25)" />
+              <ellipse cx="137" cy="54" rx="3.5" ry="5" fill="rgba(201, 168, 76, 0.2)" />
+              <ellipse cx="144" cy="65" rx="2.5" ry="4" fill="rgba(201, 168, 76, 0.15)" />
+              
+              {/* Width dimension line */}
+              <line x1="74" y1="120" x2="130" y2="120" stroke="rgba(255,255,255,0.25)" strokeDasharray="3,3" />
+              <text x="102" y="115" fill="#C9A84C" fontSize="8" textAnchor="middle" fontFamily="monospace">{activeProfile.foot_width_left || '98'}mm</text>
+              
+              {/* Length dimension line */}
+              <line x1="110" y1="250" x2="110" y2="35" stroke="rgba(255,255,255,0.25)" strokeDasharray="3,3" />
+              <text x="95" y="150" fill="#C9A84C" fontSize="8" textAnchor="end" fontFamily="monospace" transform="rotate(-90 95 150)">{activeProfile.foot_length_left || '274'}mm</text>
+              
+              {/* Glowing checkpoints */}
+              <circle cx="110" cy="250" r="3.5" className="glowing-vertex" />
+              <circle cx="104" cy="35" r="3.5" className="glowing-vertex" />
+            </g>
+
+            {/* Right Foot */}
+            <g>
+              <path 
+                d="M 250,250 C 285,230 290,160 284,120 C 280,80 266,60 254,55 C 248,52 240,55 236,65 C 230,85 232,125 228,165 C 224,205 230,235 250,250 Z"
+                className={`foot-path ${fitPref}`}
+                strokeWidth="1.5"
+              />
+              <ellipse cx="256" cy="35" rx="8" ry="10" fill="rgba(201, 168, 76, 0.4)" />
+              <ellipse cx="242" cy="38" rx="5.5" ry="7" fill="rgba(201, 168, 76, 0.3)" />
+              <ellipse cx="232" cy="45" rx="4.5" ry="6" fill="rgba(201, 168, 76, 0.25)" />
+              <ellipse cx="223" cy="54" rx="3.5" ry="5" fill="rgba(201, 168, 76, 0.2)" />
+              <ellipse cx="216" cy="65" rx="2.5" ry="4" fill="rgba(201, 168, 76, 0.15)" />
+              
+              {/* Width dimension line */}
+              <line x1="228" y1="120" x2="284" y2="120" stroke="rgba(255,255,255,0.25)" strokeDasharray="3,3" />
+              <text x="256" y="115" fill="#C9A84C" fontSize="8" textAnchor="middle" fontFamily="monospace">{activeProfile.foot_width_right || '97'}mm</text>
+              
+              {/* Length dimension line */}
+              <line x1="250" y1="250" x2="250" y2="35" stroke="rgba(255,255,255,0.25)" strokeDasharray="3,3" />
+              <text x="268" y="150" fill="#C9A84C" fontSize="8" textAnchor="start" fontFamily="monospace" transform="rotate(90 268 150)">{activeProfile.foot_length_right || '273'}mm</text>
+
+              <circle cx="250" cy="250" r="3.5" className="glowing-vertex" />
+              <circle cx="256" cy="35" r="3.5" className="glowing-vertex" />
+            </g>
+          </svg>
+        </div>
+
+        {/* Instep Elevation Curve */}
+        <div className="visualizer-card">
+          <h4>Instep & Arch Contour Profile</h4>
+          <svg className="visualizer-svg" width="100%" height="280" viewBox="0 0 320 200">
+            <rect width="100%" height="100%" fill="url(#grid)" />
+            
+            {/* Draw side-profile foot */}
+            <path 
+              d="M 30,160 C 50,160 55,145 60,110 C 65,70 85,45 110,45 C 130,45 155,75 185,115 C 215,140 255,145 285,160 Z" 
+              fill="rgba(255,255,255,0.02)" 
+              stroke="rgba(255,255,255,0.15)" 
+              strokeWidth="1.5" 
+            />
+            
+            {/* Draw active arch shape based on arch type */}
+            {archType === 'high' && (
+              <path 
+                d="M 60,160 C 95,110 185,110 220,160" 
+                fill="none" 
+                stroke="#C9A84C" 
+                strokeWidth="4" 
+                className="arch-path"
+                style={{ filter: 'drop-shadow(0 0 5px rgba(201,168,76,0.6))' }}
+              />
+            )}
+            {archType === 'medium' && (
+              <path 
+                d="M 60,160 C 95,135 185,135 220,160" 
+                fill="none" 
+                stroke="#D4A574" 
+                strokeWidth="3.5" 
+                className="arch-path" 
+              />
+            )}
+            {archType === 'low' && (
+              <path 
+                d="M 60,160 C 95,152 185,152 220,160" 
+                fill="none" 
+                stroke="#78716c" 
+                strokeWidth="3" 
+                className="arch-path" 
+              />
+            )}
+            
+            <line x1="30" y1="160" x2="285" y2="160" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
+            
+            <text x="140" y="180" fill="#C9A84C" fontSize="10" fontWeight="500" letterSpacing="0.05em" textAnchor="middle" fontFamily="sans-serif">
+              {archType.toUpperCase()} ARCH DETECTED
+            </text>
+
+            {/* Custom shoe inserts advisory */}
+            {activeProfile.podiatry_notes?.includes('arch support') && (
+              <g transform="translate(15, 15)">
+                <rect width="290" height="22" rx="4" fill="rgba(239, 68, 68, 0.08)" stroke="rgba(239, 68, 68, 0.2)" strokeWidth="1" />
+                <text x="145" y="14" fill="#ef4444" fontSize="8.5" textAnchor="middle" fontWeight="bold">
+                  ⚠️ ADVISORY: Custom orthotic arch inserts active for this last shape.
+                </text>
+              </g>
+            )}
+          </svg>
+        </div>
+      </div>
+
+      {/* Metrics Summary Cards */}
+      <div className="fit-metric-cards">
+        <div className="metric-mini-card">
+          <span>Assigned Last</span>
+          <strong>{lastTypeLabel}</strong>
+        </div>
+        <div className="metric-mini-card">
+          <span>Arch Parameter</span>
+          <strong>{archType.toUpperCase()}</strong>
+        </div>
+        <div className="metric-mini-card">
+          <span>Fit Profile Accuracy</span>
+          <strong>LiDAR ±0.2mm</strong>
+        </div>
+        <div className="metric-mini-card">
+          <span>Scan Date</span>
+          <strong>{new Date(activeProfile.scan_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</strong>
+        </div>
+      </div>
+
+      {/* Physical Imprints Scans Row */}
+      {(activeProfile.heatmap_image || activeProfile.arch_imprint_image) && (
+        <div className="fit-form-card" style={{ marginBottom: 24 }}>
+          <h4 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', color: '#1c1917', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Activity size={18} color="#C9A84C" /> Atelier Podiatric Physical Imprints
+          </h4>
+          <p style={{ fontSize: '0.78rem', color: '#78716c', margin: '0 0 20px 0', lineHeight: 1.5 }}>
+            Physical foot scans captured during your in-store or custom offline sizing visit. These high-resolution anatomical mappings calibrate our bespoke welting blocks.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+            {activeProfile.heatmap_image && (
+              <div style={{ background: '#fafaf9', border: '1px solid #e7e5e4', borderRadius: 12, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
+                  Aramed Footbed Pressure Heatmap
+                </span>
+                <div style={{ width: '100%', height: 200, background: '#111', borderRadius: 8, overflow: 'hidden', border: '1.5px solid #C9A84C', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                  <img src={activeProfile.heatmap_image} alt="Bespoke Heatmap Scan" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 2, background: 'rgba(201, 168, 76, 0.85)', boxShadow: '0 0 8px #C9A84C', animation: 'scannerSweep 4s infinite linear' }}></div>
+                </div>
+              </div>
+            )}
+            {activeProfile.arch_imprint_image && (
+              <div style={{ background: '#fafaf9', border: '1px solid #e7e5e4', borderRadius: 12, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
+                  Foam Box Arch Profile Contour
+                </span>
+                <div style={{ width: '100%', height: 200, background: '#111', borderRadius: 8, overflow: 'hidden', border: '1.5px solid #C9A84C', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                  <img src={activeProfile.arch_imprint_image} alt="Foam Box Arch Imprint" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 2, background: 'rgba(201, 168, 76, 0.85)', boxShadow: '0 0 8px #C9A84C', animation: 'scannerSweep 4s infinite linear' }}></div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Interactive Sizing Preferences Form */}
+      <div className="fit-form-card">
+        <h4>Bespoke Fitting Specifications</h4>
+        {msg && <div className="account-msg success" style={{ marginBottom: 16 }}>{msg}</div>}
+        
+        <form onSubmit={handleSave} className="account-form">
+          <div className="af-row">
+            <div className="af-field">
+              <label>Fit Volume Preference</label>
+              <select value={fitPref} onChange={e => setFitPref(e.target.value)}>
+                <option value="snug">Snug Fit (Contoured Contained Silhouette)</option>
+                <option value="regular">Regular Fit (Standard Atelier Profile)</option>
+                <option value="relaxed">Relaxed Roomy Fit (Spacious Wider Toe Box)</option>
+              </select>
+            </div>
+            
+            <div className="af-field">
+              <label>Shoe Last Preference</label>
+              <select value={lastPref} onChange={e => setLastPref(e.target.value)}>
+                <option value="pointed">Pointed Last (Sleek Chiselled Oxford Silhouette)</option>
+                <option value="rounded">Rounded Last (Soft Timeless Classic Profile)</option>
+                <option value="chiseled">Chiseled Last (Bold Italian Atelier Sculpt)</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="af-field">
+            <label>Podiatry Notes & Fit Alerts (e.g. orthotics, inserts, bunion relief)</label>
+            <textarea 
+              rows="3" 
+              value={podiatryNotes} 
+              onChange={e => setPodiatryNotes(e.target.value)}
+              placeholder="E.g., high instep support required, orthotic shoe insert support required, extra wide ball padding..."
+            />
+          </div>
+
+          <button type="submit" className="account-btn-primary" disabled={saving} style={{ padding: '12px 24px', letterSpacing: '0.05em', fontWeight: 600 }}>
+            {saving ? 'Updating Specifications...' : 'Update Sizing Specifications'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// ===== Support & Help Tab =====
+const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
+  const [tickets, setTickets] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [activeTicket, setActiveTicket] = useState(null);
+  
+  // New ticket form states
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  const [category, setCategory] = useState('general');
+  const [updateOrderRequest, setUpdateOrderRequest] = useState(false);
+  const [linkedOrderId, setLinkedOrderId] = useState('');
+  
+  // Loaders & Interactive states
+  const [loading, setLoading] = useState(true);
+  const [submittingTicket, setSubmittingTicket] = useState(false);
+  const [replyText, setReplyText] = useState('');
+  const [submittingReply, setSubmittingReply] = useState(false);
+  const [faqOpen, setFaqOpen] = useState({});
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const PREDEFINED_QUESTIONS = [
+    {
+      title: "🚚 Order Shipment Status",
+      desc: "Track active order shipment progress and location updates.",
+      subject: "Order Tracking Status",
+      message: "Hello, I would like to track my active order shipment status. Please share the tracking ID and carrier updates.",
+      category: "order_issue",
+      update_order: false
+    },
+    {
+      title: "✏️ Request Size/Leather Change",
+      desc: "Change size, leather type, or sole before production begins.",
+      subject: "Order Modification Request",
+      message: "Hello, I would like to request a change to the size, leather/material, or sole on my order. Please let me know what custom adjustments are possible.",
+      category: "order_issue",
+      update_order: true
+    },
+    {
+      title: "📏 Book 3D Fit Scan",
+      desc: "Schedule or reschedule a podiatric scan in the atelier.",
+      subject: "3D Fit Vault Scan Booking",
+      message: "Hello, I would like to book or update my 3D Fit Vault podiatric scan appointment. Please share the available slots.",
+      category: "fit_issue",
+      update_order: false
+    },
+    {
+      title: "🎨 Custom Material Option",
+      desc: "Inquire about premium cordovan or custom patinas.",
+      subject: "Custom Leather / Design Request",
+      message: "Hello, I would like to request a custom leather/material design option that is not listed. Please let me know what bespoke combinations are available.",
+      category: "design_query",
+      update_order: false
+    },
+    {
+      title: "🔄 Size Exchange / Return",
+      desc: "Initiate an exchange or return for a delivered order.",
+      subject: "Return or Exchange Request",
+      message: "Hello, I would like to initiate a return or a size exchange request for my delivered order.",
+      category: "return",
+      update_order: false
+    },
+    {
+      title: "❓ Fit & Style Consultation",
+      desc: "Get styling or fitting recommendations from an artisan.",
+      subject: "Sizing and Style Recommendation",
+      message: "Hello, I have a general sizing or style recommendation inquiry. I would like some advice on selecting the perfect fit.",
+      category: "general",
+      update_order: false
+    },
+    {
+      title: "💬 Other Queries",
+      desc: "Raise a ticket for any other general support or custom query.",
+      subject: "Other Custom Query",
+      message: "Hello, I have an inquiry regarding custom orders or support. Please assist me with my query.",
+      category: "general",
+      update_order: false
+    }
+  ];
+
+  const FAQS = [
+    {
+      q: "When can I request changes to my bespoke order?",
+      a: "Changes to size, leather selection, or sole configuration can be made freely as long as your order status is 'Placed' (Pending) or 'Confirmed'. Once the order moves into 'In Production', the anatomical leather shapes are already cut, and changes are no longer possible."
+    },
+    {
+      q: "How does the price adjustment work for custom upgrades?",
+      a: "Some premium leathers (e.g. Shell Cordovan) or sole selections (e.g. Dainite Rubber) have additional material costs. When our support staff proposes a modification draft, you will see a detailed comparison of prices. If you accept and the price increases, your order will transition to 'Waiting for Payment' until the balance is settled."
+    },
+    {
+      q: "What is the 3D Fit Vault scan appointment?",
+      a: "We capture a complete sub-millimeter anatomical scan of your feet at our physical ateliers to create individual wooden shoe lasts. You can book an appointment through the scheduled visits tab or directly ask our support team to register a priority slot."
+    },
+    {
+      q: "How long does shipping take after dispatch?",
+      a: "Since all shoes are individually hand-welted, production takes between 3 to 6 weeks. Once complete and verified by Quality Control, transit takes 2-4 business days across India with real-time GPS tracking enabled in your orders tab."
+    }
+  ];
+
+  const fetchTicketsAndOrders = async () => {
+    try {
+      const ticketRes = await api.getMyTickets();
+      setTickets(ticketRes.tickets || []);
+      
+      const orderRes = await api.getMyOrders();
+      setOrders(orderRes.orders || []);
+    } catch (err) {
+      console.error("Failed to load support page data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchTicketsAndOrders();
+  }, []);
+
+  // Sync contextual order from My Orders navigation click
+  useEffect(() => {
+    if (supportOrderContext) {
+      const orderId = supportOrderContext.id || supportOrderContext._id;
+      setLinkedOrderId(orderId);
+      setSubject(`Help with Order #${supportOrderContext.order_number}`);
+      setMessage(`Hello, I need assistance with my order #${supportOrderContext.order_number}.`);
+      setCategory('order_issue');
+      
+      // Auto scroll to form
+      const el = document.getElementById('support-inquiry-form');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [supportOrderContext]);
+
+  const selectPredefined = (question) => {
+    setSubject(question.subject);
+    setMessage(question.message);
+    setCategory(question.category);
+    setUpdateOrderRequest(question.update_order);
+    setErrorMsg('');
+  };
+
+  const handleCreateTicket = async (e) => {
+    e.preventDefault();
+    if (!subject.trim() || !message.trim()) {
+      setErrorMsg("Subject and message are required.");
+      return;
+    }
+    setSubmittingTicket(true);
+    try {
+      const selectedOrder = orders.find(o => (o.id || o._id) === linkedOrderId);
+      const res = await api.createTicket({
+        subject,
+        message,
+        category,
+        update_order_request: updateOrderRequest,
+        order_id: linkedOrderId || null,
+        order_number: selectedOrder ? selectedOrder.order_number : null
+      });
+      
+      setSubject('');
+      setMessage('');
+      setCategory('general');
+      setUpdateOrderRequest(false);
+      setLinkedOrderId('');
+      setSupportOrderContext(null);
+      
+      // Refresh tickets list and set the newly created ticket as active
+      const ticketRes = await api.getMyTickets();
+      const updatedTickets = ticketRes.tickets || [];
+      setTickets(updatedTickets);
+      
+      const newTicket = updatedTickets.find(t => t.id === res.id);
+      if (newTicket) setActiveTicket(newTicket);
+      
+    } catch (err) {
+      setErrorMsg(err.message || "Failed to create support ticket.");
+    } finally {
+      setSubmittingTicket(false);
+    }
+  };
+
+  const handleSendReply = async (e) => {
+    e.preventDefault();
+    if (!replyText.trim()) return;
+    setSubmittingReply(true);
+    try {
+      const res = await api.customerReplyTicket(activeTicket.id, { message: replyText });
+      
+      // Reload tickets and update active ticket
+      const ticketRes = await api.getMyTickets();
+      const updatedTickets = ticketRes.tickets || [];
+      setTickets(updatedTickets);
+      
+      const updatedActive = updatedTickets.find(t => t.id === activeTicket.id);
+      if (updatedActive) setActiveTicket(updatedActive);
+      setReplyText('');
+    } catch (err) {
+      alert(err.message || "Failed to send message.");
+    } finally {
+      setSubmittingReply(false);
+    }
+  };
+
+  const handleConfirmDraft = async (ticketId) => {
+    if (!confirm("Are you sure you want to accept these proposed modifications and estimated price changes? This action will update your order specifications.")) return;
+    try {
+      await api.confirmDraftModification(ticketId);
+      alert("Modifications accepted successfully! Our administrators will now process and apply these changes to production.");
+      
+      // Reload tickets
+      const ticketRes = await api.getMyTickets();
+      const updatedTickets = ticketRes.tickets || [];
+      setTickets(updatedTickets);
+      
+      const updatedActive = updatedTickets.find(t => t.id === activeTicket.id);
+      if (updatedActive) setActiveTicket(updatedActive);
+    } catch (err) {
+      alert(err.message || "Failed to confirm modifications.");
+    }
+  };
+
+  const handleRejectDraft = async (ticketId) => {
+    if (!confirm("Are you sure you want to decline these proposed modifications? The current specifications of your order will remain active.")) return;
+    try {
+      await api.rejectDraftModification(ticketId);
+      alert("Proposed changes have been declined.");
+      
+      // Reload tickets
+      const ticketRes = await api.getMyTickets();
+      const updatedTickets = ticketRes.tickets || [];
+      setTickets(updatedTickets);
+      
+      const updatedActive = updatedTickets.find(t => t.id === activeTicket.id);
+      if (updatedActive) setActiveTicket(updatedActive);
+    } catch (err) {
+      alert(err.message || "Failed to decline modifications.");
+    }
+  };
+
+  const toggleFaq = (index) => {
+    setFaqOpen(prev => ({ ...prev, [index]: !prev[index] }));
+  };
+
+  if (loading) return <div className="account-loading">Loading Support Atelier...</div>;
+
+  return (
+    <div className="account-panel support-panel" data-testid="support-panel" style={{ position: 'relative' }}>
+      <style>{`
+        .support-layout {
+          display: grid;
+          grid-template-columns: 320px 1fr;
+          gap: 24px;
+          margin-top: 16px;
+          min-height: 580px;
+        }
+        @media (max-width: 900px) {
+          .support-layout {
+            grid-template-columns: 1fr;
+          }
+        }
+        .support-left-pane {
+          border-right: 1px solid #e7e5e4;
+          padding-right: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        @media (max-width: 900px) {
+          .support-left-pane {
+            border-right: none;
+            padding-right: 0;
+            border-bottom: 1px solid #e7e5e4;
+            padding-bottom: 20px;
+          }
+        }
+        .ticket-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          max-height: 480px;
+          overflow-y: auto;
+        }
+        .ticket-item-btn {
+          width: 100%;
+          text-align: left;
+          background: #fafaf9;
+          border: 1px solid #e7e5e4;
+          padding: 12px;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          font-family: inherit;
+        }
+        .ticket-item-btn:hover {
+          border-color: #C9A84C;
+          background: #fdfcfa;
+        }
+        .ticket-item-btn.active {
+          background: #faf6eb;
+          border-color: #C9A84C;
+          box-shadow: 0 0 10px rgba(201,168,76,0.1);
+        }
+        .ticket-item-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 0.8rem;
+          font-weight: 700;
+          color: #1c1917;
+        }
+        .ticket-item-subject {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          font-size: 0.76rem;
+          color: #44403c;
+          font-weight: 500;
+        }
+        .ticket-item-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 0.65rem;
+          color: #78716c;
+          margin-top: 4px;
+        }
+        .status-badge-mini {
+          font-size: 0.58rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          padding: 2px 6px;
+          border-radius: 4px;
+          color: #fff;
+        }
+        .status-open { background: #3b82f6; }
+        .status-pending_modification { background: #d97706; }
+        .status-resolved { background: #10b981; }
+        .status-closed { background: #6b7280; }
+        
+        .chat-pane {
+          background: #fafaf9;
+          border: 1px solid #e7e5e4;
+          border-radius: 12px;
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          height: 520px;
+          position: relative;
+        }
+        .chat-header {
+          padding-bottom: 12px;
+          border-bottom: 1px solid #e7e5e4;
+          margin-bottom: 14px;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+        }
+        .chat-header h4 {
+          margin: 0;
+          font-family: 'Playfair Display', serif;
+          font-size: 1.1rem;
+          color: #1c1917;
+        }
+        .chat-messages {
+          flex: 1;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          padding-right: 8px;
+          margin-bottom: 14px;
+        }
+        .msg-bubble {
+          max-width: 80%;
+          padding: 10px 14px;
+          border-radius: 12px;
+          font-size: 0.78rem;
+          line-height: 1.4;
+          position: relative;
+          display: flex;
+          flex-direction: column;
+        }
+        .msg-bubble.customer {
+          align-self: flex-end;
+          background: #111;
+          color: #fff;
+          border-bottom-right-radius: 2px;
+        }
+        .msg-bubble.admin {
+          align-self: flex-start;
+          background: #f5f5f4;
+          color: #1c1917;
+          border: 1px solid #e7e5e4;
+          border-bottom-left-radius: 2px;
+        }
+        .msg-bubble.system {
+          align-self: center;
+          background: #faf6eb;
+          color: #854d0e;
+          border: 1px solid #fef3c7;
+          text-align: center;
+          max-width: 90%;
+          font-weight: 500;
+        }
+        .msg-time-label {
+          font-size: 0.58rem;
+          color: rgba(255,255,255,0.6);
+          margin-top: 6px;
+          text-align: right;
+        }
+        .msg-bubble.admin .msg-time-label {
+          color: #a1a1aa;
+        }
+        .msg-bubble.system .msg-time-label {
+          color: #b45309;
+        }
+        .chat-input-row {
+          display: flex;
+          gap: 8px;
+          border-top: 1px solid #e7e5e4;
+          padding-top: 12px;
+        }
+        .chat-input {
+          flex: 1;
+          background: #fff;
+          border: 1px solid #d1d5db;
+          padding: 8px 12px;
+          border-radius: 8px;
+          font-size: 0.78rem;
+          outline: none;
+          resize: none;
+          height: 36px;
+        }
+        .chat-input:focus {
+          border-color: #C9A84C;
+        }
+        .predefined-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
+          margin-bottom: 20px;
+        }
+        @media (max-width: 640px) {
+          .predefined-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+        .predefined-card {
+          background: #fff;
+          border: 1.5px dashed #e7e5e4;
+          padding: 8px 12px;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          justify-content: flex-start;
+          text-align: left;
+          font-family: inherit;
+          width: 100%;
+          box-sizing: border-box;
+          min-height: 64px;
+        }
+        .predefined-card:hover {
+          border-color: #C9A84C;
+          background: #fdfcfa;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+        }
+        .predefined-card h5 {
+          margin: 0 0 3px 0;
+          font-size: 0.74rem;
+          font-weight: 700;
+          color: #1c1917;
+          line-height: 1.2;
+        }
+        .predefined-card p {
+          margin: 0;
+          font-size: 0.62rem;
+          color: #78716c;
+          line-height: 1.35;
+        }
+        
+        /* Interactive Proposal Draft Card */
+        .proposal-draft-card {
+          background: #fffbeb;
+          border: 1.5px solid #C9A84C;
+          border-radius: 10px;
+          padding: 14px;
+          margin-bottom: 12px;
+          box-shadow: 0 4px 12px rgba(201,168,76,0.12);
+        }
+        .proposal-draft-title {
+          font-family: 'Playfair Display', serif;
+          font-size: 0.95rem;
+          color: #854d0e;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin-bottom: 8px;
+        }
+        .proposal-comparison-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          font-size: 0.72rem;
+          background: #fff;
+          padding: 10px;
+          border-radius: 6px;
+          border: 1px solid #fde68a;
+          margin-bottom: 12px;
+        }
+        .comparison-col {
+          display: flex;
+          flex-direction: column;
+          gap: 3px;
+        }
+        .comparison-col.original {
+          border-right: 1px solid #f5f5f4;
+          padding-right: 10px;
+        }
+        .comparison-col.proposed {
+          padding-left: 4px;
+        }
+        
+        /* FAQ styling */
+        .faq-section {
+          margin-top: 36px;
+          border-top: 1px solid #e7e5e4;
+          padding-top: 24px;
+        }
+        .faq-item {
+          border: 1px solid #e7e5e4;
+          border-radius: 8px;
+          margin-bottom: 8px;
+          overflow: hidden;
+          background: #fafaf9;
+        }
+        .faq-q-btn {
+          width: 100%;
+          background: none;
+          border: none;
+          padding: 14px 16px;
+          text-align: left;
+          font-weight: 600;
+          font-size: 0.8rem;
+          color: #1c1917;
+          cursor: pointer;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-family: inherit;
+        }
+        .faq-q-btn:hover {
+          background: #faf6eb;
+        }
+        .faq-answer {
+          padding: 12px 16px;
+          background: #fff;
+          border-top: 1px solid #e7e5e4;
+          font-size: 0.75rem;
+          color: #57534e;
+          line-height: 1.45;
+        }
+      `}</style>
+
+      <div className="section-header">
+        <h3>Support & Help Desk</h3>
+        <p className="table-sub">Submit custom inquiries, track shipments, or verify audited price modification drafts with our support artisans.</p>
+      </div>
+
+      <div className="support-layout">
+        
+        {/* LEFT COLUMN: Active Ticket Selection */}
+        <div className="support-left-pane">
+          <button 
+            type="button"
+            className="account-btn-primary" 
+            onClick={() => {
+              setActiveTicket(null);
+              setSupportOrderContext(null);
+              setSubject('');
+              setMessage('');
+              setCategory('general');
+              setUpdateOrderRequest(false);
+              setLinkedOrderId('');
+            }} 
+            style={{ width: '100%', marginTop: 0, padding: '10px 14px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, cursor: 'pointer', position: 'relative', zIndex: 10 }}
+            data-testid="raise-new-inquiry-btn"
+          >
+            <Plus size={14} /> Raise New Inquiry
+          </button>
+          
+          <div className="ticket-list">
+            <h4 style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: '#78716c', letterSpacing: '0.05em', margin: '4px 0' }}>Your Active Inquiries</h4>
+            {tickets.length === 0 ? (
+              <div style={{ padding: '24px 10px', textAlign: 'center', fontSize: '0.72rem', color: '#a8a29e', fontStyle: 'italic' }}>
+                No tickets filed yet.
+              </div>
+            ) : (
+              tickets.map(t => (
+                <button 
+                  key={t.id} 
+                  className={`ticket-item-btn ${activeTicket?.id === t.id ? 'active' : ''}`}
+                  onClick={() => setActiveTicket(t)}
+                  data-testid={`customer-ticket-${t.id}`}
+                >
+                  <div className="ticket-item-header">
+                    <span>Inquiry #{t.id.slice(-6).toUpperCase()}</span>
+                    <span className={`status-badge-mini status-${t.status}`}>{t.status?.replace(/_/g, ' ')}</span>
+                  </div>
+                  <div className="ticket-item-subject">{t.subject}</div>
+                  <div className="ticket-item-footer">
+                    <span>{t.category?.toUpperCase() || 'GENERAL'}</span>
+                    <span>{new Date(t.updated_at).toLocaleDateString('en-IN')}</span>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN: Ticket Creation Form OR Conversational Pane */}
+        <div className="support-right-pane">
+          {!activeTicket ? (
+            
+            // raising a new ticket form
+            <div id="support-inquiry-form" className="fit-form-card" style={{ marginTop: 0, padding: 20 }}>
+              <h4 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.2rem', color: '#1c1917', margin: '0 0 16px 0', borderBottom: '1px solid #e7e5e4', paddingBottom: 8 }}>
+                Raise a Custom Support Inquiry
+              </h4>
+
+              {/* Predefined Quick Questions */}
+              <div style={{ marginBottom: 16 }}>
+                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 8 }}>
+                  💡 Select Predefined Help Templates
+                </span>
+                <div className="predefined-grid">
+                  {PREDEFINED_QUESTIONS.map((q, idx) => (
+                    <button key={idx} className="predefined-card" onClick={() => selectPredefined(q)}>
+                      <h5>{q.title}</h5>
+                      <p>{q.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {errorMsg && <div className="account-msg" style={{ background: '#fef2f2', border: '1px solid #fee2e2', color: '#b91c1c', padding: '8px 12px', borderRadius: '6px', fontSize: '0.72rem', marginBottom: 14 }}>{errorMsg}</div>}
+
+              <form onSubmit={handleCreateTicket} className="account-form" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14 }}>
+                  <div className="af-field">
+                    <label>Inquiry Classification Category</label>
+                    <select value={category} onChange={e => setCategory(e.target.value)}>
+                      <option value="general">General Sizing & Atelier Advice</option>
+                      <option value="fit_issue">Podiatric / 3D Fit Vault Issue</option>
+                      <option value="design_query">Custom Patina & Leather Inquiry</option>
+                      <option value="order_issue">Bespoke Order Customization & Modification</option>
+                      <option value="return">Exchange & Return Filing</option>
+                    </select>
+                  </div>
+                  
+                  <div className="af-field">
+                    <label>Link to Specific E-Commerce Order</label>
+                    <select value={linkedOrderId} onChange={e => {
+                      setLinkedOrderId(e.target.value);
+                      if (e.target.value) {
+                        const o = orders.find(ord => (ord.id || ord._id) === e.target.value);
+                        if (o) setSubject(`Order Modification/Help: #${o.order_number}`);
+                      }
+                    }}>
+                      <option value="">-- No Order Association --</option>
+                      {orders.map(o => (
+                        <option key={o.id || o._id} value={o.id || o._id}>
+                          Order #{o.order_number} ({new Date(o.created_at).toLocaleDateString()} - ₹{o.total_amount?.toLocaleString()})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, background: '#fafaf9', padding: '10px', borderRadius: '6px', border: '1px solid #e7e5e4' }}>
+                  <input 
+                    type="checkbox" 
+                    id="update-order-checkbox"
+                    checked={updateOrderRequest} 
+                    onChange={e => setUpdateOrderRequest(e.target.checked)} 
+                    style={{ width: 14, height: 14, accentColor: '#C9A84C', cursor: 'pointer', marginTop: '4px' }}
+                  />
+                  <label htmlFor="update-order-checkbox" style={{ fontSize: '0.72rem', fontWeight: 600, color: '#44403c', margin: 0, cursor: 'pointer' }}>
+                    🚨 This is an active order details modification request (changes to size, material, or sole).
+                  </label>
+                </div>
+
+                <div className="af-field">
+                  <label>Subject / Brief Summary</label>
+                  <input 
+                    type="text" 
+                    value={subject} 
+                    onChange={e => setSubject(e.target.value)} 
+                    placeholder="E.g., Requesting Dainite sole upgrade on my oxfords" 
+                    style={{ fontSize: '0.78rem' }}
+                    data-testid="ticket-subject-input"
+                  />
+                </div>
+
+                <div className="af-field">
+                  <label>Elaborate Detailed Request Description</label>
+                  <textarea 
+                    rows="4" 
+                    value={message} 
+                    onChange={e => setMessage(e.target.value)} 
+                    placeholder="Detail your request here. Our artisans will read this and formulate your bespoke proposal."
+                    style={{ fontSize: '0.78rem' }}
+                    data-testid="ticket-message-input"
+                  />
+                </div>
+
+                <button 
+                  type="submit" 
+                  className="account-btn-primary" 
+                  disabled={submittingTicket} 
+                  style={{ width: 'fit-content', padding: '10px 24px', letterSpacing: '0.05em', fontWeight: 600, marginTop: 4 }}
+                  data-testid="submit-ticket-btn"
+                >
+                  {submittingTicket ? 'Initiating Request...' : 'Submit Support Inquiry'}
+                </button>
+              </form>
+            </div>
+            
+          ) : (
+            
+            // conversational pane for active ticket
+            <div className="chat-pane" data-testid="chat-pane">
+              
+              <div className="chat-header">
+                <div>
+                  <h4>{activeTicket.subject}</h4>
+                  <p className="table-sub" style={{ margin: '2px 0 0 0', fontSize: '0.68rem' }}>
+                    Category: <strong>{activeTicket.category?.toUpperCase()}</strong> 
+                    {activeTicket.order_number && (
+                      <> | Linked Order: <strong>#{activeTicket.order_number}</strong></>
+                    )}
+                  </p>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                  <span className={`status-badge-mini status-${activeTicket.status}`}>{activeTicket.status?.replace(/_/g, ' ')}</span>
+                  <button 
+                    onClick={() => { setActiveTicket(null); setSupportOrderContext(null); }}
+                    style={{ background: 'none', border: 'none', color: '#C9A84C', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', padding: 0 }}
+                  >
+                    &larr; Back to raising tickets
+                  </button>
+                </div>
+              </div>
+
+              {/* Chat timeline messages list */}
+              <div className="chat-messages">
+                
+                {/* Active Proposed Modification Draft comparative card */}
+                {activeTicket.proposed_modification_draft && (
+                  <div className="proposal-draft-card" data-testid="proposal-draft-card">
+                    <div className="proposal-draft-title">
+                      <Sparkles size={16} color="#C9A84C" />
+                      <span>Proposed Bespoke Details Upgrade</span>
+                    </div>
+                    
+                    <p style={{ fontSize: '0.68rem', color: '#78350f', margin: '0 0 10px 0', lineHeight: 1.4 }}>
+                      Our atelier artisans have prepared a custom draft modification proposal for your order <strong>#{activeTicket.proposed_modification_draft.order_number}</strong>. Please review the detailed changes below.
+                    </p>
+
+                    <div className="proposal-comparison-grid">
+                      {/* Original specifications */}
+                      <div className="comparison-col original">
+                        <span style={{ fontWeight: 700, color: '#991b1b', textTransform: 'uppercase', fontSize: '0.58rem', letterSpacing: '0.05em', marginBottom: 4 }}>Original Spec</span>
+                        {(() => {
+                          const linked = orders.find(o => (o.id || o._id) === activeTicket.order_id);
+                          const item = linked?.items?.[0];
+                          if (item) {
+                            return (
+                              <>
+                                <div><strong>Item:</strong> {item.name}</div>
+                                <div><strong>Size:</strong> UK {item.size}</div>
+                                <div><strong>Color:</strong> {item.color}</div>
+                                <div><strong>Leather:</strong> {item.material || 'Full-Grain'}</div>
+                                <div><strong>Sole:</strong> {item.sole || 'Leather'}</div>
+                              </>
+                            );
+                          }
+                          return <div style={{ fontStyle: 'italic', color: '#888' }}>Previous order specs</div>;
+                        })()}
+                      </div>
+
+                      {/* Proposed specifications */}
+                      <div className="comparison-col proposed">
+                        <span style={{ fontWeight: 700, color: '#166534', textTransform: 'uppercase', fontSize: '0.58rem', letterSpacing: '0.05em', marginBottom: 4 }}>Proposed Upgrade</span>
+                        {(() => {
+                          const item = activeTicket.proposed_modification_draft.items?.[0];
+                          if (item) {
+                            return (
+                              <>
+                                <div style={{ color: '#14532d', fontWeight: 600 }}><strong>Item:</strong> {item.name}</div>
+                                <div style={{ color: '#14532d', fontWeight: 600 }}><strong>Size:</strong> UK {item.size}</div>
+                                <div style={{ color: '#14532d', fontWeight: 600 }}><strong>Color:</strong> {item.color}</div>
+                                <div style={{ color: '#14532d', fontWeight: 600 }}><strong>Leather:</strong> {item.material || 'Full-Grain'}</div>
+                                <div style={{ color: '#14532d', fontWeight: 600 }}><strong>Sole:</strong> {item.sole || 'Leather'}</div>
+                              </>
+                            );
+                          }
+                          return <div style={{ fontStyle: 'italic', color: '#888' }}>No draft details</div>;
+                        })()}
+                      </div>
+                    </div>
+
+                    {activeTicket.proposed_modification_draft.notes && (
+                      <div style={{ background: '#fafaf9', border: '1px solid #fde68a', borderRadius: '6px', padding: '8px', fontSize: '0.66rem', color: '#78716c', fontStyle: 'italic', marginBottom: 12 }}>
+                        Artisan Notes: "{activeTicket.proposed_modification_draft.notes}"
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span className="status-badge-mini" style={{
+                        backgroundColor: activeTicket.proposed_modification_draft.status === 'confirmed' ? '#10b981' : '#d97706',
+                        fontSize: '0.55rem',
+                        fontWeight: 700,
+                        padding: '3px 8px',
+                        borderRadius: '4px'
+                      }}>
+                        {activeTicket.proposed_modification_draft.status === 'confirmed' ? '✅ accepted' : '⏳ review required'}
+                      </span>
+
+                      {activeTicket.proposed_modification_draft.status !== 'confirmed' ? (
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <button 
+                            onClick={() => handleConfirmDraft(activeTicket.id)}
+                            style={{ padding: '6px 12px', background: '#C9A84C', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '0.66rem', fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 6px rgba(201,168,76,0.3)', marginTop: 0 }}
+                            data-testid="accept-draft-btn"
+                          >
+                            Accept Modifications
+                          </button>
+                          <button 
+                            onClick={() => handleRejectDraft(activeTicket.id)}
+                            style={{ padding: '6px 12px', background: '#ef4444', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '0.66rem', fontWeight: 700, cursor: 'pointer', marginTop: 0 }}
+                            data-testid="decline-draft-btn"
+                          >
+                            Decline
+                          </button>
+                        </div>
+                      ) : (
+                        <span style={{ fontSize: '0.66rem', color: '#166534', fontWeight: 600, fontStyle: 'italic' }}>
+                          Draft approved! Awaiting supervisor review.
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Regular messages */}
+                {(activeTicket.messages || []).map((msg, idx) => {
+                  let bubbleClass = 'admin';
+                  if (msg.sender === 'customer') bubbleClass = 'customer';
+                  else if (msg.sender === 'system' || msg.admin_name === 'System / CRM') bubbleClass = 'system';
+                  
+                  return (
+                    <div key={idx} className={`msg-bubble ${bubbleClass}`} data-testid={`chat-msg-${idx}`}>
+                      <div style={{ fontWeight: 700, fontSize: '0.64rem', marginBottom: 2 }}>
+                        {msg.sender === 'customer' ? 'You' : (msg.admin_name || 'Atelier Support')}
+                      </div>
+                      <div>{msg.message}</div>
+                      <div className="msg-time-label">
+                        {new Date(msg.timestamp).toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Chat Input for replying */}
+              {activeTicket.status !== 'closed' && activeTicket.status !== 'resolved' ? (
+                <form onSubmit={handleSendReply} className="chat-input-row">
+                  <input 
+                    type="text" 
+                    value={replyText}
+                    onChange={e => setReplyText(e.target.value)}
+                    placeholder="Type your reply here..."
+                    className="chat-input"
+                    disabled={submittingReply}
+                    data-testid="chat-reply-input"
+                  />
+                  <button 
+                    type="submit" 
+                    className="account-btn-primary" 
+                    disabled={submittingReply || !replyText.trim()}
+                    style={{ margin: 0, padding: '0 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '36px' }}
+                    data-testid="send-reply-btn"
+                  >
+                    <Send size={14} />
+                  </button>
+                </form>
+              ) : (
+                <div style={{ padding: '10px 0', borderTop: '1px solid #e7e5e4', fontSize: '0.72rem', color: '#78716c', fontStyle: 'italic', textAlign: 'center' }}>
+                  This support thread has been resolved/closed.
+                </div>
+              )}
+
+            </div>
+          )}
+        </div>
+
+      </div>
+
+      {/* Luxury Accordion FAQs Section at the bottom */}
+      <div className="faq-section">
+        <h4 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.25rem', color: '#1c1917', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <HelpCircle size={18} color="#C9A84C" /> Frequently Answered Inquiries
+        </h4>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {FAQS.map((faq, idx) => (
+            <div key={idx} className="faq-item">
+              <button className="faq-q-btn" onClick={() => toggleFaq(idx)}>
+                <span>{faq.q}</span>
+                <ChevronRight size={14} style={{ transform: faqOpen[idx] ? 'rotate(90deg)' : 'rotate(0)', transition: 'all 0.2s' }} />
+              </button>
+              {faqOpen[idx] && (
+                <div className="faq-answer">
+                  {faq.a}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+    </div>
+  );
+};
+
+const SavedDesignsTab = () => {
+  const { user } = useAuth();
+  const [designs, setDesigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && user) {
+      const key = `byond_saved_designs_${user.email || 'global'}`;
+      const saved = JSON.parse(localStorage.getItem(key) || '[]');
+      setDesigns(saved);
+    }
+    setLoading(false);
+  }, [user]);
+
+  const handleDelete = (id) => {
+    if (typeof window !== 'undefined' && user) {
+      const key = `byond_saved_designs_${user.email || 'global'}`;
+      const filtered = designs.filter(d => d.id !== id);
+      localStorage.setItem(key, JSON.stringify(filtered));
+      setDesigns(filtered);
+    }
+  };
+
+  const getConfigureLink = (d) => {
+    const qs = new URLSearchParams({
+      gender: d.gender || 'men',
+      model: d.model || '',
+      submodel: d.submodel || '',
+      leather: d.leather || '',
+      color: d.color || '',
+      sole: d.sole || '',
+      monogram: d.monogram || ''
+    }).toString();
+    return `/customize/${d.gender || 'men'}?${qs}`;
+  };
+
+  if (loading) return <div className="account-loading">Loading Saved Designs...</div>;
+
+  return (
+    <div className="account-panel" data-testid="saved-designs-panel">
+      <div className="section-header">
+        <h3>My Saved Designs</h3>
+        {designs.length > 0 && <span style={{ fontSize: '0.75rem', color: 'var(--mid-grey)' }}>{designs.length} Saved Design{designs.length !== 1 ? 's' : ''}</span>}
+      </div>
+      
+      {designs.length === 0 ? (
+        <div className="account-empty-orders" style={{ textAlign: 'center', padding: '48px 0' }}>
+          <Palette size={48} strokeWidth={1} style={{ color: '#C9A84C', margin: '0 auto 12px' }} />
+          <p style={{ fontSize: '0.95rem', color: '#1c1917', fontWeight: 600 }}>Your Atelier Journal is empty.</p>
+          <p style={{ fontSize: '0.8rem', color: 'var(--mid-grey)', marginTop: '4px', maxWidth: '320px', marginLeft: 'auto', marginRight: 'auto' }}>Create your bespoke masterpiece using our Customizer to save it here!</p>
+          <Link href="/customize/men" className="account-btn-primary" style={{ textDecoration: 'none', marginTop: '16px', display: 'inline-block' }}>Design Your Shoe</Link>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px', marginTop: '20px' }}>
+          {designs.map((d) => (
+            <div key={d.id} style={{ border: '1px solid #e7e5e4', borderRadius: '12px', background: '#fff', overflow: 'hidden', display: 'flex', flexDirection: 'column', position: 'relative', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
+              
+              {/* Trash button */}
+              <button 
+                onClick={() => handleDelete(d.id)}
+                style={{ position: 'absolute', top: '12px', right: '12px', background: '#111', border: '1px solid #333', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a1a1aa', cursor: 'pointer', zIndex: 5, transition: 'all 0.2s' }}
+                title="Remove saved design"
+              >
+                <Trash2 size={12} />
+              </button>
+
+              {/* Shoe Image */}
+              <div style={{ width: '100%', height: '180px', background: '#fcfcfc', borderBottom: '1px solid #e7e5e4', overflow: 'hidden' }}>
+                <img src={d.image} alt={d.submodel} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+
+              {/* Shoe Specs Details */}
+              <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <span style={{ fontSize: '0.62rem', color: '#C9A84C', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{d.date}</span>
+                    {d.monogram && <span style={{ fontSize: '0.65rem', background: 'rgba(201,168,76,0.1)', color: '#C9A84C', border: '1px solid rgba(201,168,76,0.2)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, letterSpacing: '0.05em' }}>[{d.monogram}]</span>}
+                  </div>
+                  
+                  <h4 style={{ margin: '0 0 10px 0', fontSize: '0.95rem', fontWeight: 700, color: '#1c1917' }}>{d.submodel}</h4>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.72rem', color: '#78716c' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Leather:</span><strong style={{ color: '#1c1917' }}>{d.leather}</strong></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Color:</span><strong style={{ color: '#1c1917' }}>{d.color}</strong></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Sole:</span><strong style={{ color: '#1c1917' }}>{d.sole}</strong></div>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '16px', display: 'flex', gap: '8px' }}>
+                  <Link 
+                    href={getConfigureLink(d)} 
+                    style={{ flex: 1, textDecoration: 'none', padding: '10px 12px', background: '#111', color: '#C9A84C', border: '1px solid #C9A84C', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer' }}
+                  >
+                    <Sparkles size={12} /> Customize
+                  </Link>
+                </div>
+              </div>
             </div>
           ))}
         </div>

@@ -38,6 +38,19 @@ class OrderStatusUpdate(BaseModel):
     note: Optional[str] = None
 
 
+class OrderOperationalUpdate(BaseModel):
+    production_type: Optional[str] = None  # ready_to_ship, crafted
+    crafted_by: Optional[str] = None      # inhouse, vendor, or None
+    fulfillment_vendor: Optional[str] = None
+    vendor_upfront_cost: Optional[float] = None
+    courier_partner: Optional[str] = None
+    tracking_number: Optional[str] = None
+    estimated_delivery_date: Optional[str] = None
+    shipping_cost_actual: Optional[float] = None
+    package_weight_kg: Optional[float] = None
+    transit_history: Optional[List[dict]] = None
+
+
 async def _reserve_stock(items):
     """Atomically decrement size-stock for each item. Raises 400 if any size out of stock."""
     reserved = []  # for rollback
@@ -59,6 +72,43 @@ async def _reserve_stock(items):
             from fastapi import HTTPException as _HE
             raise _HE(400, f"Out of stock: {it.get('name', sku)} (Size {size})")
         reserved.append((sku, size, qty))
+
+
+async def _reserve_raw_materials(items):
+    """Automatically reserve/decrement raw materials for custom orders."""
+    import re
+    for it in items:
+        qty = int(it.get("quantity", 1))
+        
+        # 1. Custom Leather
+        mat_name = it.get("material") or it.get("leather_type")
+        if mat_name:
+            mat_doc = await db.materials.find_one({"name": {"$regex": f"^{re.escape(mat_name)}$", "$options": "i"}})
+            if mat_doc:
+                await db.raw_materials_inventory.update_one(
+                    {"material_id": mat_doc["_id"]},
+                    {"$inc": {"stock_level": -1.5 * qty}}
+                )
+        
+        # 2. Sole Type
+        sole_name = it.get("sole_type") or it.get("sole")
+        if sole_name:
+            mat_doc = await db.materials.find_one({"name": {"$regex": f"^{re.escape(sole_name)}$", "$options": "i"}})
+            if mat_doc:
+                await db.raw_materials_inventory.update_one(
+                    {"material_id": mat_doc["_id"]},
+                    {"$inc": {"stock_level": -1.0 * qty}}
+                )
+                
+        # 3. Lining
+        lining_name = it.get("lining_type") or it.get("lining")
+        if lining_name:
+            mat_doc = await db.materials.find_one({"name": {"$regex": f"^{re.escape(lining_name)}$", "$options": "i"}})
+            if mat_doc:
+                await db.raw_materials_inventory.update_one(
+                    {"material_id": mat_doc["_id"]},
+                    {"$inc": {"stock_level": -0.8 * qty}}
+                )
 
 
 @router.post("")
@@ -99,22 +149,65 @@ async def create_order(order: OrderCreate, request: Request):
     from tax_utils import compute_tax
     tax_breakdown = compute_tax(order.items, dest_state=order.shipping_address.get("state"))
 
-    total = round(subtotal - coupon_discount + tax_breakdown["total_tax"], 2)
-
     # Atomic stock reservation
     await _reserve_stock(order.items)
+    await _reserve_raw_materials(order.items)
+
+    # Determine production type based on order items
+    is_crafted = False
+    for item in order.items:
+        sku = item.get("articleCode") or item.get("article_code") or ""
+        if sku.startswith("BYD"):
+            is_crafted = True
+            break
+        prod_id = item.get("product_id")
+        if prod_id:
+            try:
+                p_doc = await db.products.find_one({"_id": ObjectId(prod_id)})
+                if p_doc:
+                    is_crafted = True
+                    break
+            except Exception:
+                pass
+
+    production_type = "crafted" if is_crafted else "ready_to_ship"
+    crafted_by = "inhouse" if production_type == "crafted" else None
+    fulfillment_vendor = None
+    vendor_upfront_cost = 0.0
+    
+    # Advanced Shipping & Logistics Metadata
+    courier_partner = None
+    tracking_number = None
+    estimated_delivery_date = None
+    shipping_cost_actual = 0.0
+    package_weight_kg = 0.0
+    transit_history = []
 
     order_number = f"BYD-{secrets.token_hex(3).upper()}"
+
+    import html
+    # Sanitize shipping address strings
+    safe_address = {}
+    if order.shipping_address:
+        for k, v in order.shipping_address.items():
+            if isinstance(v, str):
+                safe_address[k] = html.escape(v.strip())
+            else:
+                safe_address[k] = v
+
+    notes_sanitized = html.escape(order.notes.strip()) if order.notes else None
+
+    total = max(0.0, round(subtotal - coupon_discount + tax_breakdown.get("total_tax", 0.0), 2))
 
     doc = {
         "order_number": order_number,
         "user_id": ObjectId(user["_id"]),
-        "customer_name": user.get("name", ""),
+        "customer_name": html.escape(user.get("name", "")),
         "customer_email": user.get("email", ""),
         "items": order.items,
-        "shipping_address": order.shipping_address,
+        "shipping_address": safe_address,
         "payment_method": order.payment_method,
-        "notes": order.notes,
+        "notes": notes_sanitized,
         "subtotal": round(subtotal, 2),
         "coupon_code": coupon_code_applied,
         "coupon_discount": coupon_discount,
@@ -122,6 +215,16 @@ async def create_order(order: OrderCreate, request: Request):
         "total_amount": total,
         "status": "pending",
         "status_history": [{"status": "pending", "timestamp": datetime.now(timezone.utc).isoformat(), "note": "Order placed"}],
+        "production_type": production_type,
+        "crafted_by": crafted_by,
+        "fulfillment_vendor": fulfillment_vendor,
+        "vendor_upfront_cost": vendor_upfront_cost,
+        "courier_partner": courier_partner,
+        "tracking_number": tracking_number,
+        "estimated_delivery_date": estimated_delivery_date,
+        "shipping_cost_actual": shipping_cost_actual,
+        "package_weight_kg": package_weight_kg,
+        "transit_history": transit_history,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "updated_at": datetime.now(timezone.utc).isoformat()
     }
@@ -138,7 +241,12 @@ async def create_order(order: OrderCreate, request: Request):
 
     return {"id": str(result.inserted_id), "order_number": order_number,
             "subtotal": round(subtotal, 2), "coupon_discount": coupon_discount,
-            "tax": tax_breakdown, "total_amount": total, "status": "pending"}
+            "tax": tax_breakdown, "total_amount": total, "status": "pending",
+            "production_type": production_type, "crafted_by": crafted_by,
+            "fulfillment_vendor": fulfillment_vendor, "vendor_upfront_cost": vendor_upfront_cost,
+            "courier_partner": courier_partner, "tracking_number": tracking_number,
+            "estimated_delivery_date": estimated_delivery_date, "shipping_cost_actual": shipping_cost_actual,
+            "package_weight_kg": package_weight_kg, "transit_history": transit_history}
 
 
 @router.get("")
@@ -203,3 +311,630 @@ async def update_order_status(order_id: str, update: OrderStatusUpdate, request:
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Order not found")
     return {"message": f"Order status updated to {update.status}"}
+
+
+@router.put("/{order_id}/operational")
+async def update_order_operational(order_id: str, update: OrderOperationalUpdate, request: Request):
+    from auth_utils import get_current_user
+    user = await get_current_user(request, db)
+    if user.get("role") not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    # Verify order exists
+    order = await db.orders.find_one({"_id": ObjectId(order_id)})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    update_fields = {}
+    if update.production_type is not None:
+        if update.production_type not in ("ready_to_ship", "crafted"):
+            raise HTTPException(status_code=400, detail="production_type must be 'ready_to_ship' or 'crafted'")
+        update_fields["production_type"] = update.production_type
+        
+        # Automatically reset crafted fields if transitioning to ready_to_ship
+        if update.production_type == "ready_to_ship":
+            update_fields["crafted_by"] = None
+            update_fields["fulfillment_vendor"] = None
+            update_fields["vendor_upfront_cost"] = 0.0
+
+    if update.crafted_by is not None:
+        if update.crafted_by not in ("inhouse", "vendor", None):
+            raise HTTPException(status_code=400, detail="crafted_by must be 'inhouse', 'vendor', or None")
+        update_fields["crafted_by"] = update.crafted_by
+
+    if update.fulfillment_vendor is not None:
+        update_fields["fulfillment_vendor"] = update.fulfillment_vendor
+
+    if update.vendor_upfront_cost is not None:
+        update_fields["vendor_upfront_cost"] = round(update.vendor_upfront_cost, 2)
+
+    # Advanced Shipping & Logistics updates
+    if update.courier_partner is not None:
+        update_fields["courier_partner"] = update.courier_partner
+
+    if update.tracking_number is not None:
+        update_fields["tracking_number"] = update.tracking_number
+
+    if update.estimated_delivery_date is not None:
+        update_fields["estimated_delivery_date"] = update.estimated_delivery_date
+
+    if update.shipping_cost_actual is not None:
+        update_fields["shipping_cost_actual"] = round(update.shipping_cost_actual, 2)
+
+    if update.package_weight_kg is not None:
+        update_fields["package_weight_kg"] = round(update.package_weight_kg, 2)
+
+    if update.transit_history is not None:
+        update_fields["transit_history"] = update.transit_history
+
+    if not update_fields:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    update_fields["updated_at"] = datetime.now(timezone.utc).isoformat()
+
+    await db.orders.update_one(
+        {"_id": ObjectId(order_id)},
+        {"$set": update_fields}
+    )
+    
+    from auth_utils import log_security_event
+    await log_security_event(
+        db,
+        actor_id=user["id"],
+        actor_email=user["email"],
+        action="update_order_operational",
+        target=order_id,
+        details={"updated_fields": update_fields}
+    )
+    return {"message": "Order operational details updated successfully", "updated_fields": update_fields}
+
+
+# =====================================================================
+# ORDER MODIFICATIONS & SUPPORT CHANGE PROPOSAL PIPELINE
+# =====================================================================
+
+async def _release_stock(items):
+    """Release size-stock for each item (increment stock)."""
+    for it in items:
+        sku = it.get("articleCode") or it.get("article_code")
+        size = it.get("size")
+        qty = int(it.get("quantity", 1))
+        if not sku or not size:
+            continue
+        await db.inventory.update_one(
+            {"articleCode": sku, "size": size},
+            {"$inc": {"stock_qty": qty}}
+        )
+
+
+async def _release_raw_materials(items):
+    """Automatically release/increment raw materials for custom orders."""
+    import re
+    for it in items:
+        qty = int(it.get("quantity", 1))
+        
+        # 1. Custom Leather
+        mat_name = it.get("material") or it.get("leather_type")
+        if mat_name:
+            mat_doc = await db.materials.find_one({"name": {"$regex": f"^{re.escape(mat_name)}$", "$options": "i"}})
+            if mat_doc:
+                await db.raw_materials_inventory.update_one(
+                    {"material_id": mat_doc["_id"]},
+                    {"$inc": {"stock_level": 1.5 * qty}}
+                )
+        
+        # 2. Sole Type
+        sole_name = it.get("sole_type") or it.get("sole")
+        if sole_name:
+            mat_doc = await db.materials.find_one({"name": {"$regex": f"^{re.escape(sole_name)}$", "$options": "i"}})
+            if mat_doc:
+                await db.raw_materials_inventory.update_one(
+                    {"material_id": mat_doc["_id"]},
+                    {"$inc": {"stock_level": 1.0 * qty}}
+                )
+                
+        # 3. Lining
+        lining_name = it.get("lining_type") or it.get("lining")
+        if lining_name:
+            mat_doc = await db.materials.find_one({"name": {"$regex": f"^{re.escape(lining_name)}$", "$options": "i"}})
+            if mat_doc:
+                await db.raw_materials_inventory.update_one(
+                    {"material_id": mat_doc["_id"]},
+                    {"$inc": {"stock_level": 0.8 * qty}}
+                )
+
+
+class OrderDirectModify(BaseModel):
+    items: List[dict]
+    shipping_address: dict
+    notes: Optional[str] = None
+
+
+class OrderModificationProposal(BaseModel):
+    items: List[dict]
+    shipping_address: dict
+    notes: Optional[str] = None
+    ticket_id: Optional[str] = None
+
+
+@router.put("/{order_id}/direct-modify")
+async def direct_modify_order(order_id: str, modification: OrderDirectModify, request: Request):
+    from auth_utils import get_current_user
+    user = await get_current_user(request, db)
+    if user.get("role") not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    order = await db.orders.find_one({"_id": ObjectId(order_id)})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if order.get("status") not in ("pending", "confirmed"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot modify order in status: {order.get('status')}. Only 'pending' and 'confirmed' orders can be modified."
+        )
+
+    # Release old inventory & materials
+    old_items = order.get("items", [])
+    await _release_stock(old_items)
+    await _release_raw_materials(old_items)
+
+    try:
+        # Reserve new inventory & materials
+        new_items = modification.items
+        await _reserve_stock(new_items)
+        await _reserve_raw_materials(new_items)
+    except HTTPException as e:
+        # Rollback: reserve old items again
+        await _reserve_stock(old_items)
+        await _reserve_raw_materials(old_items)
+        raise e
+
+    # Recalculate billing details
+    subtotal = sum(item.get("price", 0) * item.get("quantity", 1) for item in new_items)
+
+    # Apply pricing rules
+    for item in new_items:
+        attributes = {
+            "material": item.get("material", ""),
+            "style": item.get("style", ""),
+            "color": item.get("color", ""),
+            "sole_type": item.get("sole", ""),
+            "sole": item.get("sole", "")
+        }
+        rules_cursor = db.pricing_rules.find({"active": True})
+        async for rule in rules_cursor:
+            field = rule["condition_field"]
+            value = rule["condition_value"]
+            if attributes.get(field, "").lower() == value.lower():
+                if rule["action"] == "add_price":
+                    subtotal += rule["action_value"] * item.get("quantity", 1)
+
+    coupon_discount = 0
+    coupon_code_applied = order.get("coupon_code")
+    if coupon_code_applied:
+        coupon_doc = await db.coupons.find_one({"code": coupon_code_applied.strip().upper()})
+        if coupon_doc:
+            from routes.coupons import calculate_discount
+            coupon_discount = calculate_discount(coupon_doc, subtotal)
+
+    # Sanitize shipping address
+    import html
+    safe_address = {}
+    if modification.shipping_address:
+        for k, v in modification.shipping_address.items():
+            if isinstance(v, str):
+                safe_address[k] = html.escape(v.strip())
+            else:
+                safe_address[k] = v
+
+    from tax_utils import compute_tax
+    tax_breakdown = compute_tax(new_items, dest_state=safe_address.get("state"))
+    total = max(0.0, round(subtotal - coupon_discount + tax_breakdown.get("total_tax", 0.0), 2))
+
+    notes_sanitized = html.escape(modification.notes.strip()) if modification.notes else None
+
+    # Update database
+    update_fields = {
+        "items": new_items,
+        "shipping_address": safe_address,
+        "notes": notes_sanitized,
+        "subtotal": round(subtotal, 2),
+        "coupon_discount": coupon_discount,
+        "tax": tax_breakdown,
+        "total_amount": total,
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+
+    history_entry = {
+        "status": order.get("status"),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "note": "Order details directly modified by Admin",
+        "updated_by": user.get("name", "Admin")
+    }
+
+    await db.orders.update_one(
+        {"_id": ObjectId(order_id)},
+        {"$set": update_fields, "$push": {"status_history": history_entry}}
+    )
+
+    from auth_utils import log_security_event
+    await log_security_event(
+        db,
+        actor_id=user["id"],
+        actor_email=user["email"],
+        action="direct_modify_order",
+        target=order_id,
+        details={"previous_items": old_items, "new_items": new_items, "total_amount": total}
+    )
+
+    return {"message": "Order directly modified successfully", "order_id": order_id, "total_amount": total}
+
+
+@router.post("/{order_id}/propose-modification")
+async def propose_order_modification(order_id: str, proposal: OrderModificationProposal, request: Request):
+    from auth_utils import get_current_user
+    user = await get_current_user(request, db)
+    # Accessible to staff and admins
+    if user.get("role") not in ("staff", "admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Staff and Admins only")
+
+    order = await db.orders.find_one({"_id": ObjectId(order_id)})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if order.get("status") not in ("pending", "confirmed"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot propose modification in status: {order.get('status')}. Only 'pending' and 'confirmed' orders can have proposals."
+        )
+
+    import html
+    safe_address = {}
+    if proposal.shipping_address:
+        for k, v in proposal.shipping_address.items():
+            if isinstance(v, str):
+                safe_address[k] = html.escape(v.strip())
+            else:
+                safe_address[k] = v
+
+    notes_sanitized = html.escape(proposal.notes.strip()) if proposal.notes else None
+
+    # Save pending proposal in DB
+    pending_mod = {
+        "proposed_by": user.get("name", "Support Agent"),
+        "proposed_email": user.get("email"),
+        "items": proposal.items,
+        "shipping_address": safe_address,
+        "notes": notes_sanitized,
+        "ticket_id": proposal.ticket_id,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+
+    await db.orders.update_one(
+        {"_id": ObjectId(order_id)},
+        {"$set": {"pending_modification": pending_mod, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+
+    from auth_utils import log_security_event
+    await log_security_event(
+        db,
+        actor_id=user["id"],
+        actor_email=user["email"],
+        action="propose_order_modification",
+        target=order_id,
+        details={"proposed_by": user.get("name")}
+    )
+
+    return {"message": "Order modification proposed successfully", "order_id": order_id}
+
+
+@router.post("/{order_id}/approve-modification")
+async def approve_order_modification(order_id: str, request: Request):
+    from auth_utils import get_current_user
+    user = await get_current_user(request, db)
+    if user.get("role") not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    order = await db.orders.find_one({"_id": ObjectId(order_id)})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if order.get("status") not in ("pending", "confirmed"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot approve modification in status: {order.get('status')}. Only 'pending' and 'confirmed' orders can have proposals approved."
+        )
+
+    pending_mod = order.get("pending_modification")
+    if not pending_mod:
+        raise HTTPException(status_code=404, detail="No pending modification found for this order")
+
+    # Release old inventory & materials
+    old_items = order.get("items", [])
+    await _release_stock(old_items)
+    await _release_raw_materials(old_items)
+
+    try:
+        # Reserve new inventory & materials from proposal
+        proposed_items = pending_mod.get("items", [])
+        await _reserve_stock(proposed_items)
+        await _reserve_raw_materials(proposed_items)
+    except HTTPException as e:
+        # Rollback: reserve old items again
+        await _reserve_stock(old_items)
+        await _reserve_raw_materials(old_items)
+        raise e
+
+    # Recalculate billing details
+    subtotal = sum(item.get("price", 0) * item.get("quantity", 1) for item in proposed_items)
+
+    # Apply pricing rules
+    for item in proposed_items:
+        attributes = {
+            "material": item.get("material", ""),
+            "style": item.get("style", ""),
+            "color": item.get("color", ""),
+            "sole_type": item.get("sole", ""),
+            "sole": item.get("sole", "")
+        }
+        rules_cursor = db.pricing_rules.find({"active": True})
+        async for rule in rules_cursor:
+            field = rule["condition_field"]
+            value = rule["condition_value"]
+            if attributes.get(field, "").lower() == value.lower():
+                if rule["action"] == "add_price":
+                    subtotal += rule["action_value"] * item.get("quantity", 1)
+
+    coupon_discount = 0
+    coupon_code_applied = order.get("coupon_code")
+    if coupon_code_applied:
+        coupon_doc = await db.coupons.find_one({"code": coupon_code_applied.strip().upper()})
+        if coupon_doc:
+            from routes.coupons import calculate_discount
+            coupon_discount = calculate_discount(coupon_doc, subtotal)
+
+    from tax_utils import compute_tax
+    proposed_address = pending_mod.get("shipping_address", {})
+    tax_breakdown = compute_tax(proposed_items, dest_state=proposed_address.get("state"))
+    total = max(0.0, round(subtotal - coupon_discount + tax_breakdown.get("total_tax", 0.0), 2))
+
+    original_total = order.get("total_amount", 0.0)
+    price_increased = total > original_total
+    new_status = "waiting_for_payment" if price_increased else "confirmed"
+    outstanding_amount = round(total - original_total, 2) if price_increased else 0.0
+
+    # Update database
+    update_fields = {
+        "items": proposed_items,
+        "shipping_address": proposed_address,
+        "notes": pending_mod.get("notes"),
+        "subtotal": round(subtotal, 2),
+        "coupon_discount": coupon_discount,
+        "tax": tax_breakdown,
+        "total_amount": total,
+        "status": new_status,
+        "outstanding_amount": outstanding_amount,
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+
+    history_entry = {
+        "status": new_status,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "note": f"Proposed order modification approved and applied by Admin (Proposed by {pending_mod.get('proposed_by')}). Status transitioned to {new_status}.",
+        "updated_by": user.get("name", "Admin")
+    }
+
+    await db.orders.update_one(
+        {"_id": ObjectId(order_id)},
+        {"$set": update_fields, "$unset": {"pending_modification": ""}, "$push": {"status_history": history_entry}}
+    )
+
+    # Auto-update support ticket if associated
+    ticket_id = pending_mod.get("ticket_id")
+    if ticket_id:
+        msg_text = f"✅ Admin has approved and applied the proposed order modifications for Order #{order.get('order_number')}. Total amount recalculated to ₹{total:,.2f}."
+        if price_increased:
+            msg_text += f"\n\n💵 Price has increased by ₹{outstanding_amount:,.2f}. The order status is now 'Waiting for Payment'. Please complete the extra payment to resume production."
+        else:
+            msg_text += "\n\n🎉 No extra payment is required. The order has been updated in confirmed status."
+            
+        await db.support_tickets.update_one(
+            {"_id": ObjectId(ticket_id)},
+            {
+                "$push": {
+                    "messages": {
+                        "sender": "admin",
+                        "admin_name": "System / CRM",
+                        "message": msg_text,
+                        "timestamp": datetime.now(timezone.utc).isoformat()
+                    }
+                },
+                "$set": {
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }
+            }
+        )
+
+    from auth_utils import log_security_event
+    await log_security_event(
+        db,
+        actor_id=user["id"],
+        actor_email=user["email"],
+        action="approve_order_modification",
+        target=order_id,
+        details={"approved_by": user.get("name"), "total_amount": total}
+    )
+
+    return {"message": "Order modification approved and applied successfully", "order_id": order_id, "total_amount": total}
+
+
+@router.post("/{order_id}/reject-modification")
+async def reject_order_modification(order_id: str, request: Request):
+    from auth_utils import get_current_user
+    user = await get_current_user(request, db)
+    if user.get("role") not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    order = await db.orders.find_one({"_id": ObjectId(order_id)})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    pending_mod = order.get("pending_modification")
+    if not pending_mod:
+        raise HTTPException(status_code=404, detail="No pending modification found for this order")
+
+    history_entry = {
+        "status": order.get("status"),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "note": f"Proposed order modification rejected and dismissed by Admin (Proposed by {pending_mod.get('proposed_by')})",
+        "updated_by": user.get("name", "Admin")
+    }
+
+    await db.orders.update_one(
+        {"_id": ObjectId(order_id)},
+        {"$unset": {"pending_modification": ""}, "$set": {"updated_at": datetime.now(timezone.utc).isoformat()}, "$push": {"status_history": history_entry}}
+    )
+
+    from auth_utils import log_security_event
+    await log_security_event(
+        db,
+        actor_id=user["id"],
+        actor_email=user["email"],
+        action="reject_order_modification",
+        target=order_id,
+        details={"rejected_by": user.get("name")}
+    )
+
+    return {"message": "Order modification proposal rejected successfully", "order_id": order_id}
+
+
+class PriceCalculationRequest(BaseModel):
+    items: List[dict]
+    shipping_address: Optional[dict] = None
+    coupon_code: Optional[str] = None
+
+
+@router.post("/{order_id}/calculate-price")
+async def calculate_order_price(order_id: str, payload: PriceCalculationRequest, request: Request):
+    from auth_utils import get_current_user
+    user = await get_current_user(request, db)
+    
+    order = await db.orders.find_one({"_id": ObjectId(order_id)})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    subtotal = sum(item.get("price", 0) * item.get("quantity", 1) for item in payload.items)
+
+    # Apply pricing rules
+    for item in payload.items:
+        attributes = {
+            "material": item.get("material", ""),
+            "style": item.get("style", ""),
+            "color": item.get("color", ""),
+            "sole_type": item.get("sole", ""),
+            "sole": item.get("sole", "")
+        }
+        rules_cursor = db.pricing_rules.find({"active": True})
+        async for rule in rules_cursor:
+            field = rule["condition_field"]
+            value = rule["condition_value"]
+            if attributes.get(field, "").lower() == value.lower():
+                if rule["action"] == "add_price":
+                    subtotal += rule["action_value"] * item.get("quantity", 1)
+
+    coupon_discount = 0
+    coupon_code_applied = payload.coupon_code or order.get("coupon_code")
+    if coupon_code_applied:
+        coupon_doc = await db.coupons.find_one({"code": coupon_code_applied.strip().upper()})
+        if coupon_doc:
+            from routes.coupons import calculate_discount
+            coupon_discount = calculate_discount(coupon_doc, subtotal)
+
+    from tax_utils import compute_tax
+    state = payload.shipping_address.get("state") if payload.shipping_address else order.get("shipping_address", {}).get("state")
+    tax_breakdown = compute_tax(payload.items, dest_state=state)
+
+    total = max(0.0, round(subtotal - coupon_discount + tax_breakdown.get("total_tax", 0.0), 2))
+    return {
+        "subtotal": round(subtotal, 2),
+        "coupon_discount": coupon_discount,
+        "tax_total": tax_breakdown.get("total_tax", 0.0),
+        "total_amount": total
+    }
+
+
+class PaymentRecordRequest(BaseModel):
+    amount_paid: float
+    payment_method: str
+    ticket_id: Optional[str] = None
+
+
+@router.post("/{order_id}/record-payment")
+async def record_order_payment(order_id: str, payload: PaymentRecordRequest, request: Request):
+    from auth_utils import get_current_user
+    user = await get_current_user(request, db)
+    # Gated to staff or admin roles
+    if user.get("role") not in ("staff", "admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Staff and Admins only")
+
+    order = await db.orders.find_one({"_id": ObjectId(order_id)})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    outstanding = order.get("outstanding_amount", 0.0)
+    
+    # Update outstanding amount and reset status to confirmed
+    history_entry = {
+        "status": "confirmed",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "note": f"Extra payment of ₹{payload.amount_paid:,.2f} recorded by {user.get('name')} via {payload.payment_method.upper()}.",
+        "updated_by": user.get("name", "Support Staff")
+    }
+
+    new_outstanding = max(0.0, round(outstanding - payload.amount_paid, 2))
+    
+    update_data = {
+        "outstanding_amount": new_outstanding,
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    if new_outstanding == 0.0:
+        update_data["status"] = "confirmed"
+
+    await db.orders.update_one(
+        {"_id": ObjectId(order_id)},
+        {"$set": update_data, "$push": {"status_history": history_entry}}
+    )
+
+    # Post chat confirmation if ticket_id is supplied
+    if payload.ticket_id:
+        await db.support_tickets.update_one(
+            {"_id": ObjectId(payload.ticket_id)},
+            {
+                "$push": {
+                    "messages": {
+                        "sender": "admin",
+                        "admin_name": "System / CRM",
+                        "message": f"💵 Extra payment of ₹{payload.amount_paid:,.2f} received and recorded successfully via {payload.payment_method.upper()}! Outstanding balance cleared. Order is now fully Confirmed.",
+                        "timestamp": datetime.now(timezone.utc).isoformat()
+                    }
+                },
+                "$set": {
+                    "updated_at": datetime.now(timezone.utc).isoformat()
+                }
+            }
+        )
+
+    from auth_utils import log_security_event
+    await log_security_event(
+        db,
+        actor_id=user["id"],
+        actor_email=user["email"],
+        action="record_order_extra_payment",
+        target=order_id,
+        details={"amount_paid": payload.amount_paid, "payment_method": payload.payment_method, "remaining_outstanding": new_outstanding}
+    )
+
+    return {"message": "Payment recorded successfully", "outstanding_amount": new_outstanding, "status": "confirmed" if new_outstanding == 0.0 else order.get("status")}
+
+

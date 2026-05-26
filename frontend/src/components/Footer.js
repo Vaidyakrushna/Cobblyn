@@ -43,7 +43,7 @@ const Footer = () => {
             <li><a href="/luxe-collection">Luxe Collection</a></li>
             <li><a href="/accessories">Accessories</a></li>
             <li><a href="/customize">Customize</a></li>
-            <li><a href="/bespoke">Bespoke Form</a></li>
+            <li><a href="/bespoke">Schedule Visit</a></li>
           </ul>
         </div>
 
@@ -61,11 +61,11 @@ const Footer = () => {
         <div>
           <div className="footer-col-title">Company</div>
           <ul className="footer-links">
-            <li><a href="/about">About Us</a></li>
+            <li><a href="/story">Our Story</a></li>
             <li><a href="/studio">Our Studio</a></li>
             <li><a href="/sustainability">Sustainability</a></li>
             <li><a href="/careers">Careers</a></li>
-            <li><a href="/contact">Contact</a></li>
+            <li><a href="/contact">Contact Us</a></li>
           </ul>
         </div>
 

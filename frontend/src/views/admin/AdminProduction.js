@@ -29,6 +29,47 @@ const AdminProduction = () => {
   const [showCreateJob, setShowCreateJob] = useState(false);
   const [pendingOrders, setPendingOrders] = useState([]);
   const [createForm, setCreateForm] = useState({ order_id: '', priority: 'normal', assigned_to: '', notes: '' });
+  const [draggedOverColumn, setDraggedOverColumn] = useState(null);
+
+  const handleDragStart = (e, jobId) => {
+    e.dataTransfer.setData('text/plain', jobId);
+  };
+
+  const handleDrop = async (e, targetColumnId) => {
+    e.preventDefault();
+    setDraggedOverColumn(null);
+    const jobId = e.dataTransfer.getData('text/plain');
+    if (!jobId) return;
+
+    const job = jobs.find(j => j.id === jobId);
+    if (!job) return;
+
+    try {
+      if (targetColumnId === 'pending') {
+        await api.updateProductionStage(jobId, { stage: 'pattern_cutting', status: 'pending' });
+      } else if (targetColumnId === 'confirmed') {
+        await api.updateProductionStage(jobId, { stage: 'pattern_cutting', status: 'in_progress' });
+      } else if (targetColumnId === 'in_progress') {
+        // Complete pattern cutting and start assembly
+        await api.updateProductionStage(jobId, { stage: 'pattern_cutting', status: 'completed' });
+        await api.updateProductionStage(jobId, { stage: 'upper_assembly', status: 'in_progress' });
+      } else if (targetColumnId === 'quality_check') {
+        // Complete preceding steps up to quality check
+        await api.updateProductionStage(jobId, { stage: 'pattern_cutting', status: 'completed' });
+        await api.updateProductionStage(jobId, { stage: 'upper_assembly', status: 'completed' });
+        await api.updateProductionStage(jobId, { stage: 'sole_attachment', status: 'completed' });
+        await api.updateProductionStage(jobId, { stage: 'finishing', status: 'completed' });
+        await api.updateProductionStage(jobId, { stage: 'quality_check', status: 'in_progress' });
+      } else if (targetColumnId === 'completed') {
+        // Mark quality check as completed (dispatched stage)
+        await api.updateProductionStage(jobId, { stage: 'quality_check', status: 'completed' });
+      }
+      
+      fetchData();
+    } catch (err) {
+      alert('Failed to transition stage: ' + err.message);
+    }
+  };
 
   const fetchData = async () => {
     try {
@@ -162,51 +203,243 @@ const AdminProduction = () => {
       {/* ===== QUEUE VIEW ===== */}
       {view === 'queue' && (
         <>
-          <div className="admin-filters" style={{ marginTop: 16 }}>
-            {['all', 'in_progress', 'completed'].map(s => (
-              <button key={s} className={`admin-filter-btn ${statusFilter === s ? 'active' : ''}`} onClick={() => setStatusFilter(s)}>
-                {s === 'all' ? 'All Status' : s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
-              </button>
-            ))}
-          </div>
+          <style>{`
+            .kanban-board {
+              display: grid;
+              grid-template-columns: repeat(5, 1fr);
+              gap: 16px;
+              margin-top: 24px;
+              align-items: start;
+            }
+            @media (max-width: 1200px) {
+              .kanban-board {
+                grid-template-columns: repeat(2, 1fr);
+              }
+            }
+            @media (max-width: 768px) {
+              .kanban-board {
+                grid-template-columns: 1fr;
+              }
+            }
+            .kanban-column {
+              background: #fafaf9;
+              border: 1px solid #e7e5e4;
+              border-radius: 12px;
+              padding: 14px;
+              min-height: 480px;
+              display: flex;
+              flex-direction: column;
+              transition: all 0.3s ease;
+            }
+            .kanban-column.drag-over {
+              background: rgba(201, 168, 76, 0.05);
+              border-color: #C9A84C;
+              box-shadow: 0 0 10px rgba(201,168,76,0.1);
+            }
+            .kanban-column-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 12px;
+              padding-bottom: 8px;
+              border-bottom: 2px solid var(--col-color);
+            }
+            .kanban-column-title {
+              font-family: 'Montserrat', sans-serif;
+              font-size: 0.8rem;
+              font-weight: 700;
+              color: #292524;
+              text-transform: uppercase;
+              letter-spacing: 0.05em;
+            }
+            .kanban-column-count {
+              font-size: 0.7rem;
+              font-weight: 700;
+              background: #e7e5e4;
+              color: #57534e;
+              padding: 2px 8px;
+              border-radius: 12px;
+            }
+            .kanban-column-desc {
+              font-size: 0.65rem;
+              color: #a8a29e;
+              margin: -8px 0 12px 0;
+            }
+            .kanban-cards-container {
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+              flex: 1;
+              min-height: 400px;
+            }
+            .kanban-card {
+              background: #fff;
+              border: 1px solid #e7e5e4;
+              border-radius: 8px;
+              padding: 14px;
+              box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+              cursor: grab;
+              transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            }
+            .kanban-card:hover {
+              transform: translateY(-2px);
+              box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+              border-color: #C9A84C;
+            }
+            .kanban-card:active {
+              cursor: grabbing;
+            }
+            .k-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 8px;
+            }
+            .k-ord {
+              font-family: 'Montserrat', sans-serif;
+              font-weight: 700;
+              font-size: 0.82rem;
+              color: #1c1917;
+            }
+            .k-priority {
+              font-size: 0.6rem;
+              font-weight: 700;
+              padding: 2px 6px;
+              border-radius: 4px;
+              text-transform: uppercase;
+              letter-spacing: 0.03em;
+            }
+            .k-cust {
+              font-weight: 600;
+              font-size: 0.78rem;
+              color: #44403c;
+              margin-bottom: 4px;
+            }
+            .k-items {
+              font-size: 0.68rem;
+              color: #78716c;
+              margin-bottom: 10px;
+            }
+            .k-footer {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding-top: 10px;
+              border-top: 1px solid #f5f5f4;
+            }
+            .k-assigned {
+              font-size: 0.65rem;
+              color: #a8a29e;
+              font-style: italic;
+            }
+            .k-btn {
+              background: transparent;
+              border: none;
+              color: #C9A84C;
+              font-weight: 600;
+              font-size: 0.7rem;
+              display: flex;
+              align-items: center;
+              gap: 4px;
+              cursor: pointer;
+              padding: 0;
+            }
+            .k-btn:hover {
+              color: #854d0e;
+            }
+          `}</style>
 
-          {jobs.length === 0 ? <div className="admin-empty">No production jobs found</div> : (
-            <div className="prod-job-list" data-testid="production-job-list">
-              {jobs.map(job => (
-                <div key={job.id} className={`prod-job-card priority-${job.priority}`} data-testid={`prod-job-${job.id}`}>
-                  <div className="pj-header">
-                    <div className="pj-order-info">
-                      <span className="pj-order-num">#{job.order_number}</span>
-                      <span className="pj-priority" style={{ color: PRIORITY_COLORS[job.priority] }}>{job.priority?.toUpperCase()}</span>
+          {(() => {
+            const getJobColumn = (job) => {
+              if (job.status === 'completed' || job.current_stage === 'ready_to_ship') return 'completed';
+              if (job.current_stage === 'quality_check') return 'quality_check';
+              if (job.current_stage === 'upper_assembly' || job.current_stage === 'sole_attachment' || job.current_stage === 'finishing') return 'in_progress';
+              
+              const cuttingStage = job.stages?.find(s => s.name === 'pattern_cutting');
+              if (cuttingStage?.status === 'in_progress') return 'confirmed';
+              return 'pending';
+            };
+
+            const kanbanColumns = [
+              { id: 'pending', label: 'Pending', color: '#f59e0b', desc: 'Awaiting pattern cutting' },
+              { id: 'confirmed', label: 'Confirmed', color: '#2563eb', desc: 'Cutting & prepping' },
+              { id: 'in_progress', label: 'In Production', color: '#8b5cf6', desc: 'Assembling & finishing' },
+              { id: 'quality_check', label: 'Quality QA', color: '#ec4899', desc: 'Final product checks' },
+              { id: 'completed', label: 'Dispatched', color: '#10b981', desc: 'Shipped to customer' }
+            ];
+
+            return (
+              <div className="kanban-board" data-testid="kanban-board">
+                {kanbanColumns.map(col => {
+                  const filteredJobs = jobs.filter(j => getJobColumn(j) === col.id);
+                  return (
+                    <div 
+                      key={col.id} 
+                      className={`kanban-column ${draggedOverColumn === col.id ? 'drag-over' : ''}`}
+                      style={{ '--col-color': col.color }}
+                      onDragOver={(e) => { e.preventDefault(); setDraggedOverColumn(col.id); }}
+                      onDragLeave={() => setDraggedOverColumn(null)}
+                      onDrop={(e) => handleDrop(e, col.id)}
+                      data-testid={`kanban-col-${col.id}`}
+                    >
+                      <div className="kanban-column-header">
+                        <span className="kanban-column-title" style={{ color: col.color }}>{col.label}</span>
+                        <span className="kanban-column-count">{filteredJobs.length}</span>
+                      </div>
+                      <span className="kanban-column-desc">{col.desc}</span>
+                      
+                      <div className="kanban-cards-container">
+                        {filteredJobs.length === 0 ? (
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '120px', border: '1.5px dashed #e7e5e4', borderRadius: '8px', padding: '12px', color: '#a8a29e', fontSize: '0.68rem', textAlign: 'center', background: '#fafaf9' }}>
+                            <span>No active jobs</span>
+                          </div>
+                        ) : (
+                          filteredJobs.map(job => (
+                            <div 
+                              key={job.id} 
+                              className="kanban-card"
+                              draggable="true"
+                              onDragStart={(e) => handleDragStart(e, job.id)}
+                              data-testid={`kanban-card-${job.id}`}
+                            >
+                              <div className="k-header">
+                                <span className="k-ord">#{job.order_number}</span>
+                                <span 
+                                  className="k-priority" 
+                                  style={{ 
+                                    backgroundColor: job.priority === 'express' ? '#fef2f2' : job.priority === 'rush' ? '#fffbeb' : '#f4f4f5', 
+                                    color: PRIORITY_COLORS[job.priority] || '#6B7280' 
+                                  }}
+                                >
+                                  {job.priority}
+                                </span>
+                              </div>
+                              <div className="k-cust">{job.customer_name}</div>
+                              <div className="k-items">
+                                {job.items?.map((item, idx) => (
+                                  <div key={idx} style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                                    {item.name} (UK {item.size})
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="k-footer">
+                                <span className="k-assigned">
+                                  {job.assigned_to ? `Assigned: ${job.assigned_to}` : 'Unassigned'}
+                                </span>
+                                <button className="k-btn" onClick={() => openJobDetail(job.id)} data-testid={`view-job-${job.id}`}>
+                                  <Eye size={12} /> Details
+                                </button>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
                     </div>
-                    <span className={`status-badge status-${job.status === 'completed' ? 'delivered' : 'in_production'}`}>
-                      {job.status?.replace(/_/g, ' ')}
-                    </span>
-                  </div>
-                  <div className="pj-body">
-                    <div className="pj-customer">{job.customer_name}</div>
-                    <div className="pj-meta">
-                      <span>{job.items?.length || 0} item(s)</span>
-                      <span>{'\u20B9'}{job.total_amount?.toLocaleString()}</span>
-                      {job.assigned_to && <span className="pj-assigned">Assigned: {job.assigned_to}</span>}
-                    </div>
-                    {/* Mini stage progress */}
-                    <div className="pj-stage-bar">
-                      {job.stages?.map((s, i) => (
-                        <div key={s.name} className={`pj-stage-dot ${s.status}`} title={`${s.label}: ${s.status}`}
-                          style={{ backgroundColor: s.status === 'completed' ? STAGE_COLORS[s.name] : s.status === 'in_progress' ? STAGE_COLORS[s.name] : '#e5e5e5' }}>
-                        </div>
-                      ))}
-                      <span className="pj-current-stage">{job.current_stage?.replace(/_/g, ' ')}</span>
-                    </div>
-                  </div>
-                  <div className="pj-actions">
-                    <button onClick={() => openJobDetail(job.id)} data-testid={`view-job-${job.id}`}><Eye size={14} /> Details</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            );
+          })()}
         </>
       )}
 

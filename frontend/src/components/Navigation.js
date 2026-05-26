@@ -72,7 +72,16 @@ const Navigation = () => {
     ]
   };
 
-  const customizeSubmenu = [{ label: 'Men', slug: 'men' }, { label: 'Women', slug: 'women' }];
+  const accessoriesSubmenu = [
+    { label: 'View All',              href: '/accessories' },
+    { label: 'Belts',                 href: '/accessories/belts' },
+    { label: 'Socks',                 href: '/accessories/socks' },
+    { label: 'Wallets & Card Holders',href: '/accessories/wallets' },
+    { label: 'Lace',                  href: '/accessories/lace' },
+    { label: 'Key Rings',             href: '/accessories/key-rings' },
+    { label: 'Travel Kit',            href: '/accessories/travel-kit' },
+    { label: 'Shoe Care',             href: '/accessories/shoe-care' },
+  ];
 
   const handleLogout = async () => {
     setUserMenuOpen(false);
@@ -116,7 +125,7 @@ const Navigation = () => {
                     <div className="dropdown-title">Explore</div>
                     <ul className="dropdown-list">
                       <li><Link href="/men?tag=ready-to-ship">Ready to ship</Link></li>
-                      <li><Link href="/bespoke">Bespoke Form</Link></li>
+                      <li><Link href="/bespoke">Schedule Visit</Link></li>
                       <li><Link href="/customize/men">Customisation</Link></li>
                     </ul>
                   </div>
@@ -141,7 +150,7 @@ const Navigation = () => {
                     <div className="dropdown-title">Explore</div>
                     <ul className="dropdown-list">
                       <li><Link href="/women?tag=ready-to-ship">Ready to ship</Link></li>
-                      <li><Link href="/bespoke">Bespoke Form</Link></li>
+                      <li><Link href="/bespoke">Schedule Visit</Link></li>
                       <li><Link href="/customize/women">Customisation</Link></li>
                     </ul>
                   </div>
@@ -149,18 +158,31 @@ const Navigation = () => {
               </div>
             )}
           </li>
-          <li onMouseEnter={() => setActiveDropdown('customize')} onMouseLeave={() => setActiveDropdown(null)}>
-            <Link href="/customize" data-testid="nav-link-customize">Customize <ChevronDown size={14} className="ml-1" /></Link>
-            {activeDropdown === 'customize' && (
-              <div className="dropdown" data-testid="customize-submenu">
+          <li>
+            <Link href="/customize" data-testid="nav-link-customize">Customize</Link>
+          </li>
+          <li><Link href="/luxe-collection" data-testid="nav-link-luxe-collection">Luxe Collection</Link></li>
+          <li onMouseEnter={() => setActiveDropdown('accessories')} onMouseLeave={() => setActiveDropdown(null)}>
+            <Link href="/accessories" data-testid="nav-link-accessories">Accessories <ChevronDown size={14} className="ml-1" /></Link>
+            {activeDropdown === 'accessories' && (
+              <div className="dropdown dropdown-accessories" data-testid="accessories-submenu">
                 <div className="dropdown-inner">
-                  <ul className="dropdown-list">{customizeSubmenu.map((item) => (<li key={item.slug}><Link href={`/customize/${item.slug}`}>{item.label}</Link></li>))}</ul>
+                  <div>
+                    <div className="dropdown-title">Categories</div>
+                    <ul className="dropdown-list">
+                      {accessoriesSubmenu.map((item) => (
+                        <li key={item.href}>
+                          <Link href={item.href}
+                            style={item.label === 'View All' ? { color: 'var(--accent)', fontWeight: 600 } : {}}
+                          >{item.label}</Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
             )}
           </li>
-          <li><Link href="/luxe-collection" data-testid="nav-link-luxe-collection">Luxe Collection</Link></li>
-          <li><Link href="/accessories" data-testid="nav-link-accessories">Accessories</Link></li>
         </ul>
 
         <div className="nav-right">

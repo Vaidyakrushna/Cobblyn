@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional, List
 from bson import ObjectId
 from datetime import datetime, timezone
 import secrets
 
-from auth_utils import get_current_user, hash_password, verify_password
+from auth_utils import get_current_user, hash_password, verify_password, validate_password_strength
 
 router = APIRouter(prefix="/api/account", tags=["account"])
 
@@ -46,6 +46,13 @@ class PaymentMethodCreate(BaseModel):
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def check_password_strength(cls, v: str) -> str:
+        validate_password_strength(v)
+        return v
+
 
 
 # ===== Profile =====
@@ -117,13 +124,11 @@ async def change_password(data: ChangePasswordRequest, request: Request):
     if not verify_password(data.current_password, full_user["password_hash"]):
         raise HTTPException(status_code=400, detail="Current password is incorrect")
 
-    if len(data.new_password) < 6:
-        raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
-
     new_hash = hash_password(data.new_password)
+    now_iso = datetime.now(timezone.utc).isoformat()
     await db.users.update_one(
         {"_id": ObjectId(user["_id"])},
-        {"$set": {"password_hash": new_hash}}
+        {"$set": {"password_hash": new_hash, "password_changed_at": now_iso}}
     )
     return {"message": "Password changed successfully"}
 
@@ -261,6 +266,22 @@ async def list_my_orders(request: Request, status: Optional[str] = None, limit: 
     async for doc in cursor:
         doc["id"] = str(doc.pop("_id"))
         doc["user_id"] = str(doc["user_id"]) if isinstance(doc.get("user_id"), ObjectId) else doc.get("user_id", "")
+        
+        # Securely lookup matching production job from db.production_jobs
+        try:
+            prod_job = await db.production_jobs.find_one({"order_id": ObjectId(doc["id"])})
+            if not prod_job:
+                prod_job = await db.production_jobs.find_one({"order_id": doc["id"]})
+        except Exception:
+            prod_job = None
+            
+        if prod_job:
+            doc["production_stages"] = prod_job.get("stages", [])
+            doc["current_production_stage"] = prod_job.get("current_stage", "")
+        else:
+            doc["production_stages"] = []
+            doc["current_production_stage"] = ""
+            
         orders.append(doc)
 
     total = await db.orders.count_documents(query)
@@ -278,6 +299,22 @@ async def get_my_order(order_id: str, request: Request):
 
     doc["id"] = str(doc.pop("_id"))
     doc["user_id"] = str(doc["user_id"]) if isinstance(doc.get("user_id"), ObjectId) else doc.get("user_id", "")
+    
+    # Securely lookup matching production job from db.production_jobs
+    try:
+        prod_job = await db.production_jobs.find_one({"order_id": ObjectId(doc["id"])})
+        if not prod_job:
+            prod_job = await db.production_jobs.find_one({"order_id": doc["id"]})
+    except Exception:
+        prod_job = None
+        
+    if prod_job:
+        doc["production_stages"] = prod_job.get("stages", [])
+        doc["current_production_stage"] = prod_job.get("current_stage", "")
+    else:
+        doc["production_stages"] = []
+        doc["current_production_stage"] = ""
+
     return doc
 
 
