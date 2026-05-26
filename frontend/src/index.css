@@ -625,6 +625,10 @@ body {
   transform: scale(1.08);
 }
 
+.sig-image-container:hover .sig-image-secondary {
+  opacity: 1 !important;
+}
+
 .sig-hover-overlay {
   position: absolute;
   inset: 0;
