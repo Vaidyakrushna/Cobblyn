@@ -111,6 +111,26 @@ async def _reserve_raw_materials(items):
                 )
 
 
+def _evaluate_condition(attributes: dict, cond: dict) -> bool:
+    field = cond.get("field")
+    operator = cond.get("operator", "equals")
+    target_value = cond.get("value", "")
+    
+    attr_val = str(attributes.get(field, "")).lower()
+    t_val = str(target_value).lower()
+    
+    if operator == "equals":
+        return attr_val == t_val
+    elif operator == "not_equals":
+        return attr_val != t_val
+    elif operator == "contains":
+        return t_val in attr_val
+    elif operator == "in":
+        val_list = [v.strip() for v in t_val.split(",") if v.strip()]
+        return attr_val in val_list
+    return False
+
+
 async def _apply_pricing_rules(items, database) -> int:
     """Evaluate and apply all active pricing rules on order items mathematically."""
     additional_surcharge = 0
@@ -137,9 +157,23 @@ async def _apply_pricing_rules(items, database) -> int:
         item_price = item_base
         
         for rule in rules:
-            field = rule["condition_field"]
-            value = rule["condition_value"]
-            if attributes.get(field, "").lower() == value.lower():
+            rule_conditions = rule.get("conditions")
+            logical_op = rule.get("logical_operator", "AND").upper()
+            
+            is_matched = False
+            if rule_conditions:
+                cond_results = [_evaluate_condition(attributes, c) for c in rule_conditions]
+                if logical_op == "OR":
+                    is_matched = any(cond_results)
+                else:
+                    is_matched = all(cond_results)
+            else:
+                field = rule.get("condition_field")
+                value = rule.get("condition_value")
+                if field and value:
+                    is_matched = attributes.get(field, "").lower() == value.lower()
+
+            if is_matched:
                 if rule["action"] == "add_price":
                     item_price += rule["action_value"]
                 elif rule["action"] == "multiply_price":

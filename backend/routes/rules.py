@@ -27,6 +27,12 @@ def serialize(doc):
     return doc
 
 
+class RuleCondition(BaseModel):
+    field: str
+    operator: str = "equals"  # equals, not_equals, contains, in
+    value: str
+
+
 class RuleCreate(BaseModel):
     name: str
     condition_field: str   # material, style, sole_type, color, etc.
@@ -35,6 +41,8 @@ class RuleCreate(BaseModel):
     action_value: int      # amount in rupees or multiplier
     active: bool = True
     priority: int = 0      # evaluation order priority
+    conditions: Optional[list[RuleCondition]] = None
+    logical_operator: str = "AND"  # AND, OR
     description: Optional[str] = None
 
 
@@ -46,6 +54,8 @@ class RuleUpdate(BaseModel):
     action_value: Optional[int] = None
     active: Optional[bool] = None
     priority: Optional[int] = None
+    conditions: Optional[list[RuleCondition]] = None
+    logical_operator: Optional[str] = None
     description: Optional[str] = None
 
 
@@ -91,6 +101,26 @@ async def delete_rule(rule_id: str, request: Request):
     return {"message": "Rule deleted"}
 
 
+def _evaluate_condition(attributes: dict, cond: dict) -> bool:
+    field = cond.get("field")
+    operator = cond.get("operator", "equals")
+    target_value = cond.get("value", "")
+    
+    attr_val = str(attributes.get(field, "")).lower()
+    t_val = str(target_value).lower()
+    
+    if operator == "equals":
+        return attr_val == t_val
+    elif operator == "not_equals":
+        return attr_val != t_val
+    elif operator == "contains":
+        return t_val in attr_val
+    elif operator == "in":
+        val_list = [v.strip() for v in t_val.split(",") if v.strip()]
+        return attr_val in val_list
+    return False
+
+
 @router.post("/calculate-price")
 async def calculate_price(request: Request):
     """Calculate final price based on base price and applicable rules."""
@@ -109,9 +139,24 @@ async def calculate_price(request: Request):
     applied_rules = []
 
     for rule in rules:
-        field = rule["condition_field"]
-        value = rule["condition_value"]
-        if attributes.get(field, "").lower() == value.lower():
+        # Check conditions
+        rule_conditions = rule.get("conditions")
+        logical_op = rule.get("logical_operator", "AND").upper()
+        
+        is_matched = False
+        if rule_conditions:
+            cond_results = [_evaluate_condition(attributes, c) for c in rule_conditions]
+            if logical_op == "OR":
+                is_matched = any(cond_results)
+            else:
+                is_matched = all(cond_results)
+        else:
+            field = rule.get("condition_field")
+            value = rule.get("condition_value")
+            if field and value:
+                is_matched = attributes.get(field, "").lower() == value.lower()
+
+        if is_matched:
             if rule["action"] == "add_price":
                 final_price += rule["action_value"]
                 applied_rules.append({"rule": rule["name"], "adjustment": f"+{rule['action_value']}"})
