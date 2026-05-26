@@ -42,15 +42,20 @@ const AdminBanners = () => {
 
   const openNew = () => {
     const nextOrder = banners.length ? Math.max(...banners.map(b => b.sort_order || 0)) + 1 : 0;
-    setForm({ ...emptyBanner, sort_order: nextOrder, section: section });
-    setGalleryImages([]);
+    setForm({ 
+      ...emptyBanner, 
+      eyebrow: section === 'slider' ? 'NEW COLLECTION' : 'BESTSELLER',
+      sort_order: nextOrder, 
+      section: section 
+    });
+    setGalleryImages(['', '', '']);
     setEditing('new');
   };
 
   const openEdit = (b) => {
     const imgList = (b.image || '').split(',').filter(Boolean);
     const primary = imgList[0] || '';
-    const gallery = imgList.slice(1);
+    const gallery = [imgList[1] || '', imgList[2] || '', imgList[3] || ''];
     setForm({
       eyebrow: b.eyebrow || '',
       title: b.title || '',
@@ -72,7 +77,7 @@ const AdminBanners = () => {
   const closeForm = () => {
     setEditing(null);
     setForm(emptyBanner);
-    setGalleryImages([]);
+    setGalleryImages(['', '', '']);
   };
 
   const handleSave = async () => {
@@ -147,65 +152,139 @@ const AdminBanners = () => {
       </div>
 
       {banners.length === 0 ? (
-        <div className="admin-empty">No banners yet. Add your first hero slide to start.</div>
+        <div className="admin-empty">No assets yet. Add your first {section === 'slider' ? 'hero slide' : 'collection tile'} to start.</div>
       ) : (
         <div className="admin-table-wrapper">
           <table className="admin-table" data-testid="admin-banners-table">
             <thead>
-              <tr>
-                <th style={{ width: 70 }}>Order</th><th>Image</th><th>Title</th>
-                <th>Subtitle</th><th>CTA</th><th>Status</th><th>Actions</th>
-              </tr>
+              {section === 'slider' ? (
+                <tr>
+                  <th style={{ width: 70 }}>Order</th>
+                  <th>Image</th>
+                  <th>Title &amp; Tag</th>
+                  <th>Subtitle &amp; Price</th>
+                  <th>Call to Actions</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              ) : (
+                <tr>
+                  <th style={{ width: 70 }}>Order</th>
+                  <th>Images (Primary + Gallery)</th>
+                  <th>Product Name &amp; Badge</th>
+                  <th>Material &amp; Specs</th>
+                  <th>Display Price</th>
+                  <th>Product Link</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              )}
             </thead>
             <tbody>
-              {banners.map((b, idx) => (
-                <tr key={b.id} data-testid={`banner-row-${b.id}`} style={{ opacity: b.active ? 1 : 0.55 }}>
-                  <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <strong>{b.sort_order ?? idx}</strong>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                        <button onClick={() => handleMove(b, -1)} disabled={idx === 0} title="Move up"
-                          style={{ background: 'none', border: 'none', cursor: idx === 0 ? 'not-allowed' : 'pointer', padding: 2 }}><MoveUp size={11} /></button>
-                        <button onClick={() => handleMove(b, 1)} disabled={idx === banners.length - 1} title="Move down"
-                          style={{ background: 'none', border: 'none', cursor: idx === banners.length - 1 ? 'not-allowed' : 'pointer', padding: 2 }}><MoveDown size={11} /></button>
+              {banners.map((b, idx) => {
+                const imgList = (b.image || '').split(',').filter(Boolean);
+                const primaryImage = imgList[0] || '';
+                const galleryList = imgList.slice(1);
+
+                return (
+                  <tr key={b.id} data-testid={`banner-row-${b.id}`} style={{ opacity: b.active ? 1 : 0.55 }}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <strong>{b.sort_order ?? idx}</strong>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          <button onClick={() => handleMove(b, -1)} disabled={idx === 0} title="Move up"
+                            style={{ background: 'none', border: 'none', cursor: idx === 0 ? 'not-allowed' : 'pointer', padding: 2 }}><MoveUp size={11} /></button>
+                          <button onClick={() => handleMove(b, 1)} disabled={idx === banners.length - 1} title="Move down"
+                            style={{ background: 'none', border: 'none', cursor: idx === banners.length - 1 ? 'not-allowed' : 'pointer', padding: 2 }}><MoveDown size={11} /></button>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td>
-                    <div style={{ width: 80, height: 56, borderRadius: 4, overflow: 'hidden', background: '#F3F4F6' }}>
-                      {b.image && <img src={b.image} alt={b.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
-                    </div>
-                  </td>
-                  <td>
-                    <div style={{ fontSize: 11, color: '#C9A84C', fontWeight: 600, letterSpacing: '0.08em' }}>{b.eyebrow}</div>
-                    <strong>{b.title}</strong>
-                  </td>
-                  <td style={{ fontSize: 13, color: '#6B7280', maxWidth: 280 }}>
-                    <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                      {b.subtitle}
-                    </div>
-                    {b.price && <div style={{ marginTop: 4 }}><strong>{b.price}</strong></div>}
-                  </td>
-                  <td style={{ fontSize: 12 }}>
-                    {b.primary_cta && <div>{b.primary_cta} <span style={{ color: '#9CA3AF' }}>→</span> <code style={{ background: '#F3F4F6', padding: '1px 4px', borderRadius: 3 }}>{b.primary_cta_link}</code></div>}
-                    {b.secondary_cta && <div style={{ marginTop: 4, color: '#6B7280' }}>{b.secondary_cta} → <code style={{ background: '#F3F4F6', padding: '1px 4px', borderRadius: 3 }}>{b.secondary_cta_link}</code></div>}
-                  </td>
-                  <td>
-                    <button onClick={() => handleToggleActive(b)} data-testid={`banner-toggle-${b.id}`}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 4, fontSize: 12, fontWeight: 500,
-                               background: b.active ? '#10B98115' : '#9CA3AF15', color: b.active ? '#10B981' : '#6B7280',
-                               border: 'none', cursor: 'pointer' }}>
-                      {b.active ? <Eye size={12} /> : <EyeOff size={12} />} {b.active ? 'Active' : 'Hidden'}
-                    </button>
-                  </td>
-                  <td>
-                    <div className="table-actions">
-                      <button onClick={() => openEdit(b)} title="Edit" data-testid={`edit-banner-${b.id}`}><Edit2 size={14} /></button>
-                      <button onClick={() => setDeleteConfirm(b)} title="Delete" data-testid={`delete-banner-${b.id}`}><Trash2 size={14} color="#EF4444" /></button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+
+                    {section === 'slider' ? (
+                      /* Slider Tab Columns */
+                      <>
+                        <td>
+                          <div style={{ width: 80, height: 56, borderRadius: 4, overflow: 'hidden', background: '#F3F4F6' }}>
+                            {primaryImage && <img src={primaryImage} alt={b.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ fontSize: 11, color: '#C9A84C', fontWeight: 600, letterSpacing: '0.08em' }}>{b.eyebrow}</div>
+                          <strong>{b.title}</strong>
+                        </td>
+                        <td style={{ fontSize: 13, color: '#6B7280', maxWidth: 280 }}>
+                          <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                            {b.subtitle}
+                          </div>
+                          {b.price && <div style={{ marginTop: 4 }}><strong>{b.price}</strong></div>}
+                        </td>
+                        <td style={{ fontSize: 12 }}>
+                          {b.primary_cta && <div>{b.primary_cta} <span style={{ color: '#9CA3AF' }}>→</span> <code style={{ background: '#F3F4F6', padding: '1px 4px', borderRadius: 3 }}>{b.primary_cta_link}</code></div>}
+                          {b.secondary_cta && <div style={{ marginTop: 4, color: '#6B7280' }}>{b.secondary_cta} → <code style={{ background: '#F3F4F6', padding: '1px 4px', borderRadius: 3 }}>{b.secondary_cta_link}</code></div>}
+                        </td>
+                      </>
+                    ) : (
+                      /* Grid Collections Tab Columns */
+                      <>
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {/* Primary display image */}
+                            <div style={{ width: 80, height: 56, borderRadius: 4, overflow: 'hidden', background: '#F3F4F6', border: '1px solid #E5E7EB' }}>
+                              {primaryImage && <img src={primaryImage} alt={b.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
+                            </div>
+                            {/* Additional perspective gallery images */}
+                            {galleryList.length > 0 && (
+                              <div style={{ display: 'flex', gap: 4 }}>
+                                {galleryList.map((gImg, gIdx) => (
+                                  <div key={gIdx} style={{ width: 22, height: 22, borderRadius: 3, overflow: 'hidden', background: '#F3F4F6', border: '1px solid #C9A84C' }} title={`Perspective ${gIdx + 1}`}>
+                                    <img src={gImg} alt="Gallery Perspective" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          {b.eyebrow && (
+                            <span style={{ display: 'inline-block', fontSize: 9, background: '#C9A84C20', color: '#C9A84C', padding: '2px 6px', borderRadius: 4, fontWeight: 700, letterSpacing: '0.05em', marginBottom: 4 }}>
+                              {b.eyebrow}
+                            </span>
+                          )}
+                          <div><strong>{b.title}</strong></div>
+                        </td>
+                        <td style={{ fontSize: 13, color: '#4B5563' }}>
+                          {b.subtitle}
+                        </td>
+                        <td>
+                          <strong style={{ color: '#111827' }}>{b.price || '—'}</strong>
+                        </td>
+                        <td>
+                          {b.primary_cta_link ? (
+                            <code style={{ background: '#F3F4F6', padding: '2px 6px', borderRadius: 4, fontSize: 11, color: '#374151' }}>{b.primary_cta_link}</code>
+                          ) : (
+                            <span style={{ color: '#9CA3AF', fontSize: 11, fontStyle: 'italic' }}>Direct Link Not Set</span>
+                          )}
+                        </td>
+                      </>
+                    )}
+
+                    <td>
+                      <button onClick={() => handleToggleActive(b)} data-testid={`banner-toggle-${b.id}`}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 4, fontSize: 12, fontWeight: 500,
+                                 background: b.active ? '#10B98115' : '#9CA3AF15', color: b.active ? '#10B981' : '#6B7280',
+                                 border: 'none', cursor: 'pointer' }}>
+                        {b.active ? <Eye size={12} /> : <EyeOff size={12} />} {b.active ? 'Active' : 'Hidden'}
+                      </button>
+                    </td>
+                    <td>
+                      <div className="table-actions">
+                        <button onClick={() => openEdit(b)} title="Edit" data-testid={`edit-banner-${b.id}`}><Edit2 size={14} /></button>
+                        <button onClick={() => setDeleteConfirm(b)} title="Delete" data-testid={`delete-banner-${b.id}`}><Trash2 size={14} color="#EF4444" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
@@ -345,7 +424,7 @@ const AdminBanners = () => {
                               onChange={(url) => {
                                 const nextList = [...galleryImages];
                                 nextList[gIdx] = url;
-                                setGalleryImages(nextList.filter(Boolean));
+                                setGalleryImages(nextList);
                               }}
                               label={`Gallery Image ${gIdx + 1}`}
                             />
@@ -355,8 +434,8 @@ const AdminBanners = () => {
                               type="button" 
                               onClick={() => {
                                 const nextList = [...galleryImages];
-                                nextList.splice(gIdx, 1);
-                                setGalleryImages(nextList.filter(Boolean));
+                                nextList[gIdx] = '';
+                                setGalleryImages(nextList);
                               }}
                               style={{ padding: '6px 12px', background: '#EF444415', color: '#EF4444', border: 'none', borderRadius: 6, fontSize: 11, fontWeight: 600, cursor: 'pointer', height: 38, marginTop: 24 }}
                             >

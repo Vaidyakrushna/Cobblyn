@@ -146,8 +146,8 @@ const LuxeCollection = () => {
               </Link>
               
               {/* Pierre Cardin Sizing Quick Add Hover Overlay */}
-              <div className="sig-hover-overlay" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'rgba(10, 10, 10, 0.88)' }}>
-                <span className="size-label" style={{ color: '#fff', fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', marginBottom: '8px' }}>QUICK ADD SIZE (UK)</span>
+              <div className="sig-hover-overlay">
+                <span className="size-label">QUICK ADD SIZE (UK)</span>
                 <div className="size-options" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
                   {sizes.map((sz) => (
                     <button

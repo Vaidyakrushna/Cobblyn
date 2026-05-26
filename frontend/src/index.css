@@ -631,20 +631,27 @@ body {
 
 .sig-hover-overlay {
   position: absolute;
-  inset: 0;
-  background: rgba(10, 10, 10, 0.92);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 15, 15, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  padding: 24px;
+  padding: 16px 12px;
   opacity: 0;
-  transition: opacity 0.35s ease;
+  transform: translateY(100%);
+  transition: opacity 0.4s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 10;
 }
 
 .sig-card:hover .sig-hover-overlay {
   opacity: 1;
+  transform: translateY(0);
 }
 
 .size-label {

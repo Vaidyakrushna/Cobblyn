@@ -65,7 +65,15 @@ export const api = {
   deleteVisit: (id) => apiFetch(`/api/visits/${id}`, { method: 'DELETE' }),
 
   // Banners
-  listBanners: (activeOnly = false) => apiFetch(`/api/banners${activeOnly ? '?active_only=true' : ''}`),
+  listBanners: (params = '') => {
+    let qs = '';
+    if (typeof params === 'boolean') {
+      qs = params ? '?active_only=true' : '';
+    } else if (typeof params === 'string') {
+      qs = params;
+    }
+    return apiFetch(`/api/banners${qs}`);
+  },
   createBanner: (data) => apiFetch('/api/banners', { method: 'POST', body: JSON.stringify(data) }),
   updateBanner: (id, data) => apiFetch(`/api/banners/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteBanner: (id) => apiFetch(`/api/banners/${id}`, { method: 'DELETE' }),
