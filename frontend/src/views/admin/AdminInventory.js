@@ -94,13 +94,7 @@ const AdminInventory = () => {
     <div className="admin-page" data-testid="admin-inventory">
       <div className="admin-page-header">
         <div><h1>Stock Inventory</h1><p>Track stock levels across all products and sizes</p></div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="admin-btn-secondary" onClick={() => {
-            const evt = new CustomEvent('byond-admin-tab', { detail: 'products' });
-            window.dispatchEvent(evt);
-          }} data-testid="add-new-inventory-btn"><Plus size={14} /> Add New Inventory</button>
-          <button className="admin-btn-primary" onClick={fetchData} data-testid="refresh-inventory-btn"><RefreshCw size={14} /> Refresh</button>
-        </div>
+        <button className="admin-btn-primary" onClick={fetchData} data-testid="refresh-inventory-btn"><RefreshCw size={14} /> Refresh</button>
       </div>
 
       {/* Stats */}
