@@ -29,6 +29,20 @@ const AdminBanners = () => {
   const [section, setSection] = useState('slider');
   const [galleryImages, setGalleryImages] = useState([]);
 
+  // Dynamic & Static Fallback Material Options
+  const defaultMaterials = [
+    'Full-Grain Calf Leather', 
+    'Italian Calfskin', 
+    'Premium Suede', 
+    'Embroidered Heritage Silk', 
+    'Patent Leather', 
+    'Brushed Velvet'
+  ];
+
+  const [materialOptions, setMaterialOptions] = useState(defaultMaterials.sort());
+  const [selectedMaterial, setSelectedMaterial] = useState('');
+  const [customMaterial, setCustomMaterial] = useState('');
+
   const fetchBanners = async () => {
     setLoading(true);
     try {
@@ -40,6 +54,22 @@ const AdminBanners = () => {
 
   useEffect(() => { fetchBanners(); }, [section]);
 
+  // Fetch unique materials from materials library when component mounts
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      try {
+        const data = await api.getMaterials();
+        const names = (data.materials || []).map(m => m.name);
+        const combined = Array.from(new Set([...defaultMaterials, ...names])).sort();
+        setMaterialOptions(combined);
+      } catch (err) {
+        console.error('Failed to fetch materials:', err);
+        setMaterialOptions(defaultMaterials.sort());
+      }
+    };
+    fetchMaterials();
+  }, []);
+
   const openNew = () => {
     const nextOrder = banners.length ? Math.max(...banners.map(b => b.sort_order || 0)) + 1 : 0;
     setForm({ 
@@ -48,6 +78,8 @@ const AdminBanners = () => {
       sort_order: nextOrder, 
       section: section 
     });
+    setSelectedMaterial('');
+    setCustomMaterial('');
     setGalleryImages(['', '', '']);
     setEditing('new');
   };
@@ -56,6 +88,21 @@ const AdminBanners = () => {
     const imgList = (b.image || '').split(',').filter(Boolean);
     const primary = imgList[0] || '';
     const gallery = [imgList[1] || '', imgList[2] || '', imgList[3] || ''];
+    
+    const matName = b.subtitle || '';
+    const isStandard = materialOptions.includes(matName) || defaultMaterials.includes(matName);
+
+    if (matName === '') {
+      setSelectedMaterial('');
+      setCustomMaterial('');
+    } else if (isStandard) {
+      setSelectedMaterial(matName);
+      setCustomMaterial('');
+    } else {
+      setSelectedMaterial('Other');
+      setCustomMaterial(matName);
+    }
+
     setForm({
       eyebrow: b.eyebrow || '',
       title: b.title || '',
@@ -77,6 +124,8 @@ const AdminBanners = () => {
   const closeForm = () => {
     setEditing(null);
     setForm(emptyBanner);
+    setSelectedMaterial('');
+    setCustomMaterial('');
     setGalleryImages(['', '', '']);
   };
 
@@ -382,8 +431,25 @@ const AdminBanners = () => {
                   <div className="frow">
                     <div className="af-field">
                       <label>Material &amp; Details *</label>
-                      <input type="text" value={form.subtitle} onChange={(e) => setForm({...form, subtitle: e.target.value})}
-                        placeholder="e.g. Full-Grain Calf Leather" data-testid="banner-form-subtitle" />
+                      <select 
+                        value={selectedMaterial} 
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setSelectedMaterial(val);
+                          if (val !== 'Other') {
+                            setForm({ ...form, subtitle: val });
+                          } else {
+                            setForm({ ...form, subtitle: customMaterial });
+                          }
+                        }}
+                        style={{ width: '100%', padding: '8px 12px', borderRadius: 6, border: '1px solid #E5E7EB', outline: 'none', background: 'white' }}
+                      >
+                        <option value="">-- Select Material --</option>
+                        {materialOptions.map((name) => (
+                          <option key={name} value={name}>{name}</option>
+                        ))}
+                        <option value="Other">Other (Custom Material)</option>
+                      </select>
                     </div>
                     <div className="af-field">
                       <label>Display Price *</label>
@@ -391,6 +457,23 @@ const AdminBanners = () => {
                         placeholder="₹8,500" />
                     </div>
                   </div>
+
+                  {selectedMaterial === 'Other' && (
+                    <div className="af-field" style={{ marginTop: 12 }}>
+                      <label>Specify Custom Material Name *</label>
+                      <input 
+                        type="text" 
+                        value={customMaterial} 
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setCustomMaterial(val);
+                          setForm({ ...form, subtitle: val });
+                        }}
+                        placeholder="e.g. Suede &amp; Brushed Velvet" 
+                        required
+                      />
+                    </div>
+                  )}
 
                   <div className="af-field">
                     <label>CTA Target Link / Product Detail Link</label>
