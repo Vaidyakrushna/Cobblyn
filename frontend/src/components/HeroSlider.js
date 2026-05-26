@@ -38,7 +38,7 @@ const HeroSlider = () => {
 
   useEffect(() => {
     let cancelled = false;
-    api.listBanners(true).then(data => {
+    api.listBanners('?active_only=true&section=slider').then(data => {
       if (!cancelled && data?.items?.length) setSlides(data.items);
     }).catch(() => { /* keep fallback */ });
     return () => { cancelled = true; };

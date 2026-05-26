@@ -27,7 +27,7 @@ const SignatureStyles = () => {
   React.useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await api.request('/banners?section=signature');
+        const data = await api.request('/banners?active_only=true&section=signature');
         const signatureBanners = data.items || [];
         if (signatureBanners.length > 0) {
           setProducts(signatureBanners.map(b => {

@@ -27,7 +27,7 @@ const LuxeCollection = () => {
   React.useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await api.request('/banners?section=luxe');
+        const data = await api.request('/banners?active_only=true&section=luxe');
         const luxeBanners = data.items || [];
         if (luxeBanners.length > 0) {
           setProducts(luxeBanners.map(b => {

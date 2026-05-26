@@ -188,7 +188,11 @@ const AdminBanners = () => {
       <div className="admin-page-header">
         <div><h1>Home Page Assets</h1><p>Manage the home page sections: slider, signature styles, explore, and luxe</p></div>
         <button className="admin-btn-primary" onClick={openNew} data-testid="admin-new-banner-btn">
-          <Plus size={14} /> New Asset
+          <Plus size={14} /> {
+            section === 'slider' ? 'New Hero Slide' :
+            section === 'signature' ? 'New Signature Style' :
+            section === 'explore' ? 'New Explore Tile' : 'New Luxe Tile'
+          }
         </button>
       </div>
 
