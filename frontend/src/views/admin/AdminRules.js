@@ -125,90 +125,106 @@ const AdminRules = () => {
             <form onSubmit={handleSubmit} className="admin-form">
               <div className="af-field"><label>Rule Name *</label><input value={form.name} onChange={e => setForm({...form, name: e.target.value})} required placeholder="e.g., Shell Cordovan Premium" /></div>
               {form.conditions && form.conditions.length > 0 ? (
-                <div style={{ marginTop: 8, marginBottom: 16, border: '1px solid #E5E7EB', padding: '16px', borderRadius: 8, background: '#F9FAFB' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                    <label style={{ fontWeight: 700, fontSize: 13, color: '#111827' }}>📋 Compound Conditions</label>
+                <div style={{ marginTop: 8, marginBottom: 16, border: '1px solid #E5E7EB', padding: '20px', borderRadius: 8, background: '#F9FAFB' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <label style={{ fontWeight: 700, fontSize: 13, color: '#111827', fontFamily: "'Playfair Display', serif" }}>📋 Compound Conditions</label>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 12, color: '#4B5563' }}>Match:</span>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Match:</span>
                       <select 
                         value={form.logical_operator} 
                         onChange={e => setForm({ ...form, logical_operator: e.target.value })}
-                        style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid #D1D5DB', background: 'white' }}
+                        style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #D1D5DB', background: 'white', fontFamily: "'Montserrat', sans-serif", fontSize: '0.78rem' }}
                       >
                         <option value="AND">All (AND)</option>
                         <option value="OR">Any (OR)</option>
                       </select>
                     </div>
                   </div>
-                  {form.conditions.map((cond, cIdx) => (
-                    <div key={cIdx} style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
-                      <select 
-                        value={cond.field} 
-                        onChange={e => {
-                          const next = [...form.conditions];
-                          next[cIdx].field = e.target.value;
-                          setForm({ ...form, conditions: next });
-                        }}
-                        style={{ flex: 1, padding: '6px 10px', borderRadius: 6, border: '1px solid #D1D5DB', background: 'white' }}
-                      >
-                        {conditionFields.map(f => <option key={f} value={f}>{f}</option>)}
-                      </select>
-                      <select 
-                        value={cond.operator || 'equals'} 
-                        onChange={e => {
-                          const next = [...form.conditions];
-                          next[cIdx].operator = e.target.value;
-                          setForm({ ...form, conditions: next });
-                        }}
-                        style={{ width: 110, padding: '6px 10px', borderRadius: 6, border: '1px solid #D1D5DB', background: 'white' }}
-                      >
-                        <option value="equals">Equals</option>
-                        <option value="not_equals">Not Equals</option>
-                        <option value="contains">Contains</option>
-                        <option value="in">In (List)</option>
-                      </select>
-                      <input 
-                        type="text" 
-                        value={cond.value} 
-                        onChange={e => {
-                          const next = [...form.conditions];
-                          next[cIdx].value = e.target.value;
-                          setForm({ ...form, conditions: next });
-                        }}
-                        placeholder="Value"
-                        style={{ flex: 2, padding: '6px 10px', borderRadius: 6, border: '1px solid #D1D5DB', background: 'white' }}
-                        required
-                      />
-                      <button 
-                        type="button" 
-                        onClick={() => {
-                          const next = form.conditions.filter((_, i) => i !== cIdx);
-                          setForm({ ...form, conditions: next });
-                        }}
-                        style={{ padding: '6px 10px', background: '#EF444415', color: '#EF4444', border: 'none', borderRadius: 6, cursor: 'pointer' }}
-                      >
-                        <Trash2 size={14} />
-                      </button>
+
+                  {form.conditions.length > 0 && (
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1.8fr 40px', gap: '12px', marginBottom: '8px', paddingRight: '4px' }}>
+                      <span style={{ fontSize: '0.62rem', fontWeight: 600, color: 'var(--dark-grey)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>If Attribute</span>
+                      <span style={{ fontSize: '0.62rem', fontWeight: 600, color: 'var(--dark-grey)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Operator</span>
+                      <span style={{ fontSize: '0.62rem', fontWeight: 600, color: 'var(--dark-grey)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Matching Value</span>
+                      <span></span>
                     </div>
-                  ))}
-                  <button 
-                    type="button" 
-                    onClick={() => {
-                      setForm({ ...form, conditions: [...form.conditions, { field: 'material', operator: 'equals', value: '' }] });
-                    }}
-                    style={{ padding: '6px 12px', background: '#C9A84C15', color: '#C9A84C', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}
-                  >
-                    <Plus size={12} /> Add Condition
-                  </button>
-                  <button 
-                    type="button" 
-                    onClick={() => {
-                      setForm({ ...form, conditions: [] });
-                    }}
-                    style={{ marginLeft: 8, padding: '6px 12px', background: '#E5E7EB', color: '#374151', border: 'none', borderRadius: 6, cursor: 'pointer', fontSize: 12 }}
-                  >
-                    Reset to Simple Rule
-                  </button>
+                  )}
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '16px' }}>
+                    {form.conditions.map((cond, cIdx) => (
+                      <div key={cIdx} style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1.8fr 40px', gap: '12px', alignItems: 'center' }}>
+                        <select 
+                          value={cond.field} 
+                          onChange={e => {
+                            const next = [...form.conditions];
+                            next[cIdx].field = e.target.value;
+                            setForm({ ...form, conditions: next });
+                          }}
+                          style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', fontSize: '0.78rem', fontFamily: "'Montserrat', sans-serif", background: 'white' }}
+                        >
+                          {conditionFields.map(f => <option key={f} value={f}>{f}</option>)}
+                        </select>
+                        <select 
+                          value={cond.operator || 'equals'} 
+                          onChange={e => {
+                            const next = [...form.conditions];
+                            next[cIdx].operator = e.target.value;
+                            setForm({ ...form, conditions: next });
+                          }}
+                          style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', fontSize: '0.78rem', fontFamily: "'Montserrat', sans-serif", background: 'white' }}
+                        >
+                          <option value="equals">Equals</option>
+                          <option value="not_equals">Not Equals</option>
+                          <option value="contains">Contains</option>
+                          <option value="in">In (List)</option>
+                        </select>
+                        <input 
+                          type="text" 
+                          value={cond.value} 
+                          onChange={e => {
+                            const next = [...form.conditions];
+                            next[cIdx].value = e.target.value;
+                            setForm({ ...form, conditions: next });
+                          }}
+                          placeholder="e.g., Shell Cordovan"
+                          style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', fontSize: '0.78rem', fontFamily: "'Montserrat', sans-serif", background: 'white' }}
+                          required
+                        />
+                        <button 
+                          type="button" 
+                          onClick={() => {
+                            const next = form.conditions.filter((_, i) => i !== cIdx);
+                            setForm({ ...form, conditions: next });
+                          }}
+                          style={{ display: 'flex', alignItems: 'center', justifycontent: 'center', height: '38px', width: '38px', background: '#EF444415', color: '#EF4444', border: '1px solid rgba(239, 68, 68, 0.2)', cursor: 'pointer', transition: 'all 0.2s', justifyContent: 'center' }}
+                          title="Remove condition"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 12 }}>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setForm({ ...form, conditions: [...form.conditions, { field: 'material', operator: 'equals', value: '' }] });
+                      }}
+                      style={{ padding: '8px 16px', background: '#C9A84C15', color: '#C9A84C', border: '1px solid rgba(201, 168, 76, 0.3)', cursor: 'pointer', fontSize: 11, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6, textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: "'Montserrat', sans-serif" }}
+                    >
+                      <Plus size={14} /> Add Condition
+                    </button>
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        setForm({ ...form, conditions: [] });
+                      }}
+                      style={{ padding: '8px 16px', background: '#E5E7EB', color: '#374151', border: '1px solid #D1D5DB', cursor: 'pointer', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: "'Montserrat', sans-serif" }}
+                    >
+                      Reset to Simple Rule
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <>
