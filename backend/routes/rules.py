@@ -34,6 +34,7 @@ class RuleCreate(BaseModel):
     action: str            # add_price, multiply_price, set_min_price
     action_value: int      # amount in rupees or multiplier
     active: bool = True
+    priority: int = 0      # evaluation order priority
     description: Optional[str] = None
 
 
@@ -44,13 +45,14 @@ class RuleUpdate(BaseModel):
     action: Optional[str] = None
     action_value: Optional[int] = None
     active: Optional[bool] = None
+    priority: Optional[int] = None
     description: Optional[str] = None
 
 
 @router.get("")
 async def list_rules(request: Request):
     await require_admin(request)
-    cursor = db.pricing_rules.find().sort("name", 1)
+    cursor = db.pricing_rules.find().sort([("priority", 1), ("name", 1)])
     rules = []
     async for doc in cursor:
         rules.append(serialize(doc))
@@ -99,6 +101,9 @@ async def calculate_price(request: Request):
     rules = []
     async for doc in db.pricing_rules.find({"active": True}):
         rules.append(doc)
+
+    # Sort by priority (ascending) and then action type (additions first, multiplications second)
+    rules.sort(key=lambda r: (r.get("priority", 0), 0 if r.get("action") == "add_price" else 1))
 
     final_price = base_price
     applied_rules = []

@@ -8,7 +8,7 @@ const AdminRules = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
-  const [form, setForm] = useState({ name: '', condition_field: 'material', condition_value: '', action: 'add_price', action_value: 0, active: true, description: '' });
+  const [form, setForm] = useState({ name: '', condition_field: 'material', condition_value: '', action: 'add_price', action_value: 0, active: true, priority: 0, description: '' });
 
   const fetchRules = async () => {
     try {
@@ -32,7 +32,7 @@ const AdminRules = () => {
   };
 
   const handleEdit = (rule) => {
-    setForm({ name: rule.name, condition_field: rule.condition_field, condition_value: rule.condition_value, action: rule.action, action_value: rule.action_value, active: rule.active, description: rule.description || '' });
+    setForm({ name: rule.name, condition_field: rule.condition_field, condition_value: rule.condition_value, action: rule.action, action_value: rule.action_value, active: rule.active, priority: rule.priority || 0, description: rule.description || '' });
     setEditingId(rule.id);
     setShowForm(true);
   };
@@ -52,7 +52,7 @@ const AdminRules = () => {
     <div className="admin-page" data-testid="admin-rules">
       <div className="admin-page-header">
         <div><h1>Pricing Rules Engine</h1><p>Set conditional pricing logic for bespoke orders</p></div>
-        <button className="admin-btn-primary" onClick={() => { setShowForm(true); setEditingId(null); setForm({ name: '', condition_field: 'material', condition_value: '', action: 'add_price', action_value: 0, active: true, description: '' }); }} data-testid="add-rule-btn">
+        <button className="admin-btn-primary" onClick={() => { setShowForm(true); setEditingId(null); setForm({ name: '', condition_field: 'material', condition_value: '', action: 'add_price', action_value: 0, active: true, priority: 0, description: '' }); }} data-testid="add-rule-btn">
           <Plus size={16} /> Add Rule
         </button>
       </div>
@@ -61,7 +61,7 @@ const AdminRules = () => {
         <div className="admin-table-wrapper">
           <table className="admin-table">
             <thead>
-              <tr><th>Rule Name</th><th>Condition</th><th>Action</th><th>Amount</th><th>Status</th><th>Actions</th></tr>
+              <tr><th>Rule Name</th><th>Condition</th><th>Action</th><th>Amount</th><th>Priority</th><th>Status</th><th>Actions</th></tr>
             </thead>
             <tbody>
               {rules.map(rule => (
@@ -70,6 +70,11 @@ const AdminRules = () => {
                   <td><span className="condition-tag">If {rule.condition_field} = "{rule.condition_value}"</span></td>
                   <td>{rule.action === 'add_price' ? 'Add to Price' : 'Multiply %'}</td>
                   <td className="rule-amount">{rule.action === 'add_price' ? `+₹${rule.action_value.toLocaleString()}` : `+${rule.action_value}%`}</td>
+                  <td>
+                    <span style={{ fontWeight: '600', color: '#C9A84C', background: '#C9A84C10', padding: '2px 8px', borderRadius: 4, fontSize: 12 }}>
+                      {rule.priority ?? 0}
+                    </span>
+                  </td>
                   <td>
                     <button className={`toggle-btn ${rule.active ? 'active' : ''}`} onClick={() => toggleActive(rule)} data-testid={`toggle-rule-${rule.id}`}>
                       {rule.active ? <ToggleRight size={22} /> : <ToggleLeft size={22} />}
@@ -102,6 +107,7 @@ const AdminRules = () => {
               <div className="af-row">
                 <div className="af-field"><label>Then (Action)</label><select value={form.action} onChange={e => setForm({...form, action: e.target.value})}><option value="add_price">Add to Price (₹)</option><option value="multiply_price">Multiply (%)</option></select></div>
                 <div className="af-field"><label>Amount</label><input type="number" value={form.action_value} onChange={e => setForm({...form, action_value: parseInt(e.target.value) || 0})} required /></div>
+                <div className="af-field"><label>Priority Order</label><input type="number" value={form.priority} onChange={e => setForm({...form, priority: parseInt(e.target.value) || 0})} placeholder="e.g. 0" /></div>
               </div>
               <div className="af-field"><label>Description</label><textarea value={form.description} onChange={e => setForm({...form, description: e.target.value})} rows="2" placeholder="Explain when this rule applies" /></div>
               <button type="submit" className="admin-btn-primary">{editingId ? 'Update' : 'Create'} Rule</button>

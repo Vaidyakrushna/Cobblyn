@@ -111,6 +111,46 @@ async def _reserve_raw_materials(items):
                 )
 
 
+async def _apply_pricing_rules(items, database) -> int:
+    """Evaluate and apply all active pricing rules on order items mathematically."""
+    additional_surcharge = 0
+    
+    # Pre-fetch and sort rules to minimize DB roundtrips
+    rules_cursor = database.pricing_rules.find({"active": True})
+    rules = [r async for r in rules_cursor]
+    # Sort: priority (ascending) first, and additions first (add_price)
+    rules.sort(key=lambda r: (r.get("priority", 0), 0 if r.get("action") == "add_price" else 1))
+
+    for item in items:
+        # Support both Pydantic models and standard dictionaries
+        item_dict = item.model_dump() if hasattr(item, "model_dump") else (item.dict() if hasattr(item, "dict") else item)
+        
+        attributes = {
+            "material": item_dict.get("material", ""),
+            "style": item_dict.get("style", ""),
+            "color": item_dict.get("color", ""),
+            "sole_type": item_dict.get("sole", ""),
+            "sole": item_dict.get("sole", ""),
+            "construction": item_dict.get("construction", "")
+        }
+        item_base = item_dict.get("price", 0)
+        item_price = item_base
+        
+        for rule in rules:
+            field = rule["condition_field"]
+            value = rule["condition_value"]
+            if attributes.get(field, "").lower() == value.lower():
+                if rule["action"] == "add_price":
+                    item_price += rule["action_value"]
+                elif rule["action"] == "multiply_price":
+                    adjustment = int(item_price * (rule["action_value"] / 100))
+                    item_price += adjustment
+        
+        additional_surcharge += (item_price - item_base) * item_dict.get("quantity", 1)
+        
+    return additional_surcharge
+
+
 @router.post("")
 async def create_order(order: OrderCreate, request: Request):
     from auth_utils import get_current_user
@@ -119,19 +159,8 @@ async def create_order(order: OrderCreate, request: Request):
     subtotal = sum(item.get("price", 0) * item.get("quantity", 1) for item in order.items)
 
     # Apply pricing rules (custom designs)
-    for item in order.items:
-        attributes = {
-            "material": item.get("material", ""),
-            "style": item.get("style", ""),
-            "color": item.get("color", "")
-        }
-        rules_cursor = db.pricing_rules.find({"active": True})
-        async for rule in rules_cursor:
-            field = rule["condition_field"]
-            value = rule["condition_value"]
-            if attributes.get(field, "").lower() == value.lower():
-                if rule["action"] == "add_price":
-                    subtotal += rule["action_value"] * item.get("quantity", 1)
+    surcharge = await _apply_pricing_rules(order.items, db)
+    subtotal += surcharge
 
     # Apply coupon
     coupon_discount = 0
@@ -494,21 +523,8 @@ async def direct_modify_order(order_id: str, modification: OrderDirectModify, re
     subtotal = sum(item.get("price", 0) * item.get("quantity", 1) for item in new_items)
 
     # Apply pricing rules
-    for item in new_items:
-        attributes = {
-            "material": item.get("material", ""),
-            "style": item.get("style", ""),
-            "color": item.get("color", ""),
-            "sole_type": item.get("sole", ""),
-            "sole": item.get("sole", "")
-        }
-        rules_cursor = db.pricing_rules.find({"active": True})
-        async for rule in rules_cursor:
-            field = rule["condition_field"]
-            value = rule["condition_value"]
-            if attributes.get(field, "").lower() == value.lower():
-                if rule["action"] == "add_price":
-                    subtotal += rule["action_value"] * item.get("quantity", 1)
+    surcharge = await _apply_pricing_rules(new_items, db)
+    subtotal += surcharge
 
     coupon_discount = 0
     coupon_code_applied = order.get("coupon_code")
@@ -670,21 +686,8 @@ async def approve_order_modification(order_id: str, request: Request):
     subtotal = sum(item.get("price", 0) * item.get("quantity", 1) for item in proposed_items)
 
     # Apply pricing rules
-    for item in proposed_items:
-        attributes = {
-            "material": item.get("material", ""),
-            "style": item.get("style", ""),
-            "color": item.get("color", ""),
-            "sole_type": item.get("sole", ""),
-            "sole": item.get("sole", "")
-        }
-        rules_cursor = db.pricing_rules.find({"active": True})
-        async for rule in rules_cursor:
-            field = rule["condition_field"]
-            value = rule["condition_value"]
-            if attributes.get(field, "").lower() == value.lower():
-                if rule["action"] == "add_price":
-                    subtotal += rule["action_value"] * item.get("quantity", 1)
+    surcharge = await _apply_pricing_rules(proposed_items, db)
+    subtotal += surcharge
 
     coupon_discount = 0
     coupon_code_applied = order.get("coupon_code")
@@ -827,21 +830,8 @@ async def calculate_order_price(order_id: str, payload: PriceCalculationRequest,
     subtotal = sum(item.get("price", 0) * item.get("quantity", 1) for item in payload.items)
 
     # Apply pricing rules
-    for item in payload.items:
-        attributes = {
-            "material": item.get("material", ""),
-            "style": item.get("style", ""),
-            "color": item.get("color", ""),
-            "sole_type": item.get("sole", ""),
-            "sole": item.get("sole", "")
-        }
-        rules_cursor = db.pricing_rules.find({"active": True})
-        async for rule in rules_cursor:
-            field = rule["condition_field"]
-            value = rule["condition_value"]
-            if attributes.get(field, "").lower() == value.lower():
-                if rule["action"] == "add_price":
-                    subtotal += rule["action_value"] * item.get("quantity", 1)
+    surcharge = await _apply_pricing_rules(payload.items, db)
+    subtotal += surcharge
 
     coupon_discount = 0
     coupon_code_applied = payload.coupon_code or order.get("coupon_code")
