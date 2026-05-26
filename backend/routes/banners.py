@@ -63,7 +63,14 @@ def _serialize(doc):
 async def list_banners(active_only: bool = False, section: Optional[str] = None):
     query = {"active": True} if active_only else {}
     if section:
-        query["section"] = section
+        if section == "slider":
+            query["$or"] = [
+                {"section": "slider"},
+                {"section": None},
+                {"section": {"$exists": False}}
+            ]
+        else:
+            query["section"] = section
     cursor = db.banners.find(query, {"_id": 1, "eyebrow": 1, "title": 1, "subtitle": 1, "price": 1,
                                      "image": 1, "primary_cta": 1, "primary_cta_link": 1,
                                      "secondary_cta": 1, "secondary_cta_link": 1, "sort_order": 1,
