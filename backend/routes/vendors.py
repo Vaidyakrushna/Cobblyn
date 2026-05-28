@@ -24,6 +24,13 @@ async def require_admin(request: Request):
 
 def serialize_vendor(doc):
     doc["id"] = str(doc.pop("_id"))
+    if "portal_token" not in doc:
+        import secrets
+        import asyncio
+        token = "vt_" + secrets.token_urlsafe(16)
+        doc["portal_token"] = token
+        if db is not None:
+            asyncio.create_task(db.vendors.update_one({"_id": ObjectId(doc["id"])}, {"$set": {"portal_token": token}}))
     return doc
 
 
@@ -43,6 +50,10 @@ class VendorCreate(BaseModel):
     specialty: List[str]
     monthly_capacity: Optional[int] = 100
     average_lead_time_days: Optional[int] = 14
+    address: Optional[str] = None
+    gst_no: Optional[str] = None
+    satisfaction_score: Optional[float] = 5.0
+    blacklisted: Optional[bool] = False
 
 
 class VendorUpdate(BaseModel):
@@ -54,12 +65,22 @@ class VendorUpdate(BaseModel):
     monthly_capacity: Optional[int] = None
     average_lead_time_days: Optional[int] = None
     active: Optional[bool] = None
+    address: Optional[str] = None
+    gst_no: Optional[str] = None
+    satisfaction_score: Optional[float] = None
+    blacklisted: Optional[bool] = None
 
 
 class LedgerPayment(BaseModel):
     amount: float
     ref_number: str
     notes: Optional[str] = None
+
+
+class FeedbackPayload(BaseModel):
+    rating: int
+    comment: str
+
 
 
 # ===== List All Vendors =====
@@ -69,7 +90,62 @@ async def list_vendors(request: Request):
     cursor = db.vendors.find({}).sort("name", 1)
     vendors = []
     async for doc in cursor:
-        vendors.append(serialize_vendor(doc))
+        v = serialize_vendor(doc)
+        v["assigned_orders"] = await db.production_jobs.count_documents({
+            "crafted_by": "vendor",
+            "fulfillment_vendor": v["name"],
+            "status": {"$ne": "completed"}
+        })
+        v["completed_orders"] = await db.production_jobs.count_documents({
+            "crafted_by": "vendor",
+            "fulfillment_vendor": v["name"],
+            "status": "completed"
+        })
+
+        # Calculate dynamic average completion time (assigned_at to completed_at)
+        completed_cursor = db.production_jobs.find({
+            "crafted_by": "vendor",
+            "fulfillment_vendor": v["name"],
+            "status": "completed",
+            "assigned_at": {"$ne": None},
+            "completed_at": {"$ne": None}
+        })
+        total_time_seconds = 0.0
+        count_completed = 0
+        async for job in completed_cursor:
+            try:
+                a_str = job.get("assigned_at")
+                c_str = job.get("completed_at")
+                if a_str and c_str:
+                    if a_str.endswith("Z"):
+                        a_str = a_str[:-1] + "+00:00"
+                    if c_str.endswith("Z"):
+                        c_str = c_str[:-1] + "+00:00"
+                    a_dt = datetime.fromisoformat(a_str)
+                    c_dt = datetime.fromisoformat(c_str)
+                    diff = c_dt - a_dt
+                    total_time_seconds += diff.total_seconds()
+                    count_completed += 1
+            except Exception:
+                pass
+
+        if count_completed > 0:
+            avg_seconds = total_time_seconds / count_completed
+            avg_days = int(avg_seconds // 86400)
+            avg_hours = int((avg_seconds % 86400) // 3600)
+            v["avg_completion_time"] = {
+                "days": avg_days,
+                "hours": avg_hours,
+                "formatted": f"{avg_days}d {avg_hours}h"
+            }
+        else:
+            v["avg_completion_time"] = {
+                "days": 0,
+                "hours": 0,
+                "formatted": "N/A"
+            }
+
+        vendors.append(v)
     return {"vendors": vendors}
 
 
@@ -95,6 +171,8 @@ async def create_vendor(vendor: VendorCreate, request: Request):
     doc = vendor.model_dump()
     doc["name"] = doc["name"].strip()
     doc["active"] = True
+    import secrets
+    doc["portal_token"] = "vt_" + secrets.token_urlsafe(16)
     doc["created_at"] = datetime.now(timezone.utc).isoformat()
     doc["updated_at"] = datetime.now(timezone.utc).isoformat()
     
@@ -248,3 +326,106 @@ async def post_vendor_payment(vendor_id: str, ledger_id: str, payment: LedgerPay
         }
     )
     return {"message": "Payment logged successfully", "payment_status": payment_status, "balance_due": round(amount_due - new_amount_paid, 2)}
+
+
+# ===== Get Vendor Fulfilled/Completed Jobs =====
+@router.get("/{vendor_id}/fulfilled")
+async def get_vendor_fulfilled_jobs(vendor_id: str, request: Request):
+    await require_admin(request)
+    
+    vendor = await db.vendors.find_one({"_id": ObjectId(vendor_id)})
+    if not vendor:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+        
+    cursor = db.production_jobs.find({
+        "crafted_by": "vendor",
+        "fulfillment_vendor": vendor["name"],
+        "status": "completed"
+    }).sort("completed_at", -1)
+    
+    fulfilled_jobs = []
+    async for doc in cursor:
+        doc["id"] = str(doc.pop("_id"))
+        if isinstance(doc.get("order_id"), ObjectId):
+            doc["order_id"] = str(doc["order_id"])
+        fulfilled_jobs.append(doc)
+        
+    return {"fulfilled_jobs": fulfilled_jobs}
+
+
+# ===== Post Vendor Customer Feedback =====
+@router.post("/{vendor_id}/fulfilled/{job_id}/feedback")
+async def post_vendor_feedback(vendor_id: str, job_id: str, payload: FeedbackPayload, request: Request):
+    actor = await require_admin(request)
+    
+    vendor = await db.vendors.find_one({"_id": ObjectId(vendor_id)})
+    if not vendor:
+        raise HTTPException(status_code=404, detail="Vendor not found")
+        
+    job = await db.production_jobs.find_one({
+        "_id": ObjectId(job_id),
+        "crafted_by": "vendor",
+        "fulfillment_vendor": vendor["name"],
+        "status": "completed"
+    })
+    if not job:
+        raise HTTPException(status_code=404, detail="Completed production job not found for this vendor")
+        
+    feedback = {
+        "rating": payload.rating,
+        "comment": payload.comment,
+        "submitted_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    # Save feedback on the production job
+    await db.production_jobs.update_one(
+        {"_id": ObjectId(job_id)},
+        {"$set": {"customer_feedback": feedback}}
+    )
+    
+    # Recalculate average rating of all completed, rated jobs for this vendor
+    cursor = db.production_jobs.find({
+        "crafted_by": "vendor",
+        "fulfillment_vendor": vendor["name"],
+        "status": "completed",
+        "customer_feedback.rating": {"$exists": True}
+    })
+    
+    total_rating = 0.0
+    count_rating = 0
+    async for j in cursor:
+        fb = j.get("customer_feedback")
+        if fb and "rating" in fb:
+            total_rating += float(fb["rating"])
+            count_rating += 1
+            
+    if count_rating > 0:
+        new_score = round(total_rating / count_rating, 2)
+    else:
+        new_score = float(payload.rating)
+        
+    # Update vendor's overall satisfaction score
+    await db.vendors.update_one(
+        {"_id": ObjectId(vendor_id)},
+        {"$set": {
+            "satisfaction_score": new_score,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    
+    from auth_utils import log_security_event
+    await log_security_event(
+        db,
+        actor_id=actor["id"],
+        actor_email=actor["email"],
+        action="add_vendor_feedback",
+        target=vendor_id,
+        details={
+            "job_id": job_id,
+            "rating": payload.rating,
+            "new_satisfaction_score": new_score
+        }
+    )
+    
+    return {"message": "Feedback submitted successfully", "new_satisfaction_score": new_score}
+

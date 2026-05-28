@@ -373,6 +373,12 @@ async def update_order_status(order_id: str, update: OrderStatusUpdate, request:
     )
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Order not found")
+
+    # Automatically ingest confirmed order into the production pipeline (Order Received stage)
+    if update.status == "confirmed":
+        from routes.production import auto_create_production_job
+        await auto_create_production_job(db, str(order_id))
+
     return {"message": f"Order status updated to {update.status}"}
 
 
@@ -767,6 +773,11 @@ async def approve_order_modification(order_id: str, request: Request):
         {"$set": update_fields, "$unset": {"pending_modification": ""}, "$push": {"status_history": history_entry}}
     )
 
+    # Automatically ingest confirmed order into the production pipeline (Order Received stage)
+    if new_status == "confirmed":
+        from routes.production import auto_create_production_job
+        await auto_create_production_job(db, str(order_id))
+
     # Auto-update support ticket if associated
     ticket_id = pending_mod.get("ticket_id")
     if ticket_id:
@@ -929,6 +940,11 @@ async def record_order_payment(order_id: str, payload: PaymentRecordRequest, req
         {"_id": ObjectId(order_id)},
         {"$set": update_data, "$push": {"status_history": history_entry}}
     )
+
+    # Automatically ingest confirmed order into the production pipeline (Order Received stage)
+    if new_outstanding == 0.0:
+        from routes.production import auto_create_production_job
+        await auto_create_production_job(db, str(order_id))
 
     # Post chat confirmation if ticket_id is supplied
     if payload.ticket_id:

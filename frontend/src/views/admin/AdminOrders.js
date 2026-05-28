@@ -9,6 +9,7 @@ const AdminOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState(null);
 
   // Modification Flow states
@@ -121,14 +122,22 @@ const AdminOrders = () => {
     }
   };
 
+  // Filter the orders based on typeFilter client-side
+  const filteredOrders = orders.filter(order => {
+    if (typeFilter === 'all') return true;
+    if (typeFilter === 'crafted') return order.production_type === 'crafted';
+    if (typeFilter === 'ready_to_ship') return order.production_type === 'ready_to_ship';
+    return true;
+  });
+
   // Pagination
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
 
-  const totalItems = orders.length;
+  const totalItems = filteredOrders.length;
   const totalPages = Math.ceil(totalItems / limit) || 1;
   const safePage = page > totalPages ? totalPages : page;
-  const paginatedOrders = orders.slice((safePage - 1) * limit, safePage * limit);
+  const paginatedOrders = filteredOrders.slice((safePage - 1) * limit, safePage * limit);
 
   return (
     <div className="admin-page" data-testid="admin-orders">
@@ -136,10 +145,28 @@ const AdminOrders = () => {
         <div><h1>Order Management</h1><p>Track and manage all customer orders</p></div>
       </div>
 
-      <div className="admin-filters">
+      <div className="admin-filters" style={{ marginBottom: '12px' }}>
         {['all', ...ORDER_STATUSES].map(s => (
           <button key={s} className={`admin-filter-btn ${filter === s ? 'active' : ''}`} onClick={() => { setFilter(s); setPage(1); }}>
-            {s === 'all' ? 'All' : s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+            {s === 'all' ? 'All Status' : s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+          </button>
+        ))}
+      </div>
+
+      <div className="admin-filters" style={{ marginBottom: '24px', paddingBottom: '12px', borderBottom: '1px solid #f5f5f4', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Order Type Filter:</span>
+        {[
+          { id: 'all', label: 'All Types' },
+          { id: 'crafted', label: '✨ Custom Bespoke' },
+          { id: 'ready_to_ship', label: '📦 Ready to Ship' }
+        ].map(t => (
+          <button
+            key={t.id}
+            className={`admin-filter-btn ${typeFilter === t.id ? 'active' : ''}`}
+            onClick={() => { setTypeFilter(t.id); setPage(1); }}
+            style={{ borderRadius: '20px', padding: '4px 14px' }}
+          >
+            {t.label}
           </button>
         ))}
       </div>
@@ -150,7 +177,7 @@ const AdminOrders = () => {
         <div className="admin-table-wrapper">
           <table className="admin-table">
             <thead>
-              <tr><th>Order #</th><th>Customer</th><th>Items</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+              <tr><th>Order #</th><th>Customer</th><th>Items</th><th>Order Type</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr>
             </thead>
             <tbody>
               {paginatedOrders.map(order => (
@@ -163,6 +190,43 @@ const AdminOrders = () => {
                   </td>
                   <td>{order.customer_name}<br /><span className="table-sub">{order.customer_email}</span></td>
                   <td>{order.items?.length || 0} item(s)</td>
+                  <td>
+                    {order.production_type === 'crafted' ? (
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        background: '#fef3c7',
+                        color: '#d97706',
+                        border: '1px solid #fde68a',
+                        fontSize: '0.68rem',
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.03em'
+                      }}>
+                        ✨ Custom Bespoke
+                      </span>
+                    ) : (
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        background: '#ecfdf5',
+                        color: '#059669',
+                        border: '1px solid #a7f3d0',
+                        fontSize: '0.68rem',
+                        fontWeight: 700,
+                        padding: '2px 8px',
+                        borderRadius: '12px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.03em'
+                      }}>
+                        📦 Ready to Ship
+                      </span>
+                    )}
+                  </td>
                   <td>{(order.total_amount || 0).toLocaleString()}</td>
                   <td>
                     <select className={`status-select status-${order.status}`} value={order.status} onChange={e => updateStatus(order.id, e.target.value)}>
@@ -315,7 +379,38 @@ const AdminOrders = () => {
               <button className="admin-modal-close" onClick={() => setSelectedOrder(null)}>&times;</button>
               
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #f5f5f4', paddingBottom: '12px' }}>
-                <h3 style={{ margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Order {selectedOrder.order_number}</h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <h3 style={{ margin: 0, fontFamily: 'Montserrat, sans-serif', fontWeight: 700 }}>Order {selectedOrder.order_number}</h3>
+                  {selectedOrder.production_type === 'crafted' ? (
+                    <span style={{
+                      background: '#fef3c7',
+                      color: '#d97706',
+                      border: '1px solid #fde68a',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '2px 10px',
+                      borderRadius: '20px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>
+                      ✨ Custom Bespoke
+                    </span>
+                  ) : (
+                    <span style={{
+                      background: '#ecfdf5',
+                      color: '#059669',
+                      border: '1px solid #a7f3d0',
+                      fontSize: '0.68rem',
+                      fontWeight: 700,
+                      padding: '2px 10px',
+                      borderRadius: '20px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>
+                      📦 Ready to Ship
+                    </span>
+                  )}
+                </div>
                 {(selectedOrder.status === 'pending' || selectedOrder.status === 'confirmed') && (
                   <button className="admin-btn-secondary" onClick={() => startEditing(selectedOrder)} style={{ margin: 0, padding: '6px 12px', fontSize: '0.72rem', fontWeight: 700, background: '#fafaf9', border: '1px solid #d1d5db', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     🛠️ Modify Details
@@ -748,6 +843,33 @@ const AdminOrders = () => {
                   {selectedOrder.shipping_address && (
                     <p>{selectedOrder.shipping_address.name}<br />{selectedOrder.shipping_address.address}<br />{selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state} - {selectedOrder.shipping_address.pincode}<br />Ph: {selectedOrder.shipping_address.phone}</p>
                   )}
+                </div>
+
+                <div className="order-detail-section" style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', borderTop: '1px solid #f5f5f4', paddingTop: '16px', marginTop: '8px' }}>
+                  <div>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: '0.8rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Fulfillment & Specifications</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.78rem' }}>
+                      <div>Order Classification: <strong>{selectedOrder.production_type === 'crafted' ? '✨ Custom Bespoke Shoe' : '📦 Ready-to-Ship Standard'}</strong></div>
+                      {selectedOrder.production_type === 'crafted' && (
+                        <>
+                          <div>Crafted By: <strong style={{ textTransform: 'uppercase' }}>{selectedOrder.crafted_by || 'inhouse'}</strong></div>
+                          {selectedOrder.fulfillment_vendor && (
+                            <div>Vendor Workshop: <strong>{selectedOrder.fulfillment_vendor}</strong></div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: '0.8rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Administrative Tracking</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.78rem' }}>
+                      <div>Estimated Delivery: <strong>{selectedOrder.estimated_delivery_date ? new Date(selectedOrder.estimated_delivery_date).toLocaleDateString() : 'Not Scheduled'}</strong></div>
+                      <div>Logistics Carrier: <strong>{selectedOrder.courier_partner || 'Unassigned'}</strong></div>
+                      {selectedOrder.tracking_number && (
+                        <div>Tracking Number: <code style={{ background: '#f5f5f4', padding: '2px 4px', borderRadius: '3px' }}>{selectedOrder.tracking_number}</code></div>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 <div className="order-detail-section" style={{ gridColumn: 'span 2' }}>
                   <h4>Items ({selectedOrder.items?.length})</h4>

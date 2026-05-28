@@ -248,6 +248,10 @@ export const api = {
   getWorkers: () => apiFetch('/api/admin/production/workers'),
   addWorker: (data) => apiFetch('/api/admin/production/workers', { method: 'POST', body: JSON.stringify(data) }),
   removeWorker: (id) => apiFetch(`/api/admin/production/workers/${id}`, { method: 'DELETE' }),
+  getVendors: () => apiFetch('/api/admin/vendors'),
+  getVendorFulfilled: (vendorId) => apiFetch(`/api/admin/vendors/${vendorId}/fulfilled`),
+  submitVendorFeedback: (vendorId, jobId, data) => apiFetch(`/api/admin/vendors/${vendorId}/fulfilled/${jobId}/feedback`, { method: 'POST', body: JSON.stringify(data) }),
+  updateJobOperational: (id, data) => apiFetch(`/api/admin/production/jobs/${id}/operational`, { method: 'PUT', body: JSON.stringify(data) }),
 
   // Scheduled Visits
   scheduleVisit: (data) => apiFetch('/api/visits/schedule', { method: 'POST', body: JSON.stringify(data) }),
@@ -275,6 +279,12 @@ export const api = {
     return res.json();
   },
   getAuditLogs: (params = '') => apiFetch(`/api/admin/audit-logs${params}`),
+
+  // Vendor Portal
+  getVendorPortal: (token) => apiFetch(`/api/vendor/portal/${token}`),
+  confirmVendorJob: (token, jobId) => apiFetch(`/api/vendor/portal/${token}/jobs/${jobId}/confirm`, { method: 'POST' }),
+  rejectVendorJob: (token, jobId) => apiFetch(`/api/vendor/portal/${token}/jobs/${jobId}/reject`, { method: 'POST' }),
+  updateVendorJobStage: (token, jobId, data) => apiFetch(`/api/vendor/portal/${token}/jobs/${jobId}/stage`, { method: 'PUT', body: JSON.stringify(data) }),
 };
 
 export default api;

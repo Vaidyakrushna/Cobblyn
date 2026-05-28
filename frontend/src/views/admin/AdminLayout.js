@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import {
   LayoutDashboard, Package, Layers, Calculator, ShoppingCart, Users,
@@ -25,8 +25,9 @@ const NAV_STRUCTURE = [
     { to: '/admin/coupons', icon: <Tag size={16} />, label: 'Coupons' },
   ]},
 
-  { type: 'group', key: 'production', icon: <Factory size={18} />, label: 'Production', items: [
+  { type: 'group', key: 'production', icon: <ShoppingCart size={18} />, label: 'Order Management', items: [
     { to: '/admin/production', icon: <Factory size={16} />, label: 'Production & Factory' },
+    { to: '/admin/production?tab=vendors', icon: <Users size={16} />, label: 'Vendors' },
     { to: '/admin/orders', icon: <ShoppingCart size={16} />, label: 'Order' },
     { to: '/admin/inventory', icon: <Warehouse size={16} />, label: 'Inventory' },
   ]},
@@ -51,6 +52,21 @@ const groupForPath = (pathname) => {
     }
   }
   return null;
+};
+
+const AdminSubLink = ({ sub, pathname }) => {
+  const searchParams = useSearchParams();
+  const isActive = sub.to.includes('?')
+    ? (pathname === sub.to.split('?')[0] && searchParams.get('tab') === new URLSearchParams(sub.to.split('?')[1]).get('tab'))
+    : (pathname === sub.to && !searchParams.get('tab'));
+  return (
+    <Link href={sub.to}
+      className={`admin-nav-link admin-nav-sublink ${isActive ? 'active' : ''}`}
+      data-testid={`admin-nav-${sub.label.toLowerCase().replace(/\s+/g, '-')}`}>
+      {sub.icon}
+      <span>{sub.label}</span>
+    </Link>
+  );
 };
 
 const AdminLayout = ({ children }) => {
@@ -132,17 +148,16 @@ const AdminLayout = ({ children }) => {
                 </button>
                 {isOpen && (
                   <div className="admin-nav-subgroup" data-testid={`admin-nav-group-${node.key}-items`}>
-                    {node.items.map(sub => {
-                      const isActive = pathname === sub.to;
-                      return (
-                        <Link key={sub.to} href={sub.to}
-                          className={`admin-nav-link admin-nav-sublink ${isActive ? 'active' : ''}`}
-                          data-testid={`admin-nav-${sub.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                    {node.items.map(sub => (
+                      <Suspense key={sub.to} fallback={
+                        <div className="admin-nav-link admin-nav-sublink" style={{ opacity: 0.6 }}>
                           {sub.icon}
                           <span>{sub.label}</span>
-                        </Link>
-                      );
-                    })}
+                        </div>
+                      }>
+                        <AdminSubLink sub={sub} pathname={pathname} />
+                      </Suspense>
+                    ))}
                   </div>
                 )}
               </div>
