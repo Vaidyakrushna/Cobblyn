@@ -509,8 +509,8 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
             </div>
             <div className="order-detail-actions" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <span className="order-status-badge" style={{ backgroundColor: getStatusColor(selectedOrder.status), margin: 0 }}>{selectedOrder.status?.replace(/_/g, ' ')}</span>
-              <button className="account-btn-secondary" onClick={() => viewInvoice(selectedOrder.id)} data-testid="view-invoice-btn" style={{ margin: 0 }}><FileText size={14} /> Invoice</button>
               <button className="account-btn-secondary" onClick={() => { setSupportOrderContext(selectedOrder); setActiveTab('support'); }} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}><MessageSquare size={14} /> Support</button>
+
               
               {/* Star Rating & Feedback section next to support button (right end) */}
               {selectedOrder.customer_feedback ? (
