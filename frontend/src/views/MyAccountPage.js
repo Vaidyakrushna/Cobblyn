@@ -7,12 +7,11 @@ import { api } from '../api';
 
 const TABS = [
   { id: 'profile', label: 'Profile', icon: User },
-  { id: 'fit_vault', label: 'Fit Vault', icon: Layers },
   { id: 'orders', label: 'My Orders', icon: Package },
-  { id: 'wishlist', label: 'Wishlist', icon: Heart },
-  { id: 'saved_designs', label: 'Saved Designs', icon: Sparkles },
   { id: 'visits', label: 'Scheduled Visits', icon: CalendarCheck },
-  { id: 'custom', label: 'Custom Orders', icon: Palette },
+  { id: 'custom', label: 'Customization', icon: Palette },
+  { id: 'fit_vault', label: 'Fit Vault', icon: Layers },
+  { id: 'wishlist', label: 'Wishlist', icon: Heart },
   { id: 'support', label: 'Support & Help', icon: MessageSquare },
 ];
 
@@ -71,7 +70,6 @@ const MyAccountPage = () => {
           {activeTab === 'fit_vault' && <FitVaultTab setActiveTab={setActiveTab} />}
           {activeTab === 'orders' && <OrdersTab setActiveTab={setActiveTab} setSupportOrderContext={setSupportOrderContext} />}
           {activeTab === 'wishlist' && <WishlistTab />}
-          {activeTab === 'saved_designs' && <SavedDesignsTab />}
           {activeTab === 'visits' && <VisitsTab />}
           {activeTab === 'custom' && <CustomOrdersTab />}
           {activeTab === 'support' && <SupportTab supportOrderContext={supportOrderContext} setSupportOrderContext={setSupportOrderContext} />}
@@ -1672,7 +1670,7 @@ const CustomOrdersTab = () => {
   return (
     <div className="account-panel" data-testid="custom-orders-panel">
       <div className="section-header">
-        <h3>Custom Orders</h3>
+        <h3>Customization</h3>
         <a href="/customize" className="account-btn-primary" style={{textDecoration:'none'}}>
           <Plus size={14} /> Create New
         </a>
