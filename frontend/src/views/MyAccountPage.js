@@ -1507,10 +1507,10 @@ const VisitsTab = () => {
       </div>
 
       {visits.length === 0 ? (
-        <div className="account-empty-orders" style={{ textAlign: 'center', padding: '48px 0' }}>
-          <CalendarCheck size={48} strokeWidth={1} style={{ color: '#C9A84C', margin: '0 auto 12px' }} />
-          <p style={{ fontSize: '0.95rem', color: '#1c1917', fontWeight: 600 }}>No visits scheduled yet.</p>
-          <button className="account-btn-primary" onClick={openForm} style={{ marginTop: '16px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+        <div className="account-empty-orders">
+          <CalendarCheck size={48} strokeWidth={1} />
+          <p>No visits scheduled yet.</p>
+          <button className="account-btn-primary" onClick={openForm} style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
             <Plus size={14} /> Schedule a New Visit
           </button>
         </div>
