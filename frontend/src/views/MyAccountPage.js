@@ -417,6 +417,13 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
   const [invoice, setInvoice] = useState(null);
   const [showInvoice, setShowInvoice] = useState(false);
 
+  // Feedback State
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackOrderId, setFeedbackOrderId] = useState('');
+  const [feedbackRating, setFeedbackRating] = useState(5);
+  const [feedbackComment, setFeedbackComment] = useState('');
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
+
   useEffect(() => {
     api.getMyOrders().then(data => { setOrders(data.orders || []); setLoading(false); }).catch(() => setLoading(false));
   }, []);
@@ -436,6 +443,32 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
     } catch (err) { alert(err.message); }
   };
 
+  const openFeedbackModal = (order) => {
+    setFeedbackOrderId(order.id);
+    setFeedbackRating(order.customer_feedback?.rating || 5);
+    setFeedbackComment(order.customer_feedback?.comment || '');
+    setShowFeedbackModal(true);
+  };
+
+  const handleFeedbackSubmit = async () => {
+    if (!feedbackOrderId) return;
+    setSubmittingFeedback(true);
+    try {
+      await api.submitOrderFeedback(feedbackOrderId, { rating: feedbackRating, comment: feedbackComment });
+      setOrders(prev => prev.map(o => o.id === feedbackOrderId ? { ...o, customer_feedback: { rating: feedbackRating, comment: feedbackComment } } : o));
+      if (selectedOrder && selectedOrder.id === feedbackOrderId) {
+        setSelectedOrder(prev => ({ ...prev, customer_feedback: { rating: feedbackRating, comment: feedbackComment } }));
+      }
+      setShowFeedbackModal(false);
+      alert("✨ Thank you for rating your BYOND order!");
+    } catch (err) {
+      alert(err.message || "Failed to submit feedback");
+    } finally {
+      setSubmittingFeedback(false);
+    }
+  };
+
+
   const getStatusColor = (status) => {
     const colors = { pending: '#f59e0b', confirmed: '#3b82f6', in_production: '#8b5cf6', quality_check: '#6366f1', shipped: '#06b6d4', delivered: '#10b981', cancelled: '#ef4444', returned: '#6b7280', waiting_for_payment: '#d97706' };
     return colors[status] || '#6b7280';
@@ -444,19 +477,73 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
   if (loading) return <div className="account-loading">Loading orders...</div>;
 
   if (selectedOrder) {
+    const isCustomBespoke = selectedOrder.production_type === 'crafted' || 
+                            selectedOrder.is_custom === true || 
+                            selectedOrder.items?.some(item => item.is_custom || item.custom_design_id || item.material || item.sole);
+
     return (
       <div className="account-panel" data-testid="order-detail-panel">
         <button className="account-back-btn" onClick={() => setSelectedOrder(null)} data-testid="back-to-orders-btn">&larr; Back to Orders</button>
         <div className="order-detail">
           <div className="order-detail-header">
             <div>
-              <h3>Order #{selectedOrder.order_number}</h3>
-              <p className="order-date">{new Date(selectedOrder.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <h3 style={{ margin: 0 }}>Order #{selectedOrder.order_number}</h3>
+                <span className="order-type-badge" style={{
+                  fontSize: '0.62rem',
+                  padding: '3px 8px',
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  background: isCustomBespoke ? 'rgba(201, 168, 76, 0.12)' : 'rgba(16, 185, 129, 0.12)',
+                  border: isCustomBespoke ? '1px solid rgba(201, 168, 76, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
+                  color: isCustomBespoke ? '#C9A84C' : '#10B981',
+                  display: 'inline-flex',
+                  alignItems: 'center'
+                }}>
+                  {isCustomBespoke ? '✨ Custom Bespoke' : '📦 Ready-to-Ship'}
+                </span>
+              </div>
+              <p className="order-date" style={{ margin: '4px 0 0 0' }}>{new Date(selectedOrder.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
             </div>
             <div className="order-detail-actions" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <span className="order-status-badge" style={{ backgroundColor: getStatusColor(selectedOrder.status) }}>{selectedOrder.status?.replace(/_/g, ' ')}</span>
+              <span className="order-status-badge" style={{ backgroundColor: getStatusColor(selectedOrder.status), margin: 0 }}>{selectedOrder.status?.replace(/_/g, ' ')}</span>
               <button className="account-btn-secondary" onClick={() => viewInvoice(selectedOrder.id)} data-testid="view-invoice-btn" style={{ margin: 0 }}><FileText size={14} /> Invoice</button>
               <button className="account-btn-secondary" onClick={() => { setSupportOrderContext(selectedOrder); setActiveTab('support'); }} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}><MessageSquare size={14} /> Support</button>
+              
+              {/* Star Rating & Feedback section next to support button (right end) */}
+              {selectedOrder.customer_feedback ? (
+                <div style={{
+                  fontSize: '0.72rem',
+                  color: '#C9A84C',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  border: '1px solid rgba(201, 168, 76, 0.25)',
+                  padding: '7px 12px',
+                  borderRadius: '6px',
+                  background: 'rgba(201, 168, 76, 0.05)',
+                  height: '34px',
+                  boxSizing: 'border-box'
+                }}>
+                  <Star size={13} fill="#C9A84C" color="#C9A84C" /> {selectedOrder.customer_feedback.rating} / 5
+                </div>
+              ) : (
+                <button className="account-btn-secondary" onClick={() => openFeedbackModal(selectedOrder)} style={{
+                  margin: 0,
+                  borderColor: '#C9A84C',
+                  color: '#C9A84C',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontWeight: 600,
+                  background: 'rgba(201, 168, 76, 0.03)'
+                }}>
+                  <Star size={14} /> Rate Order
+                </button>
+              )}
             </div>
           </div>
 
@@ -814,6 +901,121 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
             <span className="order-total-amount">{'\u20B9'}{selectedOrder.total_amount?.toLocaleString('en-IN')}</span>
           </div>
         </div>
+
+        {/* Invoice Modal */}
+        {showInvoice && invoice && (
+          <div className="account-modal-overlay" onClick={() => setShowInvoice(false)}>
+            <div className="account-modal invoice-modal" onClick={e => e.stopPropagation()}>
+              <button className="account-modal-close" onClick={() => setShowInvoice(false)}><X size={20} /></button>
+              <InvoiceView invoice={invoice} />
+            </div>
+          </div>
+        )}
+
+        {/* Feedback & Star Rating Modal */}
+        {showFeedbackModal && (
+          <div className="account-modal-overlay" onClick={() => setShowFeedbackModal(false)}>
+            <div className="account-modal glass-gilded" onClick={e => e.stopPropagation()} style={{
+              maxWidth: '450px',
+              padding: '30px',
+              borderRadius: '16px',
+              border: '1px solid rgba(201, 168, 76, 0.4)',
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(16px)',
+              boxShadow: '0 24px 48px -12px rgba(0, 0, 0, 0.18)'
+            }}>
+              <button className="account-modal-close" onClick={() => setShowFeedbackModal(false)} style={{ color: '#78716c' }}><X size={20} /></button>
+              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                <div style={{ display: 'inline-flex', padding: '10px', borderRadius: '50%', background: 'rgba(201, 168, 76, 0.1)', marginBottom: '12px' }}>
+                  <Star size={32} fill="#C9A84C" color="#C9A84C" />
+                </div>
+                <h3 style={{ margin: 0, fontFamily: 'Montserrat, sans-serif', fontSize: '1.25rem', color: '#1c1917', fontWeight: 700 }}>Rate Your BYOND Shoes</h3>
+                <p style={{ margin: '6px 0 0 0', fontSize: '0.8rem', color: '#78716c', lineHeight: 1.4 }}>
+                  Your feedback helps our master craftsmen continuously refine their bespoke art.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '24px' }}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setFeedbackRating(star)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      transition: 'transform 0.2s ease',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.2)'}
+                    onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                  >
+                    <Star
+                      size={36}
+                      fill={star <= feedbackRating ? "#C9A84C" : "transparent"}
+                      color={star <= feedbackRating ? "#C9A84C" : "#d6d3d1"}
+                      strokeWidth={2}
+                    />
+                  </button>
+                ))}
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: '#78716c', marginBottom: '8px', letterSpacing: '0.05em' }}>
+                  Share Your Experience
+                </label>
+                <textarea
+                  value={feedbackComment}
+                  onChange={e => setFeedbackComment(e.target.value)}
+                  placeholder="How does the leather feel? How is the fit? Share your thoughts..."
+                  style={{
+                    width: '100%',
+                    height: '100px',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #d6d3d1',
+                    fontSize: '0.85rem',
+                    lineHeight: '1.4',
+                    resize: 'none',
+                    outline: 'none',
+                    transition: 'border-color 0.2s ease',
+                    fontFamily: 'inherit'
+                  }}
+                  onFocus={e => e.target.style.borderColor = '#C9A84C'}
+                  onBlur={e => e.target.style.borderColor = '#d6d3d1'}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  className="account-btn-secondary"
+                  onClick={() => setShowFeedbackModal(false)}
+                  style={{ flex: 1, margin: 0 }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleFeedbackSubmit}
+                  disabled={submittingFeedback}
+                  style={{
+                    flex: 1,
+                    background: '#111',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontWeight: 600,
+                    fontSize: '0.85rem',
+                    cursor: submittingFeedback ? 'not-allowed' : 'pointer',
+                    opacity: submittingFeedback ? 0.7 : 1,
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {submittingFeedback ? 'Submitting...' : 'Submit Rating'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -828,26 +1030,85 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
         </div>
       ) : (
         <div className="orders-list">
-          {orders.map(order => (
-            <div key={order.id} className="order-card" data-testid={`order-card-${order.id}`}>
-              <div className="order-card-header">
-                <span className="order-number">#{order.order_number}</span>
-                <span className="order-status-badge" style={{ backgroundColor: getStatusColor(order.status) }}>{order.status?.replace(/_/g, ' ')}</span>
-              </div>
-              <div className="order-card-body">
-                <div className="order-card-info">
-                  <span className="order-card-date">{new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-                  <span className="order-card-items">{order.items?.length || 0} item(s)</span>
+          {orders.map(order => {
+            const isOrderCustom = order.production_type === 'crafted' || 
+                                  order.is_custom === true || 
+                                  order.items?.some(item => item.is_custom || item.custom_design_id || item.material || item.sole);
+
+            return (
+              <div key={order.id} className="order-card" data-testid={`order-card-${order.id}`}>
+                <div className="order-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className="order-number">#{order.order_number}</span>
+                    <span className="order-type-badge" style={{
+                      fontSize: '0.58rem',
+                      padding: '2px 6px',
+                      borderRadius: '8px',
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.02em',
+                      background: isOrderCustom ? 'rgba(201, 168, 76, 0.12)' : 'rgba(16, 185, 129, 0.12)',
+                      border: isOrderCustom ? '1px solid rgba(201, 168, 76, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
+                      color: isOrderCustom ? '#C9A84C' : '#10B981',
+                      display: 'inline-flex',
+                      alignItems: 'center'
+                    }}>
+                      {isOrderCustom ? '✨ Custom' : '📦 Standard'}
+                    </span>
+                  </div>
+                  <span className="order-status-badge" style={{ backgroundColor: getStatusColor(order.status), margin: 0 }}>{order.status?.replace(/_/g, ' ')}</span>
                 </div>
-                <span className="order-card-total">{'\u20B9'}{order.total_amount?.toLocaleString('en-IN')}</span>
+                <div className="order-card-body">
+                  <div className="order-card-info">
+                    <span className="order-card-date">{new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    <span className="order-card-items">{order.items?.length || 0} item(s)</span>
+                  </div>
+                  <span className="order-card-total">{'\u20B9'}{order.total_amount?.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="order-card-actions" style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button onClick={() => viewOrderDetail(order.id)} data-testid={`view-order-${order.id}`}>Track Order</button>
+                  <button onClick={() => viewInvoice(order.id)} data-testid={`invoice-order-${order.id}`}><FileText size={14} /> Invoice</button>
+                  <button onClick={() => { setSupportOrderContext(order); setActiveTab('support'); }} data-testid={`support-order-${order.id}`} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><MessageSquare size={14} /> Support</button>
+                  
+                  {/* Star Rating & Feedback section next to support button (right end) */}
+                  {order.customer_feedback ? (
+                    <span style={{
+                      fontSize: '0.68rem',
+                      color: '#C9A84C',
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '3px',
+                      border: '1px solid rgba(201, 168, 76, 0.2)',
+                      padding: '5px 10px',
+                      borderRadius: '4px',
+                      background: 'rgba(201, 168, 76, 0.04)',
+                      marginLeft: 'auto'
+                    }}>
+                      <Star size={12} fill="#C9A84C" color="#C9A84C" /> {order.customer_feedback.rating} / 5
+                    </span>
+                  ) : (
+                    <button onClick={() => openFeedbackModal(order)} style={{
+                      marginLeft: 'auto',
+                      background: 'transparent',
+                      border: '1px solid #C9A84C',
+                      color: '#C9A84C',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      padding: '6px 12px',
+                      borderRadius: '4px',
+                      fontWeight: 600,
+                      fontSize: '0.75rem',
+                      cursor: 'pointer'
+                    }}>
+                      <Star size={13} /> Rate Order
+                    </button>
+                  )}
+                </div>
               </div>
-              <div className="order-card-actions" style={{ display: 'flex', gap: '8px' }}>
-                <button onClick={() => viewOrderDetail(order.id)} data-testid={`view-order-${order.id}`}>Track Order</button>
-                <button onClick={() => viewInvoice(order.id)} data-testid={`invoice-order-${order.id}`}><FileText size={14} /> Invoice</button>
-                <button onClick={() => { setSupportOrderContext(order); setActiveTab('support'); }} data-testid={`support-order-${order.id}`} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><MessageSquare size={14} /> Support</button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -857,6 +1118,111 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
           <div className="account-modal invoice-modal" onClick={e => e.stopPropagation()}>
             <button className="account-modal-close" onClick={() => setShowInvoice(false)}><X size={20} /></button>
             <InvoiceView invoice={invoice} />
+          </div>
+        </div>
+      )}
+
+      {/* Feedback & Star Rating Modal */}
+      {showFeedbackModal && (
+        <div className="account-modal-overlay" onClick={() => setShowFeedbackModal(false)}>
+          <div className="account-modal glass-gilded" onClick={e => e.stopPropagation()} style={{
+            maxWidth: '450px',
+            padding: '30px',
+            borderRadius: '16px',
+            border: '1px solid rgba(201, 168, 76, 0.4)',
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(16px)',
+            boxShadow: '0 24px 48px -12px rgba(0, 0, 0, 0.18)'
+          }}>
+            <button className="account-modal-close" onClick={() => setShowFeedbackModal(false)} style={{ color: '#78716c' }}><X size={20} /></button>
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+              <div style={{ display: 'inline-flex', padding: '10px', borderRadius: '50%', background: 'rgba(201, 168, 76, 0.1)', marginBottom: '12px' }}>
+                <Star size={32} fill="#C9A84C" color="#C9A84C" />
+              </div>
+              <h3 style={{ margin: 0, fontFamily: 'Montserrat, sans-serif', fontSize: '1.25rem', color: '#1c1917', fontWeight: 700 }}>Rate Your BYOND Shoes</h3>
+              <p style={{ margin: '6px 0 0 0', fontSize: '0.8rem', color: '#78716c', lineHeight: 1.4 }}>
+                Your feedback helps our master craftsmen continuously refine their bespoke art.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '24px' }}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  onClick={() => setFeedbackRating(star)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    transition: 'transform 0.2s ease',
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.2)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                  <Star
+                    size={36}
+                    fill={star <= feedbackRating ? "#C9A84C" : "transparent"}
+                    color={star <= feedbackRating ? "#C9A84C" : "#d6d3d1"}
+                    strokeWidth={2}
+                  />
+                </button>
+              ))}
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', color: '#78716c', marginBottom: '8px', letterSpacing: '0.05em' }}>
+                Share Your Experience
+              </label>
+              <textarea
+                value={feedbackComment}
+                onChange={e => setFeedbackComment(e.target.value)}
+                placeholder="How does the leather feel? How is the fit? Share your thoughts..."
+                style={{
+                  width: '100%',
+                  height: '100px',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid #d6d3d1',
+                  fontSize: '0.85rem',
+                  lineHeight: '1.4',
+                  resize: 'none',
+                  outline: 'none',
+                  transition: 'border-color 0.2s ease',
+                  fontFamily: 'inherit'
+                }}
+                onFocus={e => e.target.style.borderColor = '#C9A84C'}
+                onBlur={e => e.target.style.borderColor = '#d6d3d1'}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                className="account-btn-secondary"
+                onClick={() => setShowFeedbackModal(false)}
+                style={{ flex: 1, margin: 0 }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleFeedbackSubmit}
+                disabled={submittingFeedback}
+                style={{
+                  flex: 1,
+                  background: '#111',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontWeight: 600,
+                  fontSize: '0.85rem',
+                  cursor: submittingFeedback ? 'not-allowed' : 'pointer',
+                  opacity: submittingFeedback ? 0.7 : 1,
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {submittingFeedback ? 'Submitting...' : 'Submit Rating'}
+              </button>
+            </div>
           </div>
         </div>
       )}

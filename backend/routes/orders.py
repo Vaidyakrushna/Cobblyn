@@ -978,3 +978,65 @@ async def record_order_payment(order_id: str, payload: PaymentRecordRequest, req
     return {"message": "Payment recorded successfully", "outstanding_amount": new_outstanding, "status": "confirmed" if new_outstanding == 0.0 else order.get("status")}
 
 
+# ===== Customer Order Feedback =====
+class FeedbackPayload(BaseModel):
+    rating: int
+    comment: Optional[str] = None
+
+
+@router.post("/{order_id}/feedback")
+async def submit_order_feedback(order_id: str, payload: FeedbackPayload, request: Request):
+    from auth_utils import get_current_user
+    user = await get_current_user(request, db)
+
+    order = await db.orders.find_one({"_id": ObjectId(order_id)})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if str(order.get("user_id")) != user["_id"] and user.get("role") not in ("admin", "super_admin"):
+        raise HTTPException(status_code=403, detail="Not authorized to submit feedback for this order")
+
+    if payload.rating < 1 or payload.rating > 5:
+        raise HTTPException(status_code=400, detail="Rating must be between 1 and 5")
+
+    feedback = {
+        "rating": payload.rating,
+        "comment": payload.comment,
+        "submitted_at": datetime.now(timezone.utc).isoformat()
+    }
+
+    await db.orders.update_one(
+        {"_id": ObjectId(order_id)},
+        {"$set": {"customer_feedback": feedback, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+
+    # Sync with production job if vendor-fulfilled
+    job = await db.production_jobs.find_one({"order_id": ObjectId(order_id)})
+    if job and job.get("crafted_by") == "vendor" and job.get("fulfillment_vendor"):
+        vendor_name = job.get("fulfillment_vendor")
+        await db.production_jobs.update_one(
+            {"_id": job["_id"]},
+            {"$set": {"customer_feedback": feedback}}
+        )
+        vendor = await db.vendors.find_one({"name": vendor_name})
+        if vendor:
+            jobs_cursor = db.production_jobs.find({
+                "fulfillment_vendor": vendor_name,
+                "crafted_by": "vendor",
+                "customer_feedback.rating": {"$exists": True}
+            })
+            jobs_list = [j async for j in jobs_cursor]
+            if jobs_list:
+                ratings = [j["customer_feedback"]["rating"] for j in jobs_list]
+                new_score = round(sum(ratings) / len(ratings), 2)
+            else:
+                new_score = float(payload.rating)
+            await db.vendors.update_one(
+                {"_id": vendor["_id"]},
+                {"$set": {"satisfaction_score": new_score}}
+            )
+
+    return {"message": "Order feedback submitted successfully", "feedback": feedback}
+
+
+
