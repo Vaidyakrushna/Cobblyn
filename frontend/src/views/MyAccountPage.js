@@ -622,6 +622,12 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
 
                 {/* Feature A: Atelier Craftsman Production Timeline */}
                 {(() => {
+                  const isCustomBespoke = selectedOrder.production_type === 'crafted' || 
+                                          selectedOrder.is_custom === true || 
+                                          selectedOrder.items?.some(item => item.is_custom || item.custom_design_id || item.material || item.sole);
+
+                  if (!isCustomBespoke) return null;
+
                   // Fallback or custom stages resolver
                   const currentProdStage = selectedOrder.current_production_stage || (
                     selectedOrder.status === 'delivered' ? 'ready_to_ship' : (
