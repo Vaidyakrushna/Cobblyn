@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, MapPin, CreditCard, Lock, Package, FileText, ChevronRight, Plus, Trash2, Edit2, X, Check, Heart, CalendarCheck, Palette, ExternalLink, ShoppingBag, RefreshCw, Activity, Sparkles, Layers, MessageSquare, HelpCircle, Send } from 'lucide-react';
+import { User, MapPin, CreditCard, Lock, Package, FileText, ChevronRight, Plus, Trash2, Edit2, X, Check, Heart, CalendarCheck, Palette, ExternalLink, ShoppingBag, RefreshCw, Activity, Sparkles, Layers, MessageSquare, HelpCircle, Send, Star } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
 
