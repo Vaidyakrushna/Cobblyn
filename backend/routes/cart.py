@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from bson import ObjectId
 
@@ -17,7 +17,7 @@ class CartItemAdd(BaseModel):
     product_id: str
     size: str
     color: str
-    quantity: int = 1
+    quantity: int = Field(1, gt=0)
 
 
 class CartItemUpdate(BaseModel):

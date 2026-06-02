@@ -28,11 +28,71 @@ class ScheduleVisitCreate(BaseModel):
     notes: Optional[str] = None
 
 
+class PincodeCreate(BaseModel):
+    pin_code: str = Field(..., min_length=4, max_length=10)
+    capacity: int = Field(3, gt=0, lt=100)
+    city: Optional[str] = "Metropolis"
+
+
+class PincodeUpdate(BaseModel):
+    capacity: Optional[int] = Field(None, gt=0, lt=100)
+    active: Optional[bool] = None
+    city: Optional[str] = None
+
+
 @router.post("/schedule")
-async def schedule_visit(payload: ScheduleVisitCreate):
+async def schedule_visit(payload: ScheduleVisitCreate, request: Request):
+    # Retrieve pincode settings from serviceable_pincodes collection
+    pin = payload.pin_code.strip()
+    pincode_doc = await db.serviceable_pincodes.find_one({"pin_code": pin})
+    if not pincode_doc or not pincode_doc.get("active", True):
+        # Fallback seeder check: If the collection is empty, lazy-seed default pincodes
+        total_pincodes = await db.serviceable_pincodes.count_documents({})
+        if total_pincodes == 0:
+            default_pins = [
+                {"pin_code": "400001", "capacity": 3, "city": "Mumbai (South)", "active": True},
+                {"pin_code": "400002", "capacity": 3, "city": "Mumbai (Central)", "active": True},
+                {"pin_code": "110001", "capacity": 3, "city": "New Delhi (Connaught Place)", "active": True},
+                {"pin_code": "110002", "capacity": 3, "city": "New Delhi (Central)", "active": True},
+                {"pin_code": "560001", "capacity": 3, "city": "Bangalore (MG Road)", "active": True},
+                {"pin_code": "560002", "capacity": 3, "city": "Bangalore (Central)", "active": True}
+            ]
+            for p_doc in default_pins:
+                p_doc["created_at"] = datetime.now(timezone.utc).isoformat()
+                p_doc["updated_at"] = datetime.now(timezone.utc).isoformat()
+            await db.serviceable_pincodes.insert_many(default_pins)
+            pincode_doc = await db.serviceable_pincodes.find_one({"pin_code": pin})
+
+        if not pincode_doc or not pincode_doc.get("active", True):
+            raise HTTPException(
+                status_code=400,
+                detail=f"We do not serve pin code {payload.pin_code} yet. Please select a serviceable region."
+            )
+
+    capacity_limit = pincode_doc.get("capacity", 3)
+
+    # Double-booking slots capacity check (max capacity visits per pincode per day)
+    existing_slots = await db.scheduled_visits.count_documents({
+        "visit_date": payload.visit_date,
+        "pin_code": payload.pin_code,
+        "status": {"$ne": "cancelled"}
+    })
+    if existing_slots >= capacity_limit:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Atelier slots for pin code {payload.pin_code} on {payload.visit_date} are fully booked (max {capacity_limit} slots). Please select another date."
+        )
+
     doc = payload.model_dump()
     doc["status"] = "pending"
     doc["created_at"] = datetime.now(timezone.utc).isoformat()
+
+    # Link to authenticated user if logged in
+    from auth_utils import get_optional_user
+    user = await get_optional_user(request, db)
+    if user:
+        doc["user_id"] = ObjectId(user["_id"])
+
     result = await db.scheduled_visits.insert_one(doc)
     return {
         "message": "Visit scheduled. Our representative will contact you shortly to confirm.",
@@ -199,3 +259,91 @@ async def delete_visit(visit_id: str, request: Request):
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Visit not found")
     return {"message": "Visit deleted"}
+
+
+@router.get("/settings/pincodes")
+async def get_pincodes_settings(request: Request):
+    # Retrieve all serviceable pincodes, sorting by pincode ascending
+    cursor = db.serviceable_pincodes.find({}).sort("pin_code", 1)
+    pincodes = []
+    async for doc in cursor:
+        doc["id"] = str(doc["_id"])
+        doc.pop("_id", None)
+        pincodes.append(doc)
+    
+    # Lazy default seed if empty so the UI doesn't load blank
+    if len(pincodes) == 0:
+        default_pins = [
+            {"pin_code": "400001", "capacity": 3, "city": "Mumbai (South)", "active": True},
+            {"pin_code": "400002", "capacity": 3, "city": "Mumbai (Central)", "active": True},
+            {"pin_code": "110001", "capacity": 3, "city": "New Delhi (Connaught Place)", "active": True},
+            {"pin_code": "110002", "capacity": 3, "city": "New Delhi (Central)", "active": True},
+            {"pin_code": "560001", "capacity": 3, "city": "Bangalore (MG Road)", "active": True},
+            {"pin_code": "560002", "capacity": 3, "city": "Bangalore (Central)", "active": True}
+        ]
+        for pin in default_pins:
+            pin["created_at"] = datetime.now(timezone.utc).isoformat()
+            pin["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.serviceable_pincodes.insert_many(default_pins)
+        
+        cursor = db.serviceable_pincodes.find({}).sort("pin_code", 1)
+        pincodes = []
+        async for doc in cursor:
+            doc["id"] = str(doc["_id"])
+            doc.pop("_id", None)
+            pincodes.append(doc)
+            
+    return {"pincodes": pincodes}
+
+
+@router.post("/settings/pincodes")
+async def add_pincode_settings(payload: PincodeCreate, request: Request):
+    await require_admin(request)
+    pin = payload.pin_code.strip()
+    existing = await db.serviceable_pincodes.find_one({"pin_code": pin})
+    if existing:
+        raise HTTPException(status_code=400, detail=f"Pin code {pin} already exists in registry.")
+    
+    doc = {
+        "pin_code": pin,
+        "capacity": payload.capacity,
+        "city": payload.city.strip() if payload.city else "Metropolis",
+        "active": True,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat()
+    }
+    result = await db.serviceable_pincodes.insert_one(doc)
+    doc["id"] = str(result.inserted_id)
+    doc.pop("_id", None)
+    return {"message": "Serviceable pin code registered successfully", "pincode": doc}
+
+
+@router.put("/settings/pincodes/{pin_code}")
+async def update_pincode_settings(pin_code: str, payload: PincodeUpdate, request: Request):
+    await require_admin(request)
+    existing = await db.serviceable_pincodes.find_one({"pin_code": pin_code})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Pin code not registered")
+    
+    update_fields = {}
+    if payload.capacity is not None:
+        update_fields["capacity"] = max(1, payload.capacity)
+    if payload.active is not None:
+        update_fields["active"] = payload.active
+    if payload.city is not None:
+        update_fields["city"] = payload.city.strip()
+        
+    if update_fields:
+        update_fields["updated_at"] = datetime.now(timezone.utc).isoformat()
+        await db.serviceable_pincodes.update_one({"pin_code": pin_code}, {"$set": update_fields})
+        
+    return {"message": "Pin code settings updated successfully"}
+
+
+@router.delete("/settings/pincodes/{pin_code}")
+async def delete_pincode_settings(pin_code: str, request: Request):
+    await require_admin(request)
+    result = await db.serviceable_pincodes.delete_one({"pin_code": pin_code})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Pin code not found in registry")
+    return {"message": "Pin code removed from registry"}

@@ -9,6 +9,18 @@ function formatApiErrorDetail(detail) {
   return String(detail);
 }
 
+let isRefreshing = false;
+let refreshSubscribers = [];
+
+function subscribeTokenRefresh(cb) {
+  refreshSubscribers.push(cb);
+}
+
+function onRefreshed(token) {
+  refreshSubscribers.forEach((cb) => cb(token));
+  refreshSubscribers = [];
+}
+
 async function apiFetch(path, options = {}) {
   const url = `${API_BASE}${path}`;
   const config = {
@@ -18,12 +30,59 @@ async function apiFetch(path, options = {}) {
   };
 
   // Add auth token from localStorage if available
-  const token = localStorage.getItem('byond_token');
+  let token = localStorage.getItem('byond_token');
   if (token && !config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(url, config);
+  let response = await fetch(url, config);
+
+  // If unauthorized (401) and we haven't already retried this request, try refreshing the token
+  if (response.status === 401 && !options._retry && path !== '/api/auth/login' && path !== '/api/auth/refresh') {
+    if (!isRefreshing) {
+      isRefreshing = true;
+      try {
+        const refreshRes = await fetch(`${API_BASE}/api/auth/refresh`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        if (refreshRes.ok) {
+          const refreshData = await refreshRes.json();
+          const newToken = refreshData.token;
+          if (newToken) {
+            localStorage.setItem('byond_token', newToken);
+          }
+          isRefreshing = false;
+          onRefreshed(newToken);
+        } else {
+          isRefreshing = false;
+          localStorage.removeItem('byond_token');
+          onRefreshed(null);
+        }
+      } catch (err) {
+        isRefreshing = false;
+        localStorage.removeItem('byond_token');
+        onRefreshed(null);
+      }
+    }
+
+    // Queue this request to retry once refreshing finishes
+    const retryOriginalRequest = new Promise((resolve, reject) => {
+      subscribeTokenRefresh((newToken) => {
+        if (newToken) {
+          // Update local authorization header and retry
+          config.headers.Authorization = `Bearer ${newToken}`;
+          resolve(apiFetch(path, { ...options, _retry: true }));
+        } else {
+          reject(new Error("Session expired. Please log in again."));
+        }
+      });
+    });
+
+    return retryOriginalRequest;
+  }
 
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
@@ -195,6 +254,7 @@ export const api = {
   rejectOrderModification: (id) => apiFetch(`/api/orders/${id}/reject-modification`, { method: 'POST' }),
   calculateOrderPrice: (id, data) => apiFetch(`/api/orders/${id}/calculate-price`, { method: 'POST', body: JSON.stringify(data) }),
   recordOrderPayment: (id, data) => apiFetch(`/api/orders/${id}/record-payment`, { method: 'POST', body: JSON.stringify(data) }),
+  payOutstandingBalance: (id, paymentMethod) => apiFetch(`/api/orders/${id}/pay-outstanding`, { method: 'POST', body: JSON.stringify({ payment_method: paymentMethod }) }),
   updateOrderOperational: (id, data) => apiFetch(`/api/orders/${id}/operational`, { method: 'PUT', body: JSON.stringify(data) }),
 
   // Customers (Admin)
@@ -287,6 +347,12 @@ export const api = {
   confirmVendorJob: (token, jobId) => apiFetch(`/api/vendor/portal/${token}/jobs/${jobId}/confirm`, { method: 'POST' }),
   rejectVendorJob: (token, jobId) => apiFetch(`/api/vendor/portal/${token}/jobs/${jobId}/reject`, { method: 'POST' }),
   updateVendorJobStage: (token, jobId, data) => apiFetch(`/api/vendor/portal/${token}/jobs/${jobId}/stage`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  // Serviceable Pincodes & Dynamic Capacities
+  getPincodesSettings: () => apiFetch('/api/visits/settings/pincodes'),
+  addPincodeSettings: (data) => apiFetch('/api/visits/settings/pincodes', { method: 'POST', body: JSON.stringify(data) }),
+  updatePincodeSettings: (pinCode, data) => apiFetch(`/api/visits/settings/pincodes/${pinCode}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deletePincodeSettings: (pinCode) => apiFetch(`/api/visits/settings/pincodes/${pinCode}`, { method: 'DELETE' }),
 };
 
 export default api;

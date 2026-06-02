@@ -60,20 +60,22 @@ async def get_products(
     limit: int = Query(50),
     skip: int = Query(0)
 ):
+    import re
     query = {}
     if gender:
         query["gender"] = gender.lower()
     if style:
-        query["style"] = {"$regex": style, "$options": "i"}
+        query["style"] = {"$regex": re.escape(style), "$options": "i"}
     if occasion:
-        query["occasion"] = {"$regex": occasion, "$options": "i"}
+        query["occasion"] = {"$regex": re.escape(occasion), "$options": "i"}
     if search:
+        escaped_search = re.escape(search)
         # Full-text search across name, style, articleCode, material
         query["$or"] = [
-            {"name": {"$regex": search, "$options": "i"}},
-            {"style": {"$regex": search, "$options": "i"}},
-            {"articleCode": {"$regex": search, "$options": "i"}},
-            {"material": {"$regex": search, "$options": "i"}},
+            {"name": {"$regex": escaped_search, "$options": "i"}},
+            {"style": {"$regex": escaped_search, "$options": "i"}},
+            {"articleCode": {"$regex": escaped_search, "$options": "i"}},
+            {"material": {"$regex": escaped_search, "$options": "i"}},
         ]
 
     sort_spec = [("_id", -1)]

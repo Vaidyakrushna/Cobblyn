@@ -239,7 +239,7 @@ async def refresh_token(request: Request, response: Response):
         new_refresh = create_refresh_token(user_id)
         
         set_auth_cookies(response, new_access, new_refresh)
-        return {"message": "Token refreshed"}
+        return {"message": "Token refreshed", "token": new_access}
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Refresh token expired")
     except jwt.InvalidTokenError:

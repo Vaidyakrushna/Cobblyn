@@ -85,10 +85,10 @@ async def get_vendor_portal(token: str):
                     item_copy["images"] = [single_img]
                 else:
                     item_copy["images"] = [
-                        "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=500&q=80",
-                        "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=500&q=80",
-                        "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=500&q=80",
-                        "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=500&q=80"
+                        "/api/uploads/blueprints/blueprint_profile.png",
+                        "/api/uploads/blueprints/blueprint_top.png",
+                        "/api/uploads/blueprints/blueprint_sole.png",
+                        "/api/uploads/blueprints/blueprint_quarter.png"
                     ]
             items_with_images.append(item_copy)
 
@@ -206,7 +206,7 @@ async def confirm_vendor_job(token: str, job_id: str):
     # Log in parent order history
     if job.get("order_id"):
         await db.orders.update_one(
-            {"_id": job["order_id"]},
+            {"_id": ObjectId(str(job["order_id"]))},
             {
                 "$push": {
                     "status_history": {
@@ -295,7 +295,7 @@ async def reject_vendor_job(token: str, job_id: str, payload: Optional[RejectPay
     order_id = job.get("order_id")
     if order_id:
         await db.orders.update_one(
-            {"_id": ObjectId(order_id)},
+            {"_id": ObjectId(str(order_id))},
             {
                 "$set": {
                     "crafted_by": "inhouse",
@@ -396,9 +396,10 @@ async def update_vendor_job_stage(token: str, job_id: str, data: StageUpdate):
     # Sync to order status automatically
     order_id = doc.get("order_id")
     if order_id:
+        safe_oid = ObjectId(str(order_id))
         if data.stage == "quality_check" and data.status == "completed":
             await db.orders.update_one(
-                {"_id": ObjectId(order_id)},
+                {"_id": safe_oid},
                 {
                     "$set": {"status": "shipped", "updated_at": now},
                     "$push": {"status_history": {
@@ -410,7 +411,7 @@ async def update_vendor_job_stage(token: str, job_id: str, data: StageUpdate):
             )
         elif data.stage == "ready_to_ship" and data.status == "completed":
             await db.orders.update_one(
-                {"_id": ObjectId(order_id)},
+                {"_id": safe_oid},
                 {
                     "$set": {"status": "shipped", "updated_at": now},
                     "$push": {"status_history": {
@@ -422,7 +423,7 @@ async def update_vendor_job_stage(token: str, job_id: str, data: StageUpdate):
             )
         elif data.stage == "delivered" and data.status == "completed":
             await db.orders.update_one(
-                {"_id": ObjectId(order_id)},
+                {"_id": safe_oid},
                 {
                     "$set": {"status": "delivered", "updated_at": now},
                     "$push": {"status_history": {

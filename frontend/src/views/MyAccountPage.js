@@ -1403,6 +1403,10 @@ const VisitsTab = () => {
   const [rescheduleNotes, setRescheduleNotes] = useState('');
   const [rescheduling, setRescheduling] = useState(false);
 
+  // Sub-tab view and dynamic validation state
+  const [tabMode, setTabMode] = useState('list'); // 'list' | 'book'
+  const [serviceablePincodes, setServiceablePincodes] = useState([]);
+
   const buildInitialForm = () => {
     const nameParts = (user?.name || '').split(' ');
     return {
@@ -1423,7 +1427,12 @@ const VisitsTab = () => {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchVisits(); }, []);
+  useEffect(() => { 
+    fetchVisits(); 
+    api.getPincodesSettings()
+      .then(data => setServiceablePincodes(data.pincodes || []))
+      .catch(() => {});
+  }, []);
 
   const handleChange = (field, value) => setFormData(prev => ({ ...prev, [field]: value }));
 
@@ -1499,22 +1508,80 @@ const VisitsTab = () => {
 
   if (loading) return <div className="account-loading">Loading visits...</div>;
 
+  // Pincode validation helper
+  const getPincodeStatus = () => {
+    const pin = (formData.pinCode || '').trim();
+    if (!pin || pin.length < 4) return null;
+    const found = serviceablePincodes.find(p => p.pin_code === pin);
+    if (!found) {
+      return { status: 'unserviceable', message: '✖ We do not serve this pin code yet. We are expanding rapidly!' };
+    }
+    if (!found.active) {
+      return { status: 'paused', message: `⚠ Atelier services in ${found.city} are temporarily paused due to capacity constraints.` };
+    }
+    return { status: 'active', message: `✓ We serve your region in ${found.city}! Daily slots capacity: ${found.capacity} bookings.` };
+  };
+  const pinStatus = getPincodeStatus();
+
   return (
     <div className="account-panel" data-testid="visits-panel">
-      <div className="section-header">
+      <div className="section-header" style={{ marginBottom: '16px' }}>
         <h3>Scheduled Visits</h3>
-        <button className="account-btn-primary" onClick={openForm}><Plus size={14} /> Schedule New</button>
       </div>
 
-      {visits.length === 0 ? (
+      {/* Sub-navigation tabs within Scheduled Visits */}
+      <div style={{ display: 'flex', gap: '16px', borderBottom: '1px solid #e5e7eb', paddingBottom: '12px', marginBottom: '20px' }}>
+        <button 
+          onClick={() => { setTabMode('list'); setSubmitted(false); }}
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: '0.78rem',
+            fontWeight: 600,
+            color: tabMode === 'list' ? '#C9A84C' : '#6b7280',
+            borderBottom: tabMode === 'list' ? '2px solid #C9A84C' : 'none',
+            paddingBottom: '8px',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          <CalendarCheck size={14} /> My Scheduled Visits ({visits.length})
+        </button>
+        <button 
+          onClick={() => { setTabMode('book'); setSubmitted(false); }}
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: '0.78rem',
+            fontWeight: 600,
+            color: tabMode === 'book' ? '#C9A84C' : '#6b7280',
+            borderBottom: tabMode === 'book' ? '2px solid #C9A84C' : 'none',
+            paddingBottom: '8px',
+            cursor: 'pointer',
+            transition: 'all 0.2s',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          <Plus size={14} /> Schedule a New Visit
+        </button>
+      </div>
+
+      {tabMode === 'list' && visits.length === 0 && (
         <div className="account-empty-orders">
           <CalendarCheck size={48} strokeWidth={1} />
-          <p>No visits scheduled yet.</p>
-          <button className="account-btn-primary" onClick={openForm} style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+          <p style={{ color: '#6b7280' }}>No visits scheduled yet.</p>
+          <button className="account-btn-primary" onClick={() => setTabMode('book')} style={{ marginTop: 12, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
             <Plus size={14} /> Schedule a New Visit
           </button>
         </div>
-      ) : (
+      )}
+
+      {tabMode === 'list' && visits.length > 0 && (
         <div className="orders-list">
           {visits.map(visit => (
             <div key={visit.id} className="order-card" data-testid={`visit-card-${visit.id}`}>
@@ -1551,54 +1618,67 @@ const VisitsTab = () => {
         </div>
       )}
 
-      {showForm && (
-        <div className="account-modal-overlay" onClick={() => setShowForm(false)}>
-          <div className="account-modal" onClick={e => e.stopPropagation()} style={{maxWidth:600}}>
-            <button className="account-modal-close" onClick={() => setShowForm(false)}><X size={20} /></button>
-            {submitted ? (
-              <div style={{textAlign:'center', padding:'40px 0'}}>
-                <div style={{fontSize:56, color:'#C9A84C', marginBottom:16}}>&#10003;</div>
-                <h3 style={{fontFamily:"'Playfair Display', serif", fontSize:'1.3rem', marginBottom:8}}>Visit Scheduled!</h3>
-                <p style={{fontSize:'0.82rem', color:'var(--mid-grey)', marginBottom:24}}>Our representative will call you within 24 hours to confirm the date, time, and your address.</p>
-                <button className="account-btn-primary" onClick={() => setShowForm(false)}>Done</button>
-              </div>
-            ) : (
-              <>
-                <h3>Schedule Your Visit</h3>
-                <form onSubmit={handleSubmit} className="account-form" data-testid="modal-visit-form">
-                  <div className="af-row">
-                    <div className="af-field"><label>First Name *</label><input type="text" value={formData.firstName} onChange={e => handleChange('firstName', e.target.value)} required placeholder="Arjun" /></div>
-                    <div className="af-field"><label>Last Name *</label><input type="text" value={formData.lastName} onChange={e => handleChange('lastName', e.target.value)} required placeholder="Mehta" /></div>
+      {tabMode === 'book' && (
+        <div style={{ background: '#FAF9F6', border: '1px solid #C9A84C', borderRadius: '12px', padding: '24px', maxWidth: '640px', margin: '0 auto' }}>
+          {submitted ? (
+            <div style={{textAlign:'center', padding:'40px 0'}}>
+              <div style={{fontSize:56, color:'#C9A84C', marginBottom:16}}>&#10003;</div>
+              <h3 style={{fontFamily:"'Playfair Display', serif", fontSize:'1.3rem', marginBottom:8}}>Visit Scheduled!</h3>
+              <p style={{fontSize:'0.82rem', color:'var(--mid-grey)', marginBottom:24}}>Our representative will call you within 24 hours to confirm the date, time, and your address.</p>
+              <button className="account-btn-primary" onClick={() => { setTabMode('list'); setSubmitted(false); }} style={{ margin: '0 auto' }}>View My Visits</button>
+            </div>
+          ) : (
+            <>
+              <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.2rem', marginBottom: '16px', color: '#111' }}>Schedule Your Atelier Visit</h3>
+              <form onSubmit={handleSubmit} className="account-form" data-testid="modal-visit-form" style={{ marginTop: 0 }}>
+                <div className="af-row">
+                  <div className="af-field"><label>First Name *</label><input type="text" value={formData.firstName} onChange={e => handleChange('firstName', e.target.value)} required placeholder="Arjun" /></div>
+                  <div className="af-field"><label>Last Name *</label><input type="text" value={formData.lastName} onChange={e => handleChange('lastName', e.target.value)} required placeholder="Mehta" /></div>
+                </div>
+                <div className="af-row">
+                  <div className="af-field"><label>Email *</label><input type="email" value={formData.email} onChange={e => handleChange('email', e.target.value)} required /></div>
+                  <div className="af-field"><label>Contact Number *</label><input type="tel" value={formData.contactNumber} onChange={e => handleChange('contactNumber', e.target.value)} required placeholder="+91 98765 43210" /></div>
+                </div>
+                <div className="af-field"><label>Visit Date *</label><input type="date" value={formData.visitDate} min={minDate} onChange={e => handleChange('visitDate', e.target.value)} required /></div>
+                <div className="af-field">
+                  <label>Choose Style *</label>
+                  <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
+                    {visitStyleOptions.map(s => (
+                      <button key={s} type="button" style={{padding:'6px 14px',fontSize:'0.68rem',fontWeight:500,letterSpacing:'0.05em',border:formData.style===s?'2px solid #C9A84C':'1px solid #ddd',background:formData.style===s?'rgba(201,168,76,0.08)':'#fff',color:formData.style===s?'#C9A84C':'#555',borderRadius:20,cursor:'pointer',fontFamily:"'Montserrat', sans-serif",transition:'all 0.2s'}} onClick={() => handleChange('style', s)}>{s}</button>
+                    ))}
                   </div>
-                  <div className="af-row">
-                    <div className="af-field"><label>Email *</label><input type="email" value={formData.email} onChange={e => handleChange('email', e.target.value)} required /></div>
-                    <div className="af-field"><label>Contact Number *</label><input type="tel" value={formData.contactNumber} onChange={e => handleChange('contactNumber', e.target.value)} required placeholder="+91 98765 43210" /></div>
-                  </div>
-                  <div className="af-field"><label>Visit Date *</label><input type="date" value={formData.visitDate} min={minDate} onChange={e => handleChange('visitDate', e.target.value)} required /></div>
+                </div>
+                <div className="af-row">
+                  <div className="af-field"><label>Material *</label><select value={formData.material} onChange={e => handleChange('material', e.target.value)} required><option value="">Select material</option>{visitMaterialOptions.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
+                  <div className="af-field"><label>Material Type *</label><select value={formData.materialType} onChange={e => handleChange('materialType', e.target.value)} required><option value="">Select type</option><option value="Premium">Premium</option><option value="Semi Premium">Semi Premium</option></select></div>
+                </div>
+                <div className="af-row">
+                  <div className="af-field"><label>For *</label><select value={formData.visitFor} onChange={e => handleChange('visitFor', e.target.value)} required><option value="">Select</option><option value="men">Men</option><option value="women">Women</option></select></div>
                   <div className="af-field">
-                    <label>Choose Style *</label>
-                    <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
-                      {visitStyleOptions.map(s => (
-                        <button key={s} type="button" style={{padding:'6px 14px',fontSize:'0.68rem',fontWeight:500,letterSpacing:'0.05em',border:formData.style===s?'2px solid #C9A84C':'1px solid #ddd',background:formData.style===s?'rgba(201,168,76,0.08)':'#fff',color:formData.style===s?'#C9A84C':'#555',borderRadius:20,cursor:'pointer',fontFamily:"'Montserrat', sans-serif",transition:'all 0.2s'}} onClick={() => handleChange('style', s)}>{s}</button>
-                      ))}
-                    </div>
+                    <label>PIN Code *</label>
+                    <input type="text" inputMode="numeric" pattern="[0-9]{4,10}" value={formData.pinCode} onChange={e => handleChange('pinCode', e.target.value)} required placeholder="400001" />
+                    {pinStatus && (
+                      <div style={{
+                        fontSize: '0.68rem',
+                        marginTop: '6px',
+                        fontWeight: 600,
+                        color: pinStatus.status === 'active' ? '#059669' : pinStatus.status === 'paused' ? '#d97706' : '#6b7280',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        {pinStatus.message}
+                      </div>
+                    )}
                   </div>
-                  <div className="af-row">
-                    <div className="af-field"><label>Material *</label><select value={formData.material} onChange={e => handleChange('material', e.target.value)} required><option value="">Select material</option>{visitMaterialOptions.map(m => <option key={m} value={m}>{m}</option>)}</select></div>
-                    <div className="af-field"><label>Material Type *</label><select value={formData.materialType} onChange={e => handleChange('materialType', e.target.value)} required><option value="">Select type</option><option value="Premium">Premium</option><option value="Semi Premium">Semi Premium</option></select></div>
-                  </div>
-                  <div className="af-row">
-                    <div className="af-field"><label>For *</label><select value={formData.visitFor} onChange={e => handleChange('visitFor', e.target.value)} required><option value="">Select</option><option value="men">Men</option><option value="women">Women</option></select></div>
-                    <div className="af-field"><label>PIN Code *</label><input type="text" inputMode="numeric" pattern="[0-9]{4,10}" value={formData.pinCode} onChange={e => handleChange('pinCode', e.target.value)} required placeholder="400001" /></div>
-                  </div>
-                  <div className="af-field"><label>Notes (optional)</label><textarea rows="3" value={formData.notes} onChange={e => handleChange('notes', e.target.value)} placeholder="Preferred time, special requirements..." /></div>
-                  {formError && <div className="account-msg error">{formError}</div>}
-                  <button type="submit" className="account-btn-primary" disabled={submitting} style={{width:'100%',justifyContent:'center',padding:'14px',marginTop:8}}>{submitting ? 'Scheduling...' : 'Schedule My Visit'}</button>
-                </form>
-              </>
-            )}
+                </div>
+                <div className="af-field"><label>Notes (optional)</label><textarea rows="3" value={formData.notes} onChange={e => handleChange('notes', e.target.value)} placeholder="Preferred time, special requirements..." /></div>
+                {formError && <div className="account-msg error">{formError}</div>}
+                <button type="submit" className="account-btn-primary" disabled={submitting} style={{width:'100%',justifyContent:'center',padding:'14px',marginTop:8}}>{submitting ? 'Scheduling...' : 'Schedule My Visit'}</button>
+              </form>
+            </>
+          )}
           </div>
-        </div>
       )}
 
       {/* ── Reschedule Visit Modal ── */}

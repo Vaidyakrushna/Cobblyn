@@ -124,19 +124,22 @@ async def list_inventory(
                 {"accessory": {"$ne": None}}
             ]
         else:
+            import re
             match_conditions["$or"] = [
-                {"product.style": {"$regex": category, "$options": "i"}},
-                {"accessory.category": {"$regex": category, "$options": "i"}}
+                {"product.style": {"$regex": re.escape(category), "$options": "i"}},
+                {"accessory.category": {"$regex": re.escape(category), "$options": "i"}}
             ]
     if gender:
         match_conditions["product.gender"] = gender.lower()
     if search:
+        import re
+        escaped_search = re.escape(search)
         match_conditions["$or"] = [
-            {"product.name": {"$regex": search, "$options": "i"}},
-            {"accessory.name": {"$regex": search, "$options": "i"}},
-            {"sku": {"$regex": search, "$options": "i"}},
-            {"product.articleCode": {"$regex": search, "$options": "i"}},
-            {"accessory.sku": {"$regex": search, "$options": "i"}}
+            {"product.name": {"$regex": escaped_search, "$options": "i"}},
+            {"accessory.name": {"$regex": escaped_search, "$options": "i"}},
+            {"sku": {"$regex": escaped_search, "$options": "i"}},
+            {"product.articleCode": {"$regex": escaped_search, "$options": "i"}},
+            {"accessory.sku": {"$regex": escaped_search, "$options": "i"}}
         ]
 
     if match_conditions:

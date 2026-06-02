@@ -79,10 +79,12 @@ class CustomerTierUpdate(BaseModel):
 async def list_customers(request: Request, search: Optional[str] = None, limit: int = 50, skip: int = 0):
     await require_admin(request)
     query = {"role": "user"}
+    import re
     if search:
+        escaped_search = re.escape(search)
         query["$or"] = [
-            {"name": {"$regex": search, "$options": "i"}},
-            {"email": {"$regex": search, "$options": "i"}}
+            {"name": {"$regex": escaped_search, "$options": "i"}},
+            {"email": {"$regex": escaped_search, "$options": "i"}}
         ]
     cursor = db.users.find(query, {"password_hash": 0}).sort("created_at", -1).skip(skip).limit(limit)
     customers = []

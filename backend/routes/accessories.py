@@ -75,18 +75,20 @@ async def list_accessories(
 ):
     query: Dict[str, Any] = {}
 
+    import re
     if category:
-        query["category"] = {"$regex": f"^{category}$", "$options": "i"}
+        query["category"] = {"$regex": f"^{re.escape(category)}$", "$options": "i"}
     if tag:
-        query["tag"] = {"$regex": tag, "$options": "i"}
+        query["tag"] = {"$regex": re.escape(tag), "$options": "i"}
     if in_stock is not None:
         query["in_stock"] = in_stock
     if search:
+        escaped_search = re.escape(search)
         query["$or"] = [
-            {"name": {"$regex": search, "$options": "i"}},
-            {"sku": {"$regex": search, "$options": "i"}},
-            {"material": {"$regex": search, "$options": "i"}},
-            {"category": {"$regex": search, "$options": "i"}},
+            {"name": {"$regex": escaped_search, "$options": "i"}},
+            {"sku": {"$regex": escaped_search, "$options": "i"}},
+            {"material": {"$regex": escaped_search, "$options": "i"}},
+            {"category": {"$regex": escaped_search, "$options": "i"}},
         ]
 
     sort_spec = [("_id", -1)]

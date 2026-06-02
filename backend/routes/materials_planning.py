@@ -64,10 +64,12 @@ async def list_raw_materials(
     if status == "low_stock":
         match_conditions["$expr"] = {"$lte": ["$stock_level", "$reorder_point"]}
     if search:
+        import re
+        escaped_search = re.escape(search)
         match_conditions["$or"] = [
-            {"name": {"$regex": search, "$options": "i"}},
-            {"supplier_name": {"$regex": search, "$options": "i"}},
-            {"material_details.type": {"$regex": search, "$options": "i"}}
+            {"name": {"$regex": escaped_search, "$options": "i"}},
+            {"supplier_name": {"$regex": escaped_search, "$options": "i"}},
+            {"material_details.type": {"$regex": escaped_search, "$options": "i"}}
         ]
         
     if match_conditions:

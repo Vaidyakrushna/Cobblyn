@@ -190,6 +190,14 @@ async def create_order(order: OrderCreate, request: Request):
     from auth_utils import get_current_user
     user = await get_current_user(request, db)
 
+    for item in order.items:
+        qty = int(item.get("quantity", 1))
+        if qty <= 0:
+            raise HTTPException(status_code=400, detail="Item quantities must be strictly positive.")
+        price = float(item.get("price", 0.0))
+        if price < 0:
+            raise HTTPException(status_code=400, detail="Item prices cannot be negative.")
+
     subtotal = sum(item.get("price", 0) * item.get("quantity", 1) for item in order.items)
 
     # Apply pricing rules (custom designs)
@@ -897,6 +905,54 @@ async def calculate_order_price(order_id: str, payload: PriceCalculationRequest,
         "tax_total": tax_breakdown.get("total_tax", 0.0),
         "total_amount": total
     }
+
+
+class CustomerPaymentRequest(BaseModel):
+    payment_method: str
+
+
+@router.post("/{order_id}/pay-outstanding")
+async def customer_pay_outstanding(order_id: str, payload: CustomerPaymentRequest, request: Request):
+    from auth_utils import get_current_user
+    user = await get_current_user(request, db)
+
+    order = await db.orders.find_one({"_id": ObjectId(order_id)})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    # Ensure this belongs to the logged-in customer
+    if str(order.get("user_id")) != str(user["_id"]):
+        raise HTTPException(status_code=403, detail="Unauthorized access to this order")
+
+    outstanding = order.get("outstanding_amount", 0.0)
+    if outstanding <= 0:
+        return {"message": "No outstanding balance for this order.", "status": order.get("status")}
+
+    history_entry = {
+        "status": "confirmed",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "note": f"Outstanding payment of ₹{outstanding:,.2f} settled by customer via {payload.payment_method.upper()}.",
+        "updated_by": user.get("name", "Customer")
+    }
+
+    await db.orders.update_one(
+        {"_id": ObjectId(order_id)},
+        {
+            "$set": {
+                "outstanding_amount": 0.0,
+                "status": "confirmed",
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            },
+            "$push": {
+                "status_history": history_entry
+            }
+        }
+    )
+
+    from routes.production import auto_create_production_job
+    await auto_create_production_job(db, str(order_id))
+
+    return {"message": "Payment recorded successfully", "status": "confirmed"}
 
 
 class PaymentRecordRequest(BaseModel):

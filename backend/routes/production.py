@@ -216,12 +216,14 @@ async def list_jobs(
         query["current_stage"] = stage
     if priority:
         query["priority"] = priority
+    import re
     if assigned_to:
-        query["assigned_to"] = {"$regex": assigned_to, "$options": "i"}
+        query["assigned_to"] = {"$regex": re.escape(assigned_to), "$options": "i"}
     if search:
+        escaped_search = re.escape(search)
         query["$or"] = [
-            {"order_number": {"$regex": search, "$options": "i"}},
-            {"customer_name": {"$regex": search, "$options": "i"}},
+            {"order_number": {"$regex": escaped_search, "$options": "i"}},
+            {"customer_name": {"$regex": escaped_search, "$options": "i"}},
         ]
 
     cursor = db.production_jobs.find(query).sort([
