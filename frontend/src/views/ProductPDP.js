@@ -439,10 +439,12 @@ const ProductPDP = ({ gender = 'men' }) => {
             </button>
           </div>
 
-          <Link href={getCustomizeUrl()} className="pdp-customize-btn" data-testid="customize-button">
-            <Palette size={18} />
-            Customize This Style
-          </Link>
+          {product.customized && (
+            <Link href={getCustomizeUrl()} className="pdp-customize-btn" data-testid="customize-button">
+              <Palette size={18} />
+              Customize This Style
+            </Link>
+          )}
 
           <div className="pdp-accordions">
             <div className="pdp-accordion-item">

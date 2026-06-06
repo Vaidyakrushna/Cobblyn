@@ -1,5 +1,5 @@
 import ProductListPage from '../../../../src/views/ProductListPage';
 
-export default function Page({ params }) {
-  return <ProductListPage gender="" title="Luxe Collection" filterType="style" filterValue={params.slug} />;
+export default function Page() {
+  return <ProductListPage gender="" title="Luxe Collection" filterType="style" />;
 }

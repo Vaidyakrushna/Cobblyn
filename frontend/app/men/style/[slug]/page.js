@@ -1,1 +1,1 @@
-import ProductListPage from '../../../../src/views/ProductListPage'; export default function Page({params}) { return <ProductListPage gender='men' title='Mens Collection' filterType='style' filterValue={params.slug} />; }
+import ProductListPage from '../../../../src/views/ProductListPage'; export default function Page() { return <ProductListPage gender='men' title='Mens Collection' filterType='style' />; }

@@ -33,6 +33,7 @@ class ProductCreate(BaseModel):
     images: list
     features: list
     specifications: dict
+    customized: Optional[bool] = False
 
 
 class ProductUpdate(BaseModel):
@@ -48,6 +49,7 @@ class ProductUpdate(BaseModel):
     images: Optional[list] = None
     features: Optional[list] = None
     specifications: Optional[dict] = None
+    customized: Optional[bool] = None
 
 
 @router.get("")

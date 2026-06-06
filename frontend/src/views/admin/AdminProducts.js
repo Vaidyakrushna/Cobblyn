@@ -11,7 +11,8 @@ const emptyProduct = {
   sizes: ['6', '7', '8', '9', '10'],
   images: [''],
   features: [''],
-  specifications: { Upper: '', Lining: '', Sole: '', Construction: '' }
+  specifications: { Upper: '', Lining: '', Sole: '', Construction: '' },
+  customized: false
 };
 
 const AdminProducts = () => {
@@ -75,7 +76,8 @@ const AdminProducts = () => {
       sizes: p.sizes?.length ? p.sizes : ['6', '7', '8', '9', '10'],
       images: p.images?.length ? p.images : [''],
       features: p.features?.length ? p.features : [''],
-      specifications: p.specifications || {},
+      specifications: p.specifications || { Upper: '', Lining: '', Sole: '', Construction: '' },
+      customized: p.customized || false,
     });
     setEditing(p.id);
   };
@@ -83,6 +85,16 @@ const AdminProducts = () => {
   const closeForm = () => { setEditing(null); setForm(emptyProduct); };
 
   const updateField = (k, v) => setForm(prev => ({ ...prev, [k]: v }));
+
+  const updateSpec = (k, v) => {
+    setForm(prev => ({
+      ...prev,
+      specifications: {
+        ...(prev.specifications || {}),
+        [k]: v
+      }
+    }));
+  };
 
   const updateArrayItem = (key, idx, value) => {
     setForm(prev => {
@@ -197,7 +209,7 @@ const AdminProducts = () => {
             <thead>
               <tr>
                 <th>Image</th><th>SKU</th><th>Name</th><th>Style</th><th>Gender</th>
-                <th>Material</th><th>Price</th><th>Tag</th><th>Actions</th>
+                <th>Material</th><th>Price</th><th>Tag</th><th>Customized</th><th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -217,6 +229,13 @@ const AdminProducts = () => {
                   <td>{p.material}</td>
                   <td>₹{(p.price || 0).toLocaleString()}</td>
                   <td>{p.tag ? <span className="status-badge">{p.tag}</span> : '-'}</td>
+                  <td>
+                    {p.customized ? (
+                      <span className="status-badge" style={{ background: 'rgba(201,168,76,0.1)', color: '#C9A84C', borderColor: 'rgba(201,168,76,0.3)', fontWeight: 600 }}>Yes</span>
+                    ) : (
+                      <span style={{ color: '#9CA3AF' }}>No</span>
+                    )}
+                  </td>
                   <td>
                     <div className="table-actions">
                       <button onClick={() => openEdit(p)} title="Edit" data-testid={`edit-product-${p.id}`}><Edit2 size={14} /></button>
@@ -329,9 +348,54 @@ const AdminProducts = () => {
                 </div>
               </div>
 
+              <div className="frow">
+                <div className="af-field" style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '8px 0' }}>
+                  <input 
+                    type="checkbox" 
+                    id="customized-product"
+                    checked={form.customized || false} 
+                    onChange={(e) => updateField('customized', e.target.checked)} 
+                    style={{ width: 'auto', margin: 0, cursor: 'pointer' }}
+                  />
+                  <label htmlFor="customized-product" style={{ margin: 0, cursor: 'pointer', fontWeight: 600 }}>Customized Product (Enable 3D customizer option on storefront)</label>
+                </div>
+              </div>
+
               <div className="af-field">
                 <label>Description</label>
                 <textarea rows="3" value={form.description} onChange={(e) => updateField('description', e.target.value)} data-testid="product-form-description" />
+              </div>
+
+              <div style={{ margin: '20px 0', padding: '16px', background: '#fcfcfc', border: '1px solid #eef0f2', borderRadius: '8px' }}>
+                <h4 style={{ margin: '0 0 12px 0', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', color: '#6B7280' }}>Product Details (PDP Specifications)</h4>
+                <div className="frow" style={{ marginBottom: 12 }}>
+                  <div className="af-field">
+                    <label>Upper Material</label>
+                    <input type="text" placeholder="e.g. Full-Grain Calfskin" 
+                      value={form.specifications?.Upper || ''} 
+                      onChange={(e) => updateSpec('Upper', e.target.value)} />
+                  </div>
+                  <div className="af-field">
+                    <label>Lining Material</label>
+                    <input type="text" placeholder="e.g. Soft Calf Leather" 
+                      value={form.specifications?.Lining || ''} 
+                      onChange={(e) => updateSpec('Lining', e.target.value)} />
+                  </div>
+                </div>
+                <div className="frow">
+                  <div className="af-field">
+                    <label>Sole Type</label>
+                    <input type="text" placeholder="e.g. Double Leather Sole" 
+                      value={form.specifications?.Sole || ''} 
+                      onChange={(e) => updateSpec('Sole', e.target.value)} />
+                  </div>
+                  <div className="af-field">
+                    <label>Construction Type</label>
+                    <input type="text" placeholder="e.g. Goodyear Welt" 
+                      value={form.specifications?.Construction || ''} 
+                      onChange={(e) => updateSpec('Construction', e.target.value)} />
+                  </div>
+                </div>
               </div>
 
               <div className="af-field">
