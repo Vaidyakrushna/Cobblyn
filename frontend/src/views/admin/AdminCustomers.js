@@ -97,12 +97,14 @@ const AdminCustomers = () => {
       {loading ? <div className="admin-loading">Loading...</div> : (
         <div className="admin-table-wrapper">
           <table className="admin-table">
-            <thead><tr><th>Name</th><th>Email</th><th>Orders</th><th>Fit Profile</th><th>Joined</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Name</th><th>Email</th><th>Wallet Balance</th><th>Referral Code</th><th>Orders</th><th>Fit Profile</th><th>Joined</th><th>Actions</th></tr></thead>
             <tbody>
               {paginatedCustomers.map(c => (
                 <tr key={c.id} data-testid={`customer-row-${c.id}`}>
                   <td><strong>{c.name}</strong></td>
                   <td>{c.email}</td>
+                  <td><strong>₹{(c.wallet_balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
+                  <td style={{ fontFamily: 'monospace', letterSpacing: '0.05em' }}>{c.referral_code || '-'}</td>
                   <td>{c.order_count}</td>
                   <td>{c.has_fit_profile ? <span className="badge-success">Scanned</span> : <span className="badge-pending">Not yet</span>}</td>
                   <td>{c.created_at ? new Date(c.created_at).toLocaleDateString() : '-'}</td>
@@ -155,6 +157,24 @@ const AdminCustomers = () => {
                 <button className="admin-btn-secondary" onClick={openFitForm}>
                   {selectedCustomer.fit_profile ? 'Update Fit Profile' : 'Record Fit Measurements'}
                 </button>
+              </div>
+
+              <div className="customer-section">
+                <h4>Referrals & Wallet</h4>
+                <div className="fit-data">
+                  <div className="fit-row">
+                    <span>Wallet Balance</span>
+                    <strong style={{ color: '#10b981' }}>₹{(selectedCustomer.wallet_balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong>
+                  </div>
+                  <div className="fit-row">
+                    <span>Referral Code</span>
+                    <strong style={{ fontFamily: 'monospace', letterSpacing: '0.05em' }}>{selectedCustomer.referral_code || 'N/A'}</strong>
+                  </div>
+                  <div className="fit-row">
+                    <span>Referred By Code</span>
+                    <span>{selectedCustomer.referred_by || 'None'}</span>
+                  </div>
+                </div>
               </div>
 
               <div className="customer-section">
