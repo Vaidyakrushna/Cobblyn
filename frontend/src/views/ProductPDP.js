@@ -175,7 +175,7 @@ const ProductPDP = ({ gender = 'men' }) => {
     setSharePopup(false);
   };
 
-  const basePath = gender === 'women' ? '/women' : '/men';
+  const basePath = gender === 'women' ? '/women' : gender === 'luxe-collection' ? '/luxe-collection' : '/men';
 
   const getCustomizeUrl = () => {
     const model = product.model || product.category || (product.specifications && (product.specifications['Category'] || product.specifications['Style'])) || '';
@@ -185,14 +185,14 @@ const ProductPDP = ({ gender = 'men' }) => {
     const sole = product.sole || (product.specifications && (product.specifications['Sole'] || product.specifications['Sole Type'])) || '';
     
     const qs = new URLSearchParams({
-      gender: gender,
+      gender: gender === 'luxe-collection' ? (product.gender || 'men') : gender,
       model: model,
       submodel: submodel,
       leather: leather,
       color: color,
       sole: sole
     }).toString();
-    return `/customize/${gender}?${qs}`;
+    return `/customize/${gender === 'luxe-collection' ? (product.gender || 'men') : gender}?${qs}`;
   };
 
   return (
@@ -200,7 +200,7 @@ const ProductPDP = ({ gender = 'men' }) => {
       <div className="breadcrumbs">
         <Link href="/">Home</Link>
         <ChevronRight size={14} />
-        <Link href={basePath}>{gender === 'women' ? "Women's" : "Men's"} Collection</Link>
+        <Link href={basePath}>{gender === 'women' ? "Women's" : gender === 'luxe-collection' ? "Luxe" : "Men's"} Collection</Link>
         <ChevronRight size={14} />
         <span>{product.name}</span>
       </div>

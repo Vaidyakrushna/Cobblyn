@@ -111,7 +111,7 @@ const ProductListContent = ({ gender, title, subtitle, filterType: filterTypePro
     setFilters(prev => ({ ...prev, style: newStyle, occasion: newOccasion }));
   }, [filterType, filterValue]);
 
-  const basePath = gender === 'women' ? '/women' : gender === 'men' ? '/men' : '/luxe-collection';
+  const basePath = gender === 'women' ? '/women' : gender === 'men' ? '/men' : gender === 'all' ? '/collection' : '/luxe-collection';
 
   const styleOptions = gender === 'women'
     ? ['Ballerina', 'Boots', 'Loafers', 'Jutis', 'Peep Toes']
@@ -216,6 +216,9 @@ const ProductListContent = ({ gender, title, subtitle, filterType: filterTypePro
   };
 
   const getProductLink = (product) => {
+    if (gender === '') {
+      return `/luxe-collection/product/${product.id}`;
+    }
     const g = product.gender || gender;
     const gPath = g === 'women' ? '/women' : '/men';
     return `${gPath}/product/${product.id}`;

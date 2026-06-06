@@ -2364,14 +2364,15 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
   const [tickets, setTickets] = useState([]);
   const [orders, setOrders] = useState([]);
   const [activeTicket, setActiveTicket] = useState(null);
-  
+  const [showNewForm, setShowNewForm] = useState(false);
+
   // New ticket form states
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [category, setCategory] = useState('general');
   const [updateOrderRequest, setUpdateOrderRequest] = useState(false);
   const [linkedOrderId, setLinkedOrderId] = useState('');
-  
+
   // Loaders & Interactive states
   const [loading, setLoading] = useState(true);
   const [submittingTicket, setSubmittingTicket] = useState(false);
@@ -2484,10 +2485,14 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
       setSubject(`Help with Order #${supportOrderContext.order_number}`);
       setMessage(`Hello, I need assistance with my order #${supportOrderContext.order_number}.`);
       setCategory('order_issue');
-      
+      setActiveTicket(null);
+      setShowNewForm(true);
+
       // Auto scroll to form
-      const el = document.getElementById('support-inquiry-form');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => {
+        const el = document.getElementById('support-inquiry-form');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     }
   }, [supportOrderContext]);
 
@@ -2497,6 +2502,8 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
     setCategory(question.category);
     setUpdateOrderRequest(question.update_order);
     setErrorMsg('');
+    setActiveTicket(null);
+    setShowNewForm(true);
   };
 
   const handleCreateTicket = async (e) => {
@@ -2523,15 +2530,16 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
       setUpdateOrderRequest(false);
       setLinkedOrderId('');
       setSupportOrderContext(null);
-      
+      setShowNewForm(false);
+
       // Refresh tickets list and set the newly created ticket as active
       const ticketRes = await api.getMyTickets();
       const updatedTickets = ticketRes.tickets || [];
       setTickets(updatedTickets);
-      
+
       const newTicket = updatedTickets.find(t => t.id === res.id);
       if (newTicket) setActiveTicket(newTicket);
-      
+
     } catch (err) {
       setErrorMsg(err.message || "Failed to create support ticket.");
     } finally {
@@ -2938,9 +2946,8 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
         
         {/* LEFT COLUMN: Active Ticket Selection */}
         <div className="support-left-pane">
-          <button 
+          <button
             type="button"
-            className="account-btn-primary" 
             onClick={() => {
               setActiveTicket(null);
               setSupportOrderContext(null);
@@ -2949,29 +2956,49 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
               setCategory('general');
               setUpdateOrderRequest(false);
               setLinkedOrderId('');
-            }} 
-            style={{ width: '100%', marginTop: 0, padding: '10px 14px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, cursor: 'pointer', position: 'relative', zIndex: 10 }}
+              setErrorMsg('');
+              setShowNewForm(true);
+            }}
             data-testid="raise-new-inquiry-btn"
+            style={{
+              width: '100%',
+              marginTop: 0,
+              padding: '11px 14px',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              cursor: 'pointer',
+              background: showNewForm && !activeTicket ? '#C9A84C' : '#1a1a1a',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '8px',
+              fontFamily: 'Montserrat, sans-serif',
+              transition: 'background 0.2s',
+              letterSpacing: '0.02em',
+            }}
           >
-            <Plus size={14} /> Raise New Inquiry
+            <Plus size={15} /> Raise New Enquiry
           </button>
           
           <div className="ticket-list">
             <h4 style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: '#78716c', letterSpacing: '0.05em', margin: '4px 0' }}>Your Active Inquiries</h4>
             {tickets.length === 0 ? (
               <div style={{ padding: '24px 10px', textAlign: 'center', fontSize: '0.72rem', color: '#a8a29e', fontStyle: 'italic' }}>
-                No tickets filed yet.
+                No enquiries filed yet.
               </div>
             ) : (
               tickets.map(t => (
-                <button 
-                  key={t.id} 
+                <button
+                  key={t.id}
                   className={`ticket-item-btn ${activeTicket?.id === t.id ? 'active' : ''}`}
-                  onClick={() => setActiveTicket(t)}
+                  onClick={() => { setActiveTicket(t); setShowNewForm(false); }}
                   data-testid={`customer-ticket-${t.id}`}
                 >
                   <div className="ticket-item-header">
-                    <span>Inquiry #{t.id.slice(-6).toUpperCase()}</span>
+                    <span>Enquiry #{t.id.slice(-6).toUpperCase()}</span>
                     <span className={`status-badge-mini status-${t.status}`}>{t.status?.replace(/_/g, ' ')}</span>
                   </div>
                   <div className="ticket-item-subject">{t.subject}</div>
@@ -2985,26 +3012,179 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
           </div>
         </div>
 
-        {/* RIGHT COLUMN: Ticket Creation Form OR Conversational Pane */}
+        {/* RIGHT COLUMN: Welcome Starters | New Form | Chat Pane */}
         <div className="support-right-pane">
-          {!activeTicket ? (
-            
-            // raising a new ticket form
-            <div id="support-inquiry-form" className="fit-form-card" style={{ marginTop: 0, padding: 20 }}>
-              <h4 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.2rem', color: '#1c1917', margin: '0 0 16px 0', borderBottom: '1px solid #e7e5e4', paddingBottom: 8 }}>
-                Raise a Custom Support Inquiry
-              </h4>
+          {!activeTicket && !showNewForm ? (
 
-              {/* Predefined Quick Questions */}
-              <div style={{ marginBottom: 16 }}>
-                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 8 }}>
-                  💡 Select Predefined Help Templates
-                </span>
-                <div className="predefined-grid">
+            // ── DEFAULT: Chat-starter welcome screen ──
+            <div style={{
+              background: '#fafaf9',
+              border: '1px solid #e7e5e4',
+              borderRadius: '14px',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: '520px',
+            }}>
+              {/* Chat header */}
+              <div style={{
+                background: '#1a1a1a',
+                padding: '18px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+              }}>
+                <div style={{
+                  width: 40, height: 40,
+                  borderRadius: '50%',
+                  background: 'rgba(201,168,76,0.15)',
+                  border: '2px solid #C9A84C',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '1.1rem',
+                }}>🎨</div>
+                <div>
+                  <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.85rem', fontFamily: 'Montserrat, sans-serif' }}>Atelier Support Desk</div>
+                  <div style={{ color: '#C9A84C', fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
+                    Artisans online · usually replies within a few hours
+                  </div>
+                </div>
+              </div>
+
+              {/* Messages area */}
+              <div style={{ flex: 1, padding: '24px 20px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {/* Bot welcome bubble */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: '#f5f5f4', border: '1px solid #e7e5e4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', flexShrink: 0 }}>🎨</div>
+                  <div>
+                    <div style={{ fontSize: '0.63rem', color: '#a8a29e', marginBottom: 4, fontWeight: 600 }}>Atelier Support</div>
+                    <div style={{ background: '#fff', border: '1px solid #e7e5e4', borderRadius: '12px', borderBottomLeftRadius: 2, padding: '12px 16px', fontSize: '0.8rem', color: '#1c1917', lineHeight: 1.55, maxWidth: 380 }}>
+                      👋 Welcome to the <strong>Byond Studio Atelier Desk</strong>. How can our artisans assist you today?
+                      <br /><br />
+                      Select a topic below to get started, or raise a custom enquiry using the button on the left.
+                    </div>
+                  </div>
+                </div>
+
+                {/* Suggestion chips label */}
+                <div style={{ fontSize: '0.65rem', color: '#a8a29e', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 8, paddingLeft: 42 }}>
+                  Quick Topics
+                </div>
+
+                {/* Suggestion chips */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingLeft: 42 }}>
                   {PREDEFINED_QUESTIONS.map((q, idx) => (
-                    <button key={idx} className="predefined-card" onClick={() => selectPredefined(q)}>
-                      <h5>{q.title}</h5>
-                      <p>{q.desc}</p>
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => selectPredefined(q)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        background: '#fff',
+                        border: '1.5px solid #e7e5e4',
+                        borderRadius: '10px',
+                        padding: '10px 14px',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontFamily: 'inherit',
+                        transition: 'all 0.18s',
+                        width: '100%',
+                        maxWidth: 420,
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = '#C9A84C'; e.currentTarget.style.background = '#fffbeb'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = '#e7e5e4'; e.currentTarget.style.background = '#fff'; }}
+                    >
+                      <span style={{ fontSize: '1rem', lineHeight: 1 }}>{q.title.split(' ')[0]}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '0.78rem', fontWeight: 600, color: '#1c1917' }}>{q.title.split(' ').slice(1).join(' ')}</div>
+                        <div style={{ fontSize: '0.65rem', color: '#78716c', marginTop: 1 }}>{q.desc}</div>
+                      </div>
+                      <span style={{ color: '#C9A84C', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>→</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Disabled reply bar hint */}
+              <div style={{
+                borderTop: '1px solid #e7e5e4',
+                padding: '12px 20px',
+                display: 'flex',
+                gap: 8,
+                alignItems: 'center',
+              }}>
+                <div style={{
+                  flex: 1,
+                  background: '#f5f5f4',
+                  border: '1px solid #e7e5e4',
+                  borderRadius: '8px',
+                  padding: '9px 14px',
+                  fontSize: '0.75rem',
+                  color: '#a8a29e',
+                  cursor: 'default',
+                  userSelect: 'none',
+                }}>Select a topic above or raise a new enquiry…</div>
+                <button
+                  type="button"
+                  onClick={() => { setShowNewForm(true); }}
+                  style={{
+                    background: '#C9A84C', color: '#fff', border: 'none',
+                    borderRadius: '8px', padding: '9px 16px',
+                    fontSize: '0.75rem', fontWeight: 700,
+                    cursor: 'pointer', whiteSpace: 'nowrap',
+                    fontFamily: 'Montserrat, sans-serif',
+                  }}
+                >+ New Enquiry</button>
+              </div>
+            </div>
+
+          ) : !activeTicket && showNewForm ? (
+
+            // ── NEW ENQUIRY FORM ──
+            <div id="support-inquiry-form" className="fit-form-card" style={{ marginTop: 0, padding: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, borderBottom: '1px solid #e7e5e4', paddingBottom: 10 }}>
+                <h4 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.15rem', color: '#1c1917', margin: 0 }}>
+                  Raise a New Enquiry
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => { setShowNewForm(false); setErrorMsg(''); }}
+                  style={{ background: 'none', border: 'none', fontSize: '0.72rem', color: '#78716c', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}
+                >
+                  ← Back
+                </button>
+              </div>
+
+              {/* Quick topic chips at top of form too */}
+              <div style={{ marginBottom: 18 }}>
+                <span style={{ fontSize: '0.67rem', fontWeight: 700, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 8 }}>
+                  💡 Quick-fill from a topic
+                </span>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {PREDEFINED_QUESTIONS.map((q, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => { setSubject(q.subject); setMessage(q.message); setCategory(q.category); setUpdateOrderRequest(q.update_order); setErrorMsg(''); }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 5,
+                        padding: '5px 10px',
+                        background: subject === q.subject ? '#fffbeb' : '#f5f5f4',
+                        border: subject === q.subject ? '1.5px solid #C9A84C' : '1.5px solid #e7e5e4',
+                        borderRadius: '20px',
+                        fontSize: '0.7rem',
+                        fontWeight: 600,
+                        color: subject === q.subject ? '#92400e' : '#44403c',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        transition: 'all 0.15s',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      <span>{q.title.split(' ')[0]}</span>
+                      <span>{q.title.split(' ').slice(1).join(' ')}</span>
                     </button>
                   ))}
                 </div>
@@ -3015,7 +3195,7 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
               <form onSubmit={handleCreateTicket} className="account-form" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14 }}>
                   <div className="af-field">
-                    <label>Inquiry Classification Category</label>
+                    <label>Enquiry Category</label>
                     <select value={category} onChange={e => setCategory(e.target.value)}>
                       <option value="general">General Sizing & Atelier Advice</option>
                       <option value="fit_issue">Podiatric / 3D Fit Vault Issue</option>
@@ -3024,9 +3204,9 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
                       <option value="return">Exchange & Return Filing</option>
                     </select>
                   </div>
-                  
+
                   <div className="af-field">
-                    <label>Link to Specific E-Commerce Order</label>
+                    <label>Link to a Specific Order <span style={{ color: '#a8a29e', fontWeight: 400 }}>(optional)</span></label>
                     <select value={linkedOrderId} onChange={e => {
                       setLinkedOrderId(e.target.value);
                       if (e.target.value) {
@@ -3037,7 +3217,7 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
                       <option value="">-- No Order Association --</option>
                       {orders.map(o => (
                         <option key={o.id || o._id} value={o.id || o._id}>
-                          Order #{o.order_number} ({new Date(o.created_at).toLocaleDateString()} - ₹{o.total_amount?.toLocaleString()})
+                          Order #{o.order_number} ({new Date(o.created_at).toLocaleDateString()} · ₹{o.total_amount?.toLocaleString()})
                         </option>
                       ))}
                     </select>
@@ -3045,54 +3225,54 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, background: '#fafaf9', padding: '10px', borderRadius: '6px', border: '1px solid #e7e5e4' }}>
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     id="update-order-checkbox"
-                    checked={updateOrderRequest} 
-                    onChange={e => setUpdateOrderRequest(e.target.checked)} 
+                    checked={updateOrderRequest}
+                    onChange={e => setUpdateOrderRequest(e.target.checked)}
                     style={{ width: 14, height: 14, accentColor: '#C9A84C', cursor: 'pointer', marginTop: '4px' }}
                   />
                   <label htmlFor="update-order-checkbox" style={{ fontSize: '0.72rem', fontWeight: 600, color: '#44403c', margin: 0, cursor: 'pointer' }}>
-                    🚨 This is an active order details modification request (changes to size, material, or sole).
+                    🚨 This is an order modification request (size, material, or sole change).
                   </label>
                 </div>
 
                 <div className="af-field">
                   <label>Subject / Brief Summary</label>
-                  <input 
-                    type="text" 
-                    value={subject} 
-                    onChange={e => setSubject(e.target.value)} 
-                    placeholder="E.g., Requesting Dainite sole upgrade on my oxfords" 
+                  <input
+                    type="text"
+                    value={subject}
+                    onChange={e => setSubject(e.target.value)}
+                    placeholder="E.g., Requesting Dainite sole upgrade on my oxfords"
                     style={{ fontSize: '0.78rem' }}
                     data-testid="ticket-subject-input"
                   />
                 </div>
 
                 <div className="af-field">
-                  <label>Elaborate Detailed Request Description</label>
-                  <textarea 
-                    rows="4" 
-                    value={message} 
-                    onChange={e => setMessage(e.target.value)} 
+                  <label>Detailed Description</label>
+                  <textarea
+                    rows="4"
+                    value={message}
+                    onChange={e => setMessage(e.target.value)}
                     placeholder="Detail your request here. Our artisans will read this and formulate your bespoke proposal."
                     style={{ fontSize: '0.78rem' }}
                     data-testid="ticket-message-input"
                   />
                 </div>
 
-                <button 
-                  type="submit" 
-                  className="account-btn-primary" 
-                  disabled={submittingTicket} 
+                <button
+                  type="submit"
+                  className="account-btn-primary"
+                  disabled={submittingTicket}
                   style={{ width: 'fit-content', padding: '10px 24px', letterSpacing: '0.05em', fontWeight: 600, marginTop: 4 }}
                   data-testid="submit-ticket-btn"
                 >
-                  {submittingTicket ? 'Initiating Request...' : 'Submit Support Inquiry'}
+                  {submittingTicket ? 'Initiating Request…' : 'Submit Enquiry'}
                 </button>
               </form>
             </div>
-            
+
           ) : (
             
             // conversational pane for active ticket
@@ -3110,11 +3290,12 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
                   <span className={`status-badge-mini status-${activeTicket.status}`}>{activeTicket.status?.replace(/_/g, ' ')}</span>
-                  <button 
-                    onClick={() => { setActiveTicket(null); setSupportOrderContext(null); }}
+                  <button
+                    type="button"
+                    onClick={() => { setActiveTicket(null); setSupportOrderContext(null); setShowNewForm(false); }}
                     style={{ background: 'none', border: 'none', color: '#C9A84C', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', padding: 0 }}
                   >
-                    &larr; Back to raising tickets
+                    ← Back to Enquiries
                   </button>
                 </div>
               </div>

@@ -1,1 +1,5 @@
-import ProductPDP from '../../../../src/views/ProductPDP'; export default function Page() { return <ProductPDP />; }
+import ProductPDP from '../../../../src/views/ProductPDP';
+
+export default function Page() {
+  return <ProductPDP gender="men" />;
+}
