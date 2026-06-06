@@ -11,7 +11,6 @@ const TABS = [
   { id: 'visits', label: 'Scheduled Visits', icon: CalendarCheck },
   { id: 'custom', label: 'Customization', icon: Palette },
   { id: 'fit_vault', label: 'Fit Vault', icon: Layers },
-  { id: 'wishlist', label: 'Wishlist', icon: Heart },
   { id: 'referrals', label: 'Refer & Earn', icon: Gift },
   { id: 'support', label: 'Support & Help', icon: MessageSquare },
 ];
@@ -70,7 +69,6 @@ const MyAccountPage = () => {
           {activeTab === 'profile' && <ProfileTab section={profileSection} setSection={setProfileSection} />}
           {activeTab === 'fit_vault' && <FitVaultTab setActiveTab={setActiveTab} />}
           {activeTab === 'orders' && <OrdersTab setActiveTab={setActiveTab} setSupportOrderContext={setSupportOrderContext} />}
-          {activeTab === 'wishlist' && <WishlistTab />}
           {activeTab === 'visits' && <VisitsTab />}
           {activeTab === 'custom' && <CustomOrdersTab />}
           {activeTab === 'referrals' && <ReferralsTab />}
