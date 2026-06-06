@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request, Response, BackgroundTasks
 from pydantic import BaseModel, EmailStr, field_validator
+from typing import Optional
 from datetime import datetime, timezone, timedelta
 from bson import ObjectId
 import secrets
@@ -33,6 +34,7 @@ class RegisterRequest(BaseModel):
     name: str
     email: EmailStr
     password: str
+    referral_code: Optional[str] = None
 
     @field_validator("password")
     @classmethod
@@ -68,6 +70,8 @@ def user_response(user: dict) -> dict:
         "name": user.get("name", ""),
         "email": user.get("email", ""),
         "role": user.get("role", "user"),
+        "referral_code": user.get("referral_code", ""),
+        "wallet_balance": user.get("wallet_balance", 0.0),
     }
 
 
@@ -119,6 +123,21 @@ async def register(req: RegisterRequest, request: Request, response: Response, b
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
 
+    referred_by_code = None
+    initial_wallet = 0.0
+    referrer_user = None
+
+    if req.referral_code:
+        ref_code_clean = req.referral_code.strip().upper()
+        referrer_user = await db.users.find_one({"referral_code": ref_code_clean})
+        if not referrer_user:
+            raise HTTPException(status_code=400, detail="Invalid referral code")
+        referred_by_code = ref_code_clean
+        initial_wallet = 250.0  # Referee welcome credit
+
+    from routes.referrals import generate_referral_code
+    new_ref_code = await generate_referral_code(db)
+
     hashed = hash_password(req.password)
     user_doc = {
         "name": html.escape(req.name.strip()),
@@ -126,10 +145,32 @@ async def register(req: RegisterRequest, request: Request, response: Response, b
         "password_hash": hashed,
         "role": "user",
         "is_verified": False,
+        "referral_code": new_ref_code,
+        "referred_by": referred_by_code,
+        "wallet_balance": initial_wallet,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     result = await db.users.insert_one(user_doc)
-    user_id = str(result.inserted_id)
+    user_id = result.inserted_id
+
+    # If referred by someone, create a ledger record and add welcome transaction
+    if referred_by_code and referrer_user:
+        await db.referrals.insert_one({
+            "referrer_id": referrer_user["_id"],
+            "referee_id": user_id,
+            "referee_name": user_doc["name"],
+            "referee_email": user_doc["email"],
+            "status": "pending",
+            "reward_amount": 500.0,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        await db.wallet_transactions.insert_one({
+            "user_id": user_id,
+            "amount": 250.0,
+            "type": "credit",
+            "description": "Welcome bonus for signing up via referral",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
 
     verify_token = secrets.token_urlsafe(32)
     await db.email_verification_tokens.insert_one({
@@ -169,7 +210,15 @@ async def login(req: LoginRequest, request: Request, response: Response):
     refresh_token = create_refresh_token(user_id)
     set_auth_cookies(response, access_token, refresh_token)
 
-    return {"id": user_id, "name": user["name"], "email": email, "role": user.get("role", "user"), "token": access_token}
+    return {
+        "id": user_id,
+        "name": user["name"],
+        "email": email,
+        "role": user.get("role", "user"),
+        "referral_code": user.get("referral_code", ""),
+        "wallet_balance": user.get("wallet_balance", 0.0),
+        "token": access_token
+    }
 
 
 @router.post("/logout")
@@ -219,7 +268,13 @@ async def logout(request: Request, response: Response):
 @router.get("/me")
 async def get_me(request: Request):
     user = await get_current_user(request, db)
-    return user_response({"_id": user["_id"], "name": user["name"], "email": user["email"], "role": user.get("role", "user")})
+    # Ensure they have a referral code dynamically
+    if not user.get("referral_code"):
+        from routes.referrals import generate_referral_code
+        ref_code = await generate_referral_code(db)
+        await db.users.update_one({"_id": ObjectId(user["_id"])}, {"$set": {"referral_code": ref_code}})
+        user["referral_code"] = ref_code
+    return user_response(user)
 
 
 @router.post("/refresh")

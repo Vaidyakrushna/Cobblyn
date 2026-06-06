@@ -43,6 +43,7 @@ from routes import audit_logs as audit_log_routes
 from routes import jobs as jobs_routes
 from routes import assets as asset_routes
 from routes import vendor_portal as vendor_portal_routes
+from routes import referrals as referral_routes
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -80,6 +81,7 @@ audit_log_routes.set_db(db)
 jobs_routes.set_db(db)
 asset_routes.set_db(db)
 vendor_portal_routes.set_db(db)
+referral_routes.set_db(db)
 
 
 app = FastAPI()
@@ -142,6 +144,7 @@ app.include_router(audit_log_routes.router)
 app.include_router(jobs_routes.router)
 app.include_router(asset_routes.router)
 app.include_router(vendor_portal_routes.router)
+app.include_router(referral_routes.router)
 
 
 # ---- Rate limiting (slowapi) ----

@@ -30,6 +30,7 @@ class OrderCreate(BaseModel):
     shipping_address: dict  # {name, phone, address, city, state, pincode}
     payment_method: str  # cod, online
     coupon_code: Optional[str] = None
+    use_wallet: Optional[bool] = False
     notes: Optional[str] = None
 
 
@@ -270,6 +271,29 @@ async def create_order(order: OrderCreate, request: Request):
 
     total = max(0.0, round(subtotal - coupon_discount + tax_breakdown.get("total_tax", 0.0), 2))
 
+    wallet_discount = 0.0
+    if order.use_wallet:
+        user_db = await db.users.find_one({"_id": ObjectId(user["_id"])})
+        if user_db:
+            available_balance = user_db.get("wallet_balance", 0.0)
+            if available_balance > 0:
+                wallet_discount = min(available_balance, total)
+                total = round(total - wallet_discount, 2)
+
+    # Deduct from user's wallet
+    if wallet_discount > 0:
+        await db.users.update_one(
+            {"_id": ObjectId(user["_id"])},
+            {"$inc": {"wallet_balance": -wallet_discount}}
+        )
+        await db.wallet_transactions.insert_one({
+            "user_id": ObjectId(user["_id"]),
+            "amount": wallet_discount,
+            "type": "debit",
+            "description": f"Applied to order {order_number}",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+
     doc = {
         "order_number": order_number,
         "user_id": ObjectId(user["_id"]),
@@ -282,6 +306,7 @@ async def create_order(order: OrderCreate, request: Request):
         "subtotal": round(subtotal, 2),
         "coupon_code": coupon_code_applied,
         "coupon_discount": coupon_discount,
+        "wallet_discount": wallet_discount,
         "tax": tax_breakdown,
         "total_amount": total,
         "status": "pending",
@@ -312,6 +337,7 @@ async def create_order(order: OrderCreate, request: Request):
 
     return {"id": str(result.inserted_id), "order_number": order_number,
             "subtotal": round(subtotal, 2), "coupon_discount": coupon_discount,
+            "wallet_discount": wallet_discount,
             "tax": tax_breakdown, "total_amount": total, "status": "pending",
             "production_type": production_type, "crafted_by": crafted_by,
             "fulfillment_vendor": fulfillment_vendor, "vendor_upfront_cost": vendor_upfront_cost,
@@ -365,6 +391,10 @@ async def update_order_status(order_id: str, update: OrderStatusUpdate, request:
     if update.status not in ORDER_STATUSES:
         raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of: {ORDER_STATUSES}")
 
+    order = await db.orders.find_one({"_id": ObjectId(order_id)})
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
     history_entry = {
         "status": update.status,
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -386,6 +416,25 @@ async def update_order_status(order_id: str, update: OrderStatusUpdate, request:
     if update.status == "confirmed":
         from routes.production import auto_create_production_job
         await auto_create_production_job(db, str(order_id))
+        
+        # Trigger referral reward if this was the referee's first purchase
+        from routes.referrals import trigger_referral_reward
+        await trigger_referral_reward(db, order["user_id"])
+
+    # Refund wallet if order is cancelled
+    if update.status == "cancelled" and order.get("wallet_discount", 0.0) > 0:
+        wallet_refund = order["wallet_discount"]
+        await db.users.update_one(
+            {"_id": order["user_id"]},
+            {"$inc": {"wallet_balance": wallet_refund}}
+        )
+        await db.wallet_transactions.insert_one({
+            "user_id": order["user_id"],
+            "amount": wallet_refund,
+            "type": "credit",
+            "description": f"Refund for cancelled order {order.get('order_number')}",
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
 
     return {"message": f"Order status updated to {update.status}"}
 
@@ -785,6 +834,9 @@ async def approve_order_modification(order_id: str, request: Request):
     if new_status == "confirmed":
         from routes.production import auto_create_production_job
         await auto_create_production_job(db, str(order_id))
+        
+        from routes.referrals import trigger_referral_reward
+        await trigger_referral_reward(db, order["user_id"])
 
     # Auto-update support ticket if associated
     ticket_id = pending_mod.get("ticket_id")
@@ -869,6 +921,7 @@ class PriceCalculationRequest(BaseModel):
     items: List[dict]
     shipping_address: Optional[dict] = None
     coupon_code: Optional[str] = None
+    use_wallet: Optional[bool] = False
 
 
 @router.post("/{order_id}/calculate-price")
@@ -899,9 +952,20 @@ async def calculate_order_price(order_id: str, payload: PriceCalculationRequest,
     tax_breakdown = compute_tax(payload.items, dest_state=state)
 
     total = max(0.0, round(subtotal - coupon_discount + tax_breakdown.get("total_tax", 0.0), 2))
+
+    wallet_discount = 0.0
+    if payload.use_wallet:
+        user_db = await db.users.find_one({"_id": ObjectId(user["_id"])})
+        if user_db:
+            available_balance = user_db.get("wallet_balance", 0.0)
+            if available_balance > 0:
+                wallet_discount = min(available_balance, total)
+                total = max(0.0, round(total - wallet_discount, 2))
+
     return {
         "subtotal": round(subtotal, 2),
         "coupon_discount": coupon_discount,
+        "wallet_discount": wallet_discount,
         "tax_total": tax_breakdown.get("total_tax", 0.0),
         "total_amount": total
     }
@@ -952,6 +1016,9 @@ async def customer_pay_outstanding(order_id: str, payload: CustomerPaymentReques
     from routes.production import auto_create_production_job
     await auto_create_production_job(db, str(order_id))
 
+    from routes.referrals import trigger_referral_reward
+    await trigger_referral_reward(db, order["user_id"])
+
     return {"message": "Payment recorded successfully", "status": "confirmed"}
 
 
@@ -1001,6 +1068,9 @@ async def record_order_payment(order_id: str, payload: PaymentRecordRequest, req
     if new_outstanding == 0.0:
         from routes.production import auto_create_production_job
         await auto_create_production_job(db, str(order_id))
+
+        from routes.referrals import trigger_referral_reward
+        await trigger_referral_reward(db, order["user_id"])
 
     # Post chat confirmation if ticket_id is supplied
     if payload.ticket_id:

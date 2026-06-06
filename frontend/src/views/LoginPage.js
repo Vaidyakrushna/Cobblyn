@@ -10,7 +10,7 @@ import { api } from '../api';
 const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({ email: '', password: '', name: '', phone: '' });
+  const [formData, setFormData] = useState({ email: '', password: '', name: '', phone: '', referralCode: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login, register } = useAuth();
@@ -46,7 +46,7 @@ const LoginPage = () => {
         sessionStorage.removeItem('bespoke_guest_data');
         router.push('/');
       } else {
-        const res = await register(formData.name, formData.email, formData.password);
+        const res = await register(formData.name, formData.email, formData.password, formData.referralCode);
         setSuccessMsg(res.message || 'Registration successful! Please verify your email.');
         // Switch to login tab so they can login after verification
         setIsLogin(true);
@@ -139,6 +139,13 @@ const LoginPage = () => {
                 <div className="auth-field">
                   <label>Phone Number</label>
                   <input type="tel" placeholder="+91 XXXXX XXXXX" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} data-testid="register-phone" />
+                </div>
+              )}
+
+              {!isLogin && (
+                <div className="auth-field">
+                  <label>Referral Code (Optional)</label>
+                  <input type="text" placeholder="BYOND-XXXXXX" value={formData.referralCode} onChange={(e) => setFormData({ ...formData, referralCode: e.target.value })} data-testid="register-referral" />
                 </div>
               )}
 

@@ -289,6 +289,7 @@ export const api = {
   getMyOrder: (id) => apiFetch(`/api/account/orders/${id}`),
   getOrderInvoice: (id) => apiFetch(`/api/account/orders/${id}/invoice`),
   submitOrderFeedback: (orderId, data) => apiFetch(`/api/orders/${orderId}/feedback`, { method: 'POST', body: JSON.stringify(data) }),
+  getReferralStats: () => apiFetch('/api/referrals/stats'),
 
 
   // Inventory (Admin)

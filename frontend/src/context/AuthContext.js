@@ -39,12 +39,19 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const data = await api.login({ email, password });
     localStorage.setItem('byond_token', data.token);
-    setUser({ id: data.id, name: data.name, email: data.email, role: data.role });
+    setUser({
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      referral_code: data.referral_code || "",
+      wallet_balance: data.wallet_balance || 0.0
+    });
     return data;
   };
 
-  const register = async (name, email, password) => {
-    const data = await api.register({ name, email, password });
+  const register = async (name, email, password, referralCode = null) => {
+    const data = await api.register({ name, email, password, referral_code: referralCode });
     // Note: Do not automatically log in the user, they must verify their email.
     return data;
   };

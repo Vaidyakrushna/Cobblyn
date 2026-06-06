@@ -24,6 +24,8 @@ const CheckoutPage = () => {
   const [coupon, setCoupon] = useState(null);
   const [placing, setPlacing] = useState(false);
   const [orderError, setOrderError] = useState('');
+  const [useWallet, setUseWallet] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(0);
 
   // Fetch cart from API
   useEffect(() => {
@@ -57,8 +59,28 @@ const CheckoutPage = () => {
     }
   }, [user, isAuthenticated]);
 
+  // Fetch accurate wallet balance from API
+  useEffect(() => {
+    const fetchWallet = async () => {
+      if (isAuthenticated) {
+        try {
+          const stats = await api.getReferralStats();
+          setWalletBalance(stats.wallet_balance || 0);
+        } catch (e) {
+          console.error('Failed to fetch wallet balance:', e);
+        }
+      }
+    };
+    fetchWallet();
+  }, [isAuthenticated]);
+
   const computedSubtotal = cartTotal;
-  const computedTotal = computedSubtotal;
+  const couponDiscount = coupon?.discount || 0;
+  const gstRate = computedSubtotal > 1000 ? 0.18 : 0.05;
+  const totalBeforeWallet = Math.round((computedSubtotal - couponDiscount) * (1 + gstRate));
+  
+  const walletDeduction = useWallet ? Math.min(walletBalance, totalBeforeWallet) : 0;
+  const grandTotal = Math.max(0, totalBeforeWallet - walletDeduction);
 
   const steps = [
     { label: 'Login', icon: <User size={18} /> },
@@ -86,7 +108,7 @@ const CheckoutPage = () => {
       if (!address.pincode.trim()) errs.pincode = 'Pincode is required';
       else if (!/^\d{6}$/.test(address.pincode)) errs.pincode = 'Enter a valid 6-digit pincode';
     }
-    if (step === 3 && payment.method === 'card') {
+    if (step === 3 && payment.method === 'card' && grandTotal > 0) {
       if (!payment.cardNumber.trim()) errs.cardNumber = 'Card number is required';
       if (!payment.cardName.trim()) errs.cardName = 'Name on card is required';
       if (!payment.expiry.trim()) errs.expiry = 'Expiry date is required';
@@ -118,8 +140,9 @@ const CheckoutPage = () => {
           state: address.state,
           pincode: address.pincode,
         },
-        payment_method: payment.method,
+        payment_method: grandTotal === 0 ? 'wallet' : payment.method,
         coupon_code: coupon?.code || null,
+        use_wallet: useWallet,
       };
 
       const result = await api.createOrder(orderData);
@@ -380,67 +403,75 @@ const CheckoutPage = () => {
           {step === 3 && (
             <div className="ck-form-card" data-testid="step-payment">
               <h2 className="ck-form-title">Payment</h2>
-              <p className="ck-form-desc">Choose your preferred payment method.</p>
-
-              <div className="payment-methods">
-                <label className={`payment-option ${payment.method === 'cod' ? 'active' : ''}`} data-testid="payment-cod">
-                  <input type="radio" name="paymentMethod" value="cod" checked={payment.method === 'cod'} onChange={(e) => setPayment({ ...payment, method: e.target.value })} />
-                  <div className="payment-option-content">
-                    <strong>Cash on Delivery</strong>
-                    <p>Pay when your order arrives at your doorstep</p>
-                  </div>
-                </label>
-
-                <label className={`payment-option ${payment.method === 'upi' ? 'active' : ''}`} data-testid="payment-upi">
-                  <input type="radio" name="paymentMethod" value="upi" checked={payment.method === 'upi'} onChange={(e) => setPayment({ ...payment, method: e.target.value })} />
-                  <div className="payment-option-content">
-                    <strong>UPI Payment</strong>
-                    <p>Pay via Google Pay, PhonePe, Paytm or any UPI app</p>
-                  </div>
-                </label>
-
-                <label className={`payment-option ${payment.method === 'card' ? 'active' : ''}`} data-testid="payment-card">
-                  <input type="radio" name="paymentMethod" value="card" checked={payment.method === 'card'} onChange={(e) => setPayment({ ...payment, method: e.target.value })} />
-                  <div className="payment-option-content">
-                    <strong>Credit / Debit Card</strong>
-                    <p>Visa, Mastercard, RuPay accepted</p>
-                  </div>
-                </label>
-
-                <label className={`payment-option ${payment.method === 'netbanking' ? 'active' : ''}`} data-testid="payment-netbanking">
-                  <input type="radio" name="paymentMethod" value="netbanking" checked={payment.method === 'netbanking'} onChange={(e) => setPayment({ ...payment, method: e.target.value })} />
-                  <div className="payment-option-content">
-                    <strong>Net Banking</strong>
-                    <p>All major Indian banks supported</p>
-                  </div>
-                </label>
-              </div>
-
-              {payment.method === 'card' && (
-                <div className="card-form" data-testid="card-details-form">
-                  <div className="ck-field">
-                    <label>Card Number *</label>
-                    <input type="text" placeholder="XXXX XXXX XXXX XXXX" value={payment.cardNumber} onChange={(e) => setPayment({ ...payment, cardNumber: e.target.value })} maxLength={19} className={errors.cardNumber ? 'has-error' : ''} data-testid="card-number" />
-                    {errors.cardNumber && <span className="field-error">{errors.cardNumber}</span>}
-                  </div>
-                  <div className="ck-field">
-                    <label>Name on Card *</label>
-                    <input type="text" placeholder="As printed on card" value={payment.cardName} onChange={(e) => setPayment({ ...payment, cardName: e.target.value })} className={errors.cardName ? 'has-error' : ''} data-testid="card-name" />
-                    {errors.cardName && <span className="field-error">{errors.cardName}</span>}
-                  </div>
-                  <div className="ck-form-row">
-                    <div className="ck-field">
-                      <label>Expiry *</label>
-                      <input type="text" placeholder="MM/YY" value={payment.expiry} onChange={(e) => setPayment({ ...payment, expiry: e.target.value })} maxLength={5} className={errors.expiry ? 'has-error' : ''} data-testid="card-expiry" />
-                      {errors.expiry && <span className="field-error">{errors.expiry}</span>}
-                    </div>
-                    <div className="ck-field">
-                      <label>CVV *</label>
-                      <input type="password" placeholder="***" value={payment.cvv} onChange={(e) => setPayment({ ...payment, cvv: e.target.value })} maxLength={4} className={errors.cvv ? 'has-error' : ''} data-testid="card-cvv" />
-                      {errors.cvv && <span className="field-error">{errors.cvv}</span>}
-                    </div>
-                  </div>
+              {grandTotal === 0 ? (
+                <div style={{ padding: '24px', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '12px', color: '#047857', fontWeight: '600', textAlign: 'center', marginBottom: '20px' }}>
+                  🎉 Your wallet balance covers the entire order amount of ₹{totalBeforeWallet.toLocaleString()}. No additional payment is required.
                 </div>
+              ) : (
+                <>
+                  <p className="ck-form-desc">Choose your preferred payment method.</p>
+
+                  <div className="payment-methods">
+                    <label className={`payment-option ${payment.method === 'cod' ? 'active' : ''}`} data-testid="payment-cod">
+                      <input type="radio" name="paymentMethod" value="cod" checked={payment.method === 'cod'} onChange={(e) => setPayment({ ...payment, method: e.target.value })} />
+                      <div className="payment-option-content">
+                        <strong>Cash on Delivery</strong>
+                        <p>Pay when your order arrives at your doorstep</p>
+                      </div>
+                    </label>
+
+                    <label className={`payment-option ${payment.method === 'upi' ? 'active' : ''}`} data-testid="payment-upi">
+                      <input type="radio" name="paymentMethod" value="upi" checked={payment.method === 'upi'} onChange={(e) => setPayment({ ...payment, method: e.target.value })} />
+                      <div className="payment-option-content">
+                        <strong>UPI Payment</strong>
+                        <p>Pay via Google Pay, PhonePe, Paytm or any UPI app</p>
+                      </div>
+                    </label>
+
+                    <label className={`payment-option ${payment.method === 'card' ? 'active' : ''}`} data-testid="payment-card">
+                      <input type="radio" name="paymentMethod" value="card" checked={payment.method === 'card'} onChange={(e) => setPayment({ ...payment, method: e.target.value })} />
+                      <div className="payment-option-content">
+                        <strong>Credit / Debit Card</strong>
+                        <p>Visa, Mastercard, RuPay accepted</p>
+                      </div>
+                    </label>
+
+                    <label className={`payment-option ${payment.method === 'netbanking' ? 'active' : ''}`} data-testid="payment-netbanking">
+                      <input type="radio" name="paymentMethod" value="netbanking" checked={payment.method === 'netbanking'} onChange={(e) => setPayment({ ...payment, method: e.target.value })} />
+                      <div className="payment-option-content">
+                        <strong>Net Banking</strong>
+                        <p>All major Indian banks supported</p>
+                      </div>
+                    </label>
+                  </div>
+
+                  {payment.method === 'card' && (
+                    <div className="card-form" data-testid="card-details-form">
+                      <div className="ck-field">
+                        <label>Card Number *</label>
+                        <input type="text" placeholder="XXXX XXXX XXXX XXXX" value={payment.cardNumber} onChange={(e) => setPayment({ ...payment, cardNumber: e.target.value })} maxLength={19} className={errors.cardNumber ? 'has-error' : ''} data-testid="card-number" />
+                        {errors.cardNumber && <span className="field-error">{errors.cardNumber}</span>}
+                      </div>
+                      <div className="ck-field">
+                        <label>Name on Card *</label>
+                        <input type="text" placeholder="As printed on card" value={payment.cardName} onChange={(e) => setPayment({ ...payment, cardName: e.target.value })} className={errors.cardName ? 'has-error' : ''} data-testid="card-name" />
+                        {errors.cardName && <span className="field-error">{errors.cardName}</span>}
+                      </div>
+                      <div className="ck-form-row">
+                        <div className="ck-field">
+                          <label>Expiry *</label>
+                          <input type="text" placeholder="MM/YY" value={payment.expiry} onChange={(e) => setPayment({ ...payment, expiry: e.target.value })} maxLength={5} className={errors.expiry ? 'has-error' : ''} data-testid="card-expiry" />
+                          {errors.expiry && <span className="field-error">{errors.expiry}</span>}
+                        </div>
+                        <div className="ck-field">
+                          <label>CVV *</label>
+                          <input type="password" placeholder="***" value={payment.cvv} onChange={(e) => setPayment({ ...payment, cvv: e.target.value })} maxLength={4} className={errors.cvv ? 'has-error' : ''} data-testid="card-cvv" />
+                          {errors.cvv && <span className="field-error">{errors.cvv}</span>}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
 
               <div className="ck-secure-note">
@@ -489,6 +520,30 @@ const CheckoutPage = () => {
             ))}
           </div>
 
+          {isAuthenticated && walletBalance > 0 && (
+            <div className="ck-wallet-block" style={{ padding: '16px 18px', background: '#FAFAFA', border: '1px solid #E5E7EB', borderRadius: '4px', marginBottom: 12 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontWeight: '600', fontSize: '13px', color: '#111' }}>
+                <input 
+                  type="checkbox" 
+                  checked={useWallet} 
+                  onChange={(e) => setUseWallet(e.target.checked)} 
+                  style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                />
+                <div style={{ flex: 1 }}>
+                  <div>Use Wallet Balance</div>
+                  <div style={{ fontSize: '11px', color: '#6B7280', fontWeight: 'normal', marginTop: '2px' }}>
+                    Available: <strong style={{ color: '#111' }}>₹{walletBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong>
+                  </div>
+                </div>
+              </label>
+              {useWallet && walletDeduction > 0 && (
+                <div style={{ fontSize: '11px', color: '#10B981', fontWeight: '600', marginTop: '6px', paddingLeft: '26px' }}>
+                  ✓ ₹{walletDeduction.toLocaleString('en-IN', { minimumFractionDigits: 2 })} will be deducted from your total.
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="ck-coupon-block" data-testid="coupon-block" style={{ padding: '14px 18px', background: '#FAFAFA', marginBottom: 12 }}>
             <CouponInput subtotal={computedSubtotal} onApply={(c) => setCoupon(c)} applied={coupon} />
           </div>
@@ -503,8 +558,14 @@ const CheckoutPage = () => {
             )}
             <div className="ck-total-line"><span>GST (estimated)</span><span data-testid="ck-tax">{'\u20B9'}{Math.round((computedSubtotal - (coupon?.discount || 0)) * (computedSubtotal > 1000 ? 0.18 : 0.05)).toLocaleString()}</span></div>
             <div className="ck-total-line"><span>Shipping</span><span className="text-accent">Free</span></div>
+            {useWallet && walletDeduction > 0 && (
+              <div className="ck-total-line" style={{ color: '#10B981', fontWeight: '600' }}>
+                <span>Wallet Balance Applied</span>
+                <span>- {'\u20B9'}{walletDeduction.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+              </div>
+            )}
             <div className="ck-total-line ck-grand-total"><span>Total</span><span data-testid="ck-total">
-              {'\u20B9'}{Math.round((computedSubtotal - (coupon?.discount || 0)) * (1 + (computedSubtotal > 1000 ? 0.18 : 0.05))).toLocaleString()}
+              {'\u20B9'}{grandTotal.toLocaleString()}
             </span></div>
           </div>
         </div>

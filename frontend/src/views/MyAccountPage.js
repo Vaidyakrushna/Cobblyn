@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, MapPin, CreditCard, Lock, Package, FileText, ChevronRight, Plus, Trash2, Edit2, X, Check, Heart, CalendarCheck, Palette, ExternalLink, ShoppingBag, RefreshCw, Activity, Sparkles, Layers, MessageSquare, HelpCircle, Send, Star } from 'lucide-react';
+import { User, MapPin, CreditCard, Lock, Package, FileText, ChevronRight, Plus, Trash2, Edit2, X, Check, Heart, CalendarCheck, Palette, ExternalLink, ShoppingBag, RefreshCw, Activity, Sparkles, Layers, MessageSquare, HelpCircle, Send, Star, Gift, Copy, Wallet } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
 
@@ -12,6 +12,7 @@ const TABS = [
   { id: 'custom', label: 'Customization', icon: Palette },
   { id: 'fit_vault', label: 'Fit Vault', icon: Layers },
   { id: 'wishlist', label: 'Wishlist', icon: Heart },
+  { id: 'referrals', label: 'Refer & Earn', icon: Gift },
   { id: 'support', label: 'Support & Help', icon: MessageSquare },
 ];
 
@@ -72,7 +73,255 @@ const MyAccountPage = () => {
           {activeTab === 'wishlist' && <WishlistTab />}
           {activeTab === 'visits' && <VisitsTab />}
           {activeTab === 'custom' && <CustomOrdersTab />}
+          {activeTab === 'referrals' && <ReferralsTab />}
           {activeTab === 'support' && <SupportTab supportOrderContext={supportOrderContext} setSupportOrderContext={setSupportOrderContext} />}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ===== Referrals Tab =====
+const ReferralsTab = () => {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    setLoading(true);
+    try {
+      const data = await api.getReferralStats();
+      setStats(data);
+    } catch (err) {
+      console.error("Failed to fetch referral stats", err);
+    }
+    setLoading(false);
+  };
+
+  const handleCopy = () => {
+    if (!stats?.referral_code) return;
+    navigator.clipboard.writeText(stats.referral_code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '60px 20px', color: '#666' }}>
+        <RefreshCw style={{ animation: 'spin 1s linear infinite', marginBottom: '16px' }} size={32} className="animate-spin" />
+        <span style={{ fontSize: '15px', fontWeight: '500' }}>Loading referral dashboard...</span>
+      </div>
+    );
+  }
+
+  const referralCode = stats?.referral_code || '';
+  const walletBalance = stats?.wallet_balance || 0;
+  const referralList = stats?.referrals || [];
+  const transactionsList = stats?.transactions || [];
+  const totalEarned = stats?.stats?.total_earned || 0;
+  const pendingCount = stats?.stats?.pending_referrals || 0;
+  const completedCount = stats?.stats?.successful_referrals || 0;
+
+  const shareText = `Get ₹250 welcome credit on BYOND Shoes by signing up with my referral code: ${referralCode}! Register here: ${typeof window !== 'undefined' ? window.location.origin : ''}/login`;
+  const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+  const emailUrl = `mailto:?subject=Get ₹250 off on BYOND Shoes!&body=${encodeURIComponent(shareText)}`;
+
+  return (
+    <div className="referrals-tab-container" style={{ padding: '8px', color: '#111' }}>
+      <style>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+          animation: spin 1.5s linear infinite;
+        }
+        .share-btn:hover {
+          opacity: 0.9;
+          transform: translateY(-1px);
+        }
+      `}</style>
+      
+      <div style={{ marginBottom: '32px' }}>
+        <h2 style={{ fontSize: '26px', fontWeight: '800', marginBottom: '8px', letterSpacing: '-0.02em', color: '#111' }}>Refer & Earn</h2>
+        <p style={{ color: '#666', fontSize: '15px', lineHeight: '1.5' }}>Share the BYOND experience. Invite your friends: they get ₹250 welcome credit instantly, and you get ₹500 credited to your wallet once they make their first purchase.</p>
+      </div>
+
+      {/* Grid of stats and wallet */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+        {/* Wallet balance */}
+        <div style={{ 
+          background: 'linear-gradient(135deg, #161616 0%, #2a2a2a 100%)', 
+          color: '#fff', 
+          borderRadius: '16px', 
+          padding: '28px', 
+          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.08)',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          minHeight: '180px',
+          border: '1px solid rgba(255,255,255,0.05)'
+        }}>
+          <div>
+            <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#c5a880', fontWeight: '700', marginBottom: '10px' }}>Virtual Wallet Balance</div>
+            <div style={{ fontSize: '38px', fontWeight: '800', fontFamily: 'Outfit, Inter, sans-serif' }}>₹{walletBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+          </div>
+          <div style={{ fontSize: '14px', color: '#aaa', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px', marginTop: '12px' }}>
+            Lifetime Referral Earnings: <span style={{ color: '#fff', fontWeight: '700' }}>₹{totalEarned.toLocaleString('en-IN')}</span>
+          </div>
+        </div>
+
+        {/* Share Code */}
+        <div style={{ 
+          background: '#ffffff', 
+          border: '1px solid #eaeaea', 
+          borderRadius: '16px', 
+          padding: '28px', 
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.02)',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          minHeight: '180px'
+        }}>
+          <div>
+            <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#666', fontWeight: '700', marginBottom: '10px' }}>Your Referral Code</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <span style={{ fontSize: '20px', fontWeight: '700', letterSpacing: '0.05em', background: '#f5f5f7', padding: '8px 16px', borderRadius: '10px', fontFamily: 'monospace', border: '1px solid #e5e5ea', color: '#111' }}>{referralCode}</span>
+              <button 
+                onClick={handleCopy}
+                className="share-btn"
+                style={{ 
+                  padding: '10px 18px', 
+                  backgroundColor: copied ? '#10b981' : '#111', 
+                  color: '#fff', 
+                  border: 'none', 
+                  borderRadius: '10px', 
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '13px',
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                {copied ? 'Copied!' : 'Copy'}
+              </button>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="share-btn" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: '#25D366', color: '#fff', padding: '10px', borderRadius: '10px', textDecoration: 'none', fontSize: '13px', fontWeight: '600', transition: 'all 0.2s' }}>
+              WhatsApp
+            </a>
+            <a href={emailUrl} className="share-btn" style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: '#f2f2f7', color: '#111', padding: '10px', borderRadius: '10px', textDecoration: 'none', fontSize: '13px', fontWeight: '600', border: '1px solid #e5e5ea', transition: 'all 0.2s' }}>
+              Email Friend
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Referral Stats Counters */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '40px', background: '#f5f5f7', padding: '20px', borderRadius: '16px', border: '1px solid #e5e5ea' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '26px', fontWeight: '800', color: '#111' }}>{referralList.length}</div>
+          <div style={{ fontSize: '12px', color: '#666', fontWeight: '500', marginTop: '4px' }}>Friends Invited</div>
+        </div>
+        <div style={{ textAlign: 'center', borderLeft: '1px solid #e5e5ea', borderRight: '1px solid #e5e5ea' }}>
+          <div style={{ fontSize: '26px', fontWeight: '800', color: '#10b981' }}>{completedCount}</div>
+          <div style={{ fontSize: '12px', color: '#666', fontWeight: '500', marginTop: '4px' }}>Successful Referrals</div>
+        </div>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '26px', fontWeight: '800', color: '#f59e0b' }}>{pendingCount}</div>
+          <div style={{ fontSize: '12px', color: '#666', fontWeight: '500', marginTop: '4px' }}>Pending Purchases</div>
+        </div>
+      </div>
+
+      {/* Ledger details */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '32px' }}>
+        {/* Referral Ledger */}
+        <div style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.01)' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '20px', color: '#111', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Gift size={20} style={{ color: '#c5a880' }} /> Invite Status
+          </h3>
+          {referralList.length === 0 ? (
+            <div style={{ color: '#888', padding: '40px 20px', borderRadius: '12px', textAlign: 'center', border: '1px dashed #ddd', background: '#fafafa' }}>
+              No friends referred yet. Share your unique code to start earning!
+            </div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #f2f2f7', color: '#666', fontWeight: '600' }}>
+                    <th style={{ padding: '12px 8px' }}>Invited Friend</th>
+                    <th style={{ padding: '12px 8px' }}>Status</th>
+                    <th style={{ padding: '12px 8px', textAlign: 'right' }}>Cashback</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {referralList.map((ref) => (
+                    <tr key={ref.id} style={{ borderBottom: '1px solid #f2f2f7' }}>
+                      <td style={{ padding: '14px 8px' }}>
+                        <div style={{ fontWeight: '600', color: '#111' }}>{ref.referee_name}</div>
+                        <div style={{ fontSize: '12px', color: '#888', marginTop: '2px' }}>{ref.referee_email}</div>
+                      </td>
+                      <td style={{ padding: '14px 8px' }}>
+                        <span style={{ 
+                          padding: '4px 10px', 
+                          borderRadius: '100px', 
+                          fontSize: '11px', 
+                          fontWeight: '700', 
+                          background: ref.status === 'completed' ? '#ecfdf5' : '#fffbeb',
+                          color: ref.status === 'completed' ? '#047857' : '#b45309',
+                          border: ref.status === 'completed' ? '1px solid #a7f3d0' : '1px solid #fde68a'
+                        }}>
+                          {ref.status === 'completed' ? 'Completed' : 'Pending Order'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '14px 8px', textAlign: 'right', fontWeight: '700', color: ref.status === 'completed' ? '#111' : '#888' }}>
+                        +₹{ref.reward_amount}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Transaction History */}
+        <div style={{ background: '#fff', border: '1px solid #eaeaea', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 20px rgba(0,0,0,0.01)' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '20px', color: '#111', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Wallet size={20} style={{ color: '#c5a880' }} /> Wallet History
+          </h3>
+          {transactionsList.length === 0 ? (
+            <div style={{ color: '#888', padding: '40px 20px', borderRadius: '12px', textAlign: 'center', border: '1px dashed #ddd', background: '#fafafa' }}>
+              No transactions recorded in your wallet yet.
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '380px', overflowY: 'auto', paddingRight: '4px' }}>
+              {transactionsList.map((tx) => (
+                <div key={tx.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: '#f8f9fa', border: '1px solid #e9ecef', borderRadius: '12px' }}>
+                  <div>
+                    <div style={{ fontWeight: '600', fontSize: '13.5px', color: '#212529' }}>{tx.description}</div>
+                    <div style={{ fontSize: '11.5px', color: '#868e96', marginTop: '4px' }}>
+                      {new Date(tx.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </div>
+                  </div>
+                  <div style={{ 
+                    fontWeight: '800', 
+                    fontSize: '15px', 
+                    color: tx.type === 'credit' ? '#10b981' : '#ef4444' 
+                  }}>
+                    {tx.type === 'credit' ? '+' : '-'} ₹{tx.amount}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
