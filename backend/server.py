@@ -44,11 +44,13 @@ from routes import jobs as jobs_routes
 from routes import assets as asset_routes
 from routes import vendor_portal as vendor_portal_routes
 from routes import referrals as referral_routes
+from routes import vip as vip_routes
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+print("SERVER RUNNING WITH TESTING =", os.environ.get("TESTING"))
 
 # Set db on all route modules
 auth_routes.set_db(db)
@@ -82,6 +84,7 @@ jobs_routes.set_db(db)
 asset_routes.set_db(db)
 vendor_portal_routes.set_db(db)
 referral_routes.set_db(db)
+vip_routes.set_db(db)
 
 
 app = FastAPI()
@@ -145,6 +148,7 @@ app.include_router(jobs_routes.router)
 app.include_router(asset_routes.router)
 app.include_router(vendor_portal_routes.router)
 app.include_router(referral_routes.router)
+app.include_router(vip_routes.router)
 
 
 # ---- Rate limiting (slowapi) ----

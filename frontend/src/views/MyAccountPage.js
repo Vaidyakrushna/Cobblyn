@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { User, MapPin, CreditCard, Lock, Package, FileText, ChevronRight, Plus, Trash2, Edit2, X, Check, Heart, CalendarCheck, Palette, ExternalLink, ShoppingBag, RefreshCw, Activity, Sparkles, Layers, MessageSquare, HelpCircle, Send, Star, Gift, Copy, Wallet } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
+import VipSubscription from './VipSubscription';
 
 const TABS = [
   { id: 'profile', label: 'Profile', icon: User },
@@ -12,6 +13,7 @@ const TABS = [
   { id: 'custom', label: 'Customization', icon: Palette },
   { id: 'fit_vault', label: 'Fit Vault', icon: Layers },
   { id: 'referrals', label: 'Refer & Earn', icon: Gift },
+  { id: 'vip', label: 'VIP Membership', icon: Star },
   { id: 'support', label: 'Support & Help', icon: MessageSquare },
 ];
 
@@ -49,6 +51,11 @@ const MyAccountPage = () => {
             <div className="account-avatar">{user?.name?.charAt(0)?.toUpperCase() || 'U'}</div>
             <div className="account-user-name">{user?.name || 'User'}</div>
             <div className="account-user-email">{user?.email || ''}</div>
+            {user?.vip_membership?.is_active && (
+              <div style={{ marginTop: '8px', display: 'inline-flex', alignItems: 'center', gap: '4px', background: 'linear-gradient(135deg, #FFD700 0%, #D4AF37 100%)', color: '#111', padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: 'bold' }}>
+                <Star size={12} fill="#111" /> VIP Member
+              </div>
+            )}
           </div>
           <nav className="account-nav">
             {TABS.map(tab => (
@@ -72,6 +79,7 @@ const MyAccountPage = () => {
           {activeTab === 'visits' && <VisitsTab />}
           {activeTab === 'custom' && <CustomOrdersTab />}
           {activeTab === 'referrals' && <ReferralsTab />}
+          {activeTab === 'vip' && <VipSubscription />}
           {activeTab === 'support' && <SupportTab supportOrderContext={supportOrderContext} setSupportOrderContext={setSupportOrderContext} />}
         </div>
       </div>

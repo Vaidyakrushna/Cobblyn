@@ -186,6 +186,79 @@ async def _apply_pricing_rules(items, database) -> int:
     return additional_surcharge
 
 
+async def get_max_wallet_discount(database, items, available_balance: float, total_before_wallet: float) -> float:
+    """Calculate the maximum allowed wallet discount based on shoe and accessory configuration rules."""
+    config = await database.referral_config.find_one({"_id": "global"})
+    if not config:
+        max_shoes = 500.0
+        max_acc = 100.0
+    else:
+        max_shoes = float(config.get("max_wallet_shoes_amount", 500.0))
+        max_acc = float(config.get("max_wallet_accessories_amount", 100.0))
+
+    shoe_total = 0.0
+    acc_total = 0.0
+
+    for item in items:
+        prod_id = item.get("product_id")
+        price = float(item.get("price", 0.0))
+        qty = int(item.get("quantity", 1))
+        item_val = price * qty
+
+        is_shoe = False
+        is_accessory = False
+
+        if prod_id:
+            try:
+                # Check products
+                p_doc = await database.products.find_one({"_id": ObjectId(prod_id)})
+                if p_doc:
+                    is_shoe = True
+            except Exception:
+                pass
+
+            if not is_shoe:
+                try:
+                    p_doc = await database.products.find_one({"numericId": int(prod_id)})
+                    if p_doc:
+                        is_shoe = True
+                except Exception:
+                    pass
+
+            if not is_shoe:
+                try:
+                    # Check accessories
+                    a_doc = await database.accessories.find_one({"_id": ObjectId(prod_id)})
+                    if a_doc:
+                        is_accessory = True
+                except Exception:
+                    pass
+                if not is_accessory:
+                    try:
+                        a_doc = await database.accessories.find_one({"sku": prod_id})
+                        if a_doc:
+                            is_accessory = True
+                    except Exception:
+                        pass
+
+        # If not matched, default to shoe
+        if not is_shoe and not is_accessory:
+            is_shoe = True
+
+        if is_shoe:
+            shoe_total += item_val
+        else:
+            acc_total += item_val
+
+    max_shoes_discount = min(shoe_total, max_shoes)
+    max_acc_discount = min(acc_total, max_acc)
+    max_allowed = max_shoes_discount + max_acc_discount
+
+    # Ensure user cannot use 100% of order value using referral balance (cap at 90%)
+    max_percentage_cap = total_before_wallet * 0.90
+    return min(available_balance, max_percentage_cap, max_allowed)
+
+
 @router.post("")
 async def create_order(order: OrderCreate, request: Request):
     from auth_utils import get_current_user
@@ -205,16 +278,39 @@ async def create_order(order: OrderCreate, request: Request):
     surcharge = await _apply_pricing_rules(order.items, db)
     subtotal += surcharge
 
+    # Check VIP membership
+    vip_discount = 0.0
+    user_db = await db.users.find_one({"_id": ObjectId(user["_id"])})
+    if user_db:
+        vip_info = user_db.get("vip_membership", {})
+        if vip_info.get("is_active"):
+            try:
+                expires_at = datetime.fromisoformat(vip_info["expires_at"].replace("Z", "+00:00"))
+                if expires_at > datetime.now(timezone.utc):
+                    # VIP is active! Fetch discount percentage
+                    vip_config = await db.vip_config.find_one({"_id": "global"})
+                    discount_percent = 10.0  # default
+                    if vip_config:
+                        plans = vip_config.get("plans", [])
+                        for p in plans:
+                            if p.get("plan_id") == vip_info.get("plan_id"):
+                                discount_percent = float(p.get("discount_percent", 10.0))
+                                break
+                    vip_discount = round(subtotal * (discount_percent / 100.0), 2)
+            except Exception:
+                pass
+
     # Apply coupon
     coupon_discount = 0
     coupon_code_applied = None
+    subtotal_for_coupon = subtotal - vip_discount
     if order.coupon_code:
         coupon_doc = await db.coupons.find_one({"code": order.coupon_code.strip().upper()})
         if coupon_doc:
             from routes.coupons import _is_valid_now, calculate_discount
             err = _is_valid_now(coupon_doc)
-            if not err and subtotal >= (coupon_doc.get("min_purchase") or 0):
-                coupon_discount = calculate_discount(coupon_doc, subtotal)
+            if not err and subtotal_for_coupon >= (coupon_doc.get("min_purchase") or 0):
+                coupon_discount = calculate_discount(coupon_doc, subtotal_for_coupon)
                 coupon_code_applied = coupon_doc["code"]
 
     # Compute tax (Indian GST)
@@ -269,15 +365,14 @@ async def create_order(order: OrderCreate, request: Request):
 
     notes_sanitized = html.escape(order.notes.strip()) if order.notes else None
 
-    total = max(0.0, round(subtotal - coupon_discount + tax_breakdown.get("total_tax", 0.0), 2))
+    total = max(0.0, round(subtotal - vip_discount - coupon_discount + tax_breakdown.get("total_tax", 0.0), 2))
 
     wallet_discount = 0.0
     if order.use_wallet:
-        user_db = await db.users.find_one({"_id": ObjectId(user["_id"])})
         if user_db:
             available_balance = user_db.get("wallet_balance", 0.0)
             if available_balance > 0:
-                wallet_discount = min(available_balance, total)
+                wallet_discount = await get_max_wallet_discount(db, order.items, available_balance, total)
                 total = round(total - wallet_discount, 2)
 
     # Deduct from user's wallet
@@ -304,6 +399,7 @@ async def create_order(order: OrderCreate, request: Request):
         "payment_method": order.payment_method,
         "notes": notes_sanitized,
         "subtotal": round(subtotal, 2),
+        "vip_discount": vip_discount,
         "coupon_code": coupon_code_applied,
         "coupon_discount": coupon_discount,
         "wallet_discount": wallet_discount,
@@ -336,7 +432,7 @@ async def create_order(order: OrderCreate, request: Request):
     await db.cart_items.delete_many({"user_id": str(user["_id"])})
 
     return {"id": str(result.inserted_id), "order_number": order_number,
-            "subtotal": round(subtotal, 2), "coupon_discount": coupon_discount,
+            "subtotal": round(subtotal, 2), "vip_discount": vip_discount, "coupon_discount": coupon_discount,
             "wallet_discount": wallet_discount,
             "tax": tax_breakdown, "total_amount": total, "status": "pending",
             "production_type": production_type, "crafted_by": crafted_by,
@@ -419,7 +515,7 @@ async def update_order_status(order_id: str, update: OrderStatusUpdate, request:
         
         # Trigger referral reward if this was the referee's first purchase
         from routes.referrals import trigger_referral_reward
-        await trigger_referral_reward(db, order["user_id"])
+        await trigger_referral_reward(db, order["user_id"], order)
 
     # Refund wallet if order is cancelled
     if update.status == "cancelled" and order.get("wallet_discount", 0.0) > 0:
@@ -836,7 +932,7 @@ async def approve_order_modification(order_id: str, request: Request):
         await auto_create_production_job(db, str(order_id))
         
         from routes.referrals import trigger_referral_reward
-        await trigger_referral_reward(db, order["user_id"])
+        await trigger_referral_reward(db, order["user_id"], order)
 
     # Auto-update support ticket if associated
     ticket_id = pending_mod.get("ticket_id")
@@ -939,31 +1035,53 @@ async def calculate_order_price(order_id: str, payload: PriceCalculationRequest,
     surcharge = await _apply_pricing_rules(payload.items, db)
     subtotal += surcharge
 
+    # Check VIP membership
+    vip_discount = 0.0
+    user_db = await db.users.find_one({"_id": ObjectId(user["_id"])})
+    if user_db:
+        vip_info = user_db.get("vip_membership", {})
+        if vip_info.get("is_active"):
+            try:
+                expires_at = datetime.fromisoformat(vip_info["expires_at"].replace("Z", "+00:00"))
+                if expires_at > datetime.now(timezone.utc):
+                    vip_config = await db.vip_config.find_one({"_id": "global"})
+                    discount_percent = 10.0  # default
+                    if vip_config:
+                        plans = vip_config.get("plans", [])
+                        for p in plans:
+                            if p.get("plan_id") == vip_info.get("plan_id"):
+                                discount_percent = float(p.get("discount_percent", 10.0))
+                                break
+                    vip_discount = round(subtotal * (discount_percent / 100.0), 2)
+            except Exception:
+                pass
+
     coupon_discount = 0
     coupon_code_applied = payload.coupon_code or order.get("coupon_code")
+    subtotal_for_coupon = subtotal - vip_discount
     if coupon_code_applied:
         coupon_doc = await db.coupons.find_one({"code": coupon_code_applied.strip().upper()})
         if coupon_doc:
             from routes.coupons import calculate_discount
-            coupon_discount = calculate_discount(coupon_doc, subtotal)
+            coupon_discount = calculate_discount(coupon_doc, subtotal_for_coupon)
 
     from tax_utils import compute_tax
     state = payload.shipping_address.get("state") if payload.shipping_address else order.get("shipping_address", {}).get("state")
     tax_breakdown = compute_tax(payload.items, dest_state=state)
 
-    total = max(0.0, round(subtotal - coupon_discount + tax_breakdown.get("total_tax", 0.0), 2))
+    total = max(0.0, round(subtotal - vip_discount - coupon_discount + tax_breakdown.get("total_tax", 0.0), 2))
 
     wallet_discount = 0.0
     if payload.use_wallet:
-        user_db = await db.users.find_one({"_id": ObjectId(user["_id"])})
         if user_db:
             available_balance = user_db.get("wallet_balance", 0.0)
             if available_balance > 0:
-                wallet_discount = min(available_balance, total)
+                wallet_discount = await get_max_wallet_discount(db, payload.items, available_balance, total)
                 total = max(0.0, round(total - wallet_discount, 2))
 
     return {
         "subtotal": round(subtotal, 2),
+        "vip_discount": vip_discount,
         "coupon_discount": coupon_discount,
         "wallet_discount": wallet_discount,
         "tax_total": tax_breakdown.get("total_tax", 0.0),
@@ -1017,7 +1135,7 @@ async def customer_pay_outstanding(order_id: str, payload: CustomerPaymentReques
     await auto_create_production_job(db, str(order_id))
 
     from routes.referrals import trigger_referral_reward
-    await trigger_referral_reward(db, order["user_id"])
+    await trigger_referral_reward(db, order["user_id"], order)
 
     return {"message": "Payment recorded successfully", "status": "confirmed"}
 
@@ -1070,7 +1188,7 @@ async def record_order_payment(order_id: str, payload: PaymentRecordRequest, req
         await auto_create_production_job(db, str(order_id))
 
         from routes.referrals import trigger_referral_reward
-        await trigger_referral_reward(db, order["user_id"])
+        await trigger_referral_reward(db, order["user_id"], order)
 
     # Post chat confirmation if ticket_id is supplied
     if payload.ticket_id:

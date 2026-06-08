@@ -28,7 +28,10 @@ def _login(email, password):
 def verify_user_in_db(email):
     client = MongoClient(MONGO_URL)
     db = client[DB_NAME]
-    db.users.update_one({"email": email.lower()}, {"$set": {"is_verified": True}})
+    import random
+    fake_ip = f"1.2.3.{random.randint(10, 250)}"
+    fake_ua = f"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/100.0.{random.randint(1,100)}"
+    db.users.update_one({"email": email.lower()}, {"$set": {"is_verified": True, "registration_ip": fake_ip, "registration_ua": fake_ua}})
     client.close()
 
 

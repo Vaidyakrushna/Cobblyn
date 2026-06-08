@@ -75,9 +75,14 @@ const CheckoutPage = () => {
   }, [isAuthenticated]);
 
   const computedSubtotal = cartTotal;
+  const vipMembership = user?.vip_membership;
+  const vipDiscountPercent = (vipMembership?.is_active && new Date(vipMembership?.expires_at) > new Date()) ? parseFloat(vipMembership?.discount_percent || 0) : 0;
+  const vipDiscountAmount = Math.round(computedSubtotal * (vipDiscountPercent / 100));
+
   const couponDiscount = coupon?.discount || 0;
-  const gstRate = computedSubtotal > 1000 ? 0.18 : 0.05;
-  const totalBeforeWallet = Math.round((computedSubtotal - couponDiscount) * (1 + gstRate));
+  const subtotalAfterVip = computedSubtotal - vipDiscountAmount;
+  const gstRate = subtotalAfterVip > 1000 ? 0.18 : 0.05;
+  const totalBeforeWallet = Math.round((subtotalAfterVip - couponDiscount) * (1 + gstRate));
   
   const walletDeduction = useWallet ? Math.min(walletBalance, totalBeforeWallet) : 0;
   const grandTotal = Math.max(0, totalBeforeWallet - walletDeduction);
@@ -550,13 +555,19 @@ const CheckoutPage = () => {
 
           <div className="ck-summary-totals">
             <div className="ck-total-line"><span>Subtotal</span><span data-testid="ck-subtotal">{'\u20B9'}{computedSubtotal.toLocaleString()}</span></div>
+            {vipDiscountAmount > 0 && (
+              <div className="ck-total-line" style={{ color: '#D4AF37', fontWeight: 'bold' }}>
+                <span>VIP Discount ({vipDiscountPercent}%)</span>
+                <span data-testid="ck-vip-discount">- {'\u20B9'}{vipDiscountAmount.toLocaleString()}</span>
+              </div>
+            )}
             {coupon && (
               <div className="ck-total-line" style={{ color: '#10B981' }}>
                 <span>Coupon ({coupon.code})</span>
                 <span data-testid="ck-coupon-discount">- {'\u20B9'}{coupon.discount.toLocaleString()}</span>
               </div>
             )}
-            <div className="ck-total-line"><span>GST (estimated)</span><span data-testid="ck-tax">{'\u20B9'}{Math.round((computedSubtotal - (coupon?.discount || 0)) * (computedSubtotal > 1000 ? 0.18 : 0.05)).toLocaleString()}</span></div>
+            <div className="ck-total-line"><span>GST (estimated)</span><span data-testid="ck-tax">{'\u20B9'}{Math.round((subtotalAfterVip - (coupon?.discount || 0)) * gstRate).toLocaleString()}</span></div>
             <div className="ck-total-line"><span>Shipping</span><span className="text-accent">Free</span></div>
             {useWallet && walletDeduction > 0 && (
               <div className="ck-total-line" style={{ color: '#10B981', fontWeight: '600' }}>

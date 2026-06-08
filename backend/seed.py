@@ -556,6 +556,60 @@ async def seed_raw_materials_inventory(db):
     if materials_seeded > 0:
         logger.info(f"Seeded raw materials inventory tracking for {materials_seeded} materials.")
 
+async def seed_referral_config(db):
+    """Seed the default global referral configuration if not exists."""
+    config = await db.referral_config.find_one({"_id": "global"})
+    if not config:
+        from datetime import datetime, timezone
+        await db.referral_config.insert_one({
+            "_id": "global",
+            "welcome_credit": 250.0,
+            "referral_reward": 500.0,
+            "min_purchase_amount": 0.0,
+            "hold_days": 0,
+            "max_wallet_shoes_amount": 500.0,
+            "max_wallet_accessories_amount": 100.0,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        })
+        logger.info("Seeded default global referral configuration.")
+
+async def seed_vip_config(db):
+    """Seed the default global VIP membership configuration if not exists."""
+    config = await db.vip_config.find_one({"_id": "global"})
+    if not config:
+        from datetime import datetime, timezone
+        await db.vip_config.insert_one({
+            "_id": "global",
+            "plans": [
+                {
+                    "plan_id": "monthly",
+                    "name": "Monthly VIP",
+                    "price": 299.0,
+                    "months": 1,
+                    "discount_percent": 10.0
+                },
+                {
+                    "plan_id": "quarterly",
+                    "name": "Quarterly VIP",
+                    "price": 799.0,
+                    "months": 3,
+                    "discount_percent": 10.0
+                },
+                {
+                    "plan_id": "annual",
+                    "name": "Annual VIP",
+                    "price": 2499.0,
+                    "months": 12,
+                    "discount_percent": 15.0
+                }
+            ],
+            "free_shipping": True,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        })
+        logger.info("Seeded default global VIP configurations.")
+
 async def seed_all(db):
     await create_indexes(db)
     await seed_admin(db)
@@ -568,6 +622,9 @@ async def seed_all(db):
     await seed_coupons(db)
     await seed_vendors(db)
     await seed_raw_materials_inventory(db)
+    await seed_referral_config(db)
+    await seed_vip_config(db)
+
 
 
 # ── Accessories seed data (mirrors frontend/src/data/accessoriesData.js) ──────

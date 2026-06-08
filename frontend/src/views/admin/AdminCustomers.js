@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import { Eye, Search } from 'lucide-react';
+import { Eye, Search, Copy } from 'lucide-react';
 import { api } from '../../api';
 
 const AdminCustomers = () => {
@@ -97,10 +97,20 @@ const AdminCustomers = () => {
       {loading ? <div className="admin-loading">Loading...</div> : (
         <div className="admin-table-wrapper">
           <table className="admin-table">
-            <thead><tr><th>Name</th><th>Email</th><th>Wallet Balance</th><th>Referral Code</th><th>Orders</th><th>Fit Profile</th><th>Joined</th><th>Actions</th></tr></thead>
+            <thead><tr><th>User ID</th><th>Name</th><th>Email</th><th>Wallet Balance</th><th>Referral Code</th><th>Orders</th><th>Fit Profile</th><th>Joined</th><th>Actions</th></tr></thead>
             <tbody>
               {paginatedCustomers.map(c => (
                 <tr key={c.id} data-testid={`customer-row-${c.id}`}>
+                  <td style={{ fontFamily: 'monospace', fontSize: '12px', color: '#6b7280', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    {c.id}
+                    <button 
+                      onClick={() => navigator.clipboard.writeText(c.id).then(() => alert('Copied ID: ' + c.id))} 
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#10b981', padding: '0', display: 'flex', alignItems: 'center' }}
+                      title="Copy User ID"
+                    >
+                      <Copy size={12} />
+                    </button>
+                  </td>
                   <td><strong>{c.name}</strong></td>
                   <td>{c.email}</td>
                   <td><strong>₹{(c.wallet_balance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong></td>
