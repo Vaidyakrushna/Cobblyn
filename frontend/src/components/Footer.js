@@ -16,7 +16,7 @@ const Footer = () => {
       <div className="footer-main">
         <div>
           <div className="footer-brand-logo">
-            BY<span className="text-accent">O</span>ND
+            C<span className="text-accent">O</span>BBLYN
           </div>
           <p className="footer-tagline">Crafted Beyond the Ordinary</p>
           <div className="footer-socials">

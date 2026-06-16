@@ -104,7 +104,7 @@ const Navigation = () => {
     <>
       <nav className="main-nav" data-testid="main-navigation">
         <div className="nav-logo">
-          <Link href="/" data-testid="logo-link">BY<span className="text-accent">O</span>ND</Link>
+          <Link href="/" data-testid="logo-link">C<span className="text-accent">O</span>BBLYN</Link>
         </div>
 
         <ul className="nav-links nav-links-left">
