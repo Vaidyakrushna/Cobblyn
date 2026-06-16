@@ -10,9 +10,9 @@
   <style>
     /* ─── DESIGN TOKENS ─────────────────────────────── */
     :root {
-      --accent: #b04a2f;
-      --accent-light: #c9604a;
-      --accent-dark: #8a3520;
+      --accent: #9d2706;
+      --accent-light: #c43509;
+      --accent-dark: #7a1e04;
       --black: #111;
       --white: #fff;
       --cream: #f9f5f0;
@@ -520,23 +520,23 @@
   <div class="custom-picker-wrap">
     <div class="custom-picker-label">Pick any colour</div>
     <div class="custom-picker-row">
-      <input type="color" class="custom-color-input" id="customColorPicker" value="#b04a2f" oninput="livePreviewColor(this.value)" />
-      <div class="custom-hex-display" id="customHexDisplay">#b04a2f</div>
+      <input type="color" class="custom-color-input" id="customColorPicker" value="#9d2706" oninput="livePreviewColor(this.value)" />
+      <div class="custom-hex-display" id="customHexDisplay">#9d2706</div>
     </div>
-    <input type="text" class="custom-hex-input" id="customHexInput" placeholder="Type hex e.g. #3a7bd5" maxlength="7" oninput="hexInputChanged(this.value)" />
+    <input type="text" class="custom-hex-input" id="customHexInput" placeholder="Type hex e.g. #9d2706" maxlength="7" oninput="hexInputChanged(this.value)" />
     <button class="btn-apply-color" onclick="applyCustomColor()">✓ Apply This Colour</button>
   </div>
 
   <div class="divider-label">— or choose a preset —</div>
 
-  <div class="palette-option selected" onclick="setAccent('#b04a2f','#8a3520','#c9604a',this)">
-    <div class="palette-swatch" style="background:#b04a2f;"></div>
-    <div><div class="palette-name">Terracotta</div><div class="palette-hex">#b04a2f · Current</div></div>
+  <div class="palette-option selected" onclick="setAccent('#9d2706','#7a1e04','#c43509',this)">
+    <div class="palette-swatch" style="background:#9d2706;"></div>
+    <div><div class="palette-name">Cobblyn Crimson</div><div class="palette-hex">#9d2706 · Default</div></div>
   </div>
 
-  <div class="palette-option" onclick="setAccent('#9d2706','#7a1e04','#c43509',this)">
-    <div class="palette-swatch" style="background:#9d2706;"></div>
-    <div><div class="palette-name">Heritage Gold</div><div class="palette-hex">#9d2706 · Original</div></div>
+  <div class="palette-option" onclick="setAccent('#b04a2f','#8a3520','#c9604a',this)">
+    <div class="palette-swatch" style="background:#b04a2f;"></div>
+    <div><div class="palette-name">Terracotta</div><div class="palette-hex">#b04a2f · Preset</div></div>
   </div>
 
   <div class="palette-option" onclick="setAccent('#1e4d3b','#163828','#2d6b52',this)">
@@ -611,7 +611,7 @@
 
 <!-- ─── NAV ─────────────────────────────────────────── -->
 <nav class="nav">
-  <div class="nav-logo">BY<span>O</span>ND</div>
+  <div class="nav-logo">C<span>O</span>BBLYN</div>
 
   <ul class="nav-links">
 
@@ -1295,7 +1295,7 @@
 <footer>
   <div class="footer-grid">
     <div>
-      <div class="footer-logo">BY<span>O</span>ND</div>
+      <div class="footer-logo">C<span>O</span>BBLYN</div>
       <p class="footer-tagline">Bespoke luxury handcrafted footwear. Each pair is a testament to the art of shoemaking passed down through generations.</p>
     </div>
     <div class="footer-col">
