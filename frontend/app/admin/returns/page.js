@@ -1,0 +1,1 @@
+import AdminReturns from '../../../src/views/admin/AdminReturns'; export default function Page() { return <AdminReturns />; }

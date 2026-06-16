@@ -1,0 +1,45 @@
+{
+  "summary": "Iteration 9 testing covered all 4 new feature sets (Schedule Visit, SSR SEO pages, PDP cart interstitial, Admin period filter / Products CRUD / Inventory accessories). Backend: 18/18 new pytest tests pass (visits schedule, dashboard year/month/day, inventory accessories empty, product CRUD admin+non-admin auth). SEO via curl: all 6 server-rendered routes (/, /men, /women, /men/product/{id}, /women/product/{id}, /luxe-collection) emit correct <title>, meta description, og:image, h1. Schedule Visit form on home filled+submitted -> [data-testid='visit-success'] visible with confirmation text. PDP+Admin UI flows could NOT be verified end-to-end because Playwright admin login on /login did not authenticate the SPA session (URL stayed /login, fields reset) — backend login works (proven by pytest), so this is a frontend session/state issue or testid mismatch on the login submit. Reporting as action item for main agent to self-verify.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/products", "issue": "Pydantic validation runs before auth check, so non-admin sending an invalid body gets 422 instead of 403 (auth-leak via response code only; data is still safe). Cosmetic only."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Admin login via UI on /login", "issue": "After filling admin@cobblyn.com/Cobblyn@2026 and clicking the Log In submit button, the page stayed on /login with cleared fields, blocking PDP cart-interstitial test, admin dashboard period filter test, admin products CRUD UI test, and admin inventory accessories filter test. Backend /api/auth/login returns 200 with token (verified via pytest). Likely a SPA state-handling / testid mismatch on submit, NOT a backend bug.", "affected_selectors": ["button Log In on /login", "[data-testid='admin-period-filter']", "[data-testid='add-to-cart-interstitial']", "[data-testid='admin-products-page']", "[data-testid='inv-category-accessories']"]}
+    ],
+    "design_issues": [
+      {"screen": "Schedule Visit form", "issues": ["Date input native picker accepts past dates only when typed but blocks via HTML5 min after blur — minor UX nit; FOR select has empty 'Select' placeholder option that needs explicit value selection."]},
+      {"screen": "Home hero (carryover from iter8)", "issues": ["First hero slide still shows a Nike-branded shoe — trademark risk on a luxury Cobblyn brand site."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter9_features.py",
+    "/app/test_reports/pytest/iter9_results.xml"
+  ],
+  "action_items": [
+    "Verify the /login submit flow on Next.js overlay: ensure form submits, token is stored (localStorage), and React Router redirect to /admin or / fires. Likely needs preventDefault + router.push after auth.",
+    "After login fix, re-run the 4 UI flows: PDP -> add-to-cart interstitial (testid 'add-to-cart-interstitial' + 'cart-interstitial-checkout'), /admin period filter, /admin/products CRUD, /admin/inventory accessories filter.",
+    "(Cosmetic) Move admin auth check before Pydantic validation on POST /api/products so non-admin gets 403 instead of 422.",
+    "Replace Nike-branded hero image (carry-over from iter8)."
+  ],
+  "critical_code_review_comments": [
+    "routes/visits.py is clean — uses Pydantic EmailStr, server-side status='pending', excludes _id properly via projection. Good.",
+    "routes/admin.py dashboard correctly handles period/value with try/except and returns shape including period+period_value — good.",
+    "Schedule Visit submit button does not have data-testid='visit-submit' (spec implied it). Tests had to fall back to get_by_role('button', name='Schedule My Visit'). Add data-testid='visit-submit' to the button.",
+    "Multiple required interactive elements may be missing data-testid (admin-period-filter, period-year/month/day, admin-products-page, admin-new-product-btn, edit-product-{id}, delete-product-{id}, inv-category-accessories, add-to-cart-interstitial, cart-interstitial-checkout). Could not confirm because login UI flow was blocked. Main agent should verify all these testids exist post-render."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter9_features.py (NEW - 18 tests, all pass)"
+  ],
+  "success_rate": {"backend": "100% (18/18 new tests + 64/64 prior suite still passing)", "frontend": "Verified: SSR SEO 6/6 routes, Schedule Visit submit. Blocked: 4 admin/PDP UI flows due to login UI session issue."},
+  "test_credentials": "Admin admin@cobblyn.com / Cobblyn@2026 (works via API). Test user generated per-test with TEST_iter9_<ts>@cobblyn.com.",
+  "seed_data_creation": "Pytest creates one scheduled visit + one TEST_Iter9 product (cleaned up); admin token re-used across module.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend feature endpoints all green via /app/backend/tests/test_iter9_features.py — run with REACT_APP_BACKEND_URL=https://proto-enhance-1.preview.emergentagent.com pytest. SSR SEO confirmed via curl (no need to retest). The blocker for UI testing was admin login on /login: page stayed on /login and inputs reset after clicking Log In. Once the login flow is fixed, drive: /men -> click product -> click size testid -> click [data-testid='add-to-cart'] -> expect [data-testid='add-to-cart-interstitial'] then [data-testid='cart-interstitial-checkout'] -> /checkout. For admin: /admin shows [data-testid='admin-period-filter'] with period-year/month/day buttons; /admin/products shows admin-products-page + admin-new-product-btn + edit-product-<id> / delete-product-<id>; /admin/inventory shows inv-category-accessories button.",
+  "rca of the issue": "Admin UI login: fields reset to placeholder + URL unchanged means form submit handler likely failed silently OR did a full nav back to /login. Could be (a) form action not preventDefaulted, (b) auth context not persisting token to localStorage on Next.js overlay, or (c) submit button text/role differs from 'Log In'. Recommend: open devtools, click Log In, watch Network /api/auth/login (should be 200), and verify localStorage gets token. Also add data-testid='login-submit' to the button for deterministic testing."
+}

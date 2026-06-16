@@ -1,0 +1,1157 @@
+/* ====================================== */
+/* NAV USER DROPDOWN                        */
+/* ====================================== */
+.nav-user-menu {
+  position: relative;
+}
+
+.nav-user-menu .btn-login {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  min-width: 200px;
+  z-index: 1000;
+  overflow: hidden;
+  animation: dropdownFade 0.15s ease;
+}
+
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #1a1a1a;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-family: 'Montserrat', sans-serif;
+  transition: background 0.15s ease;
+}
+
+.user-dropdown-item:hover {
+  background: #f5f5f5;
+}
+
+.user-dropdown-logout {
+  border-top: 1px solid #eee;
+  color: #dc2626;
+}
+
+.user-dropdown-logout:hover {
+  background: #fef2f2;
+}
+
+/* ====================================== */
+/* CUSTOMER ACCOUNT PAGE                    */
+/* ====================================== */
+.account-page {
+  padding: 40px 20px 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: calc(100vh - 200px);
+}
+
+.account-container {
+  display: flex;
+  gap: 32px;
+}
+
+.account-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+}
+
+.account-user-info {
+  text-align: center;
+  padding: 32px 20px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.account-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #1a1a1a;
+  color: #9d2706;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 auto 12px;
+  font-family: 'Playfair Display', serif;
+}
+
+.account-user-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.account-user-email {
+  font-size: 13px;
+  color: #666;
+}
+
+.account-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.account-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  font-family: 'Montserrat', sans-serif;
+  width: 100%;
+  text-align: left;
+}
+
+.account-nav-item:hover {
+  background: #f5f5f5;
+}
+
+.account-nav-item.active {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.account-nav-arrow {
+  margin-left: auto;
+  opacity: 0.4;
+}
+
+.account-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.account-panel {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 32px;
+}
+
+.account-loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Profile Sub-nav */
+.profile-sub-nav {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.psn-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Montserrat', sans-serif;
+  color: #555;
+}
+
+.psn-btn:hover {
+  border-color: #1a1a1a;
+  color: #1a1a1a;
+}
+
+.psn-btn.active {
+  background: #1a1a1a;
+  color: #fff;
+  border-color: #1a1a1a;
+}
+
+/* Section Headers */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.section-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  font-family: 'Playfair Display', serif;
+}
+
+/* Account Form */
+.account-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.account-form .af-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.account-form .af-field label {
+  font-size: 12px;
+  font-weight: 500;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.account-form .af-field input,
+.account-form .af-field select,
+.account-form .af-field textarea {
+  padding: 10px 14px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: 'Montserrat', sans-serif;
+  transition: border-color 0.2s ease;
+}
+
+.account-form .af-field input:focus,
+.account-form .af-field select:focus {
+  outline: none;
+  border-color: #1a1a1a;
+}
+
+.account-form .af-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+}
+
+.account-form .af-checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  text-transform: none;
+  cursor: pointer;
+}
+
+.disabled-input {
+  background: #f5f5f5 !important;
+  color: #999 !important;
+  cursor: not-allowed;
+}
+
+.account-form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* Account Info Grid */
+.account-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  font-weight: 500;
+}
+
+.info-value {
+  font-size: 15px;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+/* Buttons */
+.account-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.account-btn-primary:hover {
+  background: #333;
+}
+
+.account-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  background: #fff;
+  color: #1a1a1a;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.account-btn-secondary:hover {
+  border-color: #1a1a1a;
+}
+
+.account-edit-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid #ddd;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.account-edit-btn:hover {
+  border-color: #1a1a1a;
+}
+
+.account-back-btn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+  margin-bottom: 20px;
+  font-family: 'Montserrat', sans-serif;
+  padding: 0;
+}
+
+.account-back-btn:hover {
+  color: #1a1a1a;
+}
+
+/* Messages */
+.account-msg {
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.account-msg.error {
+  background: #fef2f2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.account-empty {
+  color: #888;
+  font-size: 14px;
+  padding: 20px 0;
+}
+
+/* Address Cards */
+.address-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.address-card {
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.address-card.default {
+  border-color: #9d2706;
+}
+
+.address-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.address-label {
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #555;
+  background: #f5f5f5;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.address-default-badge {
+  font-size: 10px;
+  color: #9d2706;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.address-card-body {
+  font-size: 13px;
+  color: #333;
+  line-height: 1.6;
+}
+
+.address-card-body .address-name {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.address-card-body .address-phone {
+  color: #666;
+  margin-top: 4px;
+}
+
+.address-card-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.address-card-actions button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: #666;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.address-card-actions button:hover {
+  color: #1a1a1a;
+}
+
+/* Payment Cards */
+.payment-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.payment-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+}
+
+.payment-card.default {
+  border-color: #9d2706;
+}
+
+.payment-card-icon {
+  color: #555;
+}
+
+.payment-card-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.payment-label {
+  font-size: 14px;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.payment-default-badge {
+  font-size: 10px;
+  color: #9d2706;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.payment-delete-btn {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.payment-delete-btn:hover {
+  color: #dc2626;
+}
+
+/* Password form */
+.password-form {
+  max-width: 400px;
+}
+
+/* ====================================== */
+/* ORDERS                                   */
+/* ====================================== */
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-card {
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 16px 20px;
+  transition: border-color 0.2s ease;
+}
+
+.order-card:hover {
+  border-color: #ccc;
+}
+
+.order-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.order-number {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.order-status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  text-transform: capitalize;
+}
+
+.order-card-body {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.order-card-info {
+  display: flex;
+  gap: 16px;
+}
+
+.order-card-date,
+.order-card-items {
+  font-size: 13px;
+  color: #666;
+}
+
+.order-card-total {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.order-card-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.order-card-actions button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 1px solid #ddd;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.order-card-actions button:hover {
+  border-color: #1a1a1a;
+  color: #1a1a1a;
+}
+
+.account-empty-orders {
+  text-align: center;
+  padding: 60px 20px;
+  color: #888;
+}
+
+.account-empty-orders svg {
+  margin-bottom: 16px;
+  color: #ccc;
+}
+
+.account-empty-orders p {
+  font-size: 14px;
+}
+
+/* Order Detail */
+.order-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.order-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.order-detail-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  font-family: 'Playfair Display', serif;
+}
+
+.order-date {
+  font-size: 13px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.order-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Order Timeline */
+.order-timeline {
+  background: #fafafa;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.order-timeline h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #1a1a1a;
+}
+
+.timeline-track {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  padding-left: 20px;
+}
+
+.timeline-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+  padding-bottom: 20px;
+  padding-left: 16px;
+}
+
+.timeline-entry:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 20px;
+  bottom: 0;
+  width: 2px;
+  background: #ddd;
+}
+
+.timeline-entry.current::before {
+  display: none;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.timeline-entry:not(.current) .timeline-dot {
+  background: #d1d5db;
+}
+
+.timeline-entry.current .timeline-dot {
+  background: #9d2706;
+  box-shadow: 0 0 0 3px rgba(157, 39, 6, 0.2);
+}
+
+.timeline-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.timeline-status {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-transform: capitalize;
+}
+
+.timeline-time {
+  font-size: 11px;
+  color: #888;
+}
+
+.timeline-note {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Order Items */
+.order-items-section h4,
+.order-shipping-section h4 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #1a1a1a;
+}
+
+.order-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.order-item-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  display: block;
+}
+
+.order-item-meta {
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+  display: block;
+}
+
+.order-item-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.order-shipping-section {
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.order-shipping-section p {
+  font-size: 13px;
+  color: #333;
+  line-height: 1.6;
+}
+
+.order-total-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-top: 2px solid #1a1a1a;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.order-total-amount {
+  font-size: 20px;
+  color: #1a1a1a;
+}
+
+/* ====================================== */
+/* INVOICE                                  */
+/* ====================================== */
+.invoice-modal {
+  max-width: 700px;
+  width: 95%;
+}
+
+.invoice-container {
+  padding: 10px;
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #1a1a1a;
+}
+
+.invoice-brand h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+
+.invoice-brand p {
+  font-size: 13px;
+  color: #333;
+}
+
+.invoice-small {
+  font-size: 11px !important;
+  color: #666 !important;
+}
+
+.invoice-meta {
+  text-align: right;
+}
+
+.invoice-meta h3 {
+  font-size: 16px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1a1a1a;
+}
+
+.invoice-meta p {
+  font-size: 12px;
+  color: #333;
+  line-height: 1.8;
+}
+
+.invoice-addresses {
+  margin-bottom: 24px;
+}
+
+.invoice-bill-to h4 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.invoice-bill-to p {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 24px;
+}
+
+.invoice-table th {
+  background: #f5f5f5;
+  padding: 10px 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: left;
+  color: #555;
+  border-bottom: 1px solid #ddd;
+}
+
+.invoice-table td {
+  padding: 10px 12px;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+}
+
+.invoice-totals {
+  margin-left: auto;
+  width: 250px;
+}
+
+.invoice-total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 13px;
+  color: #333;
+}
+
+.invoice-total-row.total {
+  border-top: 2px solid #1a1a1a;
+  margin-top: 8px;
+  padding-top: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.invoice-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+  text-align: center;
+}
+
+.invoice-footer p {
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.invoice-print-btn {
+  margin-top: 16px;
+}
+
+/* ====================================== */
+/* MODALS                                   */
+/* ====================================== */
+.account-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+}
+
+.account-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.account-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+}
+
+.account-modal-close:hover {
+  color: #1a1a1a;
+}
+
+.account-modal h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  font-family: 'Playfair Display', serif;
+}
+
+/* ====================================== */
+/* RESPONSIVE                               */
+/* ====================================== */
+@media (max-width: 768px) {
+  .account-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .account-sidebar {
+    width: 100%;
+  }
+
+  .account-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 8px;
+  }
+
+  .account-nav-item {
+    white-space: nowrap;
+    padding: 10px 14px;
+  }
+
+  .account-nav-arrow {
+    display: none;
+  }
+
+  .account-panel {
+    padding: 20px;
+  }
+
+  .profile-sub-nav {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+
+  .address-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .order-card-body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .order-detail-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .invoice-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .invoice-meta {
+    text-align: left;
+  }
+
+  .invoice-totals {
+    width: 100%;
+  }
+}
+
+@media print {
+  .account-modal-close,
+  .invoice-print-btn,
+  .account-modal-overlay {
+    /* During print, only show invoice content */
+  }
+  
+  .invoice-print-btn {
+    display: none !important;
+  }
+  
+  .account-modal-close {
+    display: none !important;
+  }
+}
+
+/* ====================================== */
+/* WISHLIST IN MY ACCOUNT — 3 per row     */
+/* ====================================== */
+.account-panel .wishlist-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Make each card a flex column so the bottom section stays pinned */
+.account-panel .wishlist-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.account-panel .wishlist-card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Push price + Move to Cart row to the bottom of the card */
+.account-panel .wishlist-card-bottom {
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+@media (max-width: 900px) {
+  .account-panel .wishlist-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 540px) {
+  .account-panel .wishlist-grid {
+    grid-template-columns: 1fr;
+  }
+}

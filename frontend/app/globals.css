@@ -1,0 +1,22 @@
+@import '../src/index.css';
+@import '../src/App.css';
+@import '../src/account.css';
+@import '../src/admin-extra.css';
+
+/* next/image fill compatibility patches */
+.gallery-main-woodland { min-height: 500px; }
+.similar-panel-img { position: relative; }
+.slide-image > img,
+.product-image > img,
+.sig-card-img > img,
+.gallery-main-woodland > img,
+.similar-panel-img > img {
+  /* next/image with fill renders an <img> with position:absolute, inset:0 — preserve transitions */
+  transition: transform 0.6s ease;
+}
+.slide.active .slide-image > img { transform: scale(1); }
+.slide:not(.active) .slide-image > img { transform: scale(1.1); }
+.plp-product-card:hover .product-image > img { transform: scale(1.08); }
+.sig-card:hover .sig-card-img > img { transform: scale(1.08); }
+.gallery-main-woodland:hover > img { transform: scale(1.05); }
+.similar-panel-card:hover .similar-panel-img > img { transform: scale(1.05); }

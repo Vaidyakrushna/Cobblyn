@@ -1,0 +1,1 @@
+import OrderConfirmation from '../../src/views/OrderConfirmation'; export default function Page() { return <OrderConfirmation />; }

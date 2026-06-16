@@ -1,0 +1,1 @@
+import AdminCoupons from '../../../src/views/admin/AdminCoupons'; export default function Page() { return <AdminCoupons />; }

@@ -1,0 +1,42 @@
+{
+  "summary": "Iter12 backend: 35/36 pytest passing (97%) covering Reviews, Coupons, Returns, Analytics, RBAC AdminUsers, Bulk upload, Wishlist move-to-cart, Search, Tax/GST utils. Found and FIXED 3 critical KeyError bugs (user['id'] -> user['_id']) in reviews.py / wishlist_extra.py / returns.py. Found 1 remaining backend bug: bulk_inventory upserts (articleCode,size) docs but inventory collection has unique index on product_id created at startup -> E11000 dup-key on 2nd row with product_id:null. Frontend smoke: all 9 routes load (/, /men, /men?search=oxford, /admin, /admin/coupons, /admin/returns, /admin/analytics, /admin/users, /admin/products), AdminCoupons shows WELCOME10/FLAT500/LUXE15 and admin-new-coupon-btn, AdminUsers lists admin@cobblyn.com, AdminAnalytics renders Sizes/Return/Mismatch/Customizations sections, /men?search=oxford shows Oxford products, PDP exposes open-size-guide (modal opens) + product-reviews-section, Checkout exposes coupon-input/coupon-apply/ck-total. Tax util test confirms intra-state CGST+SGST split vs inter-state IGST (5% <=Rs1000, 18% above).",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "POST /api/admin/bulk/inventory", "issue": "E11000 dup-key on product_id:null on 2nd+ row. Inventory collection has create_indexes() unique index on product_id; bulk endpoint creates flat (articleCode,size) docs without product_id. Either (a) drop/relax that unique index, (b) make bulk endpoint resolve product_id from articleCode and include it, or (c) reconcile with existing size_stock map schema (per-product doc).", "priority": "HIGH"}
+    ],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "PLP /men", "issues": ["next/image ImagePreload warning: 'Image is missing required src property' / empty href in RotatingProductImage when images[] is empty for bulk-uploaded test products. Cosmetic console noise; products without images should fall back to a placeholder before passing to next/image."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_iter12_features.py", "/app/test_reports/pytest/iter12_results.xml"],
+  "action_items": [
+    "Fix bulk_inventory schema/index conflict (preferred: look up product_id by articleCode and include in upsert filter; keep unique index but make per-(articleCode,size) doc).",
+    "Add image-fallback to RotatingProductImage to silence next/image warnings for products with empty images[]."
+  ],
+  "critical_code_review_comments": [
+    "Cross-cutting bug: routes/reviews.py, routes/wishlist_extra.py, routes/returns.py used `user['id']` but auth_utils.get_current_user returns the raw mongo doc with `_id` set to string and NO `id` key — every request hit KeyError->500. Patched to `user.get('id') or str(user.get('_id'))`. Recommend updating get_current_user to also set `user['id']` for consistency across routes.",
+    "tax_utils.compute_tax: half-split rounding can leave odd 0.01 paise drift between CGST and SGST (uses line_tax-half for SGST). Acceptable but document.",
+    "permissions.py: clean role/permission map; admin_users uses `manage_users` correctly (super_admin only).",
+    "coupons.validate: uses string ISO comparison for valid_from/valid_until which works only if both are ISO-Z strings. Consider parsing to datetime.",
+    "bulk.py inventory writer schema is incompatible with existing inventory schema seeded at startup (product_id + size_stock map). Two schemas in one collection -> design smell.",
+    "auth.py register IP throttle uses string ISO compare via fromisoformat — fine. slowapi default 200/min limiter is on app.state but no `@limiter.limit` decorators are used on any route, so the 5/hour register limit is enforced only by the manual rate_limits collection, not slowapi."
+  ],
+  "updated_files": [
+    "/app/backend/routes/reviews.py (fixed user['id'] KeyError x2)",
+    "/app/backend/routes/wishlist_extra.py (fixed user['id'] KeyError)",
+    "/app/backend/routes/returns.py (fixed user['id'] KeyError x3)",
+    "/app/backend/tests/test_iter12_features.py (NEW - 36 tests, 35 passing)"
+  ],
+  "success_rate": {"backend": "97% (35/36)", "frontend": "100% on smoke-tested routes (9/9 load, all key data-testids present, size-guide modal opens, coupon UI present)"},
+  "test_credentials": "admin@cobblyn.com / Cobblyn@2026 (super_admin)",
+  "seed_data_creation": "Created 1 test user TEST_iter12_<rnd>@cobblyn.com (promoted to staff then back to user, blocked then unblocked). Created 1 test product TEST-BULK-<rnd> via bulk upload. Created 1 test coupon TEST<rnd> (deleted). Created 1 review on first product by test user.",
+  "retest_needed": true,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Run: cd /app/backend && python -m pytest tests/test_iter12_features.py -v. Backend at https://proto-enhance-1.preview.emergentagent.com. Login programmatically via page.request.post('/api/auth/login') and store token in localStorage as 'cobblyn_token' (string) + 'cobblyn_user' (JSON). Three KeyError fixes already applied. Remaining: bulk_inventory schema conflict — main agent must reconcile inventory schema before retest.",
+  "rca of the issue": "Three iter12 routers (reviews, wishlist_extra, returns) coded `user['id']` but auth_utils.get_current_user returns the raw users-collection doc with `_id` (string) and no `id` field, causing 500 KeyError. Reproduced by POST /api/reviews/product/{id} with valid Bearer token. Fix: replace with user.get('id') or str(user.get('_id')). Suggest unifying get_current_user to set user['id']=str(user['_id']) so all routers can use either key. Bulk_inventory bug RCA: server.create_indexes() creates `inventory.product_id` unique index (line 393), but bulk endpoint inserts docs without product_id field — first row succeeds with product_id:null, second row fails E11000."
+}

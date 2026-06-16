@@ -1,0 +1,1 @@
+import WishlistPage from '../../src/views/WishlistPage'; export default function Page() { return <WishlistPage />; }

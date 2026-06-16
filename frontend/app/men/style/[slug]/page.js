@@ -1,0 +1,1 @@
+import ProductListPage from '../../../../src/views/ProductListPage'; export default function Page() { return <ProductListPage gender='men' title='Mens Collection' filterType='style' />; }

@@ -1,0 +1,39 @@
+{
+  "summary": "Iteration 10 testing covered all 3 new feature sets: (1) AdminVisits page + visit status PATCH/DELETE endpoints, (2) next/image migration on Hero/PLP/Luxe/PDP, (3) sitemap.xml + robots.txt. Backend: 17/17 new pytest cases pass (admin auth gates, status validation, persistence verify, ObjectId validation, /sitemap.xml + /robots.txt content checks). Frontend: AdminVisits UI fully functional end-to-end -- admin login (token persisted in localStorage), /admin/visits renders 11 visit rows, status select changes badge to Confirmed, filter tabs (Pending=7, Visited=1, All=11), delete confirm modal removes row (11->10). next/image migration verified: home (15 imgs / 8 with srcset+sizes / 0 broken), /men (8/8 srcset, 0 broken), /women (6/6 srcset, 0 broken), PDP main-product-image renders with data-nimg=fill, sizes='(max-width:768px) 100vw, 50vw' and 9-width srcset via /_next/image. 0 console errors. Only 4 perf hint warnings about adding 'priority' prop on LCP unsplash images (non-blocking). No regressions on previously working flows.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "next/image LCP perf", "issues": ["4 console warnings: 'Image with src ... was detected as the Largest Contentful Paint (LCP). Please add the priority property if this image is above the fold.' Recommend adding priority prop to first hero slide image and first PLP card image."]},
+      {"screen": "Home hero (carryover from iter8)", "issues": ["First hero slide may still show Nike-branded shoe -- trademark risk on luxury Cobblyn brand site (not re-verified in this iteration)."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter10_features.py",
+    "/app/test_reports/pytest/iter10_results.xml"
+  ],
+  "action_items": [
+    "(Optional perf) Add priority prop on the first HeroSlider slide image and the first ProductListPage card to silence next/image LCP warnings.",
+    "(Carryover) Replace Nike-branded hero image (from iter8) if not already addressed."
+  ],
+  "critical_code_review_comments": [
+    "routes/visits.py: clean implementation. require_admin uses get_current_user from auth_utils, ObjectId try/except returns 400 for malformed ids, 404 for not-found, 200 with status echo on success. _id properly excluded via projection in list_visits and converted to id string. Pydantic StatusUpdate validates body shape, then explicit allowed-set check returns 400 for unknown statuses. Good.",
+    "AdminVisits.js: 169 lines, single-file admin page is fine. Uses inline styles for modal/badge -- consider moving to admin.css for consistency. Status select uses native <select> (not shadcn) which is acceptable for small options list. data-testids cover all interactive elements (admin-visits-page, admin-visits-table, visits-filter-{v}, visit-row-{id}, visit-status-select-{id}, visit-delete-{id}, confirm-delete-visit, refresh-visits-btn).",
+    "app/sitemap.js + app/robots.js: clean. SITE_URL fallback chain is sane. Sitemap fetches up to 200 products and emits per-gender product URLs (/men/product/{id} or /women/product/{id}). robots.js correctly disallows /admin /api /cart /checkout /account /wishlist /login.",
+    "next/image migration: verified working with /_next/image optimizer + 9-width srcset on PDP, hero, PLP cards. Hover-zoom CSS patches in globals.css preserve interactions on the rendered <img> child. No fill+positioning warnings emitted -- parents already have position:relative."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter10_features.py (NEW - 17 tests, all pass)"
+  ],
+  "success_rate": {"backend": "100% (17/17)", "frontend": "100% on tested flows (admin login, AdminVisits CRUD, filter tabs, next/image rendering on home/men/women/PDP, sitemap.xml, robots.txt)"},
+  "test_credentials": "Admin admin@cobblyn.com / Cobblyn@2026 (works via UI and API).",
+  "seed_data_creation": "Each PATCH/DELETE test creates+cleans a TEST_Iter10 visit. 11 visits exist in DB after this run (created across iter9+iter10).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "All iter10 features verified end-to-end. Backend: run REACT_APP_BACKEND_URL=https://proto-enhance-1.preview.emergentagent.com pytest /app/backend/tests/test_iter10_features.py -v. AdminVisits page testids confirmed: admin-visits-page, admin-visits-table, visit-row-{id}, visit-status-select-{id}, visit-delete-{id}, confirm-delete-visit, visits-filter-{all|pending|confirmed|visited|cancelled}. PDP add-to-cart button testid is 'add-to-cart-button' (NOT 'add-to-cart' as some test specs say) -- inform main agent of this naming. The login flow blocker reported in iter9 is resolved (token persists in localStorage 'cobblyn_token' after submit). Only minor perf warning is missing 'priority' prop on LCP next/image elements.",
+  "rca of the issue": "No issues to RCA -- all flows green."
+}

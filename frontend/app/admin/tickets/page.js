@@ -1,0 +1,1 @@
+import AdminTickets from '../../../src/views/admin/AdminTickets'; export default function Page() { return <AdminTickets />; }

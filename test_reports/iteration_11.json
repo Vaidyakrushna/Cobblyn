@@ -1,0 +1,41 @@
+{
+  "summary": "Iteration 11 testing covered all 3 enhancements end-to-end. Backend: 10/10 pytest cases pass (banners public list + active_only filter, banners admin CRUD with auth gates and partial update + 400/404 for bad ids; uploads multipart admin auth, ext+size validation, 5MB-cap 413, static fetch returns image bytes; sitemap+robots regression). Frontend: AdminBanners page renders 4 seeded rows, New Banner modal exposes ImageUploader (URL input + Upload pick), banner-toggle works (verified by inactive banner disappearing from home hero). HeroSlider on home now driven by /api/banners — first slide title 'Crafted for the Discerning' (eyebrow 'NEW COLLECTION') comes from API, 4 active = 4 slide dots; toggling 'Oxford Elegance Redefined' inactive removed the slide on next reload (3 h1s left, dead title not in DOM). AdminProducts edit modal exposes per-slot ImageUploader (product-image-0) and product-add-image-btn (functional). AdminMaterials Add Material modal exposes material-image ImageUploader. PLP /men: 8 rotating-product-image cards, hovering first card cycles next/image src after 1.2s and resets on mouseleave; dot indicator strip rendered. PLP /women: 6 rotating cards, same behaviour confirmed. 0 console errors across all flows.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "AdminProducts edit modal", "issues": ["Clicking [data-testid='product-add-image-btn'] once increased the on-screen [data-testid^='product-image-'] count by 4 instead of 1 (15 -> 19). Investigate whether the click handler appends multiple slots or whether the existing slots double-render due to React keys. Cosmetic but worth a 1-line check."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_iter11_features.py",
+    "/app/test_reports/pytest/iter11_results.xml"
+  ],
+  "action_items": [
+    "(Minor) AdminProducts: verify product-add-image-btn appends exactly 1 image slot per click (observed +4 slots in one click).",
+    "(Carryover from iter10) Replace Nike-branded hero image on first slide if not yet swapped to a brand-safe shoe."
+  ],
+  "critical_code_review_comments": [
+    "routes/banners.py: clean. require_admin uses get_current_user, ObjectId try/except returns 400, 404 on missing, projection excludes _id via _serialize. Pydantic BannerUpdate uses Optional fields and filters None server-side, supports partial updates (e.g. just {active:false}). Good.",
+    "routes/uploads.py: ext allowlist {.jpg,.jpeg,.png,.webp,.gif,.avif}, 5MB cap with 413 status, empty-file rejection, uuid filename to avoid collisions. Returns relative URL (/api/uploads/{name}) so it works through the same-origin ingress; backend also mounts StaticFiles at /api/uploads — confirmed fetchable and content-type image/*. Solid.",
+    "server.py: StaticFiles mount on /api/uploads is BEFORE the API routers but uses a prefix-disjoint path so no conflict with /api/uploads/image POST handler. seed_banners runs at startup if collection empty (4 entries) — idempotent. Good.",
+    "ProductListPage.js RotatingProductImage: clean useRef + setInterval(1000); clears on unmount and onLeave; resets idx to 0 on leave. Works with next/image fill+sizes. Good.",
+    "AdminBanners.js + ImageUploader.js: testids on every interactive element (admin-new-banner-btn, banner-toggle-{id}, delete-banner-{id}, confirm-delete-banner, banner-form-image, banner-form-image-url, banner-form-image-pick, banner-form-save). Edit/Delete buttons wired correctly. Modal is dismissible via Escape (confirmed in test).",
+    "HeroSlider.js: reads /api/banners with fallback to a hardcoded list (verified: API path used since first banner came back as the API-seeded 'Crafted for the Discerning'). Active filter is honored client-side OR via active_only — slide hidden on next reload after admin toggle.",
+    "Code review: no DRY violations; files within size limits; all .env values via process.env / os.environ; no hardcoded URLs in app code (only in test files which is fine)."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_iter11_features.py (NEW - 10 tests, all pass)"
+  ],
+  "success_rate": {"backend": "100% (10/10)", "frontend": "100% on tested flows (admin banners CRUD UI + ImageUploader, hero hide-when-inactive, AdminProducts/Materials uploaders, PLP hover-rotation on /men + /women)"},
+  "test_credentials": "Admin admin@cobblyn.com / Cobblyn@2026",
+  "seed_data_creation": "Created+deleted one TEST_Iter11_Banner via API. Toggled banner 'Oxford Elegance Redefined' off then back on (final DB state: all 4 seed banners active). Uploaded 1 tiny PNG plus a 5MB+ blob (rejected with 413) and one .txt (rejected 400) — accepted PNG remains in /app/backend/uploads (test idempotent at the filesystem level by using uuid filenames).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Iter11 features verified. Run backend: REACT_APP_BACKEND_URL=https://proto-enhance-1.preview.emergentagent.com pytest /app/backend/tests/test_iter11_features.py -v. Key testids: admin-banners-page, admin-banners-table, admin-new-banner-btn, banner-row-{id}, banner-toggle-{id}, edit-banner-{id}, delete-banner-{id}, confirm-delete-banner, banner-form-image, banner-form-image-url, banner-form-image-pick, banner-form-save, product-image-{i}, product-add-image-btn, material-image, rotating-product-image. Auth token persists in localStorage as 'cobblyn_token'. Banner ObjectIds are real ObjectId strings. /api/uploads/image returns relative url so test against {BASE_URL}{url} when fetching. Hero h1 count == active banner count. The only minor anomaly is the product-add-image-btn appending more than 1 slot per click in AdminProducts.",
+  "rca of the issue": "No critical issues. Minor cosmetic: AdminProducts add-image-btn may add multiple slots — likely the click handler is being invoked more than once or the slot array was unpacked incorrectly. Worth a quick look at AdminProducts.js handler that pushes to images state."
+}
