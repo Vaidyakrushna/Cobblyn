@@ -15,8 +15,8 @@ export default function Home() {
       <SignatureStyles />
       <CustomizationSection />
       <LuxeCollection />
-      <AccessoriesSection />
       <BespokeForm />
+      <AccessoriesSection />
       <StudioSection />
     </>
   );

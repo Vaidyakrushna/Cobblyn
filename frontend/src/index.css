@@ -9294,6 +9294,7 @@ footer {
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  align-items: flex-end;
 }
 .acc-carousel::-webkit-scrollbar {
   display: none;
@@ -9307,7 +9308,7 @@ footer {
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.3s ease;
-  background: #1a1a1a;
+  background: transparent;
 }
 .acc-card:hover {
   transform: scale(1.02);
