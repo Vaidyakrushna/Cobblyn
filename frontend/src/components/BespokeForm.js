@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { CalendarDays, MapPin, Ruler, Package2 } from 'lucide-react';
 import { api } from '../api';
 
-const styleOptions = ['Oxford', 'Loafer', 'Monk Strap', 'Derby', 'Wing Tip', 'Desert Boot', 'Jutis', 'Mojaris', 'Mule', 'Boat'];
+const menStyles = ['Oxford', 'Loafer', 'Monk Strap', 'Derby', 'Wing Tip', 'Desert Boot', 'Jutis', 'Mojaris'];
+const womenStyles = ['Ballerina', 'Boots', 'Loafers', 'Jutis', 'Peep Toes', 'Mule', 'Kitten Heel', 'Platform'];
 const materialOptions = ['Full-Grain Leather', 'Suede', 'Nubuck', 'Patent Leather', 'Italian Calfskin', 'Shell Cordovan', 'Silk Brocade'];
 
 import Link from 'next/link';
@@ -11,7 +12,7 @@ import { useAuth } from '../context/AuthContext';
 
 const initialForm = {
   firstName: '', lastName: '', email: '', contactNumber: '',
-  visitDate: '', style: '', material: '', materialType: '',
+  visitDate: '', style: '', material: '', materialType: 'Premium',
   visitFor: '', pinCode: '', notes: ''
 };
 
@@ -26,9 +27,69 @@ const ScheduleVisitForm = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleVisitForChange = (val) => {
+    handleChange('visitFor', val);
+    // Dynamic style chips update: clear current style if it doesn't belong to the newly selected gender list
+    const styles = val === 'women' ? womenStyles : menStyles;
+    if (formData.style && !styles.includes(formData.style)) {
+      handleChange('style', '');
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Frontend Validations
+    if (!formData.firstName.trim()) {
+      setError('First name is required.');
+      return;
+    }
+    if (!formData.lastName.trim()) {
+      setError('Last name is required.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    const cleanPhone = formData.contactNumber.replace(/[^0-9]/g, '');
+    if (cleanPhone.length < 10) {
+      setError('Please enter a valid contact number of at least 10 digits.');
+      return;
+    }
+
+    if (!formData.visitDate) {
+      setError('Please select a visit date.');
+      return;
+    }
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const selectedDate = new Date(formData.visitDate);
+    if (selectedDate <= today) {
+      setError('Visit date must be a future date (at least tomorrow).');
+      return;
+    }
+
+    if (!formData.visitFor) {
+      setError('Please select who the visit is for (Men/Women).');
+      return;
+    }
+
+    if (!formData.style) {
+      setError('Please select a style chip.');
+      return;
+    }
+
+    const cleanPin = formData.pinCode.replace(/[^0-9]/g, '');
+    if (cleanPin.length !== 6) {
+      setError('PIN Code must be a 6-digit number (e.g. 400001).');
+      return;
+    }
+
     setSubmitting(true);
     try {
       await api.scheduleVisit({
@@ -61,6 +122,7 @@ const ScheduleVisitForm = () => {
 
   // Today + 1 as min for visit date
   const minDate = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  const currentStyles = formData.visitFor === 'women' ? womenStyles : menStyles;
 
   return (
     <section id="bespoke" data-testid="schedule-visit-section">
@@ -159,16 +221,29 @@ const ScheduleVisitForm = () => {
               </div>
             </div>
 
-            <div className="fg" style={{ marginTop: 24 }}>
-              <label className="flabel">Visit Date <span style={{ color: '#EF4444' }}>*</span></label>
-              <input type="date" className="finput" value={formData.visitDate} min={minDate}
-                onChange={(e) => handleChange('visitDate', e.target.value)} required data-testid="visit-date" />
+            {/* Visit Date + For in a row (shuffled) */}
+            <div className="frow" style={{ marginTop: 24 }}>
+              <div className="fg">
+                <label className="flabel">Visit Date <span style={{ color: '#EF4444' }}>*</span></label>
+                <input type="date" className="finput" value={formData.visitDate} min={minDate}
+                  onChange={(e) => handleChange('visitDate', e.target.value)} required data-testid="visit-date" />
+              </div>
+              <div className="fg">
+                <label className="flabel">For <span style={{ color: '#EF4444' }}>*</span></label>
+                <select className="fselect" value={formData.visitFor}
+                  onChange={(e) => handleVisitForChange(e.target.value)} required data-testid="visit-for">
+                  <option value="">Select Gender</option>
+                  <option value="men">Men</option>
+                  <option value="women">Women</option>
+                </select>
+              </div>
             </div>
 
+            {/* Style selection chips (gender-aware dynamic list) */}
             <div className="fg" style={{ marginTop: 24 }}>
-              <label className="flabel">Choose Style</label>
+              <label className="flabel">Choose Style <span style={{ color: '#EF4444' }}>*</span></label>
               <div className="style-chips" data-testid="visit-style-chips">
-                {styleOptions.map(s => (
+                {currentStyles.map(s => (
                   <button key={s} type="button"
                     className={`style-chip ${formData.style === s ? 'active' : ''}`}
                     onClick={() => handleChange('style', s)}
@@ -178,6 +253,7 @@ const ScheduleVisitForm = () => {
               </div>
             </div>
 
+            {/* Material + PIN Code in a row (shuffled, material type defaulted) */}
             <div className="frow" style={{ marginTop: 24 }}>
               <div className="fg">
                 <label className="flabel">Material</label>
@@ -188,29 +264,8 @@ const ScheduleVisitForm = () => {
                 </select>
               </div>
               <div className="fg">
-                <label className="flabel">Material Type</label>
-                <select className="fselect" value={formData.materialType}
-                  onChange={(e) => handleChange('materialType', e.target.value)} data-testid="visit-material-type">
-                  <option value="">Select type</option>
-                  <option value="Premium">Premium</option>
-                  <option value="Semi Premium">Semi Premium</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="frow" style={{ marginTop: 24 }}>
-              <div className="fg">
-                <label className="flabel">For</label>
-                <select className="fselect" value={formData.visitFor}
-                  onChange={(e) => handleChange('visitFor', e.target.value)} data-testid="visit-for">
-                  <option value="">Select</option>
-                  <option value="men">Men</option>
-                  <option value="women">Women</option>
-                </select>
-              </div>
-              <div className="fg">
                 <label className="flabel">PIN Code <span style={{ color: '#EF4444' }}>*</span></label>
-                <input type="text" inputMode="numeric" pattern="[0-9]{4,10}" className="finput" placeholder="400001"
+                <input type="text" className="finput" placeholder="400001"
                   value={formData.pinCode} onChange={(e) => handleChange('pinCode', e.target.value)} required data-testid="visit-pin" />
               </div>
             </div>
