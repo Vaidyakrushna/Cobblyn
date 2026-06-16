@@ -236,7 +236,7 @@ const LuxeCollection = () => {
             >
               <div className="sig-card-tag">{product.tag}</div>
               
-              <div className="prod-img-wrap">
+              <div className="sig-card-img">
                 <Link href={product.target_link || `/${product.gender}/product/${product.id}`}>
                   <img 
                     src={activeImage} 
