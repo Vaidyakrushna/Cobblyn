@@ -129,6 +129,14 @@ const Navigation = () => {
                       <li><Link href="/customize/men">Customisation</Link></li>
                     </ul>
                   </div>
+                  <div className="dd-creative">
+                    <img src="/wf-nav-men.png" alt="Classic Oxfords" />
+                    <div className="dd-creative-overlay">
+                      <div className="dd-creative-label">New Arrival</div>
+                      <div className="dd-creative-title">Classic Oxfords</div>
+                      <div className="dd-creative-cta">Shop Now →</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -154,6 +162,14 @@ const Navigation = () => {
                       <li><Link href="/customize/women">Customisation</Link></li>
                     </ul>
                   </div>
+                  <div className="dd-creative">
+                    <img src="/wf-nav-women.png" alt="Evening Heels" />
+                    <div className="dd-creative-overlay">
+                      <div className="dd-creative-label">Trending</div>
+                      <div className="dd-creative-title">Evening Heels</div>
+                      <div className="dd-creative-cta">Shop Evening →</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -165,7 +181,7 @@ const Navigation = () => {
           <li onMouseEnter={() => setActiveDropdown('accessories')} onMouseLeave={() => setActiveDropdown(null)}>
             <Link href="/accessories" data-testid="nav-link-accessories">Accessories <ChevronDown size={14} className="ml-1" /></Link>
             {activeDropdown === 'accessories' && (
-              <div className="dropdown dropdown-accessories" data-testid="accessories-submenu">
+              <div className="dropdown dropdown-accessories" data-testid="accessories-submenu" style={{ minWidth: '500px', left: 'auto', right: 0, transform: 'none' }}>
                 <div className="dropdown-inner">
                   <div>
                     <div className="dropdown-title">Categories</div>
@@ -178,6 +194,14 @@ const Navigation = () => {
                         </li>
                       ))}
                     </ul>
+                  </div>
+                  <div className="dd-creative" style={{ width: '240px' }}>
+                    <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80&fit=crop" alt="Premium Accessories" />
+                    <div className="dd-creative-overlay">
+                      <div className="dd-creative-label">New In</div>
+                      <div className="dd-creative-title">Premium Accessories</div>
+                      <div className="dd-creative-cta">Explore →</div>
+                    </div>
                   </div>
                 </div>
               </div>
