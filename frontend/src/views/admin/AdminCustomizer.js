@@ -8,9 +8,105 @@ import {
 } from 'lucide-react';
 import api from '../../api';
 
+const defaultSubmodels = {
+  Oxford: [
+    { name: 'Plain Toe Oxford', desc: 'Clean, unadorned vamp — the purest expression of the Oxford. Ideal for black-tie and boardrooms.', tag: 'Most Classic', img: 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=600&q=80&fit=crop' },
+    { name: 'Cap Toe Oxford', desc: 'A horizontal seam across the toe cap adds quiet structure and a military-inspired finish.', tag: 'Bestseller', img: 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=600&q=80&fit=crop' },
+    { name: 'Wingtip Oxford', desc: 'W-shaped broguing flows over the toe — bold character meets formal tradition.', tag: 'Most Distinctive', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80&fit=crop' },
+    { name: 'Wholecut Oxford', desc: 'Crafted from a single piece of leather. The rarest Oxford silhouette — zero seams, absolute refinement.', tag: 'Most Luxurious', img: 'https://images.unsplash.com/photo-1573100925118-870b8efc799d?w=600&q=80&fit=crop' },
+    { name: 'Semi-Brogue Oxford', desc: 'Subtle toe-cap broguing adds texture without overpowering the formal silhouette.', tag: '', img: 'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=600&q=80&fit=crop' },
+    { name: 'Full-Brogue Oxford', desc: 'Perforations and medallions across the entire shoe — the richest brogued expression.', tag: 'Most Textured', img: 'https://images.unsplash.com/photo-1595341888016-a392ef81b7de?w=600&q=80&fit=crop' }
+  ],
+  Derby: [
+    { name: 'Plain Toe Blucher', desc: 'The open-lacing derby stripped to essentials. Versatile from smart-casual to business.', tag: 'Most Versatile', img: 'https://images.unsplash.com/photo-1616696038562-574c18066055?w=600&q=80&fit=crop' },
+    { name: 'Cap Toe Derby', desc: 'A stitched toe cap elevates the relaxed derby lacing into polished territory.', tag: 'Bestseller', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80&fit=crop' },
+    { name: 'Longwing Derby', desc: 'The W-shaped broguing extends all the way to the heel — a true American classic.', tag: 'Most American', img: 'https://images.unsplash.com/photo-1595341888016-a392ef81b7de?w=600&q=80&fit=crop' },
+    { name: 'Wingtip Derby', desc: 'Full brogue detailing on open-laced construction — casual elegance personified.', tag: '', img: 'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=600&q=80&fit=crop' },
+    { name: 'Norwegian Derby', desc: 'Rugged storm welt with split-toe or moc-toe stitching. Built for the elements.', tag: 'Most Rugged', img: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&q=80&fit=crop' }
+  ],
+  Loafer: [
+    { name: 'Penny Loafer', desc: 'The definitive loafer — a saddle strap across the vamp with the iconic penny slot.', tag: 'Most Classic', img: 'https://images.pexels.com/photos/29258015/pexels-photo-29258015.jpeg?auto=compress&cs=tinysrgb&w=600' },
+    { name: 'Horsebit Loafer', desc: 'Gold-tone horsebit hardware on the instep — the quintessential Italian loafer.', tag: 'Most Iconic', img: 'https://images.unsplash.com/photo-1627384113743-6bd5a479fffd?w=600&q=80&fit=crop' },
+    { name: 'Tassel Loafer', desc: 'Leather tassels swing with every step. Ivy League heritage, forever in style.', tag: 'Bestseller', img: 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=600&q=80&fit=crop' },
+    { name: 'Driving Loafer', desc: 'Rubber pebble sole wraps up the heel. Designed for the driver, loved by all.', tag: 'Most Casual', img: 'https://images.unsplash.com/photo-1573100925118-870b8efc799d?w=600&q=80&fit=crop' },
+    { name: 'String Loafer', desc: 'Woven leather string bow on the vamp — relaxed, summery, and effortlessly chic.', tag: 'Most Relaxed', img: 'https://images.unsplash.com/photo-1583264739275-656ff57a087f?w=600&q=80&fit=crop' },
+    { name: 'Dress Slipper', desc: 'Flat-soled evening slipper with velvet or patent. A formal loafer for black-tie.', tag: 'Most Formal', img: 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=600&q=80&fit=crop' }
+  ],
+  'Monk Strap': [
+    { name: 'Single Monk', desc: 'One buckle, one strap — powerful restraint. The boldest dress shoe in any wardrobe.', tag: 'Most Popular', img: 'https://images.unsplash.com/photo-1770198408387-7f45e5d6c056?w=600&q=80&fit=crop' },
+    { name: 'Double Monk', desc: 'Two straps, two buckles — maximum visual impact. A true statement in formal wear.', tag: 'Most Distinctive', img: 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=600&q=80&fit=crop' },
+    { name: 'Brogue Monk', desc: 'Perforated detailing on the monk strap silhouette — smart-casual at its finest.', tag: '', img: 'https://images.unsplash.com/photo-1595341888016-a392ef81b7de?w=600&q=80&fit=crop' }
+  ],
+  Boots: [
+    { name: 'Chelsea Boot', desc: 'Elastic side gussets, no laces. The most versatile boot — office to evening.', tag: 'Bestseller', img: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&q=80&fit=crop' },
+    { name: 'Chukka Boot', desc: 'Open-laced two or three-eyelet ankle boot. Casual refinement at its best.', tag: 'Most Casual', img: 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=600&q=80&fit=crop' },
+    { name: 'Jodhpur Boot', desc: 'Ankle strap with buckle — equestrian heritage translated into everyday elegance.', tag: 'Most Heritage', img: 'https://images.unsplash.com/photo-1573100925118-870b8efc799d?w=600&q=80&fit=crop' },
+    { name: 'Cap Toe Boot', desc: 'Formal boot with a stitched toe cap — dress shoe construction at ankle height.', tag: 'Most Formal', img: 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=600&q=80&fit=crop' },
+    { name: 'Wingtip Boot', desc: 'Full broguing on a boot silhouette — the most expressive boot in the collection.', tag: 'Most Distinctive', img: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80&fit=crop' },
+    { name: 'Balmoral Boot', desc: 'Closed lacing with seamed vamp — the most formal boot, built like an Oxford.', tag: 'Most Refined', img: 'https://images.unsplash.com/photo-1616696038562-574c18066055?w=600&q=80&fit=crop' },
+    { name: 'Zipper Boot', desc: 'Side-zip closure for effortless wear without sacrificing polish.', tag: '', img: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&q=80&fit=crop' }
+  ],
+  Jutis: [
+    { name: 'Classic Juti', desc: 'Traditional pointed-toe juti with hand embroidery — a timeless ceremonial staple.', tag: 'Most Traditional', img: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80&fit=crop' },
+    { name: 'Nagra', desc: 'Rounded toe with curled tip — Rajasthani heritage in every stitch.', tag: 'Regional Heritage', img: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80&fit=crop' },
+    { name: 'Kolhapuri Juti', desc: 'Open-weave leather with floral embossing — Maharashtra craftsmanship at its finest.', tag: '', img: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80&fit=crop' },
+    { name: 'Mojari', desc: 'Fully embroidered upper with mirror-work — festive, opulent, and entirely handcrafted.', tag: 'Most Festive', img: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80&fit=crop' }
+  ],
+  Ballerina: [
+    { name: 'Classic Flat', desc: 'The essential ballet flat — soft round toe, comfortable last, endlessly versatile.', tag: 'Bestseller', img: 'https://images.unsplash.com/photo-1774802536876-88b0e1ca7453?w=600&q=80&fit=crop' },
+    { name: 'D\'Orsay Flat', desc: 'Open sides reveal the arch — a feminine silhouette for events and evenings.', tag: 'Most Elegant', img: 'https://images.unsplash.com/photo-1720604083961-88336789791e?w=600&q=80&fit=crop' },
+    { name: 'Pointed Toe Flat', desc: 'A sharp elongated toe gives the classic flat a fashion-forward edge.', tag: 'Most Modern', img: 'https://images.unsplash.com/photo-1583264739275-656ff57a087f?w=600&q=80&fit=crop' },
+    { name: 'Bow Ballet', desc: 'A satin or leather bow at the vamp — playful luxury for dressy occasions.', tag: '', img: 'https://images.unsplash.com/photo-1774802536876-88b0e1ca7453?w=600&q=80&fit=crop' }
+  ],
+  WomenBoots: [
+    { name: 'Ankle Boot', desc: 'A clean ankle silhouette that pairs with everything. The most versatile boot.', tag: 'Bestseller', img: 'https://images.unsplash.com/photo-1720603989488-1f3d16b7be9d?w=600&q=80&fit=crop' },
+    { name: 'Chelsea Ankle Boot', desc: 'Elastic side panels for slip-on ease — polished without the fuss.', tag: 'Most Comfortable', img: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&q=80&fit=crop' },
+    { name: 'Block Heel Boot', desc: 'Sturdy block heel for all-day support without sacrificing height or style.', tag: 'Most Practical', img: 'https://images.unsplash.com/photo-1573100925118-870b8efc799d?w=600&q=80&fit=crop' },
+    { name: 'Kitten Heel Boot', desc: 'A slender 4–5 cm heel — understated, feminine, and office-appropriate.', tag: 'Most Refined', img: 'https://images.unsplash.com/photo-1720603989488-1f3d16b7be9d?w=600&q=80&fit=crop' }
+  ],
+  Loafers: [
+    { name: 'Penny Loafer', desc: 'The classic saddle-strap loafer in women\'s sizing — timeless from campus to boardroom.', tag: 'Most Classic', img: 'https://images.unsplash.com/photo-1583264739275-656ff57a087f?w=600&q=80&fit=crop' },
+    { name: 'Platform Loafer', desc: 'Chunky platform sole adds height with maximum comfort. A bold fashion statement.', tag: 'Most Trendy', img: 'https://images.unsplash.com/photo-1583264739275-656ff57a087f?w=600&q=80&fit=crop' },
+    { name: 'Horsebit Loafer', desc: 'Gold-tone hardware on a women\'s silhouette — Italian luxury redefined.', tag: 'Bestseller', img: 'https://images.unsplash.com/photo-1627384113743-6bd5a479fffd?w=627&q=80&fit=crop' },
+    { name: 'Tassel Loafer', desc: 'Playful leather tassels with a feminine last — smart-casual in the most chic sense.', tag: '', img: 'https://images.unsplash.com/photo-1583264739275-656ff57a087f?w=600&q=80&fit=crop' }
+  ],
+  'Peep Toes': [
+    { name: 'Kitten Heel Peep Toe', desc: 'Delicate 4–5 cm heel with an open toe — a refined choice for formal occasions.', tag: 'Most Elegant', img: 'https://images.unsplash.com/photo-1720604083961-88336789791e?w=600&q=80&fit=crop' },
+    { name: 'Block Heel Peep Toe', desc: 'Peep-toe styling on a stable block heel — glamorous yet walkable.', tag: 'Bestseller', img: 'https://images.unsplash.com/photo-1720604083961-88336789791e?w=600&q=80&fit=crop' },
+    { name: 'Slingback Peep Toe', desc: 'An adjustable heel strap keeps the shoe secure while the open toe adds airiness.', tag: 'Most Comfortable', img: 'https://images.unsplash.com/photo-1774802536876-88b0e1ca7453?w=600&q=80&fit=crop' }
+  ],
+  'Desert Boot/Chukka Boots': [
+    { name: 'Suede Desert Boot', desc: 'Classic crepe sole with soft suede upper — casual, comfortable heritage.', tag: 'Most Classic', img: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=600&q=80&fit=crop' },
+    { name: 'Leather Chukka', desc: 'Premium leather finish with a smart thin dress sole for smart-casual events.', tag: 'Dress Casual', img: 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=600&q=80&fit=crop' }
+  ],
+  'Wing Tip': [
+    { name: 'Brogue Wingtip', desc: 'Full wingtip broguing with decorative toe medallion — high personality.', tag: 'Bestseller', img: 'https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=600&q=80&fit=crop' },
+    { name: 'Longwing Brogue', desc: 'Classic American styling where the wingtip seam extends fully to the heel.', tag: 'Heritage', img: 'https://images.unsplash.com/photo-1595341888016-a392ef81b7de?w=600&q=80&fit=crop' }
+  ],
+  Mule: [
+    { name: 'Leather Mule Slipper', desc: 'Backless slip-on leather slide with low stacked heel — effortless luxury.', tag: 'New Arrival', img: 'https://images.unsplash.com/photo-1603191659812-ee978eeeef76?w=600&q=80&fit=crop' },
+    { name: 'Suede Venetian Mule', desc: 'Ultra-soft backless venetian suede slide for high comfort.', tag: 'Casual Luxury', img: 'https://images.unsplash.com/photo-1583264739275-656ff57a087f?w=600&q=80&fit=crop' }
+  ],
+  Mojaris: [
+    { name: 'Pointed Sherwani Mojari', desc: 'Traditional pointed mojari with curled front tip for weddings and ceremonies.', tag: 'Ceremonial', img: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80&fit=crop' },
+    { name: 'Velvet Embroidered Mojari', desc: 'Rich velvet upper with detailed zardozi hand embroidery.', tag: 'Royal Collection', img: 'https://images.unsplash.com/photo-1610398061401-86320597d020?w=600&q=80&fit=crop' }
+  ],
+  Boat: [
+    { name: 'Classic Boat Shoe', desc: 'Premium oiled leather with white siped rubber soles and 360-degree lacing.', tag: 'Nautical Classic', img: 'https://images.unsplash.com/photo-1562273138-f46be4ebdf33?w=600&q=80&fit=crop' },
+    { name: 'Suede Deck Shoe', desc: 'Soft suede slip-on deck shoe for warm weather and sailing excursions.', tag: 'Summer Casual', img: 'https://images.unsplash.com/photo-1583264739275-656ff57a087f?w=600&q=80&fit=crop' }
+  ]
+};
+
 const AdminCustomizer = () => {
   const [activeTab, setActiveTab] = useState('flow'); // 'flow' | 'catalog' | 'materials'
   const [toast, setToast] = useState('');
+
+  // Style & Submodels state
+  const [submodels, setSubmodels] = useState({});
+  const [selectedModel, setSelectedModel] = useState('Oxford');
+  const [showSubmodelModal, setShowSubmodelModal] = useState(false);
+  const [editingSubmodelIndex, setEditingSubmodelIndex] = useState(null);
+  const [submodelForm, setSubmodelForm] = useState({ name: '', desc: '', tag: '', img: '' });
 
   // Atelier Flow settings state (Mock/Localstorage persistence for demo and runtime control)
   const [steps, setSteps] = useState([
@@ -89,6 +185,13 @@ const AdminCustomizer = () => {
     if (savedCatalog) {
       try { setCatalog(JSON.parse(savedCatalog)); } catch (e) {}
     }
+    const savedSubmodels = localStorage.getItem('byond_customizer_submodels');
+    if (savedSubmodels) {
+      try { setSubmodels(JSON.parse(savedSubmodels)); } catch (e) {}
+    } else {
+      setSubmodels(defaultSubmodels);
+      localStorage.setItem('byond_customizer_submodels', JSON.stringify(defaultSubmodels));
+    }
 
     fetchAssets();
     fetchRules();
@@ -156,6 +259,47 @@ const AdminCustomizer = () => {
     setCatalog(updatedCatalog);
     localStorage.setItem('byond_customizer_catalog', JSON.stringify(updatedCatalog));
     showToast('🗑️ Model deleted from catalog.');
+  };
+
+  // 2b. Style & Submodels Handlers
+  const handleOpenSubmodelModal = (index = null) => {
+    setEditingSubmodelIndex(index);
+    if (index !== null) {
+      setSubmodelForm(submodels[selectedModel][index]);
+    } else {
+      setSubmodelForm({ name: '', desc: '', tag: '', img: '' });
+    }
+    setShowSubmodelModal(true);
+  };
+
+  const handleSaveSubmodel = (e) => {
+    e.preventDefault();
+    if (!submodelForm.name.trim()) return showToast('⚠️ Please enter a submodel name.');
+
+    const updated = { ...submodels };
+    if (!updated[selectedModel]) {
+      updated[selectedModel] = [];
+    }
+
+    if (editingSubmodelIndex !== null) {
+      updated[selectedModel][editingSubmodelIndex] = submodelForm;
+    } else {
+      updated[selectedModel].push(submodelForm);
+    }
+
+    setSubmodels(updated);
+    localStorage.setItem('byond_customizer_submodels', JSON.stringify(updated));
+    setShowSubmodelModal(false);
+    showToast('✨ Style & Submodels updated successfully!');
+  };
+
+  const handleDeleteSubmodel = (index) => {
+    if (!confirm('Are you sure you want to delete this submodel variant?')) return;
+    const updated = { ...submodels };
+    updated[selectedModel].splice(index, 1);
+    setSubmodels(updated);
+    localStorage.setItem('byond_customizer_submodels', JSON.stringify(updated));
+    showToast('🗑️ Submodel variant deleted.');
   };
 
   // 3. CDN Assets Handlers
@@ -376,7 +520,8 @@ const AdminCustomizer = () => {
         {[
           { id: 'flow', label: 'Atelier Step Flow', icon: <Sliders size={16} /> },
           { id: 'catalog', label: 'Model & Silhouette Catalog', icon: <Layout size={16} /> },
-          { id: 'materials', label: 'Material Swatches & Pricing', icon: <Layers size={16} /> }
+          { id: 'submodels', label: 'Style & Submodels', icon: <Layers size={16} /> },
+          { id: 'materials', label: 'Material Swatches & Pricing', icon: <Briefcase size={16} /> }
         ].map(tab => (
           <button
             key={tab.id}
@@ -554,6 +699,97 @@ const AdminCustomizer = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Tab content 2.5: Style & Submodels */}
+      {activeTab === 'submodels' && (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e7e5e4', paddingBottom: '12px', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase' }}>Select Category Model:</span>
+              <select 
+                value={selectedModel} 
+                onChange={(e) => setSelectedModel(e.target.value)}
+                style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '0.85rem', color: '#1F2937', background: '#fff', fontWeight: 600 }}
+              >
+                {Object.keys(submodels).map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
+            
+            <button
+              onClick={() => handleOpenSubmodelModal()}
+              style={{
+                padding: '8px 14px',
+                fontSize: '0.75rem',
+                background: '#111',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              <Plus size={14} /> Add Style Variant
+            </button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+            {(submodels[selectedModel] || []).map((item, idx) => (
+              <div
+                key={idx}
+                style={{
+                  background: '#fff',
+                  border: '1px solid #e7e5e4',
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.01)',
+                  display: 'flex',
+                  flexDirection: 'column'
+                }}
+              >
+                <div style={{ height: '140px', background: '#F9FAFB', overflow: 'hidden', position: 'relative' }}>
+                  <img src={item.img} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  {item.tag && (
+                    <span style={{ position: 'absolute', top: '8px', left: '8px', background: '#C9A84C', color: '#fff', fontSize: '0.6rem', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      {item.tag}
+                    </span>
+                  )}
+                </div>
+                <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div>
+                    <h4 style={{ margin: '0 0 6px 0', fontSize: '0.85rem', fontWeight: 700 }}>{item.name}</h4>
+                    <p style={{ margin: 0, fontSize: '0.72rem', color: '#78716c', lineHeight: 1.4 }}>{item.desc}</p>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '16px', borderTop: '1px solid #f3f4f6', paddingTop: '12px' }}>
+                    <button
+                      onClick={() => handleOpenSubmodelModal(idx)}
+                      style={{ flex: 1, padding: '6px', fontSize: '0.7rem', background: 'none', border: '1px solid #d1d5db', color: '#4b5563', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+                    >
+                      <Edit2 size={12} /> Edit Details
+                    </button>
+                    <button
+                      onClick={() => handleDeleteSubmodel(idx)}
+                      style={{ padding: '6px 10px', background: 'none', border: '1px solid #f3f4f6', color: '#dc2626', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {(submodels[selectedModel] || []).length === 0 && (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', border: '1px dashed #d1d5db', borderRadius: '12px', color: '#78716c', fontSize: '0.85rem' }}>
+                No style variants defined for {selectedModel}. Click "Add Style Variant" to create one.
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -1020,6 +1256,67 @@ const AdminCustomizer = () => {
 
               <button type="submit" style={{ width: '100%', padding: '12px', background: '#111', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '0.75rem', textTransform: 'uppercase', cursor: 'pointer' }}>
                 {editingRuleId ? 'Update Rule' : 'Create Pricing Rule'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Submodel Modal */}
+      {showSubmodelModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '480px', position: 'relative' }}>
+            <button onClick={() => setShowSubmodelModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>&times;</button>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '1rem', fontWeight: 600 }}>{editingSubmodelIndex !== null ? 'Edit Style Variant' : `Add Style Variant to ${selectedModel}`}</h3>
+            
+            <form onSubmit={handleSaveSubmodel} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: '#4b5563', textTransform: 'uppercase', marginBottom: '6px' }}>Variant Name *</label>
+                <input 
+                  type="text" 
+                  value={submodelForm.name} 
+                  onChange={e => setSubmodelForm({ ...submodelForm, name: e.target.value })} 
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '0.8rem' }}
+                  placeholder="e.g. Cap Toe Oxford"
+                  required
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: '#4b5563', textTransform: 'uppercase', marginBottom: '6px' }}>Badge Tag (Optional)</label>
+                <input 
+                  type="text" 
+                  value={submodelForm.tag} 
+                  onChange={e => setSubmodelForm({ ...submodelForm, tag: e.target.value })} 
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '0.8rem' }}
+                  placeholder="e.g. Bestseller, Most Classic"
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: '#4b5563', textTransform: 'uppercase', marginBottom: '6px' }}>Description</label>
+                <textarea 
+                  value={submodelForm.desc} 
+                  onChange={e => setSubmodelForm({ ...submodelForm, desc: e.target.value })} 
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '0.8rem' }}
+                  placeholder="Enter design details"
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: '#4b5563', textTransform: 'uppercase', marginBottom: '6px' }}>Image URL</label>
+                <input 
+                  type="text" 
+                  value={submodelForm.img} 
+                  onChange={e => setSubmodelForm({ ...submodelForm, img: e.target.value })} 
+                  style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '0.8rem' }}
+                  placeholder="Paste picture URL"
+                />
+              </div>
+
+              <button type="submit" style={{ width: '100%', padding: '12px', background: '#111', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '0.75rem', textTransform: 'uppercase', cursor: 'pointer' }}>
+                Save Style Variant
               </button>
             </form>
           </div>

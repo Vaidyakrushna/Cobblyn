@@ -9440,37 +9440,40 @@ footer {
 }
 
 /* ============================================================
-   CUSTOMIZER VIEWPORT HEIGHT OVERRIDES
+   CUSTOMIZER — COMPACT PROGRESS BAR (does not affect homepage)
    ============================================================ */
-.customize-progress {
-  gap: 24px !important;
-  padding: 16px 0 !important;
-  margin-bottom: 24px !important;
+.customize-page .customize-progress {
+  gap: 20px;
+  padding: 12px 0;
+  margin-bottom: 20px;
 }
-.progress-num {
-  width: 24px !important;
-  height: 24px !important;
-  font-size: 0.6rem !important;
+.customize-page .progress-num {
+  width: 30px;
+  height: 30px;
+  font-size: 0.6rem;
 }
-.progress-label {
-  font-size: 0.55rem !important;
-  letter-spacing: 0.1em !important;
+.customize-page .progress-label {
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
 }
-.progress-line {
-  top: 28px !important;
+.customize-page .progress-line {
+  top: 31px;
 }
-.gender-card {
-  height: 250px !important;
-  min-height: 250px !important;
+.customize-page .gender-card {
+  min-height: 280px;
 }
-.gender-overlay {
-  background: linear-gradient(180deg, transparent 30%, rgba(10, 10, 10, 0.8) 100%) !important;
-  padding: 20px !important;
+.customize-page .gender-overlay {
+  padding: 24px;
 }
-.gender-overlay h3 {
-  font-size: 1.4rem !important;
-  margin-bottom: 4px !important;
+.customize-page .gender-overlay h3 {
+  font-size: 1.6rem;
+  margin-bottom: 6px;
 }
-.gender-overlay p {
-  font-size: 0.72rem !important;
+.customize-page .gender-overlay p {
+  font-size: 0.8rem;
+}
+
+/* Hide footer on customize page only */
+body:has(.customize-page) footer {
+  display: none !important;
 }
