@@ -349,7 +349,7 @@ const leathers = [
   { name: 'Suede',              desc: 'Velvety napped finish',                     swatch: '#8B7355' },
   { name: 'Patent Leather',     desc: 'High-gloss mirror finish',                 swatch: '#0A0A0A' },
   { name: 'Cordovan',           desc: 'Shell cordovan, ultra-premium',             swatch: '#800020' },
-  { name: 'Embroidered Silk',   desc: 'Traditional handwoven silk',               swatch: '#9d2706' },
+  { name: 'Embroidered Silk',   desc: 'Traditional handwoven silk',               swatch: '#C9A84C' },
 ];
 
 const colors = [
@@ -514,7 +514,7 @@ const CustomizePage = () => {
     if (!isAuthenticated) {
       // Unauthenticated: cache active custom configuration and launch login interstitial
       if (typeof window !== 'undefined') {
-        localStorage.setItem('cobblyn_draft_design', JSON.stringify(config));
+        localStorage.setItem('byond_draft_design', JSON.stringify(config));
       }
       setAuthMode('login');
       setAuthForm({ name: '', email: '', password: '' });
@@ -562,7 +562,7 @@ const CustomizePage = () => {
             dynamicLeathers.push({
               name: asset.name,
               desc: `Dynamic CDN: ${asset.price_modifier > 0 ? '+ ₹' + asset.price_modifier : 'Included'}`,
-              swatch: asset.image_url || asset.color_hex || '#9d2706',
+              swatch: asset.image_url || asset.color_hex || '#C9A84C',
               price_modifier: asset.price_modifier
             });
           } else if (asset.region === 'sole') {
@@ -646,7 +646,7 @@ const CustomizePage = () => {
     if (!targetUser) {
       // Unauthenticated: cache active custom configuration and launch login interstitial
       if (typeof window !== 'undefined') {
-        localStorage.setItem('cobblyn_draft_design', JSON.stringify(config));
+        localStorage.setItem('byond_draft_design', JSON.stringify(config));
       }
       setAuthMode('login');
       setAuthForm({ name: '', email: '', password: '' });
@@ -655,7 +655,7 @@ const CustomizePage = () => {
       return;
     }
 
-    const key = `cobblyn_saved_designs_${targetUser.email || 'global'}`;
+    const key = `byond_saved_designs_${targetUser.email || 'global'}`;
     const existing = JSON.parse(localStorage.getItem(key) || '[]');
     
     // De-duplicate styles
@@ -680,7 +680,7 @@ const CustomizePage = () => {
     const imageUrl = activeSubmodel?.img || 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=500&q=80&fit=crop';
     
     const newDesign = {
-      id: 'COBBLYN-SAVED-' + Math.floor(100000 + Math.random() * 900000),
+      id: 'BYOND-SAVED-' + Math.floor(100000 + Math.random() * 900000),
       date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
       gender: config.gender,
       model: config.model,
@@ -698,7 +698,7 @@ const CustomizePage = () => {
     setTimeout(() => {
       setToastMsg('');
       if (typeof window !== 'undefined') {
-        localStorage.setItem('cobblyn_active_tab', 'saved_designs');
+        localStorage.setItem('byond_active_tab', 'saved_designs');
         window.location.href = '/account';
       }
     }, 1500);
@@ -758,13 +758,13 @@ const CustomizePage = () => {
     ctx.fillRect(0, 0, 1080, 1920);
 
     // 2. Draw Gilded Double Borders
-    ctx.strokeStyle = '#9d2706';
+    ctx.strokeStyle = '#C9A84C';
     ctx.lineWidth = 4;
     ctx.strokeRect(40, 40, 1000, 1840);
     ctx.strokeRect(55, 55, 970, 1810);
 
     // 3. Header Text
-    ctx.fillStyle = '#9d2706';
+    ctx.fillStyle = '#C9A84C';
     ctx.font = '300 28px Montserrat, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('B E S P O K E   C R A F T', 540, 160);
@@ -772,10 +772,10 @@ const CustomizePage = () => {
     // 4. Brand Logo
     ctx.fillStyle = '#ffffff';
     ctx.font = '400 90px "Playfair Display", serif';
-    ctx.fillText('Cobblyn', 540, 290);
+    ctx.fillText('BYOND', 540, 290);
     
     // Draw small gold dot below logo
-    ctx.fillStyle = '#9d2706';
+    ctx.fillStyle = '#C9A84C';
     ctx.beginPath();
     ctx.arc(540, 340, 5, 0, Math.PI * 2);
     ctx.fill();
@@ -812,7 +812,7 @@ const CustomizePage = () => {
       ctx.restore();
 
       // Draw thin gold frame around image
-      ctx.strokeStyle = '#9d2706';
+      ctx.strokeStyle = '#C9A84C';
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(imgX + r, imgY);
@@ -829,7 +829,7 @@ const CustomizePage = () => {
 
       // 6. Draw Monogram Seal (below image)
       if (config.monogram) {
-        ctx.fillStyle = '#9d2706';
+        ctx.fillStyle = '#C9A84C';
         ctx.font = '300 24px Montserrat, sans-serif';
         ctx.fillText('PERSONAL SOLE MONOGRAM', 540, 1090);
         ctx.fillStyle = '#ffffff';
@@ -838,7 +838,7 @@ const CustomizePage = () => {
       }
 
       // 7. Draw Specifications details
-      ctx.strokeStyle = 'rgba(157, 39, 6, 0.2)';
+      ctx.strokeStyle = 'rgba(201, 168, 76, 0.2)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(150, 1250);
@@ -857,7 +857,7 @@ const CustomizePage = () => {
       specs.forEach((spec, sIdx) => {
         const rowY = 1320 + sIdx * 90;
         
-        ctx.fillStyle = '#9d2706';
+        ctx.fillStyle = '#C9A84C';
         ctx.font = '600 22px Montserrat, sans-serif';
         ctx.fillText(spec.label, 150, rowY);
 
@@ -874,13 +874,13 @@ const CustomizePage = () => {
 
       // 8. Footer brand motto
       ctx.textAlign = 'center';
-      ctx.fillStyle = '#9d2706';
+      ctx.fillStyle = '#C9A84C';
       ctx.font = '300 22px Montserrat, sans-serif';
-      ctx.fillText('DESIGNED BY YOU. HANDCRAFTED BY Cobblyn.', 540, 1750);
+      ctx.fillText('DESIGNED BY YOU. HANDCRAFTED BY BYOND.', 540, 1750);
 
       // Trigger download
       const link = document.createElement('a');
-      link.download = `cobblyn_custom_${config.submodel.toLowerCase().replace(/\s+/g, '_')}.png`;
+      link.download = `byond_custom_${config.submodel.toLowerCase().replace(/\s+/g, '_')}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     };
@@ -929,30 +929,42 @@ const CustomizePage = () => {
     <div className="customize-page" data-testid="customize-page" style={{ position: 'relative' }}>
       {/* Toast Notification */}
       {toastMsg && (
-        <div style={{ position: 'fixed', top: '24px', left: '50%', transform: 'translateX(-50%)', background: '#111', border: '2px solid #9d2706', borderRadius: '8px', padding: '12px 24px', color: '#fff', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1100, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-          <Sparkles size={16} color="#9d2706" />
+        <div style={{ position: 'fixed', top: '24px', left: '50%', transform: 'translateX(-50%)', background: '#111', border: '2px solid #C9A84C', borderRadius: '8px', padding: '12px 24px', color: '#fff', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1100, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+          <Sparkles size={16} color="#C9A84C" />
           <span>{toastMsg}</span>
         </div>
       )}
 
-      {/* Breadcrumbs */}
-      <div className="breadcrumbs">
-        <Link href="/">Home</Link>
-        <ChevronRight size={14} />
-        <span>Customize</span>
-        {config.model && <><ChevronRight size={14} /><span>{config.model}</span></>}
-        {config.submodel && <><ChevronRight size={14} /><span>{config.submodel}</span></>}
-      </div>
+      {/* Breadcrumbs (only show on step 0) */}
+      {step === 0 && (
+        <div className="breadcrumbs">
+          <Link href="/">Home</Link>
+          <ChevronRight size={14} />
+          <span>Customize</span>
+          {config.model && <><ChevronRight size={14} /><span>{config.model}</span></>}
+          {config.submodel && <><ChevronRight size={14} /><span>{config.submodel}</span></>}
+        </div>
+      )}
 
       {/* Hero */}
-      <div className="customize-hero" style={{ padding: '24px 0 16px' }}>
-        <div className="section-label">MADE TO ORDER</div>
-        <h1 className="customize-heading">Bespoke Design Studio</h1>
-        <p className="customize-sub">Co-create your dream footwear. Handcrafted exactly to your specifications.</p>
-      </div>
+      {step === 0 ? (
+        <div className="customize-hero" style={{ padding: '20px 0 10px' }}>
+          <div className="section-label" style={{ fontSize: '0.65rem', letterSpacing: '0.15em' }}>MADE TO ORDER</div>
+          <h1 className="customize-heading" style={{ fontSize: '2.2rem', marginBottom: '4px' }}>Bespoke Design Studio</h1>
+          <p className="customize-sub" style={{ fontSize: '0.8rem' }}>Co-create your dream footwear. Handcrafted exactly to your specifications.</p>
+        </div>
+      ) : (
+        <div className="customize-hero" style={{ padding: '10px 0 5px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <span className="section-label" style={{ margin: 0, fontSize: '0.6rem', letterSpacing: '0.1em' }}>BESPOKE ATELIER</span>
+          <span style={{ color: '#C9A84C' }}>|</span>
+          <span style={{ fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            {config.gender}'s {config.model || 'Design'} {config.submodel && ` - ${config.submodel}`}
+          </span>
+        </div>
+      )}
 
       {/* Progress (Always show top stepper) */}
-      <div className="customize-progress" style={{ marginBottom: '32px' }}>
+      <div className="customize-progress" style={{ marginBottom: '16px' }}>
         {steps.map((s, i) => (
           <div
             key={i}
@@ -981,11 +993,11 @@ const CustomizePage = () => {
               <h2 className="step-question">Who are the shoes for?</h2>
               <div className="gender-cards">
                 <button className={`gender-card ${config.gender === 'men' ? 'active' : ''}`} onClick={() => pick('gender', 'men', 1)} data-testid="gender-men">
-                  <img src="https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=500&q=80&fit=crop" alt="Men" />
+                  <img src="/2d-man.png" alt="Men" />
                   <div className="gender-overlay"><h3>MEN</h3><p>Classic &amp; contemporary styles</p></div>
                 </button>
                 <button className={`gender-card ${config.gender === 'women' ? 'active' : ''}`} onClick={() => pick('gender', 'women', 1)} data-testid="gender-women">
-                  <img src="https://images.unsplash.com/photo-1774802536876-88b0e1ca7453?w=500&q=80&fit=crop" alt="Women" />
+                  <img src="/2d-woman.png" alt="Women" />
                   <div className="gender-overlay"><h3>WOMEN</h3><p>Elegant &amp; refined designs</p></div>
                 </button>
               </div>
@@ -1078,11 +1090,38 @@ const CustomizePage = () => {
 
       {/* ── Bespoke Designer Split Workspace (step >= 3) ─────────────────────────────────── */}
       {step >= 3 && (
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr', gap: '32px', maxWidth: '1300px', margin: '0 auto', alignItems: 'start' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr', 
+          gap: '32px', 
+          maxWidth: '1300px', 
+          margin: '0 auto', 
+          alignItems: 'start',
+          height: isMobile ? 'auto' : 'calc(100vh - 140px)',
+          overflow: isMobile ? 'visible' : 'hidden'
+        }}>
           
           {/* Left Pane: Persistent Canvas Preview */}
-          <div style={{ position: 'sticky', top: '100px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ position: 'relative', width: '100%', aspectRatio: '4/3', borderRadius: '16px', overflow: 'hidden', border: '1px solid #9d2706', background: '#fcfcfc', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}>
+          <div style={{ 
+            position: isMobile ? 'relative' : 'sticky', 
+            top: isMobile ? '0' : '10px', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '16px',
+            height: isMobile ? 'auto' : '100%',
+            justifyContent: 'flex-start'
+          }}>
+            <div style={{ 
+              position: 'relative', 
+              width: '100%', 
+              aspectRatio: '4/3', 
+              borderRadius: '16px', 
+              overflow: 'hidden', 
+              border: '1px solid #C9A84C', 
+              background: '#fcfcfc', 
+              boxShadow: '0 8px 30px rgba(0,0,0,0.06)',
+              maxHeight: isMobile ? 'none' : 'calc(100vh - 220px)'
+            }}>
               
               <img 
                 src={getSubmodels().find(sm => sm.name === config.submodel)?.img || 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=600&q=80&fit=crop'} 
@@ -1109,9 +1148,9 @@ const CustomizePage = () => {
                       width: '24px',
                       height: '24px',
                       borderRadius: '50%',
-                      backgroundColor: '#9d2706',
+                      backgroundColor: '#C9A84C',
                       border: '2.5px solid #fff',
-                      boxShadow: '0 0 10px rgba(157,39,6,0.9)',
+                      boxShadow: '0 0 10px rgba(201,168,76,0.9)',
                       cursor: 'pointer',
                       transform: hoveredHotspot === h.id ? 'scale(1.25)' : 'scale(1)',
                       transition: 'transform 0.25s ease',
@@ -1124,7 +1163,7 @@ const CustomizePage = () => {
                     <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#fff' }}></span>
                   </button>
                   {hoveredHotspot === h.id && (
-                    <div style={{ position: 'absolute', top: `calc(${h.top} - 32px)`, left: h.left, transform: 'translateX(-50%)', background: '#111', border: '1.5px solid #9d2706', color: '#9d2706', fontSize: '0.62rem', fontWeight: 700, padding: '5px 10px', borderRadius: '6px', whiteSpace: 'nowrap', zIndex: 12, boxShadow: '0 4px 15px rgba(0,0,0,0.3)', letterSpacing: '0.02em' }}>
+                    <div style={{ position: 'absolute', top: `calc(${h.top} - 32px)`, left: h.left, transform: 'translateX(-50%)', background: '#111', border: '1.5px solid #C9A84C', color: '#C9A84C', fontSize: '0.62rem', fontWeight: 700, padding: '5px 10px', borderRadius: '6px', whiteSpace: 'nowrap', zIndex: 12, boxShadow: '0 4px 15px rgba(0,0,0,0.3)', letterSpacing: '0.02em' }}>
                       {h.label}
                     </div>
                   )}
@@ -1134,7 +1173,7 @@ const CustomizePage = () => {
               {/* Bottom dynamic swatches overlay bar */}
               <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', padding: '16px 20px', background: 'linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0))', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff' }}>
                 <div>
-                  <div style={{ fontSize: '0.6rem', color: '#9d2706', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Bespoke Draft</div>
+                  <div style={{ fontSize: '0.6rem', color: '#C9A84C', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Bespoke Draft</div>
                   <strong style={{ fontSize: '0.85rem', letterSpacing: '0.02em' }}>{config.submodel}</strong>
                 </div>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -1145,28 +1184,36 @@ const CustomizePage = () => {
             </div>
 
             {/* Quick Helper Banner */}
-            <div style={{ padding: '14px 18px', background: '#FAF9F6', borderRadius: '10px', borderLeft: '3px solid #9d2706', fontSize: '0.72rem', color: '#78716c', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Info size={16} color="#9d2706" />
-              <span>Feel free to click swatches directly or tap any of the glowing dots on the shoe preview to expand custom design modules!</span>
+            <div style={{ padding: '10px 14px', background: '#FAF9F6', borderRadius: '10px', borderLeft: '3px solid #C9A84C', fontSize: '0.7rem', color: '#78716c', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Info size={14} color="#C9A84C" style={{ flexShrink: 0 }} />
+              <span>Feel free to click swatches directly or tap any of the glowing dots on the shoe preview!</span>
             </div>
           </div>
 
           {/* Right Pane: collapsible selection modules (Accordion) */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '16px',
+            height: isMobile ? 'auto' : '100%',
+            overflowY: isMobile ? 'visible' : 'auto',
+            paddingRight: isMobile ? '0' : '8px',
+            maxHeight: isMobile ? 'none' : 'calc(100vh - 140px)'
+          }}>
             
             {/* Accordion 1: Leather Selection */}
             <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
               <button 
                 onClick={() => setStep(step === 3 ? 8 : 3)}
-                style={{ width: '100%', padding: '12px 16px', background: step === 3 ? '#111' : '#FAF9F6', border: '1px solid #e7e5e4', borderLeft: step === 3 ? '4px solid #9d2706' : '1px solid #e7e5e4', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'all 0.3s ease' }}
+                style={{ width: '100%', padding: '12px 16px', background: step === 3 ? '#111' : '#FAF9F6', border: '1px solid #e7e5e4', borderLeft: step === 3 ? '4px solid #C9A84C' : '1px solid #e7e5e4', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'all 0.3s ease' }}
               >
                 <div style={{ textAlign: 'left' }}>
                   <span style={{ fontSize: '0.8rem', fontWeight: 700, color: step === 3 ? '#fff' : '#1c1917' }}>Leather Grade</span>
                   {config.leather && (
-                    <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 600, color: step === 3 ? '#9d2706' : '#78716c', marginTop: '2px' }}>{config.leather}</span>
+                    <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 600, color: step === 3 ? '#C9A84C' : '#78716c', marginTop: '2px' }}>{config.leather}</span>
                   )}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', color: step === 3 ? '#9d2706' : '#78716c' }}>
+                <div style={{ display: 'flex', alignItems: 'center', color: step === 3 ? '#C9A84C' : '#78716c' }}>
                   {step === 3 ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </div>
               </button>
@@ -1204,18 +1251,18 @@ const CustomizePage = () => {
             <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
               <button 
                 onClick={() => setStep(step === 4 ? 8 : 4)}
-                style={{ width: '100%', padding: '12px 16px', background: step === 4 ? '#111' : '#FAF9F6', border: '1px solid #e7e5e4', borderLeft: step === 4 ? '4px solid #9d2706' : '1px solid #e7e5e4', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'all 0.3s ease' }}
+                style={{ width: '100%', padding: '12px 16px', background: step === 4 ? '#111' : '#FAF9F6', border: '1px solid #e7e5e4', borderLeft: step === 4 ? '4px solid #C9A84C' : '1px solid #e7e5e4', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'all 0.3s ease' }}
               >
                 <div style={{ textAlign: 'left' }}>
                   <span style={{ fontSize: '0.8rem', fontWeight: 700, color: step === 4 ? '#fff' : '#1c1917' }}>Colorway Selection</span>
                   {config.color && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
                       <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: activeColors.find(c => c.name === config.color)?.hex || '#000' }} />
-                      <span style={{ fontSize: '0.68rem', fontWeight: 600, color: step === 4 ? '#9d2706' : '#78716c' }}>{config.color}</span>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 600, color: step === 4 ? '#C9A84C' : '#78716c' }}>{config.color}</span>
                     </div>
                   )}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', color: step === 4 ? '#9d2706' : '#78716c' }}>
+                <div style={{ display: 'flex', alignItems: 'center', color: step === 4 ? '#C9A84C' : '#78716c' }}>
                   {step === 4 ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </div>
               </button>
@@ -1245,15 +1292,15 @@ const CustomizePage = () => {
             <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
               <button 
                 onClick={() => setStep(step === 5 ? 8 : 5)}
-                style={{ width: '100%', padding: '12px 16px', background: step === 5 ? '#111' : '#FAF9F6', border: '1px solid #e7e5e4', borderLeft: step === 5 ? '4px solid #9d2706' : '1px solid #e7e5e4', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'all 0.3s ease' }}
+                style={{ width: '100%', padding: '12px 16px', background: step === 5 ? '#111' : '#FAF9F6', border: '1px solid #e7e5e4', borderLeft: step === 5 ? '4px solid #C9A84C' : '1px solid #e7e5e4', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'all 0.3s ease' }}
               >
                 <div style={{ textAlign: 'left' }}>
                   <span style={{ fontSize: '0.8rem', fontWeight: 700, color: step === 5 ? '#fff' : '#1c1917' }}>Outsoles</span>
                   {config.sole && (
-                    <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 600, color: step === 5 ? '#9d2706' : '#78716c', marginTop: '2px' }}>{config.sole}</span>
+                    <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 600, color: step === 5 ? '#C9A84C' : '#78716c', marginTop: '2px' }}>{config.sole}</span>
                   )}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', color: step === 5 ? '#9d2706' : '#78716c' }}>
+                <div style={{ display: 'flex', alignItems: 'center', color: step === 5 ? '#C9A84C' : '#78716c' }}>
                   {step === 5 ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </div>
               </button>
@@ -1282,15 +1329,15 @@ const CustomizePage = () => {
             <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
               <button 
                 onClick={() => setStep(step === 6 ? 8 : 6)}
-                style={{ width: '100%', padding: '12px 16px', background: step === 6 ? '#111' : '#FAF9F6', border: '1px solid #e7e5e4', borderLeft: step === 6 ? '4px solid #9d2706' : '1px solid #e7e5e4', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'all 0.3s ease' }}
+                style={{ width: '100%', padding: '12px 16px', background: step === 6 ? '#111' : '#FAF9F6', border: '1px solid #e7e5e4', borderLeft: step === 6 ? '4px solid #C9A84C' : '1px solid #e7e5e4', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'all 0.3s ease' }}
               >
                 <div style={{ textAlign: 'left' }}>
                   <span style={{ fontSize: '0.8rem', fontWeight: 700, color: step === 6 ? '#fff' : '#1c1917' }}>Fitting &amp; Sizing</span>
                   {config.size && (
-                    <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 600, color: step === 6 ? '#9d2706' : '#78716c', marginTop: '2px' }}>UK Size {config.size}</span>
+                    <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 600, color: step === 6 ? '#C9A84C' : '#78716c', marginTop: '2px' }}>UK Size {config.size}</span>
                   )}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', color: step === 6 ? '#9d2706' : '#78716c' }}>
+                <div style={{ display: 'flex', alignItems: 'center', color: step === 6 ? '#C9A84C' : '#78716c' }}>
                   {step === 6 ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </div>
               </button>
@@ -1302,7 +1349,7 @@ const CustomizePage = () => {
                     <button 
                       type="button" 
                       onClick={() => setShowFitProfiler(true)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#9d2706', fontSize: '0.72rem', textDecoration: 'underline', fontWeight: '600' }}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#C9A84C', fontSize: '0.72rem', textDecoration: 'underline', fontWeight: '600' }}
                     >
                       🔍 Find My Size
                     </button>
@@ -1318,14 +1365,14 @@ const CustomizePage = () => {
                           height: '46px',
                           borderRadius: '8px',
                           cursor: 'pointer',
-                          border: config.size === String(sz) ? '2px solid #9d2706' : '1px solid #E5E7EB',
+                          border: config.size === String(sz) ? '2px solid #C9A84C' : '1px solid #E5E7EB',
                           backgroundColor: config.size === String(sz) ? '#FAF9F6' : 'transparent',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           fontSize: '0.85rem',
                           fontWeight: config.size === String(sz) ? '700' : '500',
-                          color: config.size === String(sz) ? '#9d2706' : '#1c1917',
+                          color: config.size === String(sz) ? '#C9A84C' : '#1c1917',
                           transition: 'all 0.2s ease',
                         }}
                       >
@@ -1335,7 +1382,7 @@ const CustomizePage = () => {
                   </div>
 
                   <p style={{ margin: '14px 0 0 0', fontSize: '0.68rem', color: '#78716c', lineHeight: 1.4 }}>
-                    Each Cobblyn shoe is individually lasted to your size selection. Standard fits accommodate D (medium) widths comfortably.
+                    Each BYOND shoe is individually lasted to your size selection. Standard fits accommodate D (medium) widths comfortably.
                   </p>
                 </div>
               </div>
@@ -1345,15 +1392,15 @@ const CustomizePage = () => {
             <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
               <button 
                 onClick={() => setStep(step === 7 ? 8 : 7)}
-                style={{ width: '100%', padding: '12px 16px', background: step === 7 ? '#111' : '#FAF9F6', border: '1px solid #e7e5e4', borderLeft: step === 7 ? '4px solid #9d2706' : '1px solid #e7e5e4', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'all 0.3s ease' }}
+                style={{ width: '100%', padding: '12px 16px', background: step === 7 ? '#111' : '#FAF9F6', border: '1px solid #e7e5e4', borderLeft: step === 7 ? '4px solid #C9A84C' : '1px solid #e7e5e4', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'all 0.3s ease' }}
               >
                 <div style={{ textAlign: 'left' }}>
                   <span style={{ fontSize: '0.8rem', fontWeight: 700, color: step === 7 ? '#fff' : '#1c1917' }}>Design Summary</span>
-                  <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 600, color: step === 7 ? '#9d2706' : '#78716c', marginTop: '2px' }}>
+                  <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 600, color: step === 7 ? '#C9A84C' : '#78716c', marginTop: '2px' }}>
                     {config.monogram ? `Monogram [${config.monogram}]` : 'Monogram & Checkout'}
                   </span>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', color: step === 7 ? '#9d2706' : '#78716c' }}>
+                <div style={{ display: 'flex', alignItems: 'center', color: step === 7 ? '#C9A84C' : '#78716c' }}>
                   {step === 7 ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </div>
               </button>
@@ -1389,7 +1436,7 @@ const CustomizePage = () => {
                     {config.monogram && (
                       <div className="summary-row">
                         <span className="summary-label">Outsole Monogram</span>
-                        <strong className="summary-value" style={{ color: '#9d2706', letterSpacing: '0.05em' }}>[{config.monogram}]</strong>
+                        <strong className="summary-value" style={{ color: '#C9A84C', letterSpacing: '0.05em' }}>[{config.monogram}]</strong>
                       </div>
                     )}
                     <div style={{ marginTop: '16px', borderTop: '1px dashed #e7e5e4', paddingTop: '16px' }}>
@@ -1400,16 +1447,16 @@ const CustomizePage = () => {
                       
                       {priceBreakdown.applied_rules && priceBreakdown.applied_rules.map((rule, idx) => (
                         <div className="summary-row" key={idx} style={{ marginBottom: '8px' }}>
-                          <span className="summary-label" style={{ fontSize: '0.72rem', color: '#9d2706', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <span className="summary-label" style={{ fontSize: '0.72rem', color: '#C9A84C', display: 'flex', alignItems: 'center', gap: '4px' }}>
                             ✨ {rule.rule}
                           </span>
-                          <strong className="summary-value" style={{ color: '#9d2706', fontSize: '0.75rem' }}>{rule.adjustment.startsWith('+') ? rule.adjustment : `+₹${Number(rule.adjustment).toLocaleString('en-IN')}`}</strong>
+                          <strong className="summary-value" style={{ color: '#C9A84C', fontSize: '0.75rem' }}>{rule.adjustment.startsWith('+') ? rule.adjustment : `+₹${Number(rule.adjustment).toLocaleString('en-IN')}`}</strong>
                         </div>
                       ))}
 
                       <div className="summary-row price-row" style={{ marginTop: '12px', borderTop: '1px solid #e7e5e4', paddingTop: '12px' }}>
                         <span className="summary-label" style={{ fontWeight: 700, fontSize: '0.8rem' }}>Estimated Total Price</span>
-                        <span className="summary-price" style={{ color: '#9d2706', fontWeight: 700, fontSize: '1rem' }}>
+                        <span className="summary-price" style={{ color: '#C9A84C', fontWeight: 700, fontSize: '1rem' }}>
                           ₹{priceBreakdown.final_price?.toLocaleString('en-IN')}
                         </span>
                       </div>
@@ -1436,20 +1483,20 @@ const CustomizePage = () => {
 
                   {/* Split row for Social Story Card & Place Order */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '16px' }}>
-                    <button onClick={handlePlaceCustomOrder} className="btn-place-order" data-testid="place-custom-order" style={{ width: '100%', margin: 0, padding: '14px', background: '#9d2706', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer' }}>
+                    <button onClick={handlePlaceCustomOrder} className="btn-place-order" data-testid="place-custom-order" style={{ width: '100%', margin: 0, padding: '14px', background: '#C9A84C', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer' }}>
                       Place Custom Order <ArrowRight size={16} />
                     </button>
                     
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                       <button 
                         onClick={() => setInstagramModal(true)} 
-                        style={{ width: '100%', padding: '12px', background: '#111', color: '#9d2706', border: '1px solid #9d2706', borderRadius: '8px', fontWeight: 700, fontSize: '0.72rem', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}
+                        style={{ width: '100%', padding: '12px', background: '#111', color: '#C9A84C', border: '1px solid #C9A84C', borderRadius: '8px', fontWeight: 700, fontSize: '0.72rem', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}
                       >
                         <Camera size={14} /> Share Story
                       </button>
                       <button 
                         onClick={() => saveBespokeDesign()} 
-                        style={{ width: '100%', padding: '12px', background: '#111', color: '#9d2706', border: '1px solid #9d2706', borderRadius: '8px', fontWeight: 700, fontSize: '0.72rem', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}
+                        style={{ width: '100%', padding: '12px', background: '#111', color: '#C9A84C', border: '1px solid #C9A84C', borderRadius: '8px', fontWeight: 700, fontSize: '0.72rem', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}
                       >
                         <Save size={14} /> Save Design
                       </button>
@@ -1471,20 +1518,20 @@ const CustomizePage = () => {
       {/* Instagram Story Card Modal */}
       {instagramModal && (
         <div className="instagram-modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div className="instagram-modal glass-dark-gilded" style={{ border: '1px solid rgba(157, 39, 6, 0.4)', borderRadius: '16px', padding: '24px', maxWidth: '400px', width: '100%', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div className="instagram-modal glass-dark-gilded" style={{ border: '1px solid rgba(201, 168, 76, 0.4)', borderRadius: '16px', padding: '24px', maxWidth: '400px', width: '100%', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <button onClick={() => setInstagramModal(false)} style={{ position: 'absolute', top: '12px', right: '16px', background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
             
-            <h3 style={{ margin: '0 0 16px 0', fontFamily: 'Montserrat, sans-serif', fontSize: '0.9rem', color: '#9d2706', letterSpacing: '0.05em', textTransform: 'uppercase', textAlign: 'center' }}>Your Instagram Story Card</h3>
+            <h3 style={{ margin: '0 0 16px 0', fontFamily: 'Montserrat, sans-serif', fontSize: '0.9rem', color: '#C9A84C', letterSpacing: '0.05em', textTransform: 'uppercase', textAlign: 'center' }}>Your Instagram Story Card</h3>
             
             {/* Aspect Ratio 9:16 Portrait Preview Card */}
-            <div id="story-card-preview" style={{ width: '220px', height: '390px', background: '#1c1c1e', border: '1px solid #9d2706', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', position: 'relative', overflow: 'hidden' }}>
+            <div id="story-card-preview" style={{ width: '220px', height: '390px', background: '#1c1c1e', border: '1px solid #C9A84C', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', position: 'relative', overflow: 'hidden' }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '0.45rem', color: '#9d2706', letterSpacing: '0.2em', textTransform: 'uppercase' }}>B E S P O K E   C R A F T</div>
-                <div style={{ fontSize: '1rem', fontWeight: 600, color: '#fff', fontFamily: 'Playfair Display, serif', marginTop: '6px' }}>Cobblyn</div>
+                <div style={{ fontSize: '0.45rem', color: '#C9A84C', letterSpacing: '0.2em', textTransform: 'uppercase' }}>B E S P O K E   C R A F T</div>
+                <div style={{ fontSize: '1rem', fontWeight: 600, color: '#fff', fontFamily: 'Playfair Display, serif', marginTop: '6px' }}>BYOND</div>
               </div>
 
               {/* Mockup image */}
-              <div style={{ width: '100%', height: '130px', borderRadius: '8px', border: '1px solid #9d2706', overflow: 'hidden', margin: '8px 0' }}>
+              <div style={{ width: '100%', height: '130px', borderRadius: '8px', border: '1px solid #C9A84C', overflow: 'hidden', margin: '8px 0' }}>
                 <img 
                   src={getSubmodels().find(sm => sm.name === config.submodel)?.img || 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=500&q=80&fit=crop'} 
                   alt="Shoe" 
@@ -1495,31 +1542,31 @@ const CustomizePage = () => {
               {/* Specs */}
               <div style={{ fontSize: '0.52rem', color: '#d1d5db', display: 'flex', flexDirection: 'column', gap: '3px' }}>
                 {config.monogram && (
-                  <div style={{ textAlign: 'center', marginBottom: '4px', borderBottom: '1px dashed rgba(157,39,6,0.2)', paddingBottom: '3px' }}>
-                    <span style={{ color: '#9d2706', fontSize: '0.45rem', display: 'block', letterSpacing: '0.1em' }}>MONOGRAM</span>
+                  <div style={{ textAlign: 'center', marginBottom: '4px', borderBottom: '1px dashed rgba(201,168,76,0.2)', paddingBottom: '3px' }}>
+                    <span style={{ color: '#C9A84C', fontSize: '0.45rem', display: 'block', letterSpacing: '0.1em' }}>MONOGRAM</span>
                     <strong style={{ color: '#fff', fontSize: '0.75rem', letterSpacing: '0.1em' }}>[{config.monogram.split('').join('.')}]</strong>
                   </div>
                 )}
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#9d2706' }}>STYLE</span>
+                  <span style={{ color: '#C9A84C' }}>STYLE</span>
                   <span style={{ fontWeight: 600 }}>{config.submodel?.toUpperCase()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#9d2706' }}>LEATHER</span>
+                  <span style={{ color: '#C9A84C' }}>LEATHER</span>
                   <span style={{ fontWeight: 600 }}>{config.leather?.toUpperCase()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#9d2706' }}>SOLE</span>
+                  <span style={{ color: '#C9A84C' }}>SOLE</span>
                   <span style={{ fontWeight: 600 }}>{config.sole?.toUpperCase()}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#9d2706' }}>SIZE (UK)</span>
+                  <span style={{ color: '#C9A84C' }}>SIZE (UK)</span>
                   <span style={{ fontWeight: 600 }}>{String(config.size || '8').toUpperCase()}</span>
                 </div>
               </div>
 
-              <div style={{ fontSize: '0.42rem', color: '#9d2706', textAlign: 'center', letterSpacing: '0.05em' }}>
-                DESIGNED BY YOU. Cobblyn.
+              <div style={{ fontSize: '0.42rem', color: '#C9A84C', textAlign: 'center', letterSpacing: '0.05em' }}>
+                DESIGNED BY YOU. BYOND.
               </div>
             </div>
 
@@ -1530,13 +1577,13 @@ const CustomizePage = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
               <button 
                 onClick={downloadInstagramStoryCard} 
-                style={{ width: '100%', padding: '10px', background: '#9d2706', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                style={{ width: '100%', padding: '10px', background: '#C9A84C', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}
               >
                 📥 Download Story Card Image
               </button>
               <button 
                 onClick={copyInstagramLinkSticker} 
-                style={{ width: '100%', padding: '10px', background: '#1c1c1e', color: '#9d2706', border: '1px solid #9d2706', borderRadius: '8px', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}
+                style={{ width: '100%', padding: '10px', background: '#1c1c1e', color: '#C9A84C', border: '1px solid #C9A84C', borderRadius: '8px', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }}
               >
                 🔗 Copy Link Sticker URL
               </button>
@@ -1548,19 +1595,19 @@ const CustomizePage = () => {
       {/* Sizing Fit Profiler Modal */}
       {showFitProfiler && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div className="glass-dark-gilded" style={{ maxWidth: '440px', width: '100%', border: '1px solid rgba(157, 39, 6, 0.4)', borderRadius: '16px', padding: '24px 32px', position: 'relative' }}>
+          <div className="glass-dark-gilded" style={{ maxWidth: '440px', width: '100%', border: '1px solid rgba(201, 168, 76, 0.4)', borderRadius: '16px', padding: '24px 32px', position: 'relative' }}>
             <button onClick={() => { setShowFitProfiler(false); setFitResult(null); }} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', color: '#a1a1aa' }}>
               <X size={20} />
             </button>
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-              <Ruler size={32} color="#9d2706" style={{ margin: '0 auto 8px' }} />
+              <Ruler size={32} color="#C9A84C" style={{ margin: '0 auto 8px' }} />
               <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.4rem', color: '#fff', margin: 0, fontStyle: 'italic' }}>Bespoke Sizing Concierge</h3>
               <p style={{ fontSize: '11px', color: '#a1a1aa', margin: '4px 0 0 0' }}>Map your current footwear sizes to our handcrafted Italian lasts.</p>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#9d2706', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.05em' }}>Reference Brand You Wear</label>
+                <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#C9A84C', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.05em' }}>Reference Brand You Wear</label>
                 <select value={fitBrand} onChange={(e) => { setFitBrand(e.target.value); setFitResult(null); }} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #333', fontSize: '13px', background: '#1c1c1e', color: '#fff' }}>
                   <option value="Nike">Nike (Running)</option>
                   <option value="Adidas">Adidas (Athletic)</option>
@@ -1572,7 +1619,7 @@ const CustomizePage = () => {
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#9d2706', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.05em' }}>Reference Size (UK/US)</label>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#C9A84C', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.05em' }}>Reference Size (UK/US)</label>
                   <select value={fitSize} onChange={(e) => { setFitSize(e.target.value); setFitResult(null); }} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #333', fontSize: '13px', background: '#1c1c1e', color: '#fff' }}>
                     {['6', '7', '8', '9', '10', '11', '12'].map(s => (
                       <option key={s} value={s}>UK {s}</option>
@@ -1581,7 +1628,7 @@ const CustomizePage = () => {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#9d2706', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.05em' }}>Foot Width Profile</label>
+                  <label style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#C9A84C', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.05em' }}>Foot Width Profile</label>
                   <select value={fitWidth} onChange={(e) => { setFitWidth(e.target.value); setFitResult(null); }} style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #333', fontSize: '13px', background: '#1c1c1e', color: '#fff' }}>
                     <option value="Narrow">Narrow Width</option>
                     <option value="Standard">Standard (Medium)</option>
@@ -1591,12 +1638,12 @@ const CustomizePage = () => {
               </div>
 
               {!fitResult ? (
-                <button onClick={calculateRecommendedSize} style={{ width: '100%', padding: '12px', background: '#9d2706', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '12px', letterSpacing: '0.04em', textTransform: 'uppercase', marginTop: '8px' }}>
+                <button onClick={calculateRecommendedSize} style={{ width: '100%', padding: '12px', background: '#C9A84C', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '12px', letterSpacing: '0.04em', textTransform: 'uppercase', marginTop: '8px' }}>
                   Calculate Recommended Fit
                 </button>
               ) : (
-                <div style={{ marginTop: '10px', padding: '14px', background: 'rgba(157, 39, 6, 0.08)', border: '1px solid rgba(157, 39, 6, 0.3)', borderRadius: '8px', textAlign: 'center' }}>
-                  <div style={{ fontSize: '11px', color: '#9d2706', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Our Recommendation</div>
+                <div style={{ marginTop: '10px', padding: '14px', background: 'rgba(201, 168, 76, 0.08)', border: '1px solid rgba(201, 168, 76, 0.3)', borderRadius: '8px', textAlign: 'center' }}>
+                  <div style={{ fontSize: '11px', color: '#C9A84C', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>Our Recommendation</div>
                   <div style={{ fontSize: '15px', color: '#fff', fontWeight: '800' }}>
                     UK {Math.floor(fitResult)} <span style={{ fontWeight: '400', fontSize: '13px', color: '#a1a1aa' }}>({fitWidth === 'Wide' ? 'Wide last adjustment' : fitWidth === 'Narrow' ? 'Narrow last adjustment' : 'Standard Fit'})</span>
                   </div>
@@ -1612,7 +1659,7 @@ const CustomizePage = () => {
                       setFitResult(null);
                       setStep(7);
                     }}
-                    style={{ width: '100%', padding: '10px', background: '#9d2706', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '700', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}
+                    style={{ width: '100%', padding: '10px', background: '#C9A84C', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '700', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}
                   >
                     Apply Recommended Size UK {Math.floor(fitResult)}
                   </button>
@@ -1626,11 +1673,11 @@ const CustomizePage = () => {
       {/* Guest Authentication Interstitial Modal */}
       {showAuthModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.8)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div className="glass-dark-gilded" style={{ border: '1px solid rgba(157, 39, 6, 0.4)', borderRadius: '16px', padding: '32px', maxWidth: '440px', width: '100%', position: 'relative' }}>
+          <div className="glass-dark-gilded" style={{ border: '1px solid rgba(201, 168, 76, 0.4)', borderRadius: '16px', padding: '32px', maxWidth: '440px', width: '100%', position: 'relative' }}>
             <button onClick={() => setShowAuthModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', color: '#a1a1aa', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
             
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <Sparkles size={36} color="#9d2706" style={{ margin: '0 auto 12px' }} />
+              <Sparkles size={36} color="#C9A84C" style={{ margin: '0 auto 12px' }} />
               <h3 style={{ margin: 0, fontFamily: 'Playfair Display, serif', fontSize: '1.5rem', color: '#fff', fontStyle: 'italic' }}>Save Your Masterpiece</h3>
               <p style={{ margin: '6px 0 0 0', fontSize: '0.75rem', color: '#a1a1aa' }}>Create an account or log in to save this bespoke configuration to your virtual Atelier Journal.</p>
             </div>
@@ -1644,7 +1691,7 @@ const CustomizePage = () => {
             <form onSubmit={handleAuthSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {authMode === 'signup' && (
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.62rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Full Name</label>
+                  <label style={{ display: 'block', fontSize: '0.62rem', color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Full Name</label>
                   <input 
                     type="text" 
                     required 
@@ -1656,18 +1703,18 @@ const CustomizePage = () => {
                 </div>
               )}
               <div>
-                <label style={{ display: 'block', fontSize: '0.62rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Email Address</label>
+                <label style={{ display: 'block', fontSize: '0.62rem', color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Email Address</label>
                 <input 
                   type="email" 
                   required 
                   value={authForm.email} 
                   onChange={(e) => setAuthForm(prev => ({ ...prev, email: e.target.value }))}
                   style={{ width: '100%', padding: '10px', background: '#1c1c1e', border: '1px solid #333', borderRadius: '6px', color: '#fff', fontSize: '0.8rem' }}
-                  placeholder="E.g. krushn@cobblynstudio.com"
+                  placeholder="E.g. krushn@byondstudio.com"
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.62rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Password</label>
+                <label style={{ display: 'block', fontSize: '0.62rem', color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Password</label>
                 <input 
                   type="password" 
                   required 
@@ -1678,16 +1725,16 @@ const CustomizePage = () => {
                 />
               </div>
 
-              <button type="submit" style={{ width: '100%', padding: '12px', background: '#9d2706', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', marginTop: '10px' }}>
+              <button type="submit" style={{ width: '100%', padding: '12px', background: '#C9A84C', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', marginTop: '10px' }}>
                 {authMode === 'login' ? 'Log In & Save' : 'Create Account & Save'}
               </button>
             </form>
 
             <div style={{ textAlign: 'center', marginTop: '20px', fontSize: '0.72rem', color: '#a1a1aa' }}>
               {authMode === 'login' ? (
-                <span>Don't have an account? <button onClick={() => { setAuthMode('signup'); setAuthError(''); }} style={{ background: 'none', border: 'none', color: '#9d2706', fontWeight: 700, textDecoration: 'underline', cursor: 'pointer' }}>Sign Up</button></span>
+                <span>Don't have an account? <button onClick={() => { setAuthMode('signup'); setAuthError(''); }} style={{ background: 'none', border: 'none', color: '#C9A84C', fontWeight: 700, textDecoration: 'underline', cursor: 'pointer' }}>Sign Up</button></span>
               ) : (
-                <span>Already have an account? <button onClick={() => { setAuthMode('login'); setAuthError(''); }} style={{ background: 'none', border: 'none', color: '#9d2706', fontWeight: 700, textDecoration: 'underline', cursor: 'pointer' }}>Log In</button></span>
+                <span>Already have an account? <button onClick={() => { setAuthMode('login'); setAuthError(''); }} style={{ background: 'none', border: 'none', color: '#C9A84C', fontWeight: 700, textDecoration: 'underline', cursor: 'pointer' }}>Log In</button></span>
               )}
             </div>
           </div>

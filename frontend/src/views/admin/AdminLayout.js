@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Package, Layers, Calculator, ShoppingCart, Users,
   MessageSquare, Warehouse, Factory, CalendarCheck, Image as ImageIcon,
   Tag, RotateCcw, BarChart3, Shield, ChevronRight, Briefcase, UserCog,
-  FolderTree, ShoppingBag, Cpu, Star
+  FolderTree, ShoppingBag, Cpu, Star, Sliders
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -19,9 +19,8 @@ const NAV_STRUCTURE = [
     { to: '/admin/accessories', icon: <ShoppingBag size={16} />, label: 'Accessories' },
     { to: '/admin/categories', icon: <FolderTree size={16} />, label: 'Categories' },
     { to: '/admin/banners', icon: <ImageIcon size={16} />, label: 'Banners' },
-    { to: '/admin/rules', icon: <Calculator size={16} />, label: 'Rules Engine' },
-    { to: '/admin/materials', icon: <Layers size={16} />, label: 'Material' },
-    { to: '/admin/assets', icon: <Layers size={16} />, label: 'Customizer CDN Swatches' },
+    { to: '/admin/customizer', icon: <Sliders size={16} />, label: 'Customizer Studio' },
+    { to: '/admin/materials', icon: <Layers size={16} />, label: 'Material Library' },
     { to: '/admin/coupons', icon: <Tag size={16} />, label: 'Coupons' },
   ]},
 
@@ -79,7 +78,7 @@ const AdminLayout = ({ children }) => {
   const [expanded, setExpanded] = useState(() => {
     if (typeof window === 'undefined') return {};
     try {
-      const saved = JSON.parse(localStorage.getItem('cobblyn_admin_nav_expanded') || '{}');
+      const saved = JSON.parse(localStorage.getItem('byond_admin_nav_expanded') || '{}');
       return saved && typeof saved === 'object' ? saved : {};
     } catch { return {}; }
   });
@@ -93,7 +92,7 @@ const AdminLayout = ({ children }) => {
   }, [pathname]);
 
   useEffect(() => {
-    try { localStorage.setItem('cobblyn_admin_nav_expanded', JSON.stringify(expanded)); } catch {}
+    try { localStorage.setItem('byond_admin_nav_expanded', JSON.stringify(expanded)); } catch {}
   }, [expanded]);
 
   // Accordion: clicking a group closes all others
@@ -118,7 +117,7 @@ const AdminLayout = ({ children }) => {
     <div className="admin-layout" data-testid="admin-layout">
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header">
-          <h2>{user.role === 'factory_worker' ? 'Cobblyn Factory' : 'Cobblyn Admin'}</h2>
+          <h2>{user.role === 'factory_worker' ? 'BYOND Factory' : 'BYOND Admin'}</h2>
         </div>
         <nav className="admin-nav" data-testid="admin-nav">
           {NAV_STRUCTURE.map((node) => {
