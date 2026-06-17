@@ -935,24 +935,36 @@ const CustomizePage = () => {
         </div>
       )}
 
-      {/* Breadcrumbs */}
-      <div className="breadcrumbs">
-        <Link href="/">Home</Link>
-        <ChevronRight size={14} />
-        <span>Customize</span>
-        {config.model && <><ChevronRight size={14} /><span>{config.model}</span></>}
-        {config.submodel && <><ChevronRight size={14} /><span>{config.submodel}</span></>}
-      </div>
+      {/* Breadcrumbs (only show on step 0) */}
+      {step === 0 && (
+        <div className="breadcrumbs">
+          <Link href="/">Home</Link>
+          <ChevronRight size={14} />
+          <span>Customize</span>
+          {config.model && <><ChevronRight size={14} /><span>{config.model}</span></>}
+          {config.submodel && <><ChevronRight size={14} /><span>{config.submodel}</span></>}
+        </div>
+      )}
 
       {/* Hero */}
-      <div className="customize-hero" style={{ padding: '24px 0 16px' }}>
-        <div className="section-label">MADE TO ORDER</div>
-        <h1 className="customize-heading">Bespoke Design Studio</h1>
-        <p className="customize-sub">Co-create your dream footwear. Handcrafted exactly to your specifications.</p>
-      </div>
+      {step === 0 ? (
+        <div className="customize-hero" style={{ padding: '20px 0 10px' }}>
+          <div className="section-label" style={{ fontSize: '0.65rem', letterSpacing: '0.15em' }}>MADE TO ORDER</div>
+          <h1 className="customize-heading" style={{ fontSize: '2.2rem', marginBottom: '4px' }}>Bespoke Design Studio</h1>
+          <p className="customize-sub" style={{ fontSize: '0.8rem' }}>Co-create your dream footwear. Handcrafted exactly to your specifications.</p>
+        </div>
+      ) : (
+        <div className="customize-hero" style={{ padding: '10px 0 5px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          <span className="section-label" style={{ margin: 0, fontSize: '0.6rem', letterSpacing: '0.1em' }}>BESPOKE ATELIER</span>
+          <span style={{ color: '#C9A84C' }}>|</span>
+          <span style={{ fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            {config.gender}'s {config.model || 'Design'} {config.submodel && ` - ${config.submodel}`}
+          </span>
+        </div>
+      )}
 
       {/* Progress (Always show top stepper) */}
-      <div className="customize-progress" style={{ marginBottom: '32px' }}>
+      <div className="customize-progress" style={{ marginBottom: '16px' }}>
         {steps.map((s, i) => (
           <div
             key={i}
@@ -981,11 +993,11 @@ const CustomizePage = () => {
               <h2 className="step-question">Who are the shoes for?</h2>
               <div className="gender-cards">
                 <button className={`gender-card ${config.gender === 'men' ? 'active' : ''}`} onClick={() => pick('gender', 'men', 1)} data-testid="gender-men">
-                  <img src="https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=500&q=80&fit=crop" alt="Men" />
+                  <img src="/2d-man.png" alt="Men" />
                   <div className="gender-overlay"><h3>MEN</h3><p>Classic &amp; contemporary styles</p></div>
                 </button>
                 <button className={`gender-card ${config.gender === 'women' ? 'active' : ''}`} onClick={() => pick('gender', 'women', 1)} data-testid="gender-women">
-                  <img src="https://images.unsplash.com/photo-1774802536876-88b0e1ca7453?w=500&q=80&fit=crop" alt="Women" />
+                  <img src="/2d-woman.png" alt="Women" />
                   <div className="gender-overlay"><h3>WOMEN</h3><p>Elegant &amp; refined designs</p></div>
                 </button>
               </div>
@@ -1078,11 +1090,38 @@ const CustomizePage = () => {
 
       {/* ── Bespoke Designer Split Workspace (step >= 3) ─────────────────────────────────── */}
       {step >= 3 && (
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr', gap: '32px', maxWidth: '1300px', margin: '0 auto', alignItems: 'start' }}>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr', 
+          gap: '32px', 
+          maxWidth: '1300px', 
+          margin: '0 auto', 
+          alignItems: 'start',
+          height: isMobile ? 'auto' : 'calc(100vh - 140px)',
+          overflow: isMobile ? 'visible' : 'hidden'
+        }}>
           
           {/* Left Pane: Persistent Canvas Preview */}
-          <div style={{ position: 'sticky', top: '100px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ position: 'relative', width: '100%', aspectRatio: '4/3', borderRadius: '16px', overflow: 'hidden', border: '1px solid #C9A84C', background: '#fcfcfc', boxShadow: '0 8px 30px rgba(0,0,0,0.06)' }}>
+          <div style={{ 
+            position: isMobile ? 'relative' : 'sticky', 
+            top: isMobile ? '0' : '10px', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '16px',
+            height: isMobile ? 'auto' : '100%',
+            justifyContent: 'flex-start'
+          }}>
+            <div style={{ 
+              position: 'relative', 
+              width: '100%', 
+              aspectRatio: '4/3', 
+              borderRadius: '16px', 
+              overflow: 'hidden', 
+              border: '1px solid #C9A84C', 
+              background: '#fcfcfc', 
+              boxShadow: '0 8px 30px rgba(0,0,0,0.06)',
+              maxHeight: isMobile ? 'none' : 'calc(100vh - 220px)'
+            }}>
               
               <img 
                 src={getSubmodels().find(sm => sm.name === config.submodel)?.img || 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=600&q=80&fit=crop'} 
@@ -1145,14 +1184,22 @@ const CustomizePage = () => {
             </div>
 
             {/* Quick Helper Banner */}
-            <div style={{ padding: '14px 18px', background: '#FAF9F6', borderRadius: '10px', borderLeft: '3px solid #C9A84C', fontSize: '0.72rem', color: '#78716c', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <Info size={16} color="#C9A84C" />
-              <span>Feel free to click swatches directly or tap any of the glowing dots on the shoe preview to expand custom design modules!</span>
+            <div style={{ padding: '10px 14px', background: '#FAF9F6', borderRadius: '10px', borderLeft: '3px solid #C9A84C', fontSize: '0.7rem', color: '#78716c', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Info size={14} color="#C9A84C" style={{ flexShrink: 0 }} />
+              <span>Feel free to click swatches directly or tap any of the glowing dots on the shoe preview!</span>
             </div>
           </div>
 
           {/* Right Pane: collapsible selection modules (Accordion) */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '16px',
+            height: isMobile ? 'auto' : '100%',
+            overflowY: isMobile ? 'visible' : 'auto',
+            paddingRight: isMobile ? '0' : '8px',
+            maxHeight: isMobile ? 'none' : 'calc(100vh - 140px)'
+          }}>
             
             {/* Accordion 1: Leather Selection */}
             <div style={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
