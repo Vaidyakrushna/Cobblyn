@@ -16,7 +16,7 @@ const Footer = () => {
       <div className="footer-main">
         <div>
           <div className="footer-brand-logo">
-            BY<span className="text-accent">O</span>ND
+            C<span className="text-accent">O</span>BBLYN
           </div>
           <p className="footer-tagline">Crafted Beyond the Ordinary</p>
           <div className="footer-socials">
@@ -90,7 +90,7 @@ const Footer = () => {
       </div>
 
       <div className="footer-bottom">
-        <p className="footer-copy">© 2026 BYOND Shoes. All rights reserved.</p>
+        <p className="footer-copy">© 2026 Cobblyn Shoes. All rights reserved.</p>
         <div className="footer-bottom-links">
           <a href="/privacy">Privacy Policy</a>
           <a href="/terms">Terms of Service</a>

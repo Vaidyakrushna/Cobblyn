@@ -26,10 +26,10 @@ const MyAccountPage = () => {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const active = localStorage.getItem('byond_active_tab');
+      const active = localStorage.getItem('cobblyn_active_tab');
       if (active) {
         setActiveTab(active);
-        localStorage.removeItem('byond_active_tab');
+        localStorage.removeItem('cobblyn_active_tab');
       }
     }
   }, []);
@@ -132,9 +132,9 @@ const ReferralsTab = () => {
   const pendingCount = stats?.stats?.pending_referrals || 0;
   const completedCount = stats?.stats?.successful_referrals || 0;
 
-  const shareText = `Get ₹250 welcome credit on BYOND Shoes by signing up with my referral code: ${referralCode}! Register here: ${typeof window !== 'undefined' ? window.location.origin : ''}/login`;
+  const shareText = `Get ₹250 welcome credit on Cobblyn Shoes by signing up with my referral code: ${referralCode}! Register here: ${typeof window !== 'undefined' ? window.location.origin : ''}/login`;
   const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
-  const emailUrl = `mailto:?subject=Get ₹250 off on BYOND Shoes!&body=${encodeURIComponent(shareText)}`;
+  const emailUrl = `mailto:?subject=Get ₹250 off on Cobblyn Shoes!&body=${encodeURIComponent(shareText)}`;
 
   return (
     <div className="referrals-tab-container" style={{ padding: '8px', color: '#111' }}>
@@ -154,7 +154,7 @@ const ReferralsTab = () => {
       
       <div style={{ marginBottom: '32px' }}>
         <h2 style={{ fontSize: '26px', fontWeight: '800', marginBottom: '8px', letterSpacing: '-0.02em', color: '#111' }}>Refer & Earn</h2>
-        <p style={{ color: '#666', fontSize: '15px', lineHeight: '1.5' }}>Share the BYOND experience. Invite your friends: they get ₹250 welcome credit instantly, and you get ₹500 credited to your wallet once they make their first purchase.</p>
+        <p style={{ color: '#666', fontSize: '15px', lineHeight: '1.5' }}>Share the Cobblyn experience. Invite your friends: they get ₹250 welcome credit instantly, and you get ₹500 credited to your wallet once they make their first purchase.</p>
       </div>
 
       {/* Grid of stats and wallet */}
@@ -713,7 +713,7 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
         setSelectedOrder(prev => ({ ...prev, customer_feedback: { rating: feedbackRating, comment: feedbackComment } }));
       }
       setShowFeedbackModal(false);
-      alert("✨ Thank you for rating your BYOND order!");
+      alert("✨ Thank you for rating your Cobblyn order!");
     } catch (err) {
       alert(err.message || "Failed to submit feedback");
     } finally {
@@ -749,9 +749,9 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
                   fontWeight: 700,
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
-                  background: isCustomBespoke ? 'rgba(201, 168, 76, 0.12)' : 'rgba(16, 185, 129, 0.12)',
-                  border: isCustomBespoke ? '1px solid rgba(201, 168, 76, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
-                  color: isCustomBespoke ? '#C9A84C' : '#10B981',
+                  background: isCustomBespoke ? 'rgba(157, 39, 6, 0.12)' : 'rgba(16, 185, 129, 0.12)',
+                  border: isCustomBespoke ? '1px solid rgba(157, 39, 6, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
+                  color: isCustomBespoke ? '#9d2706' : '#10B981',
                   display: 'inline-flex',
                   alignItems: 'center'
                 }}>
@@ -769,30 +769,30 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
               {selectedOrder.customer_feedback ? (
                 <div style={{
                   fontSize: '0.72rem',
-                  color: '#C9A84C',
+                  color: '#9d2706',
                   fontWeight: 700,
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px',
-                  border: '1px solid rgba(201, 168, 76, 0.25)',
+                  border: '1px solid rgba(157, 39, 6, 0.25)',
                   padding: '7px 12px',
                   borderRadius: '6px',
-                  background: 'rgba(201, 168, 76, 0.05)',
+                  background: 'rgba(157, 39, 6, 0.05)',
                   height: '34px',
                   boxSizing: 'border-box'
                 }}>
-                  <Star size={13} fill="#C9A84C" color="#C9A84C" /> {selectedOrder.customer_feedback.rating} / 5
+                  <Star size={13} fill="#9d2706" color="#9d2706" /> {selectedOrder.customer_feedback.rating} / 5
                 </div>
               ) : (
                 <button className="account-btn-secondary" onClick={() => openFeedbackModal(selectedOrder)} style={{
                   margin: 0,
-                  borderColor: '#C9A84C',
-                  color: '#C9A84C',
+                  borderColor: '#9d2706',
+                  color: '#9d2706',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px',
                   fontWeight: 600,
-                  background: 'rgba(201, 168, 76, 0.03)'
+                  background: 'rgba(157, 39, 6, 0.03)'
                 }}>
                   <Star size={14} /> Rate Order
                 </button>
@@ -916,15 +916,15 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
                     z-index: 2;
                   }
                   .stepper-step.completed .stepper-circle {
-                    background: #C9A84C;
-                    border-color: #C9A84C;
+                    background: #9d2706;
+                    border-color: #9d2706;
                     color: #fff;
                   }
                   .stepper-step.active .stepper-circle {
                     background: #111;
-                    border-color: #C9A84C;
-                    color: #C9A84C;
-                    box-shadow: 0 0 12px rgba(201,168,76,0.4);
+                    border-color: #9d2706;
+                    color: #9d2706;
+                    box-shadow: 0 0 12px rgba(157,39,6,0.4);
                   }
                   .stepper-label {
                     font-size: 0.68rem;
@@ -935,7 +935,7 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
                     letter-spacing: 0.05em;
                   }
                   .stepper-step.active .stepper-label {
-                    color: #C9A84C;
+                    color: #9d2706;
                   }
                   .stepper-step.completed .stepper-label {
                     color: #1c1917;
@@ -952,7 +952,7 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
                   .stepper-bar-progress {
                     width: 0%;
                     height: 100%;
-                    background: #C9A84C;
+                    background: #9d2706;
                     transition: width 0.6s ease;
                   }
                   .stepper-bar-progress.completed {
@@ -1017,7 +1017,7 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
                     <div className="atelier-tracker-card glass-gilded" style={{ 
                       padding: '24px 20px', 
                       borderRadius: '12px', 
-                      border: '1px solid rgba(201, 168, 76, 0.3)', 
+                      border: '1px solid rgba(157, 39, 6, 0.3)', 
                       background: 'rgba(255, 255, 255, 0.85)', 
                       backdropFilter: 'blur(12px)',
                       WebkitBackdropFilter: 'blur(12px)',
@@ -1025,7 +1025,7 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
                       boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)' 
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                        <Sparkles size={16} color="#C9A84C" />
+                        <Sparkles size={16} color="#9d2706" />
                         <h4 style={{ margin: 0, fontFamily: 'Montserrat, sans-serif', fontSize: '0.85rem', color: '#1c1917', letterSpacing: '0.05em', textTransform: 'uppercase', fontWeight: 700 }}>
                           Atelier Progress Tracker
                         </h4>
@@ -1046,16 +1046,16 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
                                 width: '30px',
                                 height: '30px',
                                 borderRadius: '50%',
-                                background: isCompleted ? '#C9A84C' : (isActive ? '#111' : '#f4f4f5'),
-                                border: isActive ? '2px solid #C9A84C' : '2px solid #e4e4e7',
-                                color: isCompleted ? '#fff' : (isActive ? '#C9A84C' : '#a1a1aa'),
+                                background: isCompleted ? '#9d2706' : (isActive ? '#111' : '#f4f4f5'),
+                                border: isActive ? '2px solid #9d2706' : '2px solid #e4e4e7',
+                                color: isCompleted ? '#fff' : (isActive ? '#9d2706' : '#a1a1aa'),
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyItems: 'center',
                                 justifyContent: 'center',
                                 fontWeight: 700,
                                 fontSize: '0.7rem',
-                                boxShadow: isActive ? '0 0 10px rgba(201, 168, 76, 0.4)' : 'none',
+                                boxShadow: isActive ? '0 0 10px rgba(157, 39, 6, 0.4)' : 'none',
                                 transition: 'all 0.3s ease',
                                 zIndex: 2
                               }}>
@@ -1064,7 +1064,7 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
                               <div style={{ 
                                 fontSize: '0.62rem', 
                                 fontWeight: (isActive || isCompleted) ? 700 : 500, 
-                                color: isActive ? '#C9A84C' : (isCompleted ? '#1c1917' : '#78716c'), 
+                                color: isActive ? '#9d2706' : (isCompleted ? '#1c1917' : '#78716c'), 
                                 marginTop: '8px', 
                                 textTransform: 'uppercase', 
                                 letterSpacing: '0.02em', 
@@ -1172,17 +1172,17 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
               maxWidth: '450px',
               padding: '30px',
               borderRadius: '16px',
-              border: '1px solid rgba(201, 168, 76, 0.4)',
+              border: '1px solid rgba(157, 39, 6, 0.4)',
               background: 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(16px)',
               boxShadow: '0 24px 48px -12px rgba(0, 0, 0, 0.18)'
             }}>
               <button className="account-modal-close" onClick={() => setShowFeedbackModal(false)} style={{ color: '#78716c' }}><X size={20} /></button>
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <div style={{ display: 'inline-flex', padding: '10px', borderRadius: '50%', background: 'rgba(201, 168, 76, 0.1)', marginBottom: '12px' }}>
-                  <Star size={32} fill="#C9A84C" color="#C9A84C" />
+                <div style={{ display: 'inline-flex', padding: '10px', borderRadius: '50%', background: 'rgba(157, 39, 6, 0.1)', marginBottom: '12px' }}>
+                  <Star size={32} fill="#9d2706" color="#9d2706" />
                 </div>
-                <h3 style={{ margin: 0, fontFamily: 'Montserrat, sans-serif', fontSize: '1.25rem', color: '#1c1917', fontWeight: 700 }}>Rate Your BYOND Shoes</h3>
+                <h3 style={{ margin: 0, fontFamily: 'Montserrat, sans-serif', fontSize: '1.25rem', color: '#1c1917', fontWeight: 700 }}>Rate Your Cobblyn Shoes</h3>
                 <p style={{ margin: '6px 0 0 0', fontSize: '0.8rem', color: '#78716c', lineHeight: 1.4 }}>
                   Your feedback helps our master craftsmen continuously refine their bespoke art.
                 </p>
@@ -1205,8 +1205,8 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
                   >
                     <Star
                       size={36}
-                      fill={star <= feedbackRating ? "#C9A84C" : "transparent"}
-                      color={star <= feedbackRating ? "#C9A84C" : "#d6d3d1"}
+                      fill={star <= feedbackRating ? "#9d2706" : "transparent"}
+                      color={star <= feedbackRating ? "#9d2706" : "#d6d3d1"}
                       strokeWidth={2}
                     />
                   </button>
@@ -1234,7 +1234,7 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
                     transition: 'border-color 0.2s ease',
                     fontFamily: 'inherit'
                   }}
-                  onFocus={e => e.target.style.borderColor = '#C9A84C'}
+                  onFocus={e => e.target.style.borderColor = '#9d2706'}
                   onBlur={e => e.target.style.borderColor = '#d6d3d1'}
                 />
               </div>
@@ -1300,9 +1300,9 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
                       fontWeight: 700,
                       textTransform: 'uppercase',
                       letterSpacing: '0.02em',
-                      background: isOrderCustom ? 'rgba(201, 168, 76, 0.12)' : 'rgba(16, 185, 129, 0.12)',
-                      border: isOrderCustom ? '1px solid rgba(201, 168, 76, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
-                      color: isOrderCustom ? '#C9A84C' : '#10B981',
+                      background: isOrderCustom ? 'rgba(157, 39, 6, 0.12)' : 'rgba(16, 185, 129, 0.12)',
+                      border: isOrderCustom ? '1px solid rgba(157, 39, 6, 0.3)' : '1px solid rgba(16, 185, 129, 0.3)',
+                      color: isOrderCustom ? '#9d2706' : '#10B981',
                       display: 'inline-flex',
                       alignItems: 'center'
                     }}>
@@ -1327,25 +1327,25 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
                   {order.customer_feedback ? (
                     <span style={{
                       fontSize: '0.68rem',
-                      color: '#C9A84C',
+                      color: '#9d2706',
                       fontWeight: 700,
                       display: 'flex',
                       alignItems: 'center',
                       gap: '3px',
-                      border: '1px solid rgba(201, 168, 76, 0.2)',
+                      border: '1px solid rgba(157, 39, 6, 0.2)',
                       padding: '5px 10px',
                       borderRadius: '4px',
-                      background: 'rgba(201, 168, 76, 0.04)',
+                      background: 'rgba(157, 39, 6, 0.04)',
                       marginLeft: 'auto'
                     }}>
-                      <Star size={12} fill="#C9A84C" color="#C9A84C" /> {order.customer_feedback.rating} / 5
+                      <Star size={12} fill="#9d2706" color="#9d2706" /> {order.customer_feedback.rating} / 5
                     </span>
                   ) : (
                     <button onClick={() => openFeedbackModal(order)} style={{
                       marginLeft: 'auto',
                       background: 'transparent',
-                      border: '1px solid #C9A84C',
-                      color: '#C9A84C',
+                      border: '1px solid #9d2706',
+                      color: '#9d2706',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '4px',
@@ -1382,17 +1382,17 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
             maxWidth: '450px',
             padding: '30px',
             borderRadius: '16px',
-            border: '1px solid rgba(201, 168, 76, 0.4)',
+            border: '1px solid rgba(157, 39, 6, 0.4)',
             background: 'rgba(255, 255, 255, 0.95)',
             backdropFilter: 'blur(16px)',
             boxShadow: '0 24px 48px -12px rgba(0, 0, 0, 0.18)'
           }}>
             <button className="account-modal-close" onClick={() => setShowFeedbackModal(false)} style={{ color: '#78716c' }}><X size={20} /></button>
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <div style={{ display: 'inline-flex', padding: '10px', borderRadius: '50%', background: 'rgba(201, 168, 76, 0.1)', marginBottom: '12px' }}>
-                <Star size={32} fill="#C9A84C" color="#C9A84C" />
+              <div style={{ display: 'inline-flex', padding: '10px', borderRadius: '50%', background: 'rgba(157, 39, 6, 0.1)', marginBottom: '12px' }}>
+                <Star size={32} fill="#9d2706" color="#9d2706" />
               </div>
-              <h3 style={{ margin: 0, fontFamily: 'Montserrat, sans-serif', fontSize: '1.25rem', color: '#1c1917', fontWeight: 700 }}>Rate Your BYOND Shoes</h3>
+              <h3 style={{ margin: 0, fontFamily: 'Montserrat, sans-serif', fontSize: '1.25rem', color: '#1c1917', fontWeight: 700 }}>Rate Your Cobblyn Shoes</h3>
               <p style={{ margin: '6px 0 0 0', fontSize: '0.8rem', color: '#78716c', lineHeight: 1.4 }}>
                 Your feedback helps our master craftsmen continuously refine their bespoke art.
               </p>
@@ -1415,8 +1415,8 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
                 >
                   <Star
                     size={36}
-                    fill={star <= feedbackRating ? "#C9A84C" : "transparent"}
-                    color={star <= feedbackRating ? "#C9A84C" : "#d6d3d1"}
+                    fill={star <= feedbackRating ? "#9d2706" : "transparent"}
+                    color={star <= feedbackRating ? "#9d2706" : "#d6d3d1"}
                     strokeWidth={2}
                   />
                 </button>
@@ -1444,7 +1444,7 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
                   transition: 'border-color 0.2s ease',
                   fontFamily: 'inherit'
                 }}
-                onFocus={e => e.target.style.borderColor = '#C9A84C'}
+                onFocus={e => e.target.style.borderColor = '#9d2706'}
                 onBlur={e => e.target.style.borderColor = '#d6d3d1'}
               />
             </div>
@@ -1493,7 +1493,7 @@ const InvoiceView = ({ invoice }) => {
     <div className="invoice-container" data-testid="invoice-view">
       <div className="invoice-header">
         <div className="invoice-brand">
-          <h2>BY<span style={{ color: '#C9A84C' }}>O</span>ND</h2>
+          <h2>BY<span style={{ color: '#9d2706' }}>O</span>ND</h2>
           <p>{invoice.company?.name}</p>
           <p className="invoice-small">{invoice.company?.address}</p>
           <p className="invoice-small">GSTIN: {invoice.company?.gstin}</p>
@@ -1547,7 +1547,7 @@ const InvoiceView = ({ invoice }) => {
 
       <div className="invoice-footer">
         <p>Payment Method: {invoice.payment_method?.toUpperCase()}</p>
-        <p className="invoice-small">Thank you for shopping with BYOND. For queries, contact {invoice.company?.email}</p>
+        <p className="invoice-small">Thank you for shopping with Cobblyn. For queries, contact {invoice.company?.email}</p>
         <button className="account-btn-primary invoice-print-btn" onClick={handlePrint} data-testid="print-invoice-btn">Print Invoice</button>
       </div>
     </div>
@@ -1570,7 +1570,7 @@ const WishlistTab = () => {
     try {
       await api.removeFromWishlist(productId);
       setItems(prev => prev.filter(i => i.product_id !== productId));
-      window.dispatchEvent(new Event('byond-wishlist-update'));
+      window.dispatchEvent(new Event('cobblyn-wishlist-update'));
     } catch {}
   };
 
@@ -1584,8 +1584,8 @@ const WishlistTab = () => {
         quantity: 1,
       });
       setItems(prev => prev.filter(i => i.product_id !== item.product_id));
-      window.dispatchEvent(new Event('byond-cart-update'));
-      window.dispatchEvent(new Event('byond-wishlist-update'));
+      window.dispatchEvent(new Event('cobblyn-cart-update'));
+      window.dispatchEvent(new Event('cobblyn-wishlist-update'));
     } catch (err) {
       alert('Failed to move to cart: ' + err.message);
     }
@@ -1793,8 +1793,8 @@ const VisitsTab = () => {
             border: 'none',
             fontSize: '0.78rem',
             fontWeight: 600,
-            color: tabMode === 'list' ? '#C9A84C' : '#6b7280',
-            borderBottom: tabMode === 'list' ? '2px solid #C9A84C' : 'none',
+            color: tabMode === 'list' ? '#9d2706' : '#6b7280',
+            borderBottom: tabMode === 'list' ? '2px solid #9d2706' : 'none',
             paddingBottom: '8px',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -1812,8 +1812,8 @@ const VisitsTab = () => {
             border: 'none',
             fontSize: '0.78rem',
             fontWeight: 600,
-            color: tabMode === 'book' ? '#C9A84C' : '#6b7280',
-            borderBottom: tabMode === 'book' ? '2px solid #C9A84C' : 'none',
+            color: tabMode === 'book' ? '#9d2706' : '#6b7280',
+            borderBottom: tabMode === 'book' ? '2px solid #9d2706' : 'none',
             paddingBottom: '8px',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -1874,10 +1874,10 @@ const VisitsTab = () => {
       )}
 
       {tabMode === 'book' && (
-        <div style={{ background: '#FAF9F6', border: '1px solid #C9A84C', borderRadius: '12px', padding: '24px', maxWidth: '640px', margin: '0 auto' }}>
+        <div style={{ background: '#FAF9F6', border: '1px solid #9d2706', borderRadius: '12px', padding: '24px', maxWidth: '640px', margin: '0 auto' }}>
           {submitted ? (
             <div style={{textAlign:'center', padding:'40px 0'}}>
-              <div style={{fontSize:56, color:'#C9A84C', marginBottom:16}}>&#10003;</div>
+              <div style={{fontSize:56, color:'#9d2706', marginBottom:16}}>&#10003;</div>
               <h3 style={{fontFamily:"'Playfair Display', serif", fontSize:'1.3rem', marginBottom:8}}>Visit Scheduled!</h3>
               <p style={{fontSize:'0.82rem', color:'var(--mid-grey)', marginBottom:24}}>Our representative will call you within 24 hours to confirm the date, time, and your address.</p>
               <button className="account-btn-primary" onClick={() => { setTabMode('list'); setSubmitted(false); }} style={{ margin: '0 auto' }}>View My Visits</button>
@@ -1899,7 +1899,7 @@ const VisitsTab = () => {
                   <label>Choose Style *</label>
                   <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
                     {visitStyleOptions.map(s => (
-                      <button key={s} type="button" style={{padding:'6px 14px',fontSize:'0.68rem',fontWeight:500,letterSpacing:'0.05em',border:formData.style===s?'2px solid #C9A84C':'1px solid #ddd',background:formData.style===s?'rgba(201,168,76,0.08)':'#fff',color:formData.style===s?'#C9A84C':'#555',borderRadius:20,cursor:'pointer',fontFamily:"'Montserrat', sans-serif",transition:'all 0.2s'}} onClick={() => handleChange('style', s)}>{s}</button>
+                      <button key={s} type="button" style={{padding:'6px 14px',fontSize:'0.68rem',fontWeight:500,letterSpacing:'0.05em',border:formData.style===s?'2px solid #9d2706':'1px solid #ddd',background:formData.style===s?'rgba(157,39,6,0.08)':'#fff',color:formData.style===s?'#9d2706':'#555',borderRadius:20,cursor:'pointer',fontFamily:"'Montserrat', sans-serif",transition:'all 0.2s'}} onClick={() => handleChange('style', s)}>{s}</button>
                     ))}
                   </div>
                 </div>
@@ -1997,7 +1997,7 @@ const CustomOrdersTab = () => {
 
     // 2. Fetch saved designs from localStorage
     if (typeof window !== 'undefined' && user) {
-      const key = `byond_saved_designs_${user.email || 'global'}`;
+      const key = `cobblyn_saved_designs_${user.email || 'global'}`;
       const saved = JSON.parse(localStorage.getItem(key) || '[]');
       setSavedDesigns(saved);
     }
@@ -2057,7 +2057,7 @@ const CustomOrdersTab = () => {
       {/* Saved Bespoke Designs Section */}
       <div style={{ marginTop: '30px', borderTop: '1px solid #e7e5e4', paddingTop: '24px' }}>
         <h4 style={{ fontFamily: 'Montserrat, sans-serif', fontSize: '0.85rem', color: '#1c1917', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Palette size={16} color="#C9A84C" /> My Saved Bespoke Designs
+          <Palette size={16} color="#9d2706" /> My Saved Bespoke Designs
         </h4>
         
         {savedDesigns.length === 0 ? (
@@ -2068,7 +2068,7 @@ const CustomOrdersTab = () => {
               <div key={design.id} className="order-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#C9A84C', letterSpacing: '0.05em' }}>{design.id}</span>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#9d2706', letterSpacing: '0.05em' }}>{design.id}</span>
                     <span style={{ fontSize: '0.62rem', color: '#78716c' }}>{design.date}</span>
                   </div>
                   
@@ -2096,7 +2096,7 @@ const CustomOrdersTab = () => {
                   </a>
                   <button 
                     onClick={() => {
-                      const key = `byond_saved_designs_${user.email || 'global'}`;
+                      const key = `cobblyn_saved_designs_${user.email || 'global'}`;
                       const filtered = savedDesigns.filter(d => d.id !== design.id);
                       localStorage.setItem(key, JSON.stringify(filtered));
                       setSavedDesigns(filtered);
@@ -2255,8 +2255,8 @@ const FitVaultTab = ({ setActiveTab }) => {
         }
         .foot-path.snug {
           transform: scale(0.93) translate(0, 0);
-          stroke: #C9A84C;
-          fill: rgba(201, 168, 76, 0.08);
+          stroke: #9d2706;
+          fill: rgba(157, 39, 6, 0.08);
         }
         .foot-path.relaxed {
           transform: scale(1.06) translate(0, 0);
@@ -2264,8 +2264,8 @@ const FitVaultTab = ({ setActiveTab }) => {
           fill: rgba(133, 77, 14, 0.08);
         }
         .foot-path.regular {
-          stroke: #C9A84C;
-          fill: rgba(201, 168, 76, 0.04);
+          stroke: #9d2706;
+          fill: rgba(157, 39, 6, 0.04);
         }
         .visualizer-svg {
           background: #111110;
@@ -2282,12 +2282,12 @@ const FitVaultTab = ({ setActiveTab }) => {
         }
         @keyframes pulse-gold {
           0% { r: 3px; opacity: 0.6; }
-          50% { r: 5.5px; opacity: 1; fill: #C9A84C; }
+          50% { r: 5.5px; opacity: 1; fill: #9d2706; }
           100% { r: 3px; opacity: 0.6; }
         }
         .atelier-banner {
-          background: rgba(201, 168, 76, 0.08);
-          border: 1px solid rgba(201, 168, 76, 0.3);
+          background: rgba(157, 39, 6, 0.08);
+          border: 1px solid rgba(157, 39, 6, 0.3);
           border-radius: 8px;
           padding: 16px;
           margin-bottom: 24px;
@@ -2360,7 +2360,7 @@ const FitVaultTab = ({ setActiveTab }) => {
       `}</style>
 
       <div className="fit-vault-header">
-        <h3><Sparkles size={20} color="#C9A84C" /> Bespoke Fit Vault</h3>
+        <h3><Sparkles size={20} color="#9d2706" /> Bespoke Fit Vault</h3>
         <span style={{ fontSize: '0.75rem', color: '#78716c', background: '#f4f4f5', padding: '4px 10px', borderRadius: 20, fontWeight: 500 }}>
           Client Tier: {profile ? 'Elite Sizing' : 'Default Parameters'}
         </span>
@@ -2368,7 +2368,7 @@ const FitVaultTab = ({ setActiveTab }) => {
 
       {isDemo && (
         <div className="atelier-banner">
-          <Activity size={24} color="#C9A84C" style={{ flexShrink: 0 }} />
+          <Activity size={24} color="#9d2706" style={{ flexShrink: 0 }} />
           <div className="atelier-banner-content">
             <h5>Demo Preview Mode</h5>
             <p>You do not have a 3D LiDAR Podiatric scan on file. Displaying standard craft metrics. Book an atelier artisan session to lock in your custom footbed contour.</p>
@@ -2404,19 +2404,19 @@ const FitVaultTab = ({ setActiveTab }) => {
                 className={`foot-path ${fitPref}`}
                 strokeWidth="1.5"
               />
-              <ellipse cx="104" cy="35" rx="8" ry="10" fill="rgba(201, 168, 76, 0.4)" />
-              <ellipse cx="118" cy="38" rx="5.5" ry="7" fill="rgba(201, 168, 76, 0.3)" />
-              <ellipse cx="128" cy="45" rx="4.5" ry="6" fill="rgba(201, 168, 76, 0.25)" />
-              <ellipse cx="137" cy="54" rx="3.5" ry="5" fill="rgba(201, 168, 76, 0.2)" />
-              <ellipse cx="144" cy="65" rx="2.5" ry="4" fill="rgba(201, 168, 76, 0.15)" />
+              <ellipse cx="104" cy="35" rx="8" ry="10" fill="rgba(157, 39, 6, 0.4)" />
+              <ellipse cx="118" cy="38" rx="5.5" ry="7" fill="rgba(157, 39, 6, 0.3)" />
+              <ellipse cx="128" cy="45" rx="4.5" ry="6" fill="rgba(157, 39, 6, 0.25)" />
+              <ellipse cx="137" cy="54" rx="3.5" ry="5" fill="rgba(157, 39, 6, 0.2)" />
+              <ellipse cx="144" cy="65" rx="2.5" ry="4" fill="rgba(157, 39, 6, 0.15)" />
               
               {/* Width dimension line */}
               <line x1="74" y1="120" x2="130" y2="120" stroke="rgba(255,255,255,0.25)" strokeDasharray="3,3" />
-              <text x="102" y="115" fill="#C9A84C" fontSize="8" textAnchor="middle" fontFamily="monospace">{activeProfile.foot_width_left || '98'}mm</text>
+              <text x="102" y="115" fill="#9d2706" fontSize="8" textAnchor="middle" fontFamily="monospace">{activeProfile.foot_width_left || '98'}mm</text>
               
               {/* Length dimension line */}
               <line x1="110" y1="250" x2="110" y2="35" stroke="rgba(255,255,255,0.25)" strokeDasharray="3,3" />
-              <text x="95" y="150" fill="#C9A84C" fontSize="8" textAnchor="end" fontFamily="monospace" transform="rotate(-90 95 150)">{activeProfile.foot_length_left || '274'}mm</text>
+              <text x="95" y="150" fill="#9d2706" fontSize="8" textAnchor="end" fontFamily="monospace" transform="rotate(-90 95 150)">{activeProfile.foot_length_left || '274'}mm</text>
               
               {/* Glowing checkpoints */}
               <circle cx="110" cy="250" r="3.5" className="glowing-vertex" />
@@ -2430,19 +2430,19 @@ const FitVaultTab = ({ setActiveTab }) => {
                 className={`foot-path ${fitPref}`}
                 strokeWidth="1.5"
               />
-              <ellipse cx="256" cy="35" rx="8" ry="10" fill="rgba(201, 168, 76, 0.4)" />
-              <ellipse cx="242" cy="38" rx="5.5" ry="7" fill="rgba(201, 168, 76, 0.3)" />
-              <ellipse cx="232" cy="45" rx="4.5" ry="6" fill="rgba(201, 168, 76, 0.25)" />
-              <ellipse cx="223" cy="54" rx="3.5" ry="5" fill="rgba(201, 168, 76, 0.2)" />
-              <ellipse cx="216" cy="65" rx="2.5" ry="4" fill="rgba(201, 168, 76, 0.15)" />
+              <ellipse cx="256" cy="35" rx="8" ry="10" fill="rgba(157, 39, 6, 0.4)" />
+              <ellipse cx="242" cy="38" rx="5.5" ry="7" fill="rgba(157, 39, 6, 0.3)" />
+              <ellipse cx="232" cy="45" rx="4.5" ry="6" fill="rgba(157, 39, 6, 0.25)" />
+              <ellipse cx="223" cy="54" rx="3.5" ry="5" fill="rgba(157, 39, 6, 0.2)" />
+              <ellipse cx="216" cy="65" rx="2.5" ry="4" fill="rgba(157, 39, 6, 0.15)" />
               
               {/* Width dimension line */}
               <line x1="228" y1="120" x2="284" y2="120" stroke="rgba(255,255,255,0.25)" strokeDasharray="3,3" />
-              <text x="256" y="115" fill="#C9A84C" fontSize="8" textAnchor="middle" fontFamily="monospace">{activeProfile.foot_width_right || '97'}mm</text>
+              <text x="256" y="115" fill="#9d2706" fontSize="8" textAnchor="middle" fontFamily="monospace">{activeProfile.foot_width_right || '97'}mm</text>
               
               {/* Length dimension line */}
               <line x1="250" y1="250" x2="250" y2="35" stroke="rgba(255,255,255,0.25)" strokeDasharray="3,3" />
-              <text x="268" y="150" fill="#C9A84C" fontSize="8" textAnchor="start" fontFamily="monospace" transform="rotate(90 268 150)">{activeProfile.foot_length_right || '273'}mm</text>
+              <text x="268" y="150" fill="#9d2706" fontSize="8" textAnchor="start" fontFamily="monospace" transform="rotate(90 268 150)">{activeProfile.foot_length_right || '273'}mm</text>
 
               <circle cx="250" cy="250" r="3.5" className="glowing-vertex" />
               <circle cx="256" cy="35" r="3.5" className="glowing-vertex" />
@@ -2469,10 +2469,10 @@ const FitVaultTab = ({ setActiveTab }) => {
               <path 
                 d="M 60,160 C 95,110 185,110 220,160" 
                 fill="none" 
-                stroke="#C9A84C" 
+                stroke="#9d2706" 
                 strokeWidth="4" 
                 className="arch-path"
-                style={{ filter: 'drop-shadow(0 0 5px rgba(201,168,76,0.6))' }}
+                style={{ filter: 'drop-shadow(0 0 5px rgba(157,39,6,0.6))' }}
               />
             )}
             {archType === 'medium' && (
@@ -2496,7 +2496,7 @@ const FitVaultTab = ({ setActiveTab }) => {
             
             <line x1="30" y1="160" x2="285" y2="160" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
             
-            <text x="140" y="180" fill="#C9A84C" fontSize="10" fontWeight="500" letterSpacing="0.05em" textAnchor="middle" fontFamily="sans-serif">
+            <text x="140" y="180" fill="#9d2706" fontSize="10" fontWeight="500" letterSpacing="0.05em" textAnchor="middle" fontFamily="sans-serif">
               {archType.toUpperCase()} ARCH DETECTED
             </text>
 
@@ -2537,7 +2537,7 @@ const FitVaultTab = ({ setActiveTab }) => {
       {(activeProfile.heatmap_image || activeProfile.arch_imprint_image) && (
         <div className="fit-form-card" style={{ marginBottom: 24 }}>
           <h4 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', color: '#1c1917', margin: '0 0 8px 0', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Activity size={18} color="#C9A84C" /> Atelier Podiatric Physical Imprints
+            <Activity size={18} color="#9d2706" /> Atelier Podiatric Physical Imprints
           </h4>
           <p style={{ fontSize: '0.78rem', color: '#78716c', margin: '0 0 20px 0', lineHeight: 1.5 }}>
             Physical foot scans captured during your in-store or custom offline sizing visit. These high-resolution anatomical mappings calibrate our bespoke welting blocks.
@@ -2548,9 +2548,9 @@ const FitVaultTab = ({ setActiveTab }) => {
                 <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
                   Aramed Footbed Pressure Heatmap
                 </span>
-                <div style={{ width: '100%', height: 200, background: '#111', borderRadius: 8, overflow: 'hidden', border: '1.5px solid #C9A84C', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                <div style={{ width: '100%', height: 200, background: '#111', borderRadius: 8, overflow: 'hidden', border: '1.5px solid #9d2706', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
                   <img src={activeProfile.heatmap_image} alt="Bespoke Heatmap Scan" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 2, background: 'rgba(201, 168, 76, 0.85)', boxShadow: '0 0 8px #C9A84C', animation: 'scannerSweep 4s infinite linear' }}></div>
+                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 2, background: 'rgba(157, 39, 6, 0.85)', boxShadow: '0 0 8px #9d2706', animation: 'scannerSweep 4s infinite linear' }}></div>
                 </div>
               </div>
             )}
@@ -2559,9 +2559,9 @@ const FitVaultTab = ({ setActiveTab }) => {
                 <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 }}>
                   Foam Box Arch Profile Contour
                 </span>
-                <div style={{ width: '100%', height: 200, background: '#111', borderRadius: 8, overflow: 'hidden', border: '1.5px solid #C9A84C', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                <div style={{ width: '100%', height: 200, background: '#111', borderRadius: 8, overflow: 'hidden', border: '1.5px solid #9d2706', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
                   <img src={activeProfile.arch_imprint_image} alt="Foam Box Arch Imprint" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 2, background: 'rgba(201, 168, 76, 0.85)', boxShadow: '0 0 8px #C9A84C', animation: 'scannerSweep 4s infinite linear' }}></div>
+                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 2, background: 'rgba(157, 39, 6, 0.85)', boxShadow: '0 0 8px #9d2706', animation: 'scannerSweep 4s infinite linear' }}></div>
                 </div>
               </div>
             )}
@@ -2918,13 +2918,13 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
           font-family: inherit;
         }
         .ticket-item-btn:hover {
-          border-color: #C9A84C;
+          border-color: #9d2706;
           background: #fdfcfa;
         }
         .ticket-item-btn.active {
           background: #faf6eb;
-          border-color: #C9A84C;
-          box-shadow: 0 0 10px rgba(201,168,76,0.1);
+          border-color: #9d2706;
+          box-shadow: 0 0 10px rgba(157,39,6,0.1);
         }
         .ticket-item-header {
           display: flex;
@@ -3058,7 +3058,7 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
           height: 36px;
         }
         .chat-input:focus {
-          border-color: #C9A84C;
+          border-color: #9d2706;
         }
         .predefined-grid {
           display: grid;
@@ -3089,7 +3089,7 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
           min-height: 64px;
         }
         .predefined-card:hover {
-          border-color: #C9A84C;
+          border-color: #9d2706;
           background: #fdfcfa;
           transform: translateY(-2px);
           box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
@@ -3111,11 +3111,11 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
         /* Interactive Proposal Draft Card */
         .proposal-draft-card {
           background: #fffbeb;
-          border: 1.5px solid #C9A84C;
+          border: 1.5px solid #9d2706;
           border-radius: 10px;
           padding: 14px;
           margin-bottom: 12px;
-          box-shadow: 0 4px 12px rgba(201,168,76,0.12);
+          box-shadow: 0 4px 12px rgba(157,39,6,0.12);
         }
         .proposal-draft-title {
           font-family: 'Playfair Display', serif;
@@ -3226,7 +3226,7 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
               justifyContent: 'center',
               gap: 8,
               cursor: 'pointer',
-              background: showNewForm && !activeTicket ? '#C9A84C' : '#1a1a1a',
+              background: showNewForm && !activeTicket ? '#9d2706' : '#1a1a1a',
               color: '#fff',
               border: 'none',
               borderRadius: '8px',
@@ -3292,14 +3292,14 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
                 <div style={{
                   width: 40, height: 40,
                   borderRadius: '50%',
-                  background: 'rgba(201,168,76,0.15)',
-                  border: '2px solid #C9A84C',
+                  background: 'rgba(157,39,6,0.15)',
+                  border: '2px solid #9d2706',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '1.1rem',
                 }}>🎨</div>
                 <div>
                   <div style={{ color: '#fff', fontWeight: 700, fontSize: '0.85rem', fontFamily: 'Montserrat, sans-serif' }}>Atelier Support Desk</div>
-                  <div style={{ color: '#C9A84C', fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div style={{ color: '#9d2706', fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: 4 }}>
                     <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
                     Artisans online · usually replies within a few hours
                   </div>
@@ -3314,7 +3314,7 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
                   <div>
                     <div style={{ fontSize: '0.63rem', color: '#a8a29e', marginBottom: 4, fontWeight: 600 }}>Atelier Support</div>
                     <div style={{ background: '#fff', border: '1px solid #e7e5e4', borderRadius: '12px', borderBottomLeftRadius: 2, padding: '12px 16px', fontSize: '0.8rem', color: '#1c1917', lineHeight: 1.55, maxWidth: 380 }}>
-                      👋 Welcome to the <strong>Byond Studio Atelier Desk</strong>. How can our artisans assist you today?
+                      👋 Welcome to the <strong>Cobblyn Atelier Desk</strong>. How can our artisans assist you today?
                       <br /><br />
                       Select a topic below to get started, or raise a custom enquiry using the button on the left.
                     </div>
@@ -3348,7 +3348,7 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
                         width: '100%',
                         maxWidth: 420,
                       }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor = '#C9A84C'; e.currentTarget.style.background = '#fffbeb'; }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = '#9d2706'; e.currentTarget.style.background = '#fffbeb'; }}
                       onMouseLeave={e => { e.currentTarget.style.borderColor = '#e7e5e4'; e.currentTarget.style.background = '#fff'; }}
                     >
                       <span style={{ fontSize: '1rem', lineHeight: 1 }}>{q.title.split(' ')[0]}</span>
@@ -3356,7 +3356,7 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
                         <div style={{ fontSize: '0.78rem', fontWeight: 600, color: '#1c1917' }}>{q.title.split(' ').slice(1).join(' ')}</div>
                         <div style={{ fontSize: '0.65rem', color: '#78716c', marginTop: 1 }}>{q.desc}</div>
                       </div>
-                      <span style={{ color: '#C9A84C', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>→</span>
+                      <span style={{ color: '#9d2706', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>→</span>
                     </button>
                   ))}
                 </div>
@@ -3385,7 +3385,7 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
                   type="button"
                   onClick={() => { setShowNewForm(true); }}
                   style={{
-                    background: '#C9A84C', color: '#fff', border: 'none',
+                    background: '#9d2706', color: '#fff', border: 'none',
                     borderRadius: '8px', padding: '9px 16px',
                     fontSize: '0.75rem', fontWeight: 700,
                     cursor: 'pointer', whiteSpace: 'nowrap',
@@ -3427,7 +3427,7 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
                         display: 'flex', alignItems: 'center', gap: 5,
                         padding: '5px 10px',
                         background: subject === q.subject ? '#fffbeb' : '#f5f5f4',
-                        border: subject === q.subject ? '1.5px solid #C9A84C' : '1.5px solid #e7e5e4',
+                        border: subject === q.subject ? '1.5px solid #9d2706' : '1.5px solid #e7e5e4',
                         borderRadius: '20px',
                         fontSize: '0.7rem',
                         fontWeight: 600,
@@ -3485,7 +3485,7 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
                     id="update-order-checkbox"
                     checked={updateOrderRequest}
                     onChange={e => setUpdateOrderRequest(e.target.checked)}
-                    style={{ width: 14, height: 14, accentColor: '#C9A84C', cursor: 'pointer', marginTop: '4px' }}
+                    style={{ width: 14, height: 14, accentColor: '#9d2706', cursor: 'pointer', marginTop: '4px' }}
                   />
                   <label htmlFor="update-order-checkbox" style={{ fontSize: '0.72rem', fontWeight: 600, color: '#44403c', margin: 0, cursor: 'pointer' }}>
                     🚨 This is an order modification request (size, material, or sole change).
@@ -3548,7 +3548,7 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
                   <button
                     type="button"
                     onClick={() => { setActiveTicket(null); setSupportOrderContext(null); setShowNewForm(false); }}
-                    style={{ background: 'none', border: 'none', color: '#C9A84C', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', padding: 0 }}
+                    style={{ background: 'none', border: 'none', color: '#9d2706', fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer', padding: 0 }}
                   >
                     ← Back to Enquiries
                   </button>
@@ -3562,7 +3562,7 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
                 {activeTicket.proposed_modification_draft && (
                   <div className="proposal-draft-card" data-testid="proposal-draft-card">
                     <div className="proposal-draft-title">
-                      <Sparkles size={16} color="#C9A84C" />
+                      <Sparkles size={16} color="#9d2706" />
                       <span>Proposed Bespoke Details Upgrade</span>
                     </div>
                     
@@ -3634,7 +3634,7 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
                         <div style={{ display: 'flex', gap: 8 }}>
                           <button 
                             onClick={() => handleConfirmDraft(activeTicket.id)}
-                            style={{ padding: '6px 12px', background: '#C9A84C', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '0.66rem', fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 6px rgba(201,168,76,0.3)', marginTop: 0 }}
+                            style={{ padding: '6px 12px', background: '#9d2706', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '0.66rem', fontWeight: 700, cursor: 'pointer', boxShadow: '0 2px 6px rgba(157,39,6,0.3)', marginTop: 0 }}
                             data-testid="accept-draft-btn"
                           >
                             Accept Modifications
@@ -3713,7 +3713,7 @@ const SupportTab = ({ supportOrderContext, setSupportOrderContext }) => {
       {/* Luxury Accordion FAQs Section at the bottom */}
       <div className="faq-section">
         <h4 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.25rem', color: '#1c1917', margin: '0 0 16px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
-          <HelpCircle size={18} color="#C9A84C" /> Frequently Answered Inquiries
+          <HelpCircle size={18} color="#9d2706" /> Frequently Answered Inquiries
         </h4>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {FAQS.map((faq, idx) => (
@@ -3743,7 +3743,7 @@ const SavedDesignsTab = () => {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && user) {
-      const key = `byond_saved_designs_${user.email || 'global'}`;
+      const key = `cobblyn_saved_designs_${user.email || 'global'}`;
       const saved = JSON.parse(localStorage.getItem(key) || '[]');
       setDesigns(saved);
     }
@@ -3752,7 +3752,7 @@ const SavedDesignsTab = () => {
 
   const handleDelete = (id) => {
     if (typeof window !== 'undefined' && user) {
-      const key = `byond_saved_designs_${user.email || 'global'}`;
+      const key = `cobblyn_saved_designs_${user.email || 'global'}`;
       const filtered = designs.filter(d => d.id !== id);
       localStorage.setItem(key, JSON.stringify(filtered));
       setDesigns(filtered);
@@ -3783,7 +3783,7 @@ const SavedDesignsTab = () => {
       
       {designs.length === 0 ? (
         <div className="account-empty-orders" style={{ textAlign: 'center', padding: '48px 0' }}>
-          <Palette size={48} strokeWidth={1} style={{ color: '#C9A84C', margin: '0 auto 12px' }} />
+          <Palette size={48} strokeWidth={1} style={{ color: '#9d2706', margin: '0 auto 12px' }} />
           <p style={{ fontSize: '0.95rem', color: '#1c1917', fontWeight: 600 }}>Your Atelier Journal is empty.</p>
           <p style={{ fontSize: '0.8rem', color: 'var(--mid-grey)', marginTop: '4px', maxWidth: '320px', marginLeft: 'auto', marginRight: 'auto' }}>Create your bespoke masterpiece using our Customizer to save it here!</p>
           <Link href="/customize/men" className="account-btn-primary" style={{ textDecoration: 'none', marginTop: '16px', display: 'inline-block' }}>Design Your Shoe</Link>
@@ -3811,8 +3811,8 @@ const SavedDesignsTab = () => {
               <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                    <span style={{ fontSize: '0.62rem', color: '#C9A84C', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{d.date}</span>
-                    {d.monogram && <span style={{ fontSize: '0.65rem', background: 'rgba(201,168,76,0.1)', color: '#C9A84C', border: '1px solid rgba(201,168,76,0.2)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, letterSpacing: '0.05em' }}>[{d.monogram}]</span>}
+                    <span style={{ fontSize: '0.62rem', color: '#9d2706', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{d.date}</span>
+                    {d.monogram && <span style={{ fontSize: '0.65rem', background: 'rgba(157,39,6,0.1)', color: '#9d2706', border: '1px solid rgba(157,39,6,0.2)', padding: '2px 6px', borderRadius: '4px', fontWeight: 700, letterSpacing: '0.05em' }}>[{d.monogram}]</span>}
                   </div>
                   
                   <h4 style={{ margin: '0 0 10px 0', fontSize: '0.95rem', fontWeight: 700, color: '#1c1917' }}>{d.submodel}</h4>
@@ -3827,7 +3827,7 @@ const SavedDesignsTab = () => {
                 <div style={{ marginTop: '16px', display: 'flex', gap: '8px' }}>
                   <Link 
                     href={getConfigureLink(d)} 
-                    style={{ flex: 1, textDecoration: 'none', padding: '10px 12px', background: '#111', color: '#C9A84C', border: '1px solid #C9A84C', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer' }}
+                    style={{ flex: 1, textDecoration: 'none', padding: '10px 12px', background: '#111', color: '#9d2706', border: '1px solid #9d2706', borderRadius: '6px', fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', cursor: 'pointer' }}
                   >
                     <Sparkles size={12} /> Customize
                   </Link>

@@ -123,7 +123,7 @@ export default function ResetPassword() {
 
             <h2 className="auth-form-title">Set a new password</h2>
             <p className="auth-form-sub">
-              Choose a strong password for your Byond Studio account.
+              Choose a strong password for your Cobblyn account.
             </p>
 
             {/* Success state */}

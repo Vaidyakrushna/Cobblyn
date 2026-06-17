@@ -17,10 +17,10 @@ def set_db(database):
 
 
 async def generate_referral_code(database) -> str:
-    """Generate a unique 6-character alphanumeric referral code prefixed with BYOND-."""
+    """Generate a unique 6-character alphanumeric referral code prefixed with COBBLYN-."""
     chars = string.ascii_uppercase + string.digits
     while True:
-        code = "BYOND-" + "".join(secrets.choice(chars) for _ in range(6))
+        code = "COBBLYN-" + "".join(secrets.choice(chars) for _ in range(6))
         existing = await database.users.find_one({"referral_code": code})
         if not existing:
             return code

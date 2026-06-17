@@ -98,7 +98,7 @@ export default function SizeGuidePage() {
             Size Guide
           </h1>
           <p className="sg-hero-sub">
-            BYOND uses UK sizing as standard. Use this guide to find your perfect fit across
+            Cobblyn uses UK sizing as standard. Use this guide to find your perfect fit across
             all international sizing systems — and learn how to measure your feet at home.
           </p>
         </div>
@@ -137,7 +137,7 @@ export default function SizeGuidePage() {
             <table className="sg-table" data-testid="sg-conversion-table">
               <thead>
                 <tr>
-                  <th>UK <span>(BYOND Default)</span></th>
+                  <th>UK <span>(Cobblyn Default)</span></th>
                   <th>US</th>
                   <th>EU</th>
                   <th>India</th>
@@ -160,7 +160,7 @@ export default function SizeGuidePage() {
 
           <div className="sg-chart-note">
             <Info size={14} />
-            <span>All BYOND products are labelled in UK sizes. When in doubt, measure your foot (see below).</span>
+            <span>All Cobblyn products are labelled in UK sizes. When in doubt, measure your foot (see below).</span>
           </div>
         </div>
       </section>

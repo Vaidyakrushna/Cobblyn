@@ -7,9 +7,9 @@ import uuid
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://bespoke-sole.preview.emergentagent.com").rstrip("/")
 API = f"{BASE_URL}/api"
 
-ADMIN_EMAIL = "admin@byond.com"
-ADMIN_PASSWORD = "Byond@2026"
-TEST_USER_EMAIL = "test@byond.com"
+ADMIN_EMAIL = "admin@cobblyn.com"
+ADMIN_PASSWORD = "Cobblyn@2026"
+TEST_USER_EMAIL = "test@cobblyn.com"
 TEST_USER_PASSWORD = "Test@1234"
 
 
@@ -173,7 +173,7 @@ class TestProduction:
 
     def test_create_worker(self, admin_session):
         unique = uuid.uuid4().hex[:8]
-        email = f"test_worker_{unique}@byond.com"
+        email = f"test_worker_{unique}@cobblyn.com"
         TestProduction.worker_email = email
         r = admin_session.post(
             f"{API}/admin/production/workers",

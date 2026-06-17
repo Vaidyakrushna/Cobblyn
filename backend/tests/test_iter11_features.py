@@ -12,8 +12,8 @@ import requests
 import pytest
 
 BASE_URL = "https://proto-enhance-1.preview.emergentagent.com".rstrip("/")
-ADMIN_EMAIL = "admin@byond.com"
-ADMIN_PASSWORD = "Byond@2026"
+ADMIN_EMAIL = "admin@cobblyn.com"
+ADMIN_PASSWORD = "Cobblyn@2026"
 
 # 1x1 PNG
 PNG_BYTES = (

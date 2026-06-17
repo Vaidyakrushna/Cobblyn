@@ -9,7 +9,7 @@
     "integration_issues": [],
     "design_issues": [
       {"screen": "next/image LCP perf", "issues": ["4 console warnings: 'Image with src ... was detected as the Largest Contentful Paint (LCP). Please add the priority property if this image is above the fold.' Recommend adding priority prop to first hero slide image and first PLP card image."]},
-      {"screen": "Home hero (carryover from iter8)", "issues": ["First hero slide may still show Nike-branded shoe -- trademark risk on luxury BYOND brand site (not re-verified in this iteration)."]}
+      {"screen": "Home hero (carryover from iter8)", "issues": ["First hero slide may still show Nike-branded shoe -- trademark risk on luxury Cobblyn brand site (not re-verified in this iteration)."]}
     ]
   },
   "test_report_links": [
@@ -30,10 +30,10 @@
     "/app/backend/tests/test_iter10_features.py (NEW - 17 tests, all pass)"
   ],
   "success_rate": {"backend": "100% (17/17)", "frontend": "100% on tested flows (admin login, AdminVisits CRUD, filter tabs, next/image rendering on home/men/women/PDP, sitemap.xml, robots.txt)"},
-  "test_credentials": "Admin admin@byond.com / Byond@2026 (works via UI and API).",
+  "test_credentials": "Admin admin@cobblyn.com / Cobblyn@2026 (works via UI and API).",
   "seed_data_creation": "Each PATCH/DELETE test creates+cleans a TEST_Iter10 visit. 11 visits exist in DB after this run (created across iter9+iter10).",
   "retest_needed": false,
   "main_agent_can_self_test": true,
-  "context_for_next_testing_agent": "All iter10 features verified end-to-end. Backend: run REACT_APP_BACKEND_URL=https://proto-enhance-1.preview.emergentagent.com pytest /app/backend/tests/test_iter10_features.py -v. AdminVisits page testids confirmed: admin-visits-page, admin-visits-table, visit-row-{id}, visit-status-select-{id}, visit-delete-{id}, confirm-delete-visit, visits-filter-{all|pending|confirmed|visited|cancelled}. PDP add-to-cart button testid is 'add-to-cart-button' (NOT 'add-to-cart' as some test specs say) -- inform main agent of this naming. The login flow blocker reported in iter9 is resolved (token persists in localStorage 'byond_token' after submit). Only minor perf warning is missing 'priority' prop on LCP next/image elements.",
+  "context_for_next_testing_agent": "All iter10 features verified end-to-end. Backend: run REACT_APP_BACKEND_URL=https://proto-enhance-1.preview.emergentagent.com pytest /app/backend/tests/test_iter10_features.py -v. AdminVisits page testids confirmed: admin-visits-page, admin-visits-table, visit-row-{id}, visit-status-select-{id}, visit-delete-{id}, confirm-delete-visit, visits-filter-{all|pending|confirmed|visited|cancelled}. PDP add-to-cart button testid is 'add-to-cart-button' (NOT 'add-to-cart' as some test specs say) -- inform main agent of this naming. The login flow blocker reported in iter9 is resolved (token persists in localStorage 'cobblyn_token' after submit). Only minor perf warning is missing 'priority' prop on LCP next/image elements.",
   "rca of the issue": "No issues to RCA -- all flows green."
 }

@@ -11,8 +11,8 @@ import pytest
 import requests
 
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://proto-enhance-1.preview.emergentagent.com").rstrip("/")
-ADMIN_EMAIL = "admin@byond.com"
-ADMIN_PASSWORD = "Byond@2026"
+ADMIN_EMAIL = "admin@cobblyn.com"
+ADMIN_PASSWORD = "Cobblyn@2026"
 
 
 @pytest.fixture(scope="module")
@@ -32,7 +32,7 @@ def admin_headers(admin_token):
 
 @pytest.fixture(scope="module")
 def user_token():
-    email = f"TEST_iter9_{int(time.time())}@byond.com"
+    email = f"TEST_iter9_{int(time.time())}@cobblyn.com"
     r = requests.post(f"{BASE_URL}/api/auth/register",
                       json={"email": email, "password": "Test@1234", "name": "Iter9 User"},
                       timeout=20)

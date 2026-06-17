@@ -9,11 +9,11 @@
   "frontend_issues": {
     "ui_bugs": [],
     "integration_issues": [
-      {"flow": "Admin login via UI on /login", "issue": "After filling admin@byond.com/Byond@2026 and clicking the Log In submit button, the page stayed on /login with cleared fields, blocking PDP cart-interstitial test, admin dashboard period filter test, admin products CRUD UI test, and admin inventory accessories filter test. Backend /api/auth/login returns 200 with token (verified via pytest). Likely a SPA state-handling / testid mismatch on submit, NOT a backend bug.", "affected_selectors": ["button Log In on /login", "[data-testid='admin-period-filter']", "[data-testid='add-to-cart-interstitial']", "[data-testid='admin-products-page']", "[data-testid='inv-category-accessories']"]}
+      {"flow": "Admin login via UI on /login", "issue": "After filling admin@cobblyn.com/Cobblyn@2026 and clicking the Log In submit button, the page stayed on /login with cleared fields, blocking PDP cart-interstitial test, admin dashboard period filter test, admin products CRUD UI test, and admin inventory accessories filter test. Backend /api/auth/login returns 200 with token (verified via pytest). Likely a SPA state-handling / testid mismatch on submit, NOT a backend bug.", "affected_selectors": ["button Log In on /login", "[data-testid='admin-period-filter']", "[data-testid='add-to-cart-interstitial']", "[data-testid='admin-products-page']", "[data-testid='inv-category-accessories']"]}
     ],
     "design_issues": [
       {"screen": "Schedule Visit form", "issues": ["Date input native picker accepts past dates only when typed but blocks via HTML5 min after blur — minor UX nit; FOR select has empty 'Select' placeholder option that needs explicit value selection."]},
-      {"screen": "Home hero (carryover from iter8)", "issues": ["First hero slide still shows a Nike-branded shoe — trademark risk on a luxury BYOND brand site."]}
+      {"screen": "Home hero (carryover from iter8)", "issues": ["First hero slide still shows a Nike-branded shoe — trademark risk on a luxury Cobblyn brand site."]}
     ]
   },
   "test_report_links": [
@@ -36,7 +36,7 @@
     "/app/backend/tests/test_iter9_features.py (NEW - 18 tests, all pass)"
   ],
   "success_rate": {"backend": "100% (18/18 new tests + 64/64 prior suite still passing)", "frontend": "Verified: SSR SEO 6/6 routes, Schedule Visit submit. Blocked: 4 admin/PDP UI flows due to login UI session issue."},
-  "test_credentials": "Admin admin@byond.com / Byond@2026 (works via API). Test user generated per-test with TEST_iter9_<ts>@byond.com.",
+  "test_credentials": "Admin admin@cobblyn.com / Cobblyn@2026 (works via API). Test user generated per-test with TEST_iter9_<ts>@cobblyn.com.",
   "seed_data_creation": "Pytest creates one scheduled visit + one TEST_Iter9 product (cleaned up); admin token re-used across module.",
   "retest_needed": true,
   "main_agent_can_self_test": true,

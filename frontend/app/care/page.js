@@ -6,7 +6,7 @@ const careTips = [
   {
     icon: <Sparkles size={28} />,
     title: 'Daily Cleaning',
-    color: '#C9A84C',
+    color: '#9d2706',
     steps: [
       'Remove surface dust with a soft horsehair brush — always brush in one direction following the grain.',
       'Use a slightly damp cloth to wipe off any light marks or stains. Avoid soaking the leather.',
@@ -28,7 +28,7 @@ const careTips = [
   {
     icon: <Sun size={28} />,
     title: 'Polishing',
-    color: '#C9A84C',
+    color: '#9d2706',
     steps: [
       'Choose a wax-based polish that matches your shoe colour. Apply with a dauber brush.',
       'Use circular motions to work the polish into the leather, paying attention to any scuffs.',
@@ -50,7 +50,7 @@ const careTips = [
   {
     icon: <Shield size={28} />,
     title: 'Waterproofing',
-    color: '#C9A84C',
+    color: '#9d2706',
     steps: [
       'Apply a quality waterproofing spray designed for full-grain leather before first wear.',
       'Hold the spray 20–30 cm from the shoe and apply in an even coat.',
@@ -64,7 +64,7 @@ const careTips = [
     color: '#8B6914',
     steps: [
       'Always store in the provided dust bags to protect from scratches and dust.',
-      'Use your original BYOND box or a breathable shoe bag — avoid airtight plastic.',
+      'Use your original Cobblyn box or a breathable shoe bag — avoid airtight plastic.',
       'Insert cedar shoe trees to maintain shape and prevent creasing.',
       'Store away from direct light, heat, and humidity to prevent fading and cracking.',
     ],
@@ -128,7 +128,7 @@ export default function CarePage() {
             <em>Extraordinary</em>
           </h1>
           <p className="care-hero-sub">
-            A BYOND shoe is made to last decades, not seasons. With the right care, 
+            A Cobblyn shoe is made to last decades, not seasons. With the right care, 
             your pair will develop a character and patina that only improves with time.
           </p>
         </div>
@@ -150,7 +150,7 @@ export default function CarePage() {
             <p style={{ color: 'var(--dark-grey)', fontSize: '0.9rem', lineHeight: '1.85', marginBottom: '16px' }}>
               Full-grain leather is a living material — it breathes, ages, and responds to how 
               it is treated. Unlike synthetic materials, it does not wear out; it wears in. 
-              Given the right attention, a pair of BYOND shoes will outlast trends, seasons, 
+              Given the right attention, a pair of Cobblyn shoes will outlast trends, seasons, 
               and decades.
             </p>
             <p style={{ color: 'var(--dark-grey)', fontSize: '0.9rem', lineHeight: '1.85' }}>
@@ -180,7 +180,7 @@ export default function CarePage() {
           <div className="section-label">THE CARE GUIDE</div>
           <h2 className="section-title">Six Pillars of Shoe Care</h2>
           <p style={{ maxWidth: '520px', margin: '0 auto', color: 'var(--mid-grey)', fontSize: '0.88rem', lineHeight: '1.85' }}>
-            Follow these six practices and your BYOND shoes will thank you for years to come.
+            Follow these six practices and your Cobblyn shoes will thank you for years to come.
           </p>
         </div>
         <div className="care-guide-grid">
@@ -273,7 +273,7 @@ export default function CarePage() {
           We Restore, We Repair, We Resole
         </h2>
         <p style={{ color: 'var(--mid-grey)', fontSize: '0.9rem', maxWidth: '520px', margin: '0 auto 40px', lineHeight: '1.85' }}>
-          Sometimes your BYOND shoes deserve a professional touch. We offer comprehensive 
+          Sometimes your Cobblyn shoes deserve a professional touch. We offer comprehensive 
           restoration, deep cleaning, resoling, and leather repair services — because a 
           great shoe should last a lifetime.
         </p>

@@ -26,7 +26,7 @@ const OrderConfirmation = () => {
       <div className="order-success-banner">
         <CheckCircle2 size={56} />
         <h1 className="order-success-title">Order Placed Successfully</h1>
-        <p className="order-success-sub">Thank you for shopping with BYOND. Your order has been confirmed.</p>
+        <p className="order-success-sub">Thank you for shopping with Cobblyn. Your order has been confirmed.</p>
         <div className="order-id-badge" data-testid="order-id">Order ID: <strong>{orderId}</strong></div>
       </div>
 
@@ -126,7 +126,7 @@ const OrderConfirmation = () => {
 
         {/* Help Note */}
         <div className="order-help-note">
-          <p>Need help? Contact us at <a href="mailto:care@byond.in">care@byond.in</a> or call <a href="tel:+911234567890">+91 1234 567 890</a></p>
+          <p>Need help? Contact us at <a href="mailto:care@cobblyn.in">care@cobblyn.in</a> or call <a href="tel:+911234567890">+91 1234 567 890</a></p>
         </div>
       </div>
     </div>

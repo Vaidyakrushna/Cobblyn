@@ -73,7 +73,7 @@ export default function VerifyEmail() {
                 <span className="benefit-num">03</span>
                 <div>
                   <strong>Full Access</strong>
-                  <p>Once verified, enjoy complete access to your Byond Studio account</p>
+                  <p>Once verified, enjoy complete access to your Cobblyn account</p>
                 </div>
               </div>
             </div>

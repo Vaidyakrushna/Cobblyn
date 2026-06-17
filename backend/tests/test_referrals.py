@@ -14,10 +14,10 @@ load_dotenv(ROOT_DIR / '.env')
 
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "http://localhost:8000").rstrip("/")
 MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
-DB_NAME = os.environ.get("DB_NAME", "byond_shoes")
+DB_NAME = os.environ.get("DB_NAME", "cobblyn_shoes")
 
-ADMIN_EMAIL = "admin@byond.com"
-ADMIN_PASSWORD = "Byond@2026"
+ADMIN_EMAIL = "admin@cobblyn.com"
+ADMIN_PASSWORD = "Cobblyn@2026"
 
 
 def _login(email, password):
@@ -46,7 +46,7 @@ def admin_headers():
 def test_referrals_workflow(admin_headers):
     # 1. Register Referrer
     ref_suffix = uuid.uuid4().hex[:6]
-    referrer_email = f"referrer_{ref_suffix}@byond.com"
+    referrer_email = f"referrer_{ref_suffix}@cobblyn.com"
     referrer_password = "Test@1234"
     
     r_reg = requests.post(
@@ -72,11 +72,11 @@ def test_referrals_workflow(admin_headers):
     r_stats = requests.get(f"{BASE_URL}/api/referrals/stats", headers=referrer_headers, timeout=15)
     assert r_stats.status_code == 200
     referrer_code = r_stats.json()["referral_code"]
-    assert referrer_code.startswith("BYOND-")
+    assert referrer_code.startswith("COBBLYN-")
     
     # 3. Register Referee using Referrer's Code
     referee_suffix = uuid.uuid4().hex[:6]
-    referee_email = f"referee_{referee_suffix}@byond.com"
+    referee_email = f"referee_{referee_suffix}@cobblyn.com"
     referee_password = "Test@1234"
     
     r_ref_reg = requests.post(

@@ -193,7 +193,7 @@ export const accessoriesProducts = {
       colors: [{ name: 'Black', hex: '#0A0A0A' }, { name: 'Dark Brown', hex: '#3E2723' }, { name: 'Cognac', hex: '#9A4E1C' }],
       sizes: ['One Size'],
       specifications: { 'Card Slots': '6', 'Cash Compartments': '2', 'Dimensions': '11 × 9 cm (folded)', 'Material': 'Full-Grain Calf', 'Origin': 'Jaipur, India' },
-      features: ['6 card slots', 'Full-width cash compartments', 'Slim profile — no bulk', 'Develops a rich patina over time', 'Presented in BYOND gift box'],
+      features: ['6 card slots', 'Full-width cash compartments', 'Slim profile — no bulk', 'Develops a rich patina over time', 'Presented in Cobblyn gift box'],
     },
     {
       id: 'acc-wallet-002',
@@ -248,7 +248,7 @@ export const accessoriesProducts = {
       price: 3999,
       material: 'Full-Grain Calf Leather',
       tag: 'Travel Essential',
-      description: 'Designed for the modern traveller. Fits a passport, boarding cards, foreign currency, and up to eight cards. The definitive travel companion from the BYOND atelier.',
+      description: 'Designed for the modern traveller. Fits a passport, boarding cards, foreign currency, and up to eight cards. The definitive travel companion from the Cobblyn atelier.',
       images: [
         'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=85&fit=crop',
         'https://images.unsplash.com/photo-1627123424574-724758594e93?w=800&q=85&fit=crop',
@@ -364,13 +364,13 @@ export const accessoriesProducts = {
       price: 1499,
       material: 'Full-Grain Calf Leather',
       tag: 'Gift Favourite',
-      description: 'A personalised leather key ring with your initials embossed in gold. Presented in a BYOND gift box with a handwritten card — the perfect gift for the man who has everything.',
+      description: 'A personalised leather key ring with your initials embossed in gold. Presented in a Cobblyn gift box with a handwritten card — the perfect gift for the man who has everything.',
       images: [
         'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=85&fit=crop',
       ],
       colors: [{ name: 'Black', hex: '#0A0A0A' }, { name: 'Dark Brown', hex: '#3E2723' }, { name: 'Cognac', hex: '#9A4E1C' }],
       sizes: ['One Size'],
-      specifications: { 'Embossing': 'Gold Foil Monogram (up to 3 letters)', 'Ring': 'Solid Brass', 'Packaging': 'BYOND Gift Box', 'Origin': 'Jaipur, India' },
+      specifications: { 'Embossing': 'Gold Foil Monogram (up to 3 letters)', 'Ring': 'Solid Brass', 'Packaging': 'Cobblyn Gift Box', 'Origin': 'Jaipur, India' },
       features: ['Gold foil monogram embossing', 'Gift box and handwritten card included', 'Personalised on request', 'Full-grain leather'],
     },
     {
@@ -429,7 +429,7 @@ export const accessoriesProducts = {
       price: 1999,
       material: 'Waxed Canvas & Leather',
       tag: 'Most Essential',
-      description: 'Protect your BYOND shoes in transit with these structured drawstring bags. Waxed canvas keeps moisture out while the breathable weave lets the leather breathe. Set of two.',
+      description: 'Protect your Cobblyn shoes in transit with these structured drawstring bags. Waxed canvas keeps moisture out while the breathable weave lets the leather breathe. Set of two.',
       images: [
         'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=85&fit=crop',
         'https://images.unsplash.com/photo-1542621334-a254cf47733d?w=800&q=85&fit=crop',
@@ -437,7 +437,7 @@ export const accessoriesProducts = {
       colors: [{ name: 'Charcoal', hex: '#36454F' }, { name: 'Tan', hex: '#D2B48C' }],
       sizes: ['One Size'],
       specifications: { 'Material': 'Waxed Canvas', 'Closure': 'Leather Drawstring', 'Pair': '2 Bags', 'Fits': 'Up to UK 12', 'Origin': 'India' },
-      features: ['Waxed canvas — weather resistant', 'Leather drawstring closure', 'Breathable weave', 'Set of 2 bags', 'BYOND embossed'],
+      features: ['Waxed canvas — weather resistant', 'Leather drawstring closure', 'Breathable weave', 'Set of 2 bags', 'Cobblyn embossed'],
     },
     {
       id: 'acc-travel-003',
@@ -445,7 +445,7 @@ export const accessoriesProducts = {
       price: 899,
       material: 'Full-Grain Calf Leather',
       tag: '',
-      description: 'A slim, elegant luggage tag in full-grain leather. A window for your details card, a buckle strap, and an embossed BYOND logo — because even your luggage should make a statement.',
+      description: 'A slim, elegant luggage tag in full-grain leather. A window for your details card, a buckle strap, and an embossed Cobblyn logo — because even your luggage should make a statement.',
       images: [
         'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=85&fit=crop',
         'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=85&fit=crop',
@@ -453,7 +453,7 @@ export const accessoriesProducts = {
       colors: [{ name: 'Tan', hex: '#D2B48C' }, { name: 'Black', hex: '#0A0A0A' }, { name: 'Cognac', hex: '#9A4E1C' }],
       sizes: ['One Size'],
       specifications: { 'Dimensions': '12 × 8 cm', 'Window': 'Address card window', 'Strap': 'Buckle closure', 'Origin': 'Jaipur, India' },
-      features: ['Address card window', 'Brass buckle strap', 'BYOND embossed logo', 'Easy identification'],
+      features: ['Address card window', 'Brass buckle strap', 'Cobblyn embossed logo', 'Easy identification'],
     },
     {
       id: 'acc-travel-004',
@@ -495,15 +495,15 @@ export const accessoriesProducts = {
       price: 2999,
       material: 'Premium Care Essentials',
       tag: 'Bestseller',
-      description: 'Everything you need to maintain your BYOND shoes in pristine condition. Includes a horsehair brush, wax polish in black and brown, leather conditioner, and a polishing cloth — curated by our master craftsmen.',
+      description: 'Everything you need to maintain your Cobblyn shoes in pristine condition. Includes a horsehair brush, wax polish in black and brown, leather conditioner, and a polishing cloth — curated by our master craftsmen.',
       images: [
         'https://images.unsplash.com/photo-1542621334-a254cf47733d?w=800&q=85&fit=crop',
         'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&q=85&fit=crop',
       ],
-      colors: [{ name: 'Standard Kit', hex: '#C9A84C' }],
+      colors: [{ name: 'Standard Kit', hex: '#9d2706' }],
       sizes: ['One Size'],
-      specifications: { 'Contents': '5-piece Kit', 'Polish Colours': 'Black & Dark Brown', 'Brush': 'Horsehair', 'Conditioner': '100 ml', 'Packaging': 'BYOND Wooden Box' },
-      features: ['Premium horsehair brush', 'Two wax polish tins (Black + Dark Brown)', 'Natural leather conditioner', 'High-shine polishing cloth', 'Presented in BYOND wooden box'],
+      specifications: { 'Contents': '5-piece Kit', 'Polish Colours': 'Black & Dark Brown', 'Brush': 'Horsehair', 'Conditioner': '100 ml', 'Packaging': 'Cobblyn Wooden Box' },
+      features: ['Premium horsehair brush', 'Two wax polish tins (Black + Dark Brown)', 'Natural leather conditioner', 'High-shine polishing cloth', 'Presented in Cobblyn wooden box'],
     },
     {
       id: 'acc-care-002',
@@ -546,7 +546,7 @@ export const accessoriesProducts = {
       images: [
         'https://images.unsplash.com/photo-1542621334-a254cf47733d?w=800&q=85&fit=crop',
       ],
-      colors: [{ name: '150 ml Jar', hex: '#C9A84C' }],
+      colors: [{ name: '150 ml Jar', hex: '#9d2706' }],
       sizes: ['150 ml'],
       specifications: { 'Active Ingredients': 'Mink Oil, Lanolin, Beeswax', 'Volume': '150 ml', 'Application': 'Cloth or Brush', 'Suitable For': 'All Smooth & Waxed Leathers' },
       features: ['Natural mink oil and lanolin', 'Deeply penetrating formula', 'Prevents cracking and drying', 'Use every 4–6 weeks', 'Neutral — does not affect colour'],

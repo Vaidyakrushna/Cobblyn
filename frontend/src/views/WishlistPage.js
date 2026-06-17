@@ -28,7 +28,7 @@ const WishlistPage = () => {
     try {
       await api.removeFromWishlist(productId);
       setWishlistItems(prev => prev.filter(item => item.product_id !== productId));
-      window.dispatchEvent(new Event('byond-wishlist-update'));
+      window.dispatchEvent(new Event('cobblyn-wishlist-update'));
     } catch (err) { console.error(err); }
   };
 
@@ -42,8 +42,8 @@ const WishlistPage = () => {
         quantity: 1,
       });
       setWishlistItems(prev => prev.filter(i => i.product_id !== item.product_id));
-      window.dispatchEvent(new Event('byond-cart-update'));
-      window.dispatchEvent(new Event('byond-wishlist-update'));
+      window.dispatchEvent(new Event('cobblyn-cart-update'));
+      window.dispatchEvent(new Event('cobblyn-wishlist-update'));
     } catch (err) {
       alert('Failed to move to cart: ' + err.message);
     }

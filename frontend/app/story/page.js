@@ -18,13 +18,13 @@ const milestones = [
   {
     year: '2018',
     title: 'The Studio Opens',
-    description: 'BYOND officially opens its atelier with a team of five master craftsmen. The name — BYOND — reflects the founding belief that true luxury lies beyond the ordinary.',
+    description: 'Cobblyn officially opens its atelier with a team of five master craftsmen. The name — Cobblyn — reflects the founding belief that true luxury lies beyond the ordinary.',
     side: 'left',
   },
   {
     year: '2020',
     title: 'Digital Debut',
-    description: 'During the pandemic, BYOND launches its online platform — allowing customers across India to order bespoke shoes through a first-of-its-kind digital fitting experience.',
+    description: 'During the pandemic, Cobblyn launches its online platform — allowing customers across India to order bespoke shoes through a first-of-its-kind digital fitting experience.',
     side: 'right',
   },
   {
@@ -36,7 +36,7 @@ const milestones = [
   {
     year: '2024',
     title: 'A New Chapter',
-    description: 'BYOND expands with a customisation studio, a women\'s collection, and a new atelier space — continuing the journey of crafting footwear that tells a story.',
+    description: 'Cobblyn expands with a customisation studio, a women\'s collection, and a new atelier space — continuing the journey of crafting footwear that tells a story.',
     side: 'right',
   },
 ];
@@ -54,14 +54,14 @@ export default function StoryPage() {
             <em>the Ordinary</em>
           </h1>
           <p className="story-hero-sub">
-            BYOND was not built in a boardroom — it was built in a workshop, stitch by stitch, 
+            Cobblyn was not built in a boardroom — it was built in a workshop, stitch by stitch, 
             fuelled by a belief that India deserves handcrafted luxury that rivals the world's finest.
           </p>
         </div>
         <div className="story-hero-img">
           <img
             src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&q=85&fit=crop"
-            alt="BYOND founder"
+            alt="Cobblyn founder"
           />
           <div className="story-hero-img-overlay" />
         </div>
@@ -87,7 +87,7 @@ export default function StoryPage() {
             </p>
             <p className="story-text">
               He spent the next two years learning the craft — travelling between Florence, 
-              Córdoba, and rural Rajasthan — before returning to build BYOND from scratch.
+              Córdoba, and rural Rajasthan — before returning to build Cobblyn from scratch.
             </p>
           </div>
           <div className="story-founding-visual">
@@ -112,7 +112,7 @@ export default function StoryPage() {
           <div style={{ textAlign: 'center', marginBottom: '80px' }}>
             <div className="section-label">MILESTONES</div>
             <h2 className="section-title" style={{ color: 'var(--white)' }}>
-              The BYOND Journey
+              The Cobblyn Journey
             </h2>
           </div>
           <div className="story-timeline">
@@ -137,14 +137,14 @@ export default function StoryPage() {
           <div className="story-culture-img">
             <img
               src="https://images.unsplash.com/photo-1542621334-a254cf47733d?w=700&q=85&fit=crop"
-              alt="BYOND team culture"
+              alt="Cobblyn team culture"
             />
           </div>
           <div className="story-culture-content">
             <div className="section-label">OUR CULTURE</div>
             <h2 className="section-title">Craft Is Our Identity</h2>
             <p className="story-text">
-              At BYOND, culture isn't a corporate value statement — it's lived in the workshop 
+              At Cobblyn, culture isn't a corporate value statement — it's lived in the workshop 
               every day. It's the master craftsman who stops the line because a stitch is a 
               millimetre off. It's the designer who discards three leather samples before 
               finding the one with perfect character. It's the apprentice who spends a year 
@@ -168,7 +168,7 @@ export default function StoryPage() {
           <div className="section-label">CONTINUE THE STORY</div>
           <h2 className="story-cta-title">Your Next Chapter Starts Here</h2>
           <p className="story-cta-sub">
-            Every pair of BYOND shoes carries a piece of our story. 
+            Every pair of Cobblyn shoes carries a piece of our story. 
             Commission yours and become part of what we're building together.
           </p>
           <div className="story-cta-actions">

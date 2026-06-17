@@ -8,7 +8,7 @@ services:
     volumes:
       - mongodb_data:/data/db
     networks:
-      - byond_network
+      - cobblyn_network
 
   backend:
     build:
@@ -18,14 +18,14 @@ services:
       - "8000:8000"
     environment:
       - MONGO_URL=mongodb://mongodb:27017
-      - DB_NAME=byond_db
+      - DB_NAME=cobblyn_db
       - FRONTEND_URL=http://localhost:3000
-      - ADMIN_EMAIL=admin@byond.com
-      - ADMIN_PASSWORD=Byond@2026
+      - ADMIN_EMAIL=admin@cobblyn.com
+      - ADMIN_PASSWORD=Cobblyn@2026
     depends_on:
       - mongodb
     networks:
-      - byond_network
+      - cobblyn_network
 
   frontend:
     build:
@@ -38,10 +38,10 @@ services:
     depends_on:
       - backend
     networks:
-      - byond_network
+      - cobblyn_network
 
 volumes:
   mongodb_data:
 
 networks:
-  byond_network:
+  cobblyn_network:

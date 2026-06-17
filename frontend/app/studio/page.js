@@ -49,7 +49,7 @@ const values = [
   {
     icon: <Clock size={28} />,
     title: 'Unhurried Process',
-    description: 'A single pair of BYOND shoes takes 15–20 days to complete. We believe the finest things in life cannot be manufactured overnight.',
+    description: 'A single pair of Cobblyn shoes takes 15–20 days to complete. We believe the finest things in life cannot be manufactured overnight.',
   },
   {
     icon: <Heart size={28} />,
@@ -73,7 +73,7 @@ export default function StudioPage() {
         <div className="studio-hero-bg">
           <img
             src="https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=1600&q=85&fit=crop"
-            alt="BYOND Studio craftsman at work"
+            alt="Cobblyn craftsman at work"
           />
           <div className="studio-hero-overlay" />
         </div>
@@ -85,7 +85,7 @@ export default function StudioPage() {
             <em>Culture</em>
           </h1>
           <p className="studio-hero-sub">
-            Nestled in the heart of India, the BYOND studio is where the world's finest leathers 
+            Nestled in the heart of India, the Cobblyn studio is where the world's finest leathers 
             meet the hands of master craftsmen to become something extraordinary.
           </p>
         </div>
@@ -110,7 +110,7 @@ export default function StudioPage() {
               Craftsmanship Is Our Culture, Not Just Our Method
             </h2>
             <p className="studio-phil-text">
-              At BYOND, we believe a shoe is more than footwear — it is a statement of 
+              At Cobblyn, we believe a shoe is more than footwear — it is a statement of 
               identity, a celebration of craft, and a piece of art meant to be worn. Our 
               studio was founded on a single conviction: that the world needs more objects 
               made with genuine care and absolute mastery.
@@ -154,7 +154,7 @@ export default function StudioPage() {
               Six Stages of Perfection
             </h2>
             <p style={{ maxWidth: '560px', margin: '0 auto', color: 'var(--mid-grey)', fontSize: '0.9rem', lineHeight: '1.85' }}>
-              Every pair of BYOND shoes passes through six distinct stages — each one a 
+              Every pair of Cobblyn shoes passes through six distinct stages — each one a 
               testament to the patience and precision that defines our craft.
             </p>
           </div>
@@ -196,7 +196,7 @@ export default function StudioPage() {
               <div className="section-label" style={{ marginBottom: '4px' }}>VISIT THE ATELIER</div>
               <h2 className="studio-location-title">Our Studio Is Open By Appointment</h2>
               <p className="studio-location-desc">
-                We welcome clients who wish to experience the BYOND studio first-hand — 
+                We welcome clients who wish to experience the Cobblyn studio first-hand — 
                 to see the craft, feel the materials, and commission something truly personal.
               </p>
               <a href="/contact" className="btn-hero-primary" style={{ display: 'inline-block', marginTop: '24px', textDecoration: 'none' }}>
@@ -207,7 +207,7 @@ export default function StudioPage() {
           <div className="studio-location-img">
             <img
               src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=700&q=85&fit=crop"
-              alt="BYOND studio exterior"
+              alt="Cobblyn studio exterior"
             />
           </div>
         </div>

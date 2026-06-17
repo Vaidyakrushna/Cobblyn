@@ -12,7 +12,7 @@
 }
 
 .inv-summary-bar strong {
-  color: #C9A84C;
+  color: #9d2706;
   font-family: 'Playfair Display', serif;
   font-size: 1rem;
   margin-left: 4px;
@@ -160,7 +160,7 @@
 }
 
 .edit-size-controls button:hover {
-  border-color: #C9A84C;
+  border-color: #9d2706;
 }
 
 .edit-size-controls input {
@@ -182,7 +182,7 @@
 
 .inv-edit-total strong {
   font-size: 1.1rem;
-  color: #C9A84C;
+  color: #9d2706;
 }
 
 /* ====================================== */
@@ -358,8 +358,8 @@
 }
 
 .pj-actions button:hover {
-  border-color: #C9A84C;
-  color: #C9A84C;
+  border-color: #9d2706;
+  color: #9d2706;
 }
 
 /* ===== Job Detail View ===== */
@@ -466,14 +466,14 @@
 
 .wf-stage.in_progress .wf-indicator {
   background: #fff;
-  color: var(--stage-clr, #C9A84C);
-  border-color: var(--stage-clr, #C9A84C);
+  color: var(--stage-clr, #9d2706);
+  border-color: var(--stage-clr, #9d2706);
   animation: pulse-ring 1.5s ease infinite;
 }
 
 @keyframes pulse-ring {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.3); }
-  50% { box-shadow: 0 0 0 6px rgba(201, 168, 76, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(157, 39, 6, 0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(157, 39, 6, 0); }
 }
 
 .wf-connector {
@@ -511,7 +511,7 @@
 }
 
 .wf-stage.completed .wf-status { color: #10B981; }
-.wf-stage.in_progress .wf-status { color: #C9A84C; }
+.wf-stage.in_progress .wf-status { color: #9d2706; }
 
 .wf-time {
   font-size: 0.6rem;
@@ -627,7 +627,7 @@
   gap: 2px;
   padding: 10px 14px;
   background: #fafafa;
-  border-left: 3px solid #C9A84C;
+  border-left: 3px solid #9d2706;
 }
 
 .al-action {
@@ -708,7 +708,7 @@
   background: #1a1a1a;
 }
 .admin-nav-group-header:focus {
-  outline: 2px solid rgba(201, 168, 76, 0.35);
+  outline: 2px solid rgba(157, 39, 6, 0.35);
   outline-offset: -2px;
 }
 .admin-nav-subgroup {
@@ -728,7 +728,7 @@
   letter-spacing: 0.04em;
 }
 .admin-nav-sublink.active {
-  background: rgba(201, 168, 76, 0.12);
+  background: rgba(157, 39, 6, 0.12);
 }
 .admin-nav-chevron {
   color: rgba(255, 255, 255, 0.5);

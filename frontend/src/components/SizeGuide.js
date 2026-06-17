@@ -33,7 +33,7 @@ const SizeGuide = ({ open, onClose, gender = 'men' }) => {
       <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: 560 }}>
         <button className="admin-modal-close" onClick={onClose} data-testid="size-guide-close"><X size={18} /></button>
         <h3 style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Ruler size={18} /> Size Guide</h3>
-        <p style={{ color: '#6B7280', fontSize: 13, marginTop: 8 }}>Compare sizes across regions. BYOND defaults to UK.</p>
+        <p style={{ color: '#6B7280', fontSize: 13, marginTop: 8 }}>Compare sizes across regions. Cobblyn defaults to UK.</p>
 
         <div style={{ display: 'flex', gap: 8, marginTop: 16, marginBottom: 16 }}>
           <button onClick={() => setTab('men')} className={`admin-filter-btn ${tab === 'men' ? 'active' : ''}`} data-testid="size-tab-men">Men</button>
@@ -54,7 +54,7 @@ const SizeGuide = ({ open, onClose, gender = 'men' }) => {
         <h4 style={{ marginTop: 24, fontSize: 14, fontWeight: 600 }}>Fit Recommendations</h4>
         <div style={{ marginTop: 8 }}>
           {FIT_TIPS.map((t, i) => (
-            <div key={i} style={{ padding: '10px 12px', borderLeft: '3px solid #C9A84C', marginBottom: 8, background: '#FAFAFA' }}>
+            <div key={i} style={{ padding: '10px 12px', borderLeft: '3px solid #9d2706', marginBottom: 8, background: '#FAFAFA' }}>
               <div style={{ fontSize: 13, fontWeight: 500 }}>{t.label}</div>
               <div style={{ fontSize: 12, color: '#6B7280', marginTop: 2 }}>{t.tip}</div>
             </div>

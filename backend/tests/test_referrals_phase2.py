@@ -14,10 +14,10 @@ load_dotenv(ROOT_DIR / '.env')
 
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "http://localhost:8000").rstrip("/")
 MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
-DB_NAME = os.environ.get("DB_NAME", "byond_shoes")
+DB_NAME = os.environ.get("DB_NAME", "cobblyn_shoes")
 
-ADMIN_EMAIL = "admin@byond.com"
-ADMIN_PASSWORD = "Byond@2026"
+ADMIN_EMAIL = "admin@cobblyn.com"
+ADMIN_PASSWORD = "Cobblyn@2026"
 
 
 def _login(email, password):
@@ -96,7 +96,7 @@ def test_fraud_flag_matching_ip(admin_headers):
 
     # 1. Register Referrer and force an IP address in database
     suffix = uuid.uuid4().hex[:6]
-    referrer_email = f"ref_ip_{suffix}@byond.com"
+    referrer_email = f"ref_ip_{suffix}@cobblyn.com"
     r_ref = requests.post(
         f"{BASE_URL}/api/auth/register",
         json={"name": "Referrer IP", "email": referrer_email, "password": "TestPassword@123"},
@@ -114,7 +114,7 @@ def test_fraud_flag_matching_ip(admin_headers):
     # 2. Register referee with referee's IP matching referrer's IP in headers/headers mock if we could,
     # or we can mock/set headers on request or test system check
     # Let's perform registration
-    referee_email = f"referee_ip_{suffix}@byond.com"
+    referee_email = f"referee_ip_{suffix}@cobblyn.com"
     
     # We will invoke register. We can set headers or manually adjust referee's IP in DB to match,
     # but let's test if the check works when they match.
@@ -167,7 +167,7 @@ def test_category_wallet_caps_and_admin_actions(admin_headers):
 
     # 3. Create referee user and give them ₹1,000 wallet balance
     suffix = uuid.uuid4().hex[:6]
-    referee_email = f"referee_cap_{suffix}@byond.com"
+    referee_email = f"referee_cap_{suffix}@cobblyn.com"
     r_reg = requests.post(
         f"{BASE_URL}/api/auth/register",
         json={"name": "Referee Cap", "email": referee_email, "password": "TestPassword@123"},

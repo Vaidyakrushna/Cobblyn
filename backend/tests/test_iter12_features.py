@@ -8,8 +8,8 @@ import pytest
 import requests
 
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://proto-enhance-1.preview.emergentagent.com").rstrip("/")
-ADMIN_EMAIL = "admin@byond.com"
-ADMIN_PASSWORD = "Byond@2026"
+ADMIN_EMAIL = "admin@cobblyn.com"
+ADMIN_PASSWORD = "Cobblyn@2026"
 
 
 @pytest.fixture(scope="session")
@@ -27,7 +27,7 @@ def admin_headers(admin_token):
 @pytest.fixture(scope="session")
 def user_creds():
     suf = uuid.uuid4().hex[:8]
-    email = f"TEST_iter12_{suf}@byond.com"
+    email = f"TEST_iter12_{suf}@cobblyn.com"
     password = "Test@1234"
     r = requests.post(f"{BASE_URL}/api/auth/register", json={"name": "Iter12 Tester", "email": email, "password": password}, timeout=15)
     if r.status_code == 429:

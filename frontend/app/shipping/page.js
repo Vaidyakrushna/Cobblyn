@@ -17,7 +17,7 @@ const shippingFaqs = [
   },
   {
     q: 'How is my package packaged?',
-    a: 'Every BYOND order is packed in our signature dust-bag and handcrafted box, wrapped in acid-free tissue. We use eco-friendly outer packaging to minimise environmental impact.',
+    a: 'Every Cobblyn order is packed in our signature dust-bag and handcrafted box, wrapped in acid-free tissue. We use eco-friendly outer packaging to minimise environmental impact.',
   },
 ];
 
@@ -36,7 +36,7 @@ export default function ShippingPage() {
             <em>to Your Door</em>
           </h1>
           <p className="shipping-hero-sub">
-            Every BYOND order is packed with the same care that goes into crafting the 
+            Every Cobblyn order is packed with the same care that goes into crafting the 
             shoes themselves. Here's everything you need to know.
           </p>
         </div>
@@ -95,7 +95,7 @@ export default function ShippingPage() {
             <div className="section-label">OUR COMMITMENT</div>
             <h2 className="section-title">About Shipping</h2>
             <p className="shipping-policy-text">
-              At BYOND, we are committed to providing you with a smooth and delightful 
+              At Cobblyn, we are committed to providing you with a smooth and delightful 
               unboxing experience. Our policies are crafted for your convenience — we 
               invite you to review them so you can shop with full confidence.
             </p>
@@ -136,7 +136,7 @@ export default function ShippingPage() {
               {
                 icon: <CheckCircle size={22} />,
                 title: 'Further Assistance',
-                content: 'If your order is delayed, damaged, or lost in transit, please contact us immediately. Our support team is available Monday–Saturday, 10 AM–6 PM IST at hello@byondshoes.com or +91 800 123 4567.',
+                content: 'If your order is delayed, damaged, or lost in transit, please contact us immediately. Our support team is available Monday–Saturday, 10 AM–6 PM IST at hello@cobblynshoes.com or +91 800 123 4567.',
               },
             ].map((section, i) => (
               <div key={i} className="shipping-policy-block">

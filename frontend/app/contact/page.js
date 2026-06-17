@@ -62,7 +62,7 @@ export default function ContactPage() {
             { icon: '🔄', title: 'Returns & Exchange', desc: 'Hassle-free returns within 7 days of delivery.', link: '/returns', cta: 'Learn More' },
             { icon: '✂️', title: 'Bespoke & Custom', desc: 'Commission a pair that\'s uniquely yours.', link: '/bespoke', cta: 'Start Now' },
             { icon: '🚚', title: 'Shipping Info', desc: 'Everything you need to know about delivery.', link: '/shipping', cta: 'View Policy' },
-            { icon: '👟', title: 'Shoe Care', desc: 'Keep your BYOND shoes looking their finest.', link: '/care', cta: 'Learn More' },
+            { icon: '👟', title: 'Shoe Care', desc: 'Keep your Cobblyn shoes looking their finest.', link: '/care', cta: 'Learn More' },
           ].map((card, i) => (
             <a key={i} href={card.link} className="contact-help-card">
               <div className="contact-help-card-icon">{card.icon}</div>
@@ -90,7 +90,7 @@ export default function ContactPage() {
                 <div className="contact-channel-icon"><Mail size={20} /></div>
                 <div>
                   <div className="contact-channel-label">Email</div>
-                  <a href="mailto:hello@byondshoes.com" className="contact-channel-value">hello@byondshoes.com</a>
+                  <a href="mailto:hello@cobblynshoes.com" className="contact-channel-value">hello@cobblynshoes.com</a>
                   <div className="contact-channel-note">We reply within 24 hours, Monday–Saturday</div>
                 </div>
               </div>
@@ -107,7 +107,7 @@ export default function ContactPage() {
                 <div>
                   <div className="contact-channel-label">Studio Address</div>
                   <div className="contact-channel-value" style={{ color: 'var(--black)', cursor: 'default' }}>
-                    BYOND Atelier<br />
+                    Cobblyn Atelier<br />
                     12, Craft Lane, Johari Bazaar<br />
                     Jaipur, Rajasthan — 302003
                   </div>

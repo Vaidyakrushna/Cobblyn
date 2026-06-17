@@ -72,7 +72,7 @@ export default function ForgotPassword() {
                 <span className="benefit-num">03</span>
                 <div>
                   <strong>Need Help?</strong>
-                  <p>Contact us at support@byond.com for assistance</p>
+                  <p>Contact us at support@cobblyn.com for assistance</p>
                 </div>
               </div>
             </div>

@@ -154,7 +154,7 @@ const CheckoutPage = () => {
 
       // Clear cart after successful order
       try { await api.clearCart(); } catch (e) {}
-      window.dispatchEvent(new Event('byond-cart-update'));
+      window.dispatchEvent(new Event('cobblyn-cart-update'));
 
       router.push('/order-confirmation?order=' + encodeURIComponent(result.order_number || result.id || ''));
     } catch (err) {
@@ -258,7 +258,7 @@ const CheckoutPage = () => {
               <div className="ck-guest-divider"><span>Or</span></div>
 
               <Link href="/login" className="ck-login-link" data-testid="login-link">
-                <User size={16} /> Log in to your BYOND account
+                <User size={16} /> Log in to your Cobblyn account
               </Link>
 
               <div className="ck-secure-note">

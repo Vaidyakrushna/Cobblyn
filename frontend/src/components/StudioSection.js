@@ -29,14 +29,14 @@ const StudioSection = () => {
     <section id="studio" data-testid="studio-section">
       <div className="section-inner">
         <div className="section-label">OUR ATELIER</div>
-        <h2 className="section-title">The BYOND Studio Magic</h2>
+        <h2 className="section-title">The Cobblyn Magic</h2>
       </div>
 
       <div className="studio-layout">
         <div className="studio-left">
           <img 
             src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=900&q=85&fit=crop" 
-            alt="BYOND Studio"
+            alt="Cobblyn"
           />
           <div className="studio-left-overlay"></div>
           <div className="studio-badge">

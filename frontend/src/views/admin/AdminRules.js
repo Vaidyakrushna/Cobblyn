@@ -81,7 +81,7 @@ const AdminRules = () => {
                   <td>
                     {rule.conditions && rule.conditions.length > 0 ? (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start' }}>
-                        <span style={{ fontSize: 9, fontWeight: 700, color: '#C9A84C', letterSpacing: '0.05em' }}>MATCH {rule.logical_operator || 'AND'}</span>
+                        <span style={{ fontSize: 9, fontWeight: 700, color: '#9d2706', letterSpacing: '0.05em' }}>MATCH {rule.logical_operator || 'AND'}</span>
                         {rule.conditions.map((c, cIdx) => (
                           <span key={cIdx} className="condition-tag" style={{ display: 'inline-block', margin: '1px 0' }}>
                             If {c.field} {c.operator === 'not_equals' ? '!=' : c.operator === 'contains' ? 'contains' : c.operator === 'in' ? 'in' : '='} "{c.value}"
@@ -95,7 +95,7 @@ const AdminRules = () => {
                   <td>{rule.action === 'add_price' ? 'Add to Price' : 'Multiply %'}</td>
                   <td className="rule-amount">{rule.action === 'add_price' ? `+₹${rule.action_value.toLocaleString()}` : `+${rule.action_value}%`}</td>
                   <td>
-                    <span style={{ fontWeight: '600', color: '#C9A84C', background: '#C9A84C10', padding: '2px 8px', borderRadius: 4, fontSize: 12 }}>
+                    <span style={{ fontWeight: '600', color: '#9d2706', background: '#9d270610', padding: '2px 8px', borderRadius: 4, fontSize: 12 }}>
                       {rule.priority ?? 0}
                     </span>
                   </td>
@@ -211,7 +211,7 @@ const AdminRules = () => {
                       onClick={() => {
                         setForm({ ...form, conditions: [...form.conditions, { field: 'material', operator: 'equals', value: '' }] });
                       }}
-                      style={{ padding: '8px 16px', background: '#C9A84C15', color: '#C9A84C', border: '1px solid rgba(201, 168, 76, 0.3)', cursor: 'pointer', fontSize: 11, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6, textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: "'Montserrat', sans-serif" }}
+                      style={{ padding: '8px 16px', background: '#9d270615', color: '#9d2706', border: '1px solid rgba(157, 39, 6, 0.3)', cursor: 'pointer', fontSize: 11, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6, textTransform: 'uppercase', letterSpacing: '0.05em', fontFamily: "'Montserrat', sans-serif" }}
                     >
                       <Plus size={14} /> Add Condition
                     </button>
@@ -241,7 +241,7 @@ const AdminRules = () => {
                           conditions: [{ field: form.condition_field, operator: 'equals', value: form.condition_value }] 
                         });
                       }}
-                      style={{ padding: '6px 12px', background: 'none', border: '1px dashed #C9A84C', color: '#C9A84C', borderRadius: 6, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}
+                      style={{ padding: '6px 12px', background: 'none', border: '1px dashed #9d2706', color: '#9d2706', borderRadius: 6, cursor: 'pointer', fontSize: 11, fontWeight: 600 }}
                     >
                       ✨ Convert to Multi-Condition Compound Rule
                     </button>

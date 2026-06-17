@@ -33,7 +33,7 @@ const CartPage = () => {
     try {
       await api.updateCart({ product_id: item.product_id, size: item.size, color: item.color, quantity: newQty });
       fetchCart();
-      window.dispatchEvent(new Event('byond-cart-update'));
+      window.dispatchEvent(new Event('cobblyn-cart-update'));
     } catch (err) { console.error(err); }
   };
 
@@ -41,7 +41,7 @@ const CartPage = () => {
     try {
       await api.removeFromCart(item.product_id, item.size, item.color);
       fetchCart();
-      window.dispatchEvent(new Event('byond-cart-update'));
+      window.dispatchEvent(new Event('cobblyn-cart-update'));
     } catch (err) { console.error(err); }
   };
 

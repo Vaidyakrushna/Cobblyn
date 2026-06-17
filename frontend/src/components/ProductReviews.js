@@ -8,7 +8,7 @@ const Stars = ({ rating, size = 14, onSet }) => (
   <div style={{ display: 'inline-flex', gap: 2 }}>
     {[1,2,3,4,5].map(i => (
       <Star key={i} size={size}
-        fill={i <= rating ? '#C9A84C' : 'none'} color={i <= rating ? '#C9A84C' : '#D1D5DB'}
+        fill={i <= rating ? '#9d2706' : 'none'} color={i <= rating ? '#9d2706' : '#D1D5DB'}
         style={onSet ? { cursor: 'pointer' } : {}}
         onClick={onSet ? () => onSet(i) : undefined}
         data-testid={onSet ? `star-set-${i}` : undefined} />

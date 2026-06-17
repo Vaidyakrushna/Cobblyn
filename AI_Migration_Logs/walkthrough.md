@@ -1,4 +1,4 @@
-# Byond Studio Enhancements Walkthrough
+# Cobblyn Enhancements Walkthrough
 
 I have successfully implemented the requested Authentication features and Category Management CRUD! 
 

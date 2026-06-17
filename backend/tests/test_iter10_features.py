@@ -10,8 +10,8 @@ import pytest
 
 BASE_URL = "https://proto-enhance-1.preview.emergentagent.com".rstrip("/")
 
-ADMIN_EMAIL = "admin@byond.com"
-ADMIN_PASSWORD = "Byond@2026"
+ADMIN_EMAIL = "admin@cobblyn.com"
+ADMIN_PASSWORD = "Cobblyn@2026"
 
 
 @pytest.fixture(scope="module")
@@ -39,7 +39,7 @@ def created_visit_id():
     payload = {
         "first_name": "TEST_Iter10",
         "last_name": "Visitor",
-        "email": "TEST_iter10_visit@byond.com",
+        "email": "TEST_iter10_visit@cobblyn.com",
         "contact_number": "9999999999",
         "visit_date": "2026-02-15",
         "style": "Oxford",

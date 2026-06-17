@@ -15,9 +15,9 @@ export default function ConciergeWidget() {
       {/* CSS Styles for animations and premium look */}
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes float-pulse {
-          0% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.5); transform: scale(1); }
-          70% { box-shadow: 0 0 0 15px rgba(201, 168, 76, 0); transform: scale(1.05); }
-          100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0); transform: scale(1); }
+          0% { box-shadow: 0 0 0 0 rgba(157, 39, 6, 0.5); transform: scale(1); }
+          70% { box-shadow: 0 0 0 15px rgba(157, 39, 6, 0); transform: scale(1.05); }
+          100% { box-shadow: 0 0 0 0 rgba(157, 39, 6, 0); transform: scale(1); }
         }
         
         .concierge-float-btn {
@@ -28,8 +28,8 @@ export default function ConciergeWidget() {
           height: 56px;
           border-radius: 50%;
           background: #111;
-          border: 2px solid #C9A84C;
-          color: #C9A84C;
+          border: 2px solid #9d2706;
+          color: #9d2706;
           display: flex;
           alignItems: center;
           justifyContent: center;
@@ -41,7 +41,7 @@ export default function ConciergeWidget() {
         }
 
         .concierge-float-btn:hover {
-          background: #C9A84C;
+          background: #9d2706;
           color: #fff;
           transform: translateY(-4px) scale(1.05);
         }
@@ -76,7 +76,7 @@ export default function ConciergeWidget() {
           background: rgba(17, 17, 17, 0.9) !important;
           backdrop-filter: blur(16px) saturate(180%) !important;
           -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-          border: 1px solid rgba(201, 168, 76, 0.35) !important;
+          border: 1px solid rgba(157, 39, 6, 0.35) !important;
           box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4) !important;
         }
 
@@ -95,8 +95,8 @@ export default function ConciergeWidget() {
         }
 
         .concierge-link-card:hover {
-          background: rgba(201, 168, 76, 0.08);
-          border-color: rgba(201, 168, 76, 0.5);
+          background: rgba(157, 39, 6, 0.08);
+          border-color: rgba(157, 39, 6, 0.5);
           transform: translateX(4px);
         }
 
@@ -104,8 +104,8 @@ export default function ConciergeWidget() {
           width: 36px;
           height: 36px;
           border-radius: 50%;
-          background: rgba(201, 168, 76, 0.15);
-          color: #C9A84C;
+          background: rgba(157, 39, 6, 0.15);
+          color: #9d2706;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -113,7 +113,7 @@ export default function ConciergeWidget() {
         }
 
         .concierge-link-card:hover .icon-box {
-          background: #C9A84C;
+          background: #9d2706;
           color: #fff;
         }
       `}} />
@@ -134,8 +134,8 @@ export default function ConciergeWidget() {
           
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-            <Sparkles size={16} color="#C9A84C" />
-            <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#C9A84C', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Atelier Concierge</span>
+            <Sparkles size={16} color="#9d2706" />
+            <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#9d2706', letterSpacing: '0.15em', textTransform: 'uppercase' }}>Atelier Concierge</span>
           </div>
           
           <h3 style={{ margin: '0 0 8px 0', color: '#fff', fontFamily: 'Playfair Display, serif', fontSize: '1.25rem', fontWeight: 600 }}>
@@ -167,7 +167,7 @@ export default function ConciergeWidget() {
 
             {/* Video Consultation (Calendly) */}
             <a 
-              href="https://calendly.com/byondstudio-luxury-consultation"
+              href="https://calendly.com/cobblynstudio-luxury-consultation"
               target="_blank"
               rel="noopener noreferrer"
               className="concierge-link-card"
@@ -183,7 +183,7 @@ export default function ConciergeWidget() {
 
             {/* Email Contact */}
             <a 
-              href="mailto:concierge@byondstudio.com?subject=Bespoke%20Luxury%20Inquiry"
+              href="mailto:concierge@cobblynstudio.com?subject=Bespoke%20Luxury%20Inquiry"
               className="concierge-link-card"
             >
               <div className="icon-box">
@@ -191,7 +191,7 @@ export default function ConciergeWidget() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>Email Atelier Stylists</span>
-                <span style={{ fontSize: '0.68rem', color: '#a1a1aa' }}>concierge@byondstudio.com</span>
+                <span style={{ fontSize: '0.68rem', color: '#a1a1aa' }}>concierge@cobblynstudio.com</span>
               </div>
             </a>
 
@@ -215,7 +215,7 @@ export default function ConciergeWidget() {
           {/* Footer Text */}
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: '20px', paddingTop: '12px', textAlign: 'center' }}>
             <span style={{ fontSize: '0.6rem', color: '#78716c', letterSpacing: '0.05em', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-              <PhoneCall size={10} color="#C9A84C" /> Handcrafted in Atelier Workshops
+              <PhoneCall size={10} color="#9d2706" /> Handcrafted in Atelier Workshops
             </span>
           </div>
 

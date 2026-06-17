@@ -346,10 +346,10 @@ async def get_order_invoice(order_id: str, request: Request):
         "payment_method": doc.get("payment_method", ""),
         "status": doc.get("status", ""),
         "company": {
-            "name": "BYOND Shoes Pvt. Ltd.",
+            "name": "Cobblyn Shoes Pvt. Ltd.",
             "address": "123 Fashion Street, Mumbai, Maharashtra 400001",
             "gstin": "27AABCU9603R1ZM",
-            "email": "orders@byond.com",
+            "email": "orders@cobblyn.com",
             "phone": "+91 98765 43210"
         }
     }

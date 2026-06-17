@@ -147,8 +147,8 @@ const AdminAssets = () => {
       
       {/* Toast */}
       {toast && (
-        <div style={{ position: 'fixed', top: '24px', right: '24px', background: '#111', border: '1px solid #C9A84C', borderRadius: '8px', padding: '12px 24px', color: '#fff', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1100, boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
-          <Layers size={16} color="#C9A84C" />
+        <div style={{ position: 'fixed', top: '24px', right: '24px', background: '#111', border: '1px solid #9d2706', borderRadius: '8px', padding: '12px 24px', color: '#fff', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1100, boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
+          <Layers size={16} color="#9d2706" />
           <span>{toast}</span>
         </div>
       )}
@@ -156,9 +156,9 @@ const AdminAssets = () => {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e7e5e4', paddingBottom: '20px', marginBottom: '24px' }}>
         <div>
-          <span style={{ fontSize: '0.62rem', color: '#C9A84C', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700 }}>BESPOKE ATELIER</span>
+          <span style={{ fontSize: '0.62rem', color: '#9d2706', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700 }}>BESPOKE ATELIER</span>
           <h1 style={{ margin: '4px 0 0 0', fontFamily: 'Montserrat, sans-serif', fontSize: '1.6rem', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Layers size={28} color="#C9A84C" /> Customizer Assets CDN Manager
+            <Layers size={28} color="#9d2706" /> Customizer Assets CDN Manager
           </h1>
         </div>
         <button 
@@ -185,8 +185,8 @@ const AdminAssets = () => {
       <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 380px) 1fr', gap: '32px', alignItems: 'start' }}>
         
         {/* Left: Upload Asset Form */}
-        <div style={{ background: '#FAF9F6', border: '1px solid #C9A84C', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
-          <h3 style={{ margin: '0 0 20px 0', fontSize: '0.85rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px dashed rgba(201,168,76,0.3)', paddingBottom: '8px' }}>
+        <div style={{ background: '#FAF9F6', border: '1px solid #9d2706', borderRadius: '12px', padding: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
+          <h3 style={{ margin: '0 0 20px 0', fontSize: '0.85rem', fontWeight: 700, color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px dashed rgba(157,39,6,0.3)', paddingBottom: '8px' }}>
             📥 Register Swatch to CDN
           </h3>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -239,7 +239,7 @@ const AdminAssets = () => {
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input 
                     type="text" 
-                    placeholder="#C9A84C" 
+                    placeholder="#9d2706" 
                     value={form.color_hex}
                     onChange={(e) => setForm(prev => ({ ...prev, color_hex: e.target.value }))}
                     style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '0.8rem', color: '#1F2937', fontFamily: 'monospace' }}
@@ -268,7 +268,7 @@ const AdminAssets = () => {
             {/* File Drag / Upload container */}
             <div>
               <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: '#4b5563', textTransform: 'uppercase', marginBottom: '6px' }}>Texture Swatch File</label>
-              <div style={{ border: '2px dashed #C9A84C', borderRadius: '8px', background: '#fff', padding: '20px', textAlign: 'center', position: 'relative', cursor: 'pointer', transition: 'all 0.2s' }}>
+              <div style={{ border: '2px dashed #9d2706', borderRadius: '8px', background: '#fff', padding: '20px', textAlign: 'center', position: 'relative', cursor: 'pointer', transition: 'all 0.2s' }}>
                 <input 
                   type="file" 
                   accept="image/*"
@@ -277,12 +277,12 @@ const AdminAssets = () => {
                 />
                 {filePreview ? (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                    <img src={filePreview} alt="Preview" style={{ width: '80px', height: '80px', borderRadius: '8px', objectFit: 'cover', border: '1px solid #C9A84C' }} />
+                    <img src={filePreview} alt="Preview" style={{ width: '80px', height: '80px', borderRadius: '8px', objectFit: 'cover', border: '1px solid #9d2706' }} />
                     <span style={{ fontSize: '0.68rem', color: '#059669', fontWeight: 600 }}>✓ {file.name.slice(0, 16)}...</span>
                   </div>
                 ) : (
                   <div style={{ color: '#6b7280' }}>
-                    <Upload size={24} color="#C9A84C" style={{ margin: '0 auto 8px' }} />
+                    <Upload size={24} color="#9d2706" style={{ margin: '0 auto 8px' }} />
                     <span style={{ fontSize: '0.72rem', display: 'block', fontWeight: 600 }}>Drag or Click to Upload</span>
                     <span style={{ fontSize: '0.62rem', display: 'block', marginTop: '2px' }}>Supported: JPEG, PNG, WEBP (Max 5MB)</span>
                   </div>
@@ -319,7 +319,7 @@ const AdminAssets = () => {
 
         {/* Right: CDN Assets Display */}
         <div>
-          <div style={{ background: 'rgba(201, 168, 76, 0.05)', border: '1px solid rgba(201, 168, 76, 0.25)', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', fontSize: '0.72rem', color: '#9A7D32', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ background: 'rgba(157, 39, 6, 0.05)', border: '1px solid rgba(157, 39, 6, 0.25)', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', fontSize: '0.72rem', color: '#9A7D32', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <CheckCircle2 size={16} />
             <span><strong>High-Performance CDN Active:</strong> All swatches uploaded here are instantly optimized and served through the server edge cache proxy with immutable headers (<code>Cache-Control: public, max-age=31536000</code>).</span>
           </div>
@@ -368,7 +368,7 @@ const AdminAssets = () => {
                       {asset.available ? 'Active' : 'Disabled'}
                     </div>
 
-                    <div style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(17,17,17,0.85)', color: '#C9A84C', fontSize: '0.62rem', fontWeight: 700, padding: '4px 8px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <div style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(17,17,17,0.85)', color: '#9d2706', fontSize: '0.62rem', fontWeight: 700, padding: '4px 8px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       {asset.region}
                     </div>
                   </div>
@@ -377,7 +377,7 @@ const AdminAssets = () => {
                   <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', gap: '8px', marginBottom: '8px' }}>
                       <h4 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: '#111' }}>{asset.name}</h4>
-                      <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#C9A84C' }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#9d2706' }}>
                         {asset.price_modifier > 0 ? `+ ₹${asset.price_modifier.toLocaleString()}` : 'No Cost'}
                       </span>
                     </div>

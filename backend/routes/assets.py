@@ -122,7 +122,7 @@ async def serve_cdn_asset(filename: str):
     headers = {
         "Cache-Control": "public, max-age=31536000, immutable",
         "X-CDN-Cache": "HIT",
-        "X-CDN-Provider": "BYOND-Atelier-Edge"
+        "X-CDN-Provider": "Cobblyn-Atelier-Edge"
     }
     
     return FileResponse(path=str(file_path), headers=headers)

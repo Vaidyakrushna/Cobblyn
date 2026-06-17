@@ -10,7 +10,7 @@
     "ui_bugs": [],
     "integration_issues": [],
     "design_issues": [
-      {"screen": "Home hero slider", "issues": ["Hero slide #1 shows a clearly visible NIKE shoe with Nike swoosh logo on a luxury BYOND brand site - trademark/brand-mismatch risk. Replace with neutral/branded imagery."]}
+      {"screen": "Home hero slider", "issues": ["Hero slide #1 shows a clearly visible NIKE shoe with Nike swoosh logo on a luxury Cobblyn brand site - trademark/brand-mismatch risk. Replace with neutral/branded imagery."]}
     ]
   },
   "test_report_links": ["/app/backend/tests/test_api.py", "/app/backend/tests/test_account.py", "/app/backend/tests/test_inventory_production.py", "/app/test_reports/pytest/iter8_results.xml"],
@@ -28,7 +28,7 @@
   ],
   "updated_files": ["/app/backend/.env (added JWT_SECRET dev value to unblock auth testing)"],
   "success_rate": {"backend": "100% (64/64 after JWT_SECRET fix)", "frontend": "100% on route loading + login + admin nav"},
-  "test_credentials": "Admin admin@byond.com / Byond@2026 (works). Test user test@byond.com / Test@1234 created via register.",
+  "test_credentials": "Admin admin@cobblyn.com / Cobblyn@2026 (works). Test user test@cobblyn.com / Test@1234 created via register.",
   "seed_data_creation": "Backend auto-seeds 14 products, 11 materials, 5 pricing rules, inventory; pytest fixtures register TEST_ users.",
   "retest_needed": true,
   "main_agent_can_self_test": true,

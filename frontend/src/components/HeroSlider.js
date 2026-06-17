@@ -8,14 +8,21 @@ import { api } from '../api';
 
 const FALLBACK_SLIDES = [
   {
-    eyebrow: 'NEW COLLECTION',
-    title: 'Crafted for the Discerning',
-    subtitle: 'Bespoke footwear handcrafted to your exact specifications. Each pair a masterpiece of Italian leather and Indian craftsmanship.',
-    price: '\u20b96,000',
-    image: 'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=1400&q=85&fit=crop',
-    primary_cta: 'Customize Now', primary_cta_link: '/customize',
-    secondary_cta: 'View Collection', secondary_cta_link: '/men',
+    eyebrow: 'New Collection 2026',
+    title: 'Crafted for the Discerning Few',
+    subtitle: 'Elegance in every step — bespoke beauty redefined. Each pair tells a story of mastery passed down through generations.',
+    image: '/wf-hero.png',
+    primary_cta: 'Explore Collection', primary_cta_link: '/men',
+    secondary_cta: 'Schedule Visit', secondary_cta_link: '#bespoke',
   },
+  {
+    eyebrow: 'Luxe Collection',
+    title: 'Where Tradition Meets Artistry',
+    subtitle: 'Over 200 hours of craftsmanship in each bespoke pair. Handcrafted with Italian leather, finished with timeless elegance.',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1800&q=85&fit=crop',
+    primary_cta: 'View Luxe Collection', primary_cta_link: '#luxe-collection',
+    secondary_cta: 'Our Story', secondary_cta_link: '/about',
+  }
 ];
 
 const isExternal = (link) => /^https?:\/\//.test(link || '');

@@ -17,7 +17,7 @@ export default function AccessoriesPage() {
         <div className="acc-hero-bg">
           <img
             src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=1600&q=85&fit=crop"
-            alt="BYOND Accessories"
+            alt="Cobblyn Accessories"
           />
           <div className="acc-hero-overlay" />
         </div>
@@ -161,7 +161,7 @@ export default function AccessoriesPage() {
             <div className="section-label">CARE IS CRAFT</div>
             <h2 className="section-title">Your Shoes Deserve the Best Care</h2>
             <p style={{ color: 'var(--dark-grey)', fontSize: '0.9rem', lineHeight: '1.85', marginBottom: '16px' }}>
-              A pair of BYOND shoes is a lifelong investment. Our care products — formulated specifically
+              A pair of Cobblyn shoes is a lifelong investment. Our care products — formulated specifically
               for full-grain and exotic leathers — extend the life and deepen the beauty of your footwear.
             </p>
             <p style={{ color: 'var(--dark-grey)', fontSize: '0.9rem', lineHeight: '1.85', marginBottom: '32px' }}>

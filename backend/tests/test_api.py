@@ -1,5 +1,5 @@
 """
-BYOND Shoes API Tests
+Cobblyn Shoes API Tests
 Tests for: Products, Auth, Cart, Wishlist APIs
 """
 import pytest
@@ -10,9 +10,9 @@ import uuid
 BASE_URL = os.environ.get('REACT_APP_BACKEND_URL', '').rstrip('/')
 
 # Test credentials
-ADMIN_EMAIL = "admin@byond.com"
-ADMIN_PASSWORD = "Byond@2026"
-TEST_USER_EMAIL = "test@byond.com"
+ADMIN_EMAIL = "admin@cobblyn.com"
+ADMIN_PASSWORD = "Cobblyn@2026"
+TEST_USER_EMAIL = "test@cobblyn.com"
 TEST_USER_PASSWORD = "Test@1234"
 
 
@@ -25,7 +25,7 @@ class TestHealthAndProducts:
         assert response.status_code == 200
         data = response.json()
         assert "message" in data
-        assert data["message"] == "BYOND Shoes API"
+        assert data["message"] == "Cobblyn Shoes API"
         print("✓ API root endpoint working")
     
     def test_get_all_products(self):
@@ -116,7 +116,7 @@ class TestAuth:
     
     def test_register_new_user(self):
         """POST /api/auth/register - Register new user, returns token"""
-        unique_email = f"test_{uuid.uuid4().hex[:8]}@byond.com"
+        unique_email = f"test_{uuid.uuid4().hex[:8]}@cobblyn.com"
         response = requests.post(f"{BASE_URL}/api/auth/register", json={
             "name": "Test User",
             "email": unique_email,
@@ -133,7 +133,7 @@ class TestAuth:
     def test_register_duplicate_email(self):
         """POST /api/auth/register - Should fail for duplicate email"""
         # First register
-        unique_email = f"dup_{uuid.uuid4().hex[:8]}@byond.com"
+        unique_email = f"dup_{uuid.uuid4().hex[:8]}@cobblyn.com"
         requests.post(f"{BASE_URL}/api/auth/register", json={
             "name": "Test User",
             "email": unique_email,
@@ -151,7 +151,7 @@ class TestAuth:
     def test_login_success(self):
         """POST /api/auth/login - Login with email/password, returns token and user"""
         # First register a user
-        unique_email = f"login_{uuid.uuid4().hex[:8]}@byond.com"
+        unique_email = f"login_{uuid.uuid4().hex[:8]}@cobblyn.com"
         requests.post(f"{BASE_URL}/api/auth/register", json={
             "name": "Login Test",
             "email": unique_email,
@@ -194,7 +194,7 @@ class TestAuth:
     def test_login_nonexistent_user(self):
         """POST /api/auth/login - Should return 401 for non-existent user"""
         response = requests.post(f"{BASE_URL}/api/auth/login", json={
-            "email": "nonexistent@byond.com",
+            "email": "nonexistent@cobblyn.com",
             "password": "SomePassword123"
         })
         assert response.status_code == 401
@@ -203,7 +203,7 @@ class TestAuth:
     def test_get_me_with_token(self):
         """GET /api/auth/me with Bearer token - Should return user data"""
         # Register and get token
-        unique_email = f"me_{uuid.uuid4().hex[:8]}@byond.com"
+        unique_email = f"me_{uuid.uuid4().hex[:8]}@cobblyn.com"
         reg_response = requests.post(f"{BASE_URL}/api/auth/register", json={
             "name": "Me Test",
             "email": unique_email,
@@ -242,7 +242,7 @@ class TestCart:
     @pytest.fixture
     def auth_token(self):
         """Get auth token for cart tests"""
-        unique_email = f"cart_{uuid.uuid4().hex[:8]}@byond.com"
+        unique_email = f"cart_{uuid.uuid4().hex[:8]}@cobblyn.com"
         response = requests.post(f"{BASE_URL}/api/auth/register", json={
             "name": "Cart Test User",
             "email": unique_email,
@@ -398,7 +398,7 @@ class TestWishlist:
     @pytest.fixture
     def auth_token(self):
         """Get auth token for wishlist tests"""
-        unique_email = f"wish_{uuid.uuid4().hex[:8]}@byond.com"
+        unique_email = f"wish_{uuid.uuid4().hex[:8]}@cobblyn.com"
         response = requests.post(f"{BASE_URL}/api/auth/register", json={
             "name": "Wishlist Test User",
             "email": unique_email,

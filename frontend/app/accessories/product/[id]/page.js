@@ -11,7 +11,7 @@ import { useAuth } from '../../../../src/context/AuthContext';
 import { api } from '../../../../src/api';
 
 const mockReviews = [
-  { id: 1, name: 'Rahul Sharma',  rating: 5, date: '2 weeks ago',  text: 'Exceptional quality — exactly what I expected from BYOND. The leather is buttery and the finish is impeccable.' },
+  { id: 1, name: 'Rahul Sharma',  rating: 5, date: '2 weeks ago',  text: 'Exceptional quality — exactly what I expected from Cobblyn. The leather is buttery and the finish is impeccable.' },
   { id: 2, name: 'Priya Mehta',   rating: 5, date: '1 month ago',  text: 'Bought as a gift. The packaging alone made an impression — truly premium.' },
   { id: 3, name: 'Arun Kapoor',   rating: 4, date: '1 month ago',  text: 'Very happy with the craftsmanship. Worth every rupee.' },
   { id: 4, name: 'Sneha Verma',   rating: 5, date: '2 months ago', text: 'The attention to detail is outstanding. Would recommend to anyone who appreciates fine accessories.' },
@@ -78,7 +78,7 @@ export default function AccessoryPDPPage() {
         color: selectedColor || 'Standard',
         quantity,
       });
-      window.dispatchEvent(new Event('byond-cart-update'));
+      window.dispatchEvent(new Event('cobblyn-cart-update'));
     } catch (_) {
       // Static product IDs won't be in backend — still show confirmation UI
     }
@@ -93,7 +93,7 @@ export default function AccessoryPDPPage() {
       } else {
         await api.addToWishlist(product.id);
       }
-      window.dispatchEvent(new Event('byond-wishlist-update'));
+      window.dispatchEvent(new Event('cobblyn-wishlist-update'));
     } catch (_) {}
     setIsWishlisted(prev => !prev);
   };
@@ -151,7 +151,7 @@ export default function AccessoryPDPPage() {
           {/* Top actions */}
           <div className="pdp-top-actions">
             <button className="pdp-action-btn" onClick={handleWishlist} data-testid="acc-wishlist-btn">
-              <Heart size={16} fill={isWishlisted ? '#C9A84C' : 'none'} color={isWishlisted ? '#C9A84C' : 'currentColor'} />
+              <Heart size={16} fill={isWishlisted ? '#9d2706' : 'none'} color={isWishlisted ? '#9d2706' : 'currentColor'} />
               <span>{isWishlisted ? 'Wishlisted' : 'Wishlist'}</span>
             </button>
             <div className="pdp-share-wrapper">
@@ -173,7 +173,7 @@ export default function AccessoryPDPPage() {
           <div className="pdp-rating-row">
             <div className="pdp-stars">
               {[1,2,3,4,5].map(i => (
-                <Star key={i} size={14} fill={i <= Math.round(avgRating) ? '#C9A84C' : 'none'} color="#C9A84C" />
+                <Star key={i} size={14} fill={i <= Math.round(avgRating) ? '#9d2706' : 'none'} color="#9d2706" />
               ))}
             </div>
             <span className="pdp-rating-text">{avgRating} | {mockReviews.length} Ratings</span>
@@ -383,7 +383,7 @@ export default function AccessoryPDPPage() {
             <div>
               <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
                 {[1,2,3,4,5].map(i => (
-                  <Star key={i} size={18} fill={i <= Math.round(avgRating) ? '#C9A84C' : 'none'} color="#C9A84C" />
+                  <Star key={i} size={18} fill={i <= Math.round(avgRating) ? '#9d2706' : 'none'} color="#9d2706" />
                 ))}
               </div>
               <p style={{ color: 'var(--mid-grey)', fontSize: '0.85rem' }}>Based on {mockReviews.length} reviews</p>
@@ -397,7 +397,7 @@ export default function AccessoryPDPPage() {
                     <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{review.name}</span>
                     <div style={{ display: 'flex', gap: '2px', marginTop: '4px' }}>
                       {[1,2,3,4,5].map(i => (
-                        <Star key={i} size={12} fill={i <= review.rating ? '#C9A84C' : 'none'} color="#C9A84C" />
+                        <Star key={i} size={12} fill={i <= review.rating ? '#9d2706' : 'none'} color="#9d2706" />
                       ))}
                     </div>
                   </div>

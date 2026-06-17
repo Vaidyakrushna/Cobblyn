@@ -59,7 +59,7 @@ const AdminJobs = () => {
     setActionLoading(true);
     let payload = {};
     if (type === 'send_email') {
-      payload = { to: 'concierge@byondshoes.com', subject: 'Atelier Order Confirmed #BYD-2026', template: 'order_receipt' };
+      payload = { to: 'concierge@cobblynshoes.com', subject: 'Atelier Order Confirmed #BYD-2026', template: 'order_receipt' };
     } else if (type === 'render_custom_preview') {
       payload = { submodel: 'Wholecut Oxford', leather: 'Full-Grain Italian', color: 'Burgundy', monogram: 'MAH' };
     } else if (type === 'process_refund') {
@@ -113,8 +113,8 @@ const AdminJobs = () => {
       
       {/* Toast popup */}
       {toast && (
-        <div style={{ position: 'fixed', top: '24px', right: '24px', background: '#111', border: '1px solid #C9A84C', borderRadius: '8px', padding: '12px 24px', color: '#fff', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1100, boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
-          <Cpu size={16} color="#C9A84C" />
+        <div style={{ position: 'fixed', top: '24px', right: '24px', background: '#111', border: '1px solid #9d2706', borderRadius: '8px', padding: '12px 24px', color: '#fff', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1100, boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
+          <Cpu size={16} color="#9d2706" />
           <span>{toast}</span>
         </div>
       )}
@@ -122,9 +122,9 @@ const AdminJobs = () => {
       {/* Header section */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e7e5e4', paddingBottom: '20px', marginBottom: '24px' }}>
         <div>
-          <span style={{ fontSize: '0.62rem', color: '#C9A84C', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700 }}>ATELIER OPERATIONS</span>
+          <span style={{ fontSize: '0.62rem', color: '#9d2706', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700 }}>ATELIER OPERATIONS</span>
           <h1 style={{ margin: '4px 0 0 0', fontFamily: 'Montserrat, sans-serif', fontSize: '1.6rem', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Cpu size={28} color="#C9A84C" /> Background Task Queue
+            <Cpu size={28} color="#9d2706" /> Background Task Queue
           </h1>
         </div>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -168,16 +168,16 @@ const AdminJobs = () => {
       </div>
 
       {/* Control / Trigger Mock Tasks Panel */}
-      <div style={{ background: '#FAF9F6', border: '1px solid #C9A84C', borderRadius: '12px', padding: '20px', marginBottom: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
-        <h3 style={{ margin: '0 0 12px 0', fontSize: '0.8rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em' }}>🧪 Dispatch Mock Worker Tasks</h3>
+      <div style={{ background: '#FAF9F6', border: '1px solid #9d2706', borderRadius: '12px', padding: '20px', marginBottom: '24px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
+        <h3 style={{ margin: '0 0 12px 0', fontSize: '0.8rem', fontWeight: 700, color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em' }}>🧪 Dispatch Mock Worker Tasks</h3>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
           <button 
             disabled={actionLoading}
             onClick={() => triggerMockJob('send_email')}
             style={{ padding: '12px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.2s' }}
           >
-            <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: 'rgba(201, 168, 76, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Mail size={16} color="#C9A84C" />
+            <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: 'rgba(157, 39, 6, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Mail size={16} color="#9d2706" />
             </div>
             <div>
               <strong style={{ display: 'block', fontSize: '0.75rem', color: '#1f2937' }}>Transactional Email</strong>
@@ -191,8 +191,8 @@ const AdminJobs = () => {
             onClick={() => triggerMockJob('render_custom_preview')}
             style={{ padding: '12px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.2s' }}
           >
-            <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: 'rgba(201, 168, 76, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Image size={16} color="#C9A84C" />
+            <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: 'rgba(157, 39, 6, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Image size={16} color="#9d2706" />
             </div>
             <div>
               <strong style={{ display: 'block', fontSize: '0.75rem', color: '#1f2937' }}>3D Shoe Preview Rendering</strong>
@@ -206,8 +206,8 @@ const AdminJobs = () => {
             onClick={() => triggerMockJob('process_refund')}
             style={{ padding: '12px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.2s' }}
           >
-            <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: 'rgba(201, 168, 76, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CreditCard size={16} color="#C9A84C" />
+            <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: 'rgba(157, 39, 6, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CreditCard size={16} color="#9d2706" />
             </div>
             <div>
               <strong style={{ display: 'block', fontSize: '0.75rem', color: '#1f2937' }}>Process Refund Gateway</strong>
@@ -221,8 +221,8 @@ const AdminJobs = () => {
             onClick={() => triggerMockJob('order_workflow_escalation')}
             style={{ padding: '12px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', cursor: 'pointer', textAlign: 'left', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.2s' }}
           >
-            <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: 'rgba(201, 168, 76, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ArrowUpRight size={16} color="#C9A84C" />
+            <div style={{ width: '32px', height: '32px', borderRadius: '6px', background: 'rgba(157, 39, 6, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ArrowUpRight size={16} color="#9d2706" />
             </div>
             <div>
               <strong style={{ display: 'block', fontSize: '0.75rem', color: '#1f2937' }}>Workflow Escalation</strong>
@@ -350,7 +350,7 @@ const AdminJobs = () => {
                               style={{ 
                                 height: '100%', 
                                 width: `${job.progress}%`, 
-                                background: job.status === 'failed' ? '#dc2626' : job.status === 'completed' ? '#059669' : '#C9A84C',
+                                background: job.status === 'failed' ? '#dc2626' : job.status === 'completed' ? '#059669' : '#9d2706',
                                 transition: 'width 0.4s ease',
                                 borderRadius: '3px'
                               }} 

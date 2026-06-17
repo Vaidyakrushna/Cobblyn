@@ -403,7 +403,7 @@ const AdminProduction = () => {
                       </td>
                       <td style={{ padding: '12px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span style={{ color: '#C9A84C', fontSize: '0.9rem' }}>★</span>
+                          <span style={{ color: '#9d2706', fontSize: '0.9rem' }}>★</span>
                           <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#44403c' }}>{parseFloat(v.satisfaction_score || 5.0).toFixed(1)}</span>
                         </div>
                       </td>
@@ -453,10 +453,10 @@ const AdminProduction = () => {
                             fontWeight: 700,
                             padding: '4px 10px',
                             borderRadius: '6px',
-                            border: '1px solid #C9A84C',
+                            border: '1px solid #9d2706',
                             cursor: 'pointer',
                             background: 'transparent',
-                            color: '#C9A84C',
+                            color: '#9d2706',
                             transition: 'all 0.2s ease',
                             display: 'inline-flex',
                             alignItems: 'center',
@@ -541,7 +541,7 @@ const AdminProduction = () => {
                                       #{job.order_number}
                                       <button 
                                         onClick={(e) => { e.stopPropagation(); openJobDetail(job.id); }}
-                                        style={{ background: 'transparent', border: 'none', color: '#C9A84C', cursor: 'pointer', fontSize: '0.68rem', fontWeight: 600, padding: 0, textDecoration: 'underline' }}
+                                        style={{ background: 'transparent', border: 'none', color: '#9d2706', cursor: 'pointer', fontSize: '0.68rem', fontWeight: 600, padding: 0, textDecoration: 'underline' }}
                                       >
                                         (Details)
                                       </button>
@@ -554,7 +554,7 @@ const AdminProduction = () => {
                                 </div>
                               </td>
                               <td style={{ padding: '12px' }} onClick={e => e.stopPropagation()}>
-                                <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#C9A84C', display: 'block' }}>
+                                <span style={{ fontSize: '0.78rem', fontWeight: 600, color: '#9d2706', display: 'block' }}>
                                   🤝 {job.fulfillment_vendor || 'Unassigned'}
                                 </span>
                                 {(() => {
@@ -683,7 +683,7 @@ const AdminProduction = () => {
                                           onClick={() => openJobDetail(job.id)}
                                           style={{
                                             padding: '6px 12px',
-                                            background: '#C9A84C',
+                                            background: '#9d2706',
                                             color: '#000',
                                             border: 'none',
                                             borderRadius: '6px',
@@ -718,8 +718,8 @@ const AdminProduction = () => {
                                         width: '8px',
                                         height: '8px',
                                         borderRadius: '50%',
-                                        background: '#C9A84C',
-                                        boxShadow: '0 0 8px #C9A84C',
+                                        background: '#9d2706',
+                                        boxShadow: '0 0 8px #9d2706',
                                         animation: 'pulse 1.5s infinite alternate'
                                       }} />
                                       <span style={{ fontSize: '0.72rem', fontWeight: 700, color: '#44403c', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
@@ -999,7 +999,7 @@ const AdminProduction = () => {
                                     <span
                                       key={i}
                                       style={{
-                                        color: i < job.customer_feedback.rating ? '#C9A84C' : '#d6d3d1',
+                                        color: i < job.customer_feedback.rating ? '#9d2706' : '#d6d3d1',
                                         fontSize: '0.85rem'
                                       }}
                                     >
@@ -1017,13 +1017,13 @@ const AdminProduction = () => {
                                     fontSize: '0.68rem',
                                     fontWeight: 700,
                                     padding: '5px 12px',
-                                    background: '#C9A84C',
+                                    background: '#9d2706',
                                     color: '#000',
                                     border: 'none',
                                     borderRadius: '6px',
                                     cursor: 'pointer',
                                     transition: 'all 0.15s ease',
-                                    boxShadow: '0 2px 6px rgba(201,168,76,0.15)'
+                                    boxShadow: '0 2px 6px rgba(157,39,6,0.15)'
                                   }}
                                   onMouseEnter={e => e.currentTarget.style.filter = 'brightness(1.1)'}
                                   onMouseLeave={e => e.currentTarget.style.filter = 'none'}
@@ -1060,7 +1060,7 @@ const AdminProduction = () => {
                               <div
                                 style={{
                                   background: '#fafaf9',
-                                  borderLeft: '3px solid #C9A84C',
+                                  borderLeft: '3px solid #9d2706',
                                   padding: '8px 12px',
                                   fontSize: '0.72rem',
                                   color: '#57534e',
@@ -1097,7 +1097,7 @@ const AdminProduction = () => {
                         Overall Satisfaction
                       </span>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                        <span style={{ color: '#C9A84C', fontSize: '2.2rem' }}>★</span>
+                        <span style={{ color: '#9d2706', fontSize: '2.2rem' }}>★</span>
                         <strong style={{ fontSize: '2.5rem', fontFamily: "'Playfair Display', serif" }}>
                           {parseFloat(selectedVendorPerformance.satisfaction_score || 5.0).toFixed(1)}
                         </strong>
@@ -1121,7 +1121,7 @@ const AdminProduction = () => {
                         fulfilledJobs
                           .filter(job => job.customer_feedback?.rating)
                           .map(job => (
-                            <div key={job.id} className="testimonial-card" style={{ background: 'rgba(255, 255, 255, 0.7)', border: '1px solid rgba(201, 168, 76, 0.15)', borderRadius: '12px', padding: '16px', marginBottom: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.01)' }}>
+                            <div key={job.id} className="testimonial-card" style={{ background: 'rgba(255, 255, 255, 0.7)', border: '1px solid rgba(157, 39, 6, 0.15)', borderRadius: '12px', padding: '16px', marginBottom: '16px', boxShadow: '0 4px 15px rgba(0,0,0,0.01)' }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                                 <div>
                                   <strong style={{ fontSize: '0.85rem', color: '#1c1917' }}>Order #{job.order_number}</strong>
@@ -1134,7 +1134,7 @@ const AdminProduction = () => {
                                     <span
                                       key={i}
                                       style={{
-                                        color: i < job.customer_feedback.rating ? '#C9A84C' : '#d6d3d1',
+                                        color: i < job.customer_feedback.rating ? '#9d2706' : '#d6d3d1',
                                         fontSize: '0.85rem'
                                       }}
                                     >
@@ -1143,7 +1143,7 @@ const AdminProduction = () => {
                                   ))}
                                 </div>
                               </div>
-                              <p style={{ margin: '0 0 10px 0', fontSize: '0.78rem', color: '#44403c', fontStyle: 'italic', lineHeight: '1.5', background: '#fafaf9', borderLeft: '3px solid #C9A84C', padding: '8px 12px', borderRadius: '0 8px 8px 0' }}>
+                              <p style={{ margin: '0 0 10px 0', fontSize: '0.78rem', color: '#44403c', fontStyle: 'italic', lineHeight: '1.5', background: '#fafaf9', borderLeft: '3px solid #9d2706', padding: '8px 12px', borderRadius: '0 8px 8px 0' }}>
                                 "{job.customer_feedback.comment || 'No written comment recorded.'}"
                               </p>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.62rem', color: '#a8a29e' }}>
@@ -1185,7 +1185,7 @@ const AdminProduction = () => {
                           border: 'none',
                           cursor: 'pointer',
                           fontSize: '1.8rem',
-                          color: star <= feedbackForm.rating ? '#C9A84C' : '#d6d3d1',
+                          color: star <= feedbackForm.rating ? '#9d2706' : '#d6d3d1',
                           padding: 0,
                           transition: 'transform 0.15s ease'
                         }}
@@ -1307,9 +1307,9 @@ const AdminProduction = () => {
               }
             }
             .kanban-column.drag-over {
-              background: rgba(201, 168, 76, 0.05);
-              border-color: #C9A84C;
-              box-shadow: 0 0 10px rgba(201,168,76,0.1);
+              background: rgba(157, 39, 6, 0.05);
+              border-color: #9d2706;
+              box-shadow: 0 0 10px rgba(157,39,6,0.1);
             }
             .kanban-column-header {
               display: flex;
@@ -1360,7 +1360,7 @@ const AdminProduction = () => {
             .kanban-card:hover {
               transform: translateY(-2px);
               box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-              border-color: #C9A84C;
+              border-color: #9d2706;
             }
             .kanban-card:active {
               cursor: grabbing;
@@ -1412,7 +1412,7 @@ const AdminProduction = () => {
             .k-btn {
               background: transparent;
               border: none;
-              color: #C9A84C;
+              color: #9d2706;
               font-weight: 600;
               font-size: 0.7rem;
               display: flex;
@@ -1442,7 +1442,7 @@ const AdminProduction = () => {
               max-width: 100%;
               background: rgba(255, 255, 255, 0.9);
               backdrop-filter: blur(20px);
-              border-left: 1px solid rgba(201, 168, 76, 0.2);
+              border-left: 1px solid rgba(157, 39, 6, 0.2);
               box-shadow: -10px 0 30px rgba(0,0,0,0.05);
               height: 100%;
               display: flex;
@@ -1463,7 +1463,7 @@ const AdminProduction = () => {
               display: flex;
               justify-content: space-between;
               align-items: flex-start;
-              background: linear-gradient(135deg, rgba(201, 168, 76, 0.03) 0%, transparent 100%);
+              background: linear-gradient(135deg, rgba(157, 39, 6, 0.03) 0%, transparent 100%);
             }
             .perf-tabs {
               display: flex;
@@ -1486,8 +1486,8 @@ const AdminProduction = () => {
               letter-spacing: 0.05em;
             }
             .perf-tab-btn.active {
-              color: #C9A84C;
-              border-bottom-color: #C9A84C;
+              color: #9d2706;
+              border-bottom-color: #9d2706;
             }
             .perf-drawer-content {
               flex: 1;
@@ -1496,7 +1496,7 @@ const AdminProduction = () => {
             }
             .testimonial-card {
               background: rgba(255, 255, 255, 0.6);
-              border: 1px solid rgba(201, 168, 76, 0.15);
+              border: 1px solid rgba(157, 39, 6, 0.15);
               border-radius: 12px;
               padding: 16px;
               margin-bottom: 16px;
@@ -1505,8 +1505,8 @@ const AdminProduction = () => {
             }
             .testimonial-card:hover {
               transform: translateY(-2px);
-              box-shadow: 0 6px 20px rgba(201, 168, 76, 0.05);
-              border-color: rgba(201, 168, 76, 0.3);
+              box-shadow: 0 6px 20px rgba(157, 39, 6, 0.05);
+              border-color: rgba(157, 39, 6, 0.3);
             }
           `}</style>
 
@@ -1762,7 +1762,7 @@ const AdminProduction = () => {
                 <div>
                   <span style={{ display: 'block', fontSize: '0.65rem', fontWeight: 700, color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Exposed Reference Number</span>
                   <strong style={{ fontSize: '0.85rem', color: '#1c1917' }}>
-                    {selectedJob.vendor_confirmed ? selectedJob.order_number : `BYOND-W-${selectedJob.id?.substring(selectedJob.id.length - 5).toUpperCase()}`}
+                    {selectedJob.vendor_confirmed ? selectedJob.order_number : `COBBLYN-W-${selectedJob.id?.substring(selectedJob.id.length - 5).toUpperCase()}`}
                   </strong>
                 </div>
 

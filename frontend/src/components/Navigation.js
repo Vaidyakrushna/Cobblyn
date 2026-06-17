@@ -37,11 +37,11 @@ const Navigation = () => {
         api.getCart().then(data => setCartCount((data.items || []).reduce((s, i) => s + i.quantity, 0))).catch(() => {});
       }
     };
-    window.addEventListener('byond-cart-update', handler);
-    window.addEventListener('byond-wishlist-update', handler);
+    window.addEventListener('cobblyn-cart-update', handler);
+    window.addEventListener('cobblyn-wishlist-update', handler);
     return () => {
-      window.removeEventListener('byond-cart-update', handler);
-      window.removeEventListener('byond-wishlist-update', handler);
+      window.removeEventListener('cobblyn-cart-update', handler);
+      window.removeEventListener('cobblyn-wishlist-update', handler);
     };
   }, [isAuthenticated]);
 
@@ -104,7 +104,7 @@ const Navigation = () => {
     <>
       <nav className="main-nav" data-testid="main-navigation">
         <div className="nav-logo">
-          <Link href="/" data-testid="logo-link">BY<span className="text-accent">O</span>ND</Link>
+          <Link href="/" data-testid="logo-link">C<span className="text-accent">O</span>BBLYN</Link>
         </div>
 
         <ul className="nav-links nav-links-left">
@@ -128,6 +128,14 @@ const Navigation = () => {
                       <li><Link href="/bespoke">Schedule Visit</Link></li>
                       <li><Link href="/customize/men">Customisation</Link></li>
                     </ul>
+                  </div>
+                  <div className="dd-creative">
+                    <img src="/wf-nav-men.png" alt="Classic Oxfords" />
+                    <div className="dd-creative-overlay">
+                      <div className="dd-creative-label">New Arrival</div>
+                      <div className="dd-creative-title">Classic Oxfords</div>
+                      <div className="dd-creative-cta">Shop Now →</div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -154,6 +162,14 @@ const Navigation = () => {
                       <li><Link href="/customize/women">Customisation</Link></li>
                     </ul>
                   </div>
+                  <div className="dd-creative">
+                    <img src="/wf-nav-women.png" alt="Evening Heels" />
+                    <div className="dd-creative-overlay">
+                      <div className="dd-creative-label">Trending</div>
+                      <div className="dd-creative-title">Evening Heels</div>
+                      <div className="dd-creative-cta">Shop Evening →</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -165,7 +181,7 @@ const Navigation = () => {
           <li onMouseEnter={() => setActiveDropdown('accessories')} onMouseLeave={() => setActiveDropdown(null)}>
             <Link href="/accessories" data-testid="nav-link-accessories">Accessories <ChevronDown size={14} className="ml-1" /></Link>
             {activeDropdown === 'accessories' && (
-              <div className="dropdown dropdown-accessories" data-testid="accessories-submenu">
+              <div className="dropdown dropdown-accessories" data-testid="accessories-submenu" style={{ minWidth: '500px', left: 'auto', right: 0, transform: 'none' }}>
                 <div className="dropdown-inner">
                   <div>
                     <div className="dropdown-title">Categories</div>
@@ -179,6 +195,14 @@ const Navigation = () => {
                       ))}
                     </ul>
                   </div>
+                  <div className="dd-creative" style={{ width: '240px' }}>
+                    <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80&fit=crop" alt="Premium Accessories" />
+                    <div className="dd-creative-overlay">
+                      <div className="dd-creative-label">New In</div>
+                      <div className="dd-creative-title">Premium Accessories</div>
+                      <div className="dd-creative-cta">Explore →</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -190,7 +214,7 @@ const Navigation = () => {
             <Search size={18} />
           </button>
           <Link href="/wishlist" className="nav-icon-btn-link" data-testid="nav-wishlist-link">
-            <Heart size={18} fill={wishlistCount > 0 ? '#C9A84C' : 'none'} color={wishlistCount > 0 ? '#C9A84C' : 'currentColor'} />
+            <Heart size={18} fill={wishlistCount > 0 ? '#9d2706' : 'none'} color={wishlistCount > 0 ? '#9d2706' : 'currentColor'} />
           </Link>
           {isAuthenticated ? (
             <div className="nav-user-menu" ref={userMenuRef}>

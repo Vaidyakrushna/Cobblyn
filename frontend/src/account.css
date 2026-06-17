@@ -93,7 +93,7 @@
   height: 64px;
   border-radius: 50%;
   background: #1a1a1a;
-  color: #C9A84C;
+  color: #9d2706;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -425,7 +425,7 @@
 }
 
 .address-card.default {
-  border-color: #C9A84C;
+  border-color: #9d2706;
 }
 
 .address-card-header {
@@ -448,7 +448,7 @@
 
 .address-default-badge {
   font-size: 10px;
-  color: #C9A84C;
+  color: #9d2706;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -511,7 +511,7 @@
 }
 
 .payment-card.default {
-  border-color: #C9A84C;
+  border-color: #9d2706;
 }
 
 .payment-card-icon {
@@ -533,7 +533,7 @@
 
 .payment-default-badge {
   font-size: 10px;
-  color: #C9A84C;
+  color: #9d2706;
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -759,8 +759,8 @@
 }
 
 .timeline-entry.current .timeline-dot {
-  background: #C9A84C;
-  box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.2);
+  background: #9d2706;
+  box-shadow: 0 0 0 3px rgba(157, 39, 6, 0.2);
 }
 
 .timeline-info {

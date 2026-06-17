@@ -419,7 +419,7 @@ const AdminTickets = () => {
 
                 {/* Active Proposed Modification Draft */}
                 {selectedTicket.proposed_modification_draft && (
-                  <div style={{ background: '#fffbeb', border: '1.5px solid #C9A84C', borderRadius: '8px', padding: '12px', marginBottom: '12px', fontSize: '0.72rem' }}>
+                  <div style={{ background: '#fffbeb', border: '1.5px solid #9d2706', borderRadius: '8px', padding: '12px', marginBottom: '12px', fontSize: '0.72rem' }}>
                     <h5 style={{ margin: '0 0 6px 0', fontSize: '0.74rem', fontWeight: 700, color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       ✏️ Active Modification Draft
                     </h5>
@@ -456,14 +456,14 @@ const AdminTickets = () => {
                           onClick={() => pushProposalToAdmin(selectedTicket.proposed_modification_draft)}
                           style={{ 
                             padding: '4px 10px', 
-                            background: '#C9A84C', 
+                            background: '#9d2706', 
                             color: '#fff', 
                             border: 'none', 
                             borderRadius: '4px', 
                             fontSize: '0.68rem', 
                             fontWeight: 700, 
                             cursor: 'pointer',
-                            boxShadow: '0 0 10px rgba(201,168,76,0.3)',
+                            boxShadow: '0 0 10px rgba(157,39,6,0.3)',
                             marginTop: 0
                           }}
                         >
@@ -542,7 +542,7 @@ const AdminTickets = () => {
                         <span className={`tier-badge ${vaultData.client_tier || 'regular'}`}>
                           {vaultData.client_tier?.toUpperCase() || 'REGULAR'}
                         </span>
-                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#C9A84C' }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#9d2706' }}>
                           CLV: {'\u20B9'}{(vaultData.clv || 0.00).toLocaleString('en-IN')}
                         </span>
                       </div>
@@ -561,8 +561,8 @@ const AdminTickets = () => {
                           <div style={{ marginTop: 10, background: '#111', borderRadius: 8, padding: 8, display: 'flex', justifyContent: 'center' }}>
                             <svg width="120" height="90" viewBox="0 0 100 80">
                               <rect width="100%" height="100%" fill="none" />
-                              <path d="M 30,70 C 15,60 12,30 18,15 C 24,5 28,10 32,15 C 38,30 35,60 30,70 Z" fill="rgba(201, 168, 76, 0.06)" stroke="#C9A84C" strokeWidth="1" />
-                              <path d="M 70,70 C 85,60 88,30 82,15 C 76,5 72,10 68,15 C 62,30 65,60 70,70 Z" fill="rgba(201, 168, 76, 0.06)" stroke="#C9A84C" strokeWidth="1" />
+                              <path d="M 30,70 C 15,60 12,30 18,15 C 24,5 28,10 32,15 C 38,30 35,60 30,70 Z" fill="rgba(157, 39, 6, 0.06)" stroke="#9d2706" strokeWidth="1" />
+                              <path d="M 70,70 C 85,60 88,30 82,15 C 76,5 72,10 68,15 C 62,30 65,60 70,70 Z" fill="rgba(157, 39, 6, 0.06)" stroke="#9d2706" strokeWidth="1" />
                               <text x="50" y="45" fill="rgba(255,255,255,0.4)" fontSize="7" textAnchor="middle" fontFamily="monospace">LiDAR ACTIVE</text>
                             </svg>
                           </div>
@@ -595,7 +595,7 @@ const AdminTickets = () => {
                                 {o.pending_modification ? (
                                   <span style={{ fontSize: '0.55rem', color: '#d97706', fontWeight: 700, textTransform: 'uppercase', background: '#fffbeb', padding: '1px 4px', borderRadius: '3px', border: '1px solid #fef3c7' }}>Pending Review</span>
                                 ) : <span />}
-                                <button onClick={() => startProposing(o)} style={{ padding: '2px 6px', background: '#fafaf9', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '0.56rem', fontWeight: 700, color: '#C9A84C', cursor: 'pointer' }}>
+                                <button onClick={() => startProposing(o)} style={{ padding: '2px 6px', background: '#fafaf9', border: '1px solid #d1d5db', borderRadius: '4px', fontSize: '0.56rem', fontWeight: 700, color: '#9d2706', cursor: 'pointer' }}>
                                   {o.pending_modification ? '📝 Edit Proposal' : '✏️ Propose Changes'}
                                 </button>
                               </div>
@@ -656,7 +656,7 @@ const AdminTickets = () => {
             <div style={{ background: '#fafaf9', padding: '12px', borderRadius: '8px', border: '1px solid #e7e5e4', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', fontSize: '0.72rem', marginBottom: '14px' }}>
               <div><span style={{ color: '#78716c', fontWeight: 600 }}>Customer Name:</span> <strong style={{ color: '#44403c' }}>{selectedTicket.user_name}</strong></div>
               <div><span style={{ color: '#78716c', fontWeight: 600 }}>Customer Email:</span> <strong style={{ color: '#44403c' }}>{selectedTicket.user_email}</strong></div>
-              <div><span style={{ color: '#78716c', fontWeight: 600 }}>Order Number:</span> <strong style={{ color: '#C9A84C' }}>#{proposingOrder.order_number}</strong></div>
+              <div><span style={{ color: '#78716c', fontWeight: 600 }}>Order Number:</span> <strong style={{ color: '#9d2706' }}>#{proposingOrder.order_number}</strong></div>
               <div><span style={{ color: '#78716c', fontWeight: 600 }}>Client Tier:</span> <strong style={{ textTransform: 'uppercase', color: '#78716c' }}>{vaultData?.client_tier || 'REGULAR'}</strong></div>
             </div>
 

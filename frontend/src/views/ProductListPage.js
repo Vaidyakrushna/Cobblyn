@@ -180,7 +180,7 @@ const ProductListContent = ({ gender, title, subtitle, filterType: filterTypePro
         await api.addToWishlist(productId);
         setWishlistedIds(prev => [...prev, productId]);
       }
-      window.dispatchEvent(new Event('byond-wishlist-update'));
+      window.dispatchEvent(new Event('cobblyn-wishlist-update'));
     } catch (err) {
       console.error('Wishlist error:', err);
     }
@@ -199,7 +199,7 @@ const ProductListContent = ({ gender, title, subtitle, filterType: filterTypePro
     if (!isAuthenticated) { setLoginPanel(true); setSimilarPanel(null); return; }
     try {
       await api.addToCart({ product_id: item.id, size: (item.sizes || ['9'])[0], color: (item.colors || [{ name: 'Black' }])[0].name, quantity: 1 });
-      window.dispatchEvent(new Event('byond-cart-update'));
+      window.dispatchEvent(new Event('cobblyn-cart-update'));
       alert(`${item.name} added to cart!`);
     } catch (err) { alert('Failed: ' + err.message); }
   };
@@ -211,7 +211,7 @@ const ProductListContent = ({ gender, title, subtitle, filterType: filterTypePro
     try {
       await api.addToWishlist(item.id);
       setWishlistedIds(prev => [...prev, item.id]);
-      window.dispatchEvent(new Event('byond-wishlist-update'));
+      window.dispatchEvent(new Event('cobblyn-wishlist-update'));
     } catch (err) { console.error(err); }
   };
 
@@ -356,7 +356,7 @@ const ProductListContent = ({ gender, title, subtitle, filterType: filterTypePro
                       data-testid={`plp-wishlist-${product.id}`}
                       title="Add to Wishlist"
                     >
-                      <Heart size={16} fill={wishlistedIds.includes(product.id) ? '#C9A84C' : 'none'} />
+                      <Heart size={16} fill={wishlistedIds.includes(product.id) ? '#9d2706' : 'none'} />
                     </button>
                     <button 
                       className="plp-icon-btn"
@@ -448,7 +448,7 @@ const ProductListContent = ({ gender, title, subtitle, filterType: filterTypePro
                           <ShoppingCart size={14} /> Add to Cart
                         </button>
                         <button className={`similar-wishlist-btn ${wishlistedIds.includes(item.id) ? 'active' : ''}`} onClick={(e) => handleSimilarWishlist(e, item)} data-testid={`similar-wishlist-${item.id}`}>
-                          <Heart size={14} fill={wishlistedIds.includes(item.id) ? '#C9A84C' : 'none'} color={wishlistedIds.includes(item.id) ? '#C9A84C' : 'currentColor'} />
+                          <Heart size={14} fill={wishlistedIds.includes(item.id) ? '#9d2706' : 'none'} color={wishlistedIds.includes(item.id) ? '#9d2706' : 'currentColor'} />
                         </button>
                       </div>
                     </div>

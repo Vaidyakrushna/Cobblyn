@@ -28,7 +28,7 @@ const TESTIMONIALS = [
     name: 'Ananya Kapoor',
     city: 'Delhi',
     rating: 5,
-    text: 'I was gifted a BYOND bespoke visit for my birthday. It was genuinely one of the most luxurious experiences I\'ve had. The Jutis are extraordinary.',
+    text: 'I was gifted a Cobblyn bespoke visit for my birthday. It was genuinely one of the most luxurious experiences I\'ve had. The Jutis are extraordinary.',
   },
   {
     name: 'Vikram Singhania',
@@ -51,7 +51,7 @@ const PROCESS_STEPS = [
     icon: <MapPin size={32} />,
     title: 'We Come to You',
     sub: 'At your home or office',
-    desc: 'A trained BYOND artisan visits with a full swatch library, sample shoes in every major style, and all necessary tools.',
+    desc: 'A trained Cobblyn artisan visits with a full swatch library, sample shoes in every major style, and all necessary tools.',
   },
   {
     num: '03',
@@ -65,7 +65,7 @@ const PROCESS_STEPS = [
     icon: <Package2 size={32} />,
     title: 'Handcrafted & Delivered',
     sub: '15–20 working days',
-    desc: 'Master cobblers handcraft your pair in our Jaipur atelier. Shipped free in the signature BYOND box, directly to your door.',
+    desc: 'Master cobblers handcraft your pair in our Jaipur atelier. Shipped free in the signature Cobblyn box, directly to your door.',
   },
 ];
 
@@ -123,7 +123,7 @@ export default function BespokePage() {
         <div className="bespoke-hero-v2-bg">
           <img
             src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1600&q=85&fit=crop"
-            alt="BYOND Bespoke"
+            alt="Cobblyn Bespoke"
           />
           <div className="bespoke-hero-v2-overlay" />
         </div>
@@ -250,7 +250,7 @@ export default function BespokePage() {
               <div className="bespoke-testimonial-footer">
                 <div className="bespoke-testimonial-stars">
                   {[1,2,3,4,5].map(s => (
-                    <Star key={s} size={12} fill="#C9A84C" color="#C9A84C" />
+                    <Star key={s} size={12} fill="#9d2706" color="#9d2706" />
                   ))}
                 </div>
                 <div className="bespoke-testimonial-author">

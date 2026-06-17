@@ -14,8 +14,12 @@ const models = {
     { name: 'Derby',      desc: 'Open-lacing versatility',          img: 'https://images.unsplash.com/photo-1616696038562-574c18066055?w=500&q=80&fit=crop' },
     { name: 'Loafer',     desc: 'Slip-on sophistication',           img: 'https://images.pexels.com/photos/29258015/pexels-photo-29258015.jpeg?auto=compress&cs=tinysrgb&w=500' },
     { name: 'Monk Strap', desc: 'Bold buckle statement',            img: 'https://images.unsplash.com/photo-1770198408387-7f45e5d6c056?w=500&q=80&fit=crop' },
-    { name: 'Boots',      desc: 'Ankle-height confidence',          img: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=500&q=80&fit=crop' },
+    { name: 'Desert Boot/Chukka Boots', desc: 'Chukka & desert silhouette', img: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=500&q=80&fit=crop' },
+    { name: 'Wing Tip',   desc: 'Decorative brogue detail',        img: 'https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=500&q=80&fit=crop' },
+    { name: 'Mule',       desc: 'Backless slip-on ease',           img: 'https://images.unsplash.com/photo-1603191659812-ee978eeeef76?w=500&q=80&fit=crop' },
     { name: 'Jutis',      desc: 'Traditional Indian craft',         img: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=500&q=80&fit=crop' },
+    { name: 'Mojaris',    desc: 'Heritage pointed slip-on',        img: 'https://images.unsplash.com/photo-1610398061401-86320597d020?w=500&q=80&fit=crop' },
+    { name: 'Boat',       desc: 'Maritime deck shoe',              img: 'https://images.unsplash.com/photo-1562273138-f46be4ebdf33?w=500&q=80&fit=crop' }
   ],
   women: [
     { name: 'Ballerina',  desc: 'Graceful flat elegance',           img: 'https://images.unsplash.com/photo-1774802536876-88b0e1ca7453?w=500&q=80&fit=crop' },
@@ -339,6 +343,81 @@ const submodels = {
       img: 'https://images.unsplash.com/photo-1774802536876-88b0e1ca7453?w=600&q=80&fit=crop',
     },
   ],
+
+  'Desert Boot/Chukka Boots': [
+    {
+      name: 'Suede Desert Boot',
+      desc: 'Classic crepe sole with soft suede upper — casual, comfortable heritage.',
+      tag: 'Most Classic',
+      img: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=600&q=80&fit=crop',
+    },
+    {
+      name: 'Leather Chukka',
+      desc: 'Premium leather finish with a smart thin dress sole for smart-casual events.',
+      tag: 'Dress Casual',
+      img: 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=600&q=80&fit=crop',
+    },
+  ],
+
+  'Wing Tip': [
+    {
+      name: 'Brogue Wingtip',
+      desc: 'Full wingtip broguing with decorative toe medallion — high personality.',
+      tag: 'Bestseller',
+      img: 'https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=600&q=80&fit=crop',
+    },
+    {
+      name: 'Longwing Brogue',
+      desc: 'Classic American styling where the wingtip seam extends fully to the heel.',
+      tag: 'Heritage',
+      img: 'https://images.unsplash.com/photo-1595341888016-a392ef81b7de?w=600&q=80&fit=crop',
+    },
+  ],
+
+  'Mule': [
+    {
+      name: 'Leather Mule Slipper',
+      desc: 'Backless slip-on leather slide with low stacked heel — effortless luxury.',
+      tag: 'New Arrival',
+      img: 'https://images.unsplash.com/photo-1603191659812-ee978eeeef76?w=600&q=80&fit=crop',
+    },
+    {
+      name: 'Suede Venetian Mule',
+      desc: 'Ultra-soft backless venetian suede slide for high comfort.',
+      tag: 'Casual Luxury',
+      img: 'https://images.unsplash.com/photo-1583264739275-656ff57a087f?w=600&q=80&fit=crop',
+    },
+  ],
+
+  'Mojaris': [
+    {
+      name: 'Pointed Sherwani Mojari',
+      desc: 'Traditional pointed mojari with curled front tip for weddings and ceremonies.',
+      tag: 'Ceremonial',
+      img: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80&fit=crop',
+    },
+    {
+      name: 'Velvet Embroidered Mojari',
+      desc: 'Rich velvet upper with detailed zardozi hand embroidery.',
+      tag: 'Royal Collection',
+      img: 'https://images.unsplash.com/photo-1610398061401-86320597d020?w=600&q=80&fit=crop',
+    },
+  ],
+
+  'Boat': [
+    {
+      name: 'Classic Boat Shoe',
+      desc: 'Premium oiled leather with white siped rubber soles and 360-degree lacing.',
+      tag: 'Nautical Classic',
+      img: 'https://images.unsplash.com/photo-1562273138-f46be4ebdf33?w=600&q=80&fit=crop',
+    },
+    {
+      name: 'Suede Deck Shoe',
+      desc: 'Soft suede slip-on deck shoe for warm weather and sailing excursions.',
+      tag: 'Summer Casual',
+      img: 'https://images.unsplash.com/photo-1583264739275-656ff57a087f?w=600&q=80&fit=crop',
+    },
+  ],
 };
 
 /* ─── LEATHER / COLOR / SOLE data (unchanged) ──────────────── */
@@ -366,6 +445,56 @@ const soles = [
   { name: 'Crepe Sole',   desc: 'Natural comfort, casual wear' },
 ];
 
+/* ─── 2D SILHOUETTE IMAGE MAPPER ────────────────────────── */
+const get2DShoeImage = (model, submodel) => {
+  if (!model) return '/shoe-oxford.png';
+  const modelNorm = model.toLowerCase();
+  const subNorm = (submodel || '').toLowerCase();
+
+  if (modelNorm.includes('oxford')) {
+    if (subNorm.includes('captoe') || subNorm.includes('cap-toe')) return '/shoe-oxford-captoe.png';
+    if (subNorm.includes('wingtip')) return '/shoe-oxford-wingtip.png';
+    if (subNorm.includes('wholecut')) return '/shoe-oxford-wholecut.png';
+    return '/shoe-oxford.png';
+  }
+  if (modelNorm.includes('derby')) {
+    if (subNorm.includes('captoe') || subNorm.includes('cap-toe')) return '/shoe-derby-captoe.png';
+    if (subNorm.includes('wingtip')) return '/shoe-derby-wingtip.png';
+    return '/shoe-derby.png';
+  }
+  if (modelNorm.includes('loafer')) {
+    if (subNorm.includes('penny')) return '/shoe-loafer-penny.png';
+    if (subNorm.includes('tassel')) return '/shoe-loafer-tassel.png';
+    if (subNorm.includes('horsebit')) return '/shoe-loafer-horsebit.png';
+    return '/shoe-loafer.png';
+  }
+  if (modelNorm.includes('monk')) {
+    if (subNorm.includes('single')) return '/shoe-monk-single.png';
+    return '/shoe-monkstrap.png';
+  }
+  if (modelNorm.includes('boot') || modelNorm.includes('chukka') || modelNorm.includes('desert')) {
+    if (subNorm.includes('chelsea')) return '/shoe-boot-chelsea.png';
+    if (subNorm.includes('chukka') || subNorm.includes('desert')) return '/shoe-boot-chukka.png';
+    return '/shoe-boot.png';
+  }
+  if (modelNorm.includes('juti') || modelNorm.includes('nagra') || modelNorm.includes('mojari')) {
+    return '/shoe-juti.png';
+  }
+  if (modelNorm.includes('flat') || modelNorm.includes('ballerina')) {
+    if (subNorm.includes('pointed')) return '/shoe-flat-pointed.png';
+    return '/shoe-flat.png';
+  }
+  if (modelNorm.includes('peep') || modelNorm.includes('heel')) {
+    return '/shoe-heel.png';
+  }
+  if (modelNorm.includes('wing')) {
+    return '/shoe-oxford-wingtip.png';
+  }
+  if (modelNorm.includes('mule') || modelNorm.includes('boat')) {
+    return '/shoe-loafer.png';
+  }
+  return '/shoe-oxford.png';
+};
 /* ─── STEP LABELS ─────────────────────────────────────────── */
 const steps = ['Gender', 'Model', 'Submodel', 'Leather', 'Color', 'Sole', 'Size', 'Summary'];
 
@@ -378,6 +507,17 @@ const CustomizePage = () => {
   const [activeLeathers, setActiveLeathers] = useState(leathers);
   const [activeColors, setActiveColors] = useState(colors);
   const [activeSoles, setActiveSoles] = useState(soles);
+  const [activeSubmodels, setActiveSubmodels] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('byond_customizer_submodels');
+        if (saved) return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to load submodels:', e);
+      }
+    }
+    return submodels;
+  });
   
   // Fetch real database products & materials for inventory & mapping check
   const [dbProducts, setDbProducts] = useState([]);
@@ -396,6 +536,18 @@ const CustomizePage = () => {
       }
     };
     fetchDbData();
+
+    // Sync submodels from localStorage
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('byond_customizer_submodels');
+        if (saved) {
+          setActiveSubmodels(JSON.parse(saved));
+        }
+      } catch (e) {
+        console.error('Failed to parse submodels from localStorage:', e);
+      }
+    }
   }, []);
 
   const getFilteredLeathers = () => {
@@ -675,9 +827,7 @@ const CustomizePage = () => {
       return;
     }
     
-    const submodelsList = getSubmodels();
-    const activeSubmodel = submodelsList.find(sm => sm.name === config.submodel);
-    const imageUrl = activeSubmodel?.img || 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=500&q=80&fit=crop';
+    const imageUrl = get2DShoeImage(config.model, config.submodel);
     
     const newDesign = {
       id: 'BYOND-SAVED-' + Math.floor(100000 + Math.random() * 900000),
@@ -780,10 +930,7 @@ const CustomizePage = () => {
     ctx.arc(540, 340, 5, 0, Math.PI * 2);
     ctx.fill();
 
-    // 5. Draw Silhouette Image
-    const submodelsList = getSubmodels();
-    const activeSubmodel = submodelsList.find(sm => sm.name === config.submodel);
-    const imageUrl = activeSubmodel?.img || 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=600&q=80&fit=crop';
+    const imageUrl = get2DShoeImage(config.model, config.submodel);
     
     const img = new Image();
     img.crossOrigin = 'anonymous';
@@ -892,9 +1039,9 @@ const CustomizePage = () => {
     if (!config.model) return [];
     // Women's Boots use 'WomenBoots' key to avoid collision with Men's Boots
     if (config.model === 'Boots' && config.gender === 'women') {
-      return submodels['WomenBoots'] || [];
+      return activeSubmodels['WomenBoots'] || [];
     }
-    return submodels[config.model] || [];
+    return activeSubmodels[config.model] || [];
   };
 
   const pick = (key, val, nextStep) => {
@@ -1017,11 +1164,11 @@ const CustomizePage = () => {
                     onClick={() => { setConfig(prev => ({ ...prev, model: m.name, submodel: '' })); setStep(2); }}
                     data-testid={`model-${m.name.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    <img src={m.img} alt={m.name} />
+                    <img src={get2DShoeImage(m.name)} alt={m.name} style={{ objectFit: 'contain', padding: '16px', background: '#fff' }} />
                     <div className="model-info">
                       <h3>{m.name}</h3>
                       <p>{m.desc}</p>
-                      <span className="model-count">{(config.gender === 'women' && m.name === 'Boots' ? submodels['WomenBoots'] : submodels[m.name] || []).length} styles →</span>
+                      <span className="model-count">{(config.gender === 'women' && m.name === 'Boots' ? activeSubmodels['WomenBoots'] : activeSubmodels[m.name] || []).length} styles →</span>
                     </div>
                   </button>
                 ))}
@@ -1071,8 +1218,8 @@ const CustomizePage = () => {
                     {config.submodel === sm.name && (
                       <div className="submodel-check"><Check size={14} strokeWidth={3} /></div>
                     )}
-                    <div className="submodel-img-wrap">
-                      <img src={sm.img} alt={sm.name} />
+                    <div className="submodel-img-wrap" style={{ background: '#fff' }}>
+                      <img src={get2DShoeImage(config.model, sm.name)} alt={sm.name} style={{ objectFit: 'contain', padding: '16px' }} />
                       <div className="submodel-img-overlay" />
                     </div>
                     <div className="submodel-info">
@@ -1092,23 +1239,20 @@ const CustomizePage = () => {
       {step >= 3 && (
         <div style={{ 
           display: 'grid', 
-          gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr', 
-          gap: '32px', 
+          gridTemplateColumns: isMobile ? '1fr' : '1.1fr 0.9fr', 
+          gap: '28px', 
           maxWidth: '1300px', 
           margin: '0 auto', 
-          alignItems: 'start',
-          height: isMobile ? 'auto' : 'calc(100vh - 140px)',
-          overflow: isMobile ? 'visible' : 'hidden'
+          alignItems: 'start'
         }}>
           
           {/* Left Pane: Persistent Canvas Preview */}
           <div style={{ 
             position: isMobile ? 'relative' : 'sticky', 
-            top: isMobile ? '0' : '10px', 
+            top: isMobile ? '0' : '16px', 
             display: 'flex', 
             flexDirection: 'column', 
             gap: '16px',
-            height: isMobile ? 'auto' : '100%',
             justifyContent: 'flex-start'
           }}>
             <div style={{ 
@@ -1119,17 +1263,18 @@ const CustomizePage = () => {
               overflow: 'hidden', 
               border: '1px solid #C9A84C', 
               background: '#fcfcfc', 
-              boxShadow: '0 8px 30px rgba(0,0,0,0.06)',
-              maxHeight: isMobile ? 'none' : 'calc(100vh - 220px)'
+              boxShadow: '0 8px 30px rgba(0,0,0,0.06)'
             }}>
               
               <img 
-                src={getSubmodels().find(sm => sm.name === config.submodel)?.img || 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=600&q=80&fit=crop'} 
+                src={get2DShoeImage(config.model, config.submodel)} 
                 alt="Bespoke Shoe Preview" 
                 style={{ 
                   width: '100%', 
                   height: '100%', 
-                  objectFit: 'cover', 
+                  objectFit: 'contain', 
+                  padding: '24px',
+                  background: '#fff',
                   transition: 'opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)', 
                   opacity: isTransitioning ? 0.3 : 1,
                   transform: isTransitioning ? 'scale(0.98)' : 'scale(1)'
@@ -1194,11 +1339,7 @@ const CustomizePage = () => {
           <div style={{ 
             display: 'flex', 
             flexDirection: 'column', 
-            gap: '16px',
-            height: isMobile ? 'auto' : '100%',
-            overflowY: isMobile ? 'visible' : 'auto',
-            paddingRight: isMobile ? '0' : '8px',
-            maxHeight: isMobile ? 'none' : 'calc(100vh - 140px)'
+            gap: '14px'
           }}>
             
             {/* Accordion 1: Leather Selection */}
@@ -1533,9 +1674,9 @@ const CustomizePage = () => {
               {/* Mockup image */}
               <div style={{ width: '100%', height: '130px', borderRadius: '8px', border: '1px solid #C9A84C', overflow: 'hidden', margin: '8px 0' }}>
                 <img 
-                  src={getSubmodels().find(sm => sm.name === config.submodel)?.img || 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=500&q=80&fit=crop'} 
+                  src={get2DShoeImage(config.model, config.submodel)} 
                   alt="Shoe" 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '8px', background: '#fff' }} 
                 />
               </div>
 

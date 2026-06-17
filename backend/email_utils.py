@@ -44,11 +44,11 @@ async def send_verification_email(to_email: str, token: str):
     frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
     verification_link = f"{frontend_url}/verify-email?token={token}"
     
-    subject = "Verify your Byond Studio Account"
+    subject = "Verify your Cobblyn Account"
     html_content = f"""
     <html>
       <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #1a1a1a;">Welcome to Byond Studio!</h2>
+        <h2 style="color: #1a1a1a;">Welcome to Cobblyn!</h2>
         <p>Thank you for creating an account. To complete your registration and log in, please verify your email address by clicking the button below:</p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="{verification_link}" style="background-color: #1a1a1a; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 4px; display: inline-block;">Verify Email</a>
@@ -67,12 +67,12 @@ async def send_password_reset_email(to_email: str, token: str):
     frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
     reset_link = f"{frontend_url}/reset-password?token={token}"
     
-    subject = "Reset your Byond Studio Password"
+    subject = "Reset your Cobblyn Password"
     html_content = f"""
     <html>
       <body style="font-family: Arial, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: 0 auto; padding: 20px;">
         <h2 style="color: #1a1a1a;">Password Reset Request</h2>
-        <p>We received a request to reset the password for your Byond Studio account. You can reset your password by clicking the button below:</p>
+        <p>We received a request to reset the password for your Cobblyn account. You can reset your password by clicking the button below:</p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="{reset_link}" style="background-color: #1a1a1a; color: #ffffff; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 4px; display: inline-block;">Reset Password</a>
         </div>

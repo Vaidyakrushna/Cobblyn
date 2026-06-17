@@ -120,7 +120,7 @@ async def get_vendor_portal(token: str):
 
         job = {
             "id": str(doc["_id"]),
-            "order_number": doc.get("order_number", "") if is_confirmed else f"BYOND-W-{str(doc['_id'])[-5:].upper()}",
+            "order_number": doc.get("order_number", "") if is_confirmed else f"COBBLYN-W-{str(doc['_id'])[-5:].upper()}",
 
             "customer_name": filtered_customer_name,
             "customer_email": filtered_customer_email,

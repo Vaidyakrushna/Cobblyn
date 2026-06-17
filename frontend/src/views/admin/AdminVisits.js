@@ -212,9 +212,9 @@ const AdminVisits = () => {
       {/* ── Page Title ── */}
       <div className="admin-page-header" style={{ marginBottom: '0' }}>
         <div>
-          <span style={{ fontSize: '0.62rem', color: '#C9A84C', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700 }}>ATELIER SERVICE PLANNER</span>
+          <span style={{ fontSize: '0.62rem', color: '#9d2706', letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700 }}>ATELIER SERVICE PLANNER</span>
           <h1 style={{ margin: '4px 0 0 0', fontFamily: 'Montserrat, sans-serif', fontSize: '1.6rem', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Calendar size={26} color="#C9A84C" /> Schedule-a-Visit Hub
+            <Calendar size={26} color="#9d2706" /> Schedule-a-Visit Hub
           </h1>
         </div>
       </div>
@@ -245,9 +245,9 @@ const AdminVisits = () => {
               fontWeight: 600,
               background: 'none',
               border: 'none',
-              borderBottom: activeTab === tab.key ? '2px solid #C9A84C' : '2px solid transparent',
+              borderBottom: activeTab === tab.key ? '2px solid #9d2706' : '2px solid transparent',
               marginBottom: '-2px',
-              color: activeTab === tab.key ? '#C9A84C' : '#6B7280',
+              color: activeTab === tab.key ? '#9d2706' : '#6B7280',
               cursor: 'pointer',
               transition: 'color 0.18s',
               whiteSpace: 'nowrap',
@@ -534,8 +534,8 @@ const AdminVisits = () => {
             {/* Visual Analytics / Stat Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '24px' }}>
               <div style={{ background: '#FAF9F6', border: '1px solid #e7e5e4', borderRadius: '12px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(201, 168, 76, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Globe size={18} color="#C9A84C" />
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(157, 39, 6, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Globe size={18} color="#9d2706" />
                 </div>
                 <div>
                   <div style={{ fontSize: '0.65rem', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Active Zones</div>
@@ -544,8 +544,8 @@ const AdminVisits = () => {
               </div>
 
               <div style={{ background: '#FAF9F6', border: '1px solid #e7e5e4', borderRadius: '12px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(201, 168, 76, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Map size={18} color="#C9A84C" />
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(157, 39, 6, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Map size={18} color="#9d2706" />
                 </div>
                 <div>
                   <div style={{ fontSize: '0.65rem', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Coverage Cities</div>
@@ -557,7 +557,7 @@ const AdminVisits = () => {
             {/* Pincodes Registry Grid */}
             <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden' }}>
               <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FAF9F6' }}>
-                <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em' }}>🌐 Service Zones Registry</h3>
+                <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em' }}>🌐 Service Zones Registry</h3>
                 <button 
                   onClick={fetchPincodes}
                   disabled={pincodesLoading}
@@ -630,8 +630,8 @@ const AdminVisits = () => {
           </div>
 
           {/* Right Panel: Add New Region Registration Form */}
-          <div style={{ background: '#FAF9F6', border: '1px solid #C9A84C', borderRadius: '12px', padding: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
-            <h3 style={{ margin: '0 0 6px 0', fontSize: '0.8rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ background: '#FAF9F6', border: '1px solid #9d2706', borderRadius: '12px', padding: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.02)' }}>
+            <h3 style={{ margin: '0 0 6px 0', fontSize: '0.8rem', fontWeight: 700, color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <Plus size={16} /> Add Service Zone
             </h3>
             <p style={{ margin: '0 0 16px 0', fontSize: '0.68rem', color: '#6b7280', lineHeight: 1.4 }}>
@@ -713,7 +713,7 @@ const AdminVisits = () => {
                   transition: 'background 0.2s'
                 }}
               >
-                <Sparkles size={12} color="#C9A84C" /> {pincodeActionLoading ? 'Registering...' : 'Register Service Zone'}
+                <Sparkles size={12} color="#9d2706" /> {pincodeActionLoading ? 'Registering...' : 'Register Service Zone'}
               </button>
             </form>
           </div>
@@ -725,8 +725,8 @@ const AdminVisits = () => {
           {/* Visual Analytics / Stat Cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '24px' }}>
             <div style={{ background: '#FAF9F6', border: '1px solid #e7e5e4', borderRadius: '12px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(201, 168, 76, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Globe size={18} color="#C9A84C" />
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(157, 39, 6, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Globe size={18} color="#9d2706" />
               </div>
               <div>
                 <div style={{ fontSize: '0.65rem', color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>Active Zones</div>
@@ -748,7 +748,7 @@ const AdminVisits = () => {
           {/* Daily Slot Booking Capacity Adjuster */}
           <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '12px', overflow: 'hidden' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#FAF9F6' }}>
-              <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em' }}>⚡ Dynamic Capacity Steppers</h3>
+              <h3 style={{ margin: 0, fontSize: '0.85rem', fontWeight: 700, color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em' }}>⚡ Dynamic Capacity Steppers</h3>
               <button 
                 onClick={fetchPincodes}
                 disabled={pincodesLoading}
@@ -829,9 +829,9 @@ const AdminVisits = () => {
                               width: '28px',
                               height: '28px',
                               borderRadius: '50%',
-                              border: '1px solid #C9A84C',
-                              background: 'rgba(201, 168, 76, 0.02)',
-                              color: '#C9A84C',
+                              border: '1px solid #9d2706',
+                              background: 'rgba(157, 39, 6, 0.02)',
+                              color: '#9d2706',
                               cursor: p.capacity >= 50 ? 'not-allowed' : 'pointer',
                               display: 'flex',
                               alignItems: 'center',

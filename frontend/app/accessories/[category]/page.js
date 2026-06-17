@@ -192,7 +192,7 @@ export default function AccessoryCategoryPage() {
                       onClick={e => toggleWishlist(e, product.id)}
                       title="Wishlist"
                     >
-                      <Heart size={16} fill={wishlist.includes(product.id) ? '#C9A84C' : 'none'} />
+                      <Heart size={16} fill={wishlist.includes(product.id) ? '#9d2706' : 'none'} />
                     </button>
                     <button
                       className={`plp-icon-btn ${addedToCart === product.id ? 'active' : ''}`}

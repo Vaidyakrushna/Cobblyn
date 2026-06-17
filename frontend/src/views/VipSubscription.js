@@ -69,7 +69,7 @@ const VipSubscription = () => {
       <div style={{ textAlign: 'center', marginBottom: '40px' }}>
         <h1 style={{ fontSize: '32px', fontWeight: '800', margin: '0 0 10px 0', color: '#111' }}>
           <Star style={{ display: 'inline', color: '#D4AF37', marginRight: '10px' }} fill="#D4AF37" />
-          BYOND VIP
+          Cobblyn VIP
         </h1>
         <p style={{ fontSize: '16px', color: '#666', maxWidth: '600px', margin: '0 auto' }}>
           Experience the ultimate luxury. Get exclusive discounts, free shipping, and priority support.

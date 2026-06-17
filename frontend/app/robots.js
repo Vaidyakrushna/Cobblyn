@@ -5,6 +5,6 @@ export default function robots() {
       allow: '/',
       disallow: ['/admin/', '/account/'],
     },
-    sitemap: 'https://byondstudio.com/sitemap.xml',
+    sitemap: 'https://cobblynstudio.com/sitemap.xml',
   }
 }

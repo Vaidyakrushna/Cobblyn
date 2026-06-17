@@ -153,7 +153,7 @@ export default function VendorPortalPage() {
     return (
       <div style={{ minHeight: '100vh', background: '#0c0a09', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontFamily: 'Montserrat, sans-serif' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ border: '3px solid rgba(201, 168, 76, 0.2)', borderTop: '3px solid #C9A84C', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite', margin: '0 auto 16px auto' }} />
+          <div style={{ border: '3px solid rgba(157, 39, 6, 0.2)', borderTop: '3px solid #9d2706', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite', margin: '0 auto 16px auto' }} />
           <p style={{ fontSize: '0.85rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#a1a1aa' }}>Authenticating Workshop...</p>
         </div>
         <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
@@ -170,7 +170,7 @@ export default function VendorPortalPage() {
           </div>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '12px', color: '#fca5a5', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Access Terminated</h2>
           <p style={{ fontSize: '0.82rem', color: '#d6d3d1', lineHeight: '1.75', marginBottom: '24px' }}>
-            This magic link is either expired, invalid, or has been automatically reverted back to the Byond Studio in-house queue due to missing the 12-hour SLA confirmation window.
+            This magic link is either expired, invalid, or has been automatically reverted back to the Cobblyn in-house queue due to missing the 12-hour SLA confirmation window.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <button onClick={() => fetchPortalData()} style={{ padding: '12px', background: '#e11d48', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', cursor: 'pointer' }}>
@@ -193,19 +193,19 @@ export default function VendorPortalPage() {
     <div style={{ minHeight: '100vh', background: '#0c0a09', color: '#f5f5f4', padding: '24px 16px', fontFamily: 'Montserrat, sans-serif' }}>
       
       {/* HEADER SECTION */}
-      <header className="glass-dark-gilded" style={{ maxWidth: '1200px', margin: '0 auto 24px auto', background: 'rgba(28, 25, 23, 0.75)', border: '1px solid rgba(201, 168, 76, 0.25)', borderRadius: '16px', padding: '24px', backdropFilter: 'blur(12px)', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
+      <header className="glass-dark-gilded" style={{ maxWidth: '1200px', margin: '0 auto 24px auto', background: 'rgba(28, 25, 23, 0.75)', border: '1px solid rgba(157, 39, 6, 0.25)', borderRadius: '16px', padding: '24px', backdropFilter: 'blur(12px)', display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ background: '#C9A84C', width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block' }} />
-            <span style={{ fontSize: '0.62rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#C9A84C' }}>Artisan Network Workspace</span>
+            <span style={{ background: '#9d2706', width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block' }} />
+            <span style={{ fontSize: '0.62rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.15em', color: '#9d2706' }}>Artisan Network Workspace</span>
           </div>
           <h1 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '4px 0', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#fff' }}>
             {vendor?.name} Portal
           </h1>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', marginTop: '12px', fontSize: '0.72rem', color: '#a8a29e' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><User size={12} color="#C9A84C" /> {vendor?.contact_person}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Mail size={12} color="#C9A84C" /> {vendor?.email}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Phone size={12} color="#C9A84C" /> {vendor?.phone}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><User size={12} color="#9d2706" /> {vendor?.contact_person}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Mail size={12} color="#9d2706" /> {vendor?.email}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Phone size={12} color="#9d2706" /> {vendor?.phone}</span>
           </div>
         </div>
 
@@ -224,12 +224,12 @@ export default function VendorPortalPage() {
       <main style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr', gap: '24px' }}>
         
         {/* COLUMN 1: PENDING AWAITING ACTION QUEUE */}
-        <section className="glass-dark-gilded" style={{ background: 'rgba(28, 25, 23, 0.45)', border: '1px solid rgba(201, 168, 76, 0.15)', borderRadius: '16px', padding: '24px', backdropFilter: 'blur(10px)' }}>
+        <section className="glass-dark-gilded" style={{ background: 'rgba(28, 25, 23, 0.45)', border: '1px solid rgba(157, 39, 6, 0.15)', borderRadius: '16px', padding: '24px', backdropFilter: 'blur(10px)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #292524', paddingBottom: '12px', marginBottom: '20px' }}>
-            <h2 style={{ fontSize: '0.9rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#C9A84C', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+            <h2 style={{ fontSize: '0.9rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#9d2706', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
               📥 Awaiting Confirmation ({pendingJobs.length})
             </h2>
-            <span style={{ fontSize: '0.68rem', color: '#a8a29e', background: 'rgba(201, 168, 76, 0.1)', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(201, 168, 76, 0.2)', fontWeight: 600 }}>
+            <span style={{ fontSize: '0.68rem', color: '#a8a29e', background: 'rgba(157, 39, 6, 0.1)', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(157, 39, 6, 0.2)', fontWeight: 600 }}>
               12-Hour SLA Time Limit
             </span>
           </div>
@@ -295,7 +295,7 @@ export default function VendorPortalPage() {
                     )}
 
                     {/* Dynamic Policy Shield Banner */}
-                    <div style={{ background: 'rgba(201, 168, 76, 0.04)', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(201, 168, 76, 0.18)', fontSize: '0.68rem', color: '#C9A84C', marginBottom: '14px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <div style={{ background: 'rgba(157, 39, 6, 0.04)', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(157, 39, 6, 0.18)', fontSize: '0.68rem', color: '#9d2706', marginBottom: '14px', display: 'flex', gap: '8px', alignItems: 'center' }}>
                       <ShieldCheck size={18} style={{ flexShrink: 0 }} />
                       <span>🔒 Detailed tech specs, custom measurements, and customer profiles unlock instantly upon accepting.</span>
                     </div>
@@ -321,12 +321,12 @@ export default function VendorPortalPage() {
                                 transform: 'rotate(-25deg)',
                                 fontSize: '0.45rem',
                                 fontWeight: 800,
-                                color: 'rgba(201, 168, 76, 0.28)',
+                                color: 'rgba(157, 39, 6, 0.28)',
                                 letterSpacing: '0.08em',
                                 whiteSpace: 'nowrap',
                                 textTransform: 'uppercase'
                               }}>
-                                BYOND ATELIER
+                                Cobblyn ATELIER
                               </div>
                             </div>
                           ))}
@@ -342,7 +342,7 @@ export default function VendorPortalPage() {
                         </div>
                       ))}
                       {job.tech_pack?.special_instructions && (
-                        <div style={{ background: 'rgba(0,0,0,0.15)', padding: '8px', borderRadius: '6px', fontSize: '0.68rem', color: '#a8a29e', borderLeft: '2px solid #C9A84C', marginTop: '4px' }}>
+                        <div style={{ background: 'rgba(0,0,0,0.15)', padding: '8px', borderRadius: '6px', fontSize: '0.68rem', color: '#a8a29e', borderLeft: '2px solid #9d2706', marginTop: '4px' }}>
                           <strong>Notes:</strong> {job.tech_pack.special_instructions}
                         </div>
                       )}
@@ -356,7 +356,7 @@ export default function VendorPortalPage() {
                           type="checkbox" 
                           checked={gates[job.id]?.materials || false} 
                           onChange={() => toggleGate(job.id, 'materials')}
-                          style={{ accentColor: '#C9A84C', cursor: 'pointer' }}
+                          style={{ accentColor: '#9d2706', cursor: 'pointer' }}
                         />
                         <span>Confirm raw material & leather availability in workshop</span>
                       </label>
@@ -365,7 +365,7 @@ export default function VendorPortalPage() {
                           type="checkbox" 
                           checked={gates[job.id]?.capacity || false} 
                           onChange={() => toggleGate(job.id, 'capacity')}
-                          style={{ accentColor: '#C9A84C', cursor: 'pointer' }}
+                          style={{ accentColor: '#9d2706', cursor: 'pointer' }}
                         />
                         <span>Confirm size molds & artisan capacity</span>
                       </label>
@@ -378,7 +378,7 @@ export default function VendorPortalPage() {
                         style={{
                           width: '100%',
                           padding: '10px 14px',
-                          background: isGatePassed(job.id) ? '#C9A84C' : 'rgba(201, 168, 76, 0.12)',
+                          background: isGatePassed(job.id) ? '#9d2706' : 'rgba(157, 39, 6, 0.12)',
                           border: 'none',
                           borderRadius: '6px',
                           color: isGatePassed(job.id) ? '#000' : 'rgba(255,255,255,0.3)',
@@ -431,9 +431,9 @@ export default function VendorPortalPage() {
         </section>
 
         {/* COLUMN 2: ACTIVE PRODUCTION QUEUE */}
-        <section className="glass-dark-gilded" style={{ background: 'rgba(28, 25, 23, 0.45)', border: '1px solid rgba(201, 168, 76, 0.15)', borderRadius: '16px', padding: '24px', backdropFilter: 'blur(10px)' }}>
+        <section className="glass-dark-gilded" style={{ background: 'rgba(28, 25, 23, 0.45)', border: '1px solid rgba(157, 39, 6, 0.15)', borderRadius: '16px', padding: '24px', backdropFilter: 'blur(10px)' }}>
           <div style={{ borderBottom: '1px solid #292524', paddingBottom: '12px', marginBottom: '20px' }}>
-            <h2 style={{ fontSize: '0.9rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#C9A84C', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+            <h2 style={{ fontSize: '0.9rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#9d2706', display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
               🛠️ Active Work in Progress ({activeJobs.length})
             </h2>
           </div>
@@ -475,18 +475,18 @@ export default function VendorPortalPage() {
                         )}
                         <span style={{ fontSize: '0.72rem', color: '#a8a29e', marginLeft: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                           <User size={12} color="#a8a29e" />
-                          Customer: <strong style={{ color: job.current_stage === 'ready_to_ship' || job.current_stage === 'delivered' ? '#C9A84C' : '#a8a29e' }}>{job.customer_name}</strong>
+                          Customer: <strong style={{ color: job.current_stage === 'ready_to_ship' || job.current_stage === 'delivered' ? '#9d2706' : '#a8a29e' }}>{job.customer_name}</strong>
                           {!(job.current_stage === 'ready_to_ship' || job.current_stage === 'delivered') && (
-                            <span style={{ color: '#C9A84C', fontSize: '0.62rem', background: 'rgba(201,168,76,0.1)', padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(201,168,76,0.2)', marginLeft: '6px' }}>
+                            <span style={{ color: '#9d2706', fontSize: '0.62rem', background: 'rgba(157,39,6,0.1)', padding: '2px 6px', borderRadius: '4px', border: '1px solid rgba(157,39,6,0.2)', marginLeft: '6px' }}>
                               🔒 Info Locked until Dispatch
                             </span>
                           )}
                         </span>
                       </div>
                       <span style={{
-                        background: 'rgba(201, 168, 76, 0.15)',
-                        color: '#C9A84C',
-                        border: '1px solid rgba(201, 168, 76, 0.3)',
+                        background: 'rgba(157, 39, 6, 0.15)',
+                        color: '#9d2706',
+                        border: '1px solid rgba(157, 39, 6, 0.3)',
                         padding: '3px 10px',
                         borderRadius: '12px',
                         fontSize: '0.62rem',
@@ -500,8 +500,8 @@ export default function VendorPortalPage() {
 
                     {/* Shipping Address Displayed when Dispatch-Ready */}
                     {(job.current_stage === 'ready_to_ship' || job.current_stage === 'delivered') && job.shipping_address && Object.keys(job.shipping_address).length > 0 && (
-                      <div style={{ background: 'rgba(201, 168, 76, 0.05)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(201, 168, 76, 0.25)', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.68rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      <div style={{ background: 'rgba(157, 39, 6, 0.05)', padding: '14px', borderRadius: '8px', border: '1px solid rgba(157, 39, 6, 0.25)', fontSize: '0.75rem', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.68rem', fontWeight: 700, color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                           <MapPin size={13} /> Dispatch & Shipping Coordinates
                         </span>
                         <div style={{ color: '#fff', paddingLeft: '20px' }}>
@@ -535,12 +535,12 @@ export default function VendorPortalPage() {
                                   transform: 'rotate(-25deg)',
                                   fontSize: '0.45rem',
                                   fontWeight: 800,
-                                  color: 'rgba(201, 168, 76, 0.28)',
+                                  color: 'rgba(157, 39, 6, 0.28)',
                                   letterSpacing: '0.08em',
                                   whiteSpace: 'nowrap',
                                   textTransform: 'uppercase'
                                 }}>
-                                  BYOND ATELIER
+                                  Cobblyn ATELIER
                                 </div>
                               </div>
                             ))}
@@ -577,8 +577,8 @@ export default function VendorPortalPage() {
                               width: '16px',
                               height: '16px',
                               borderRadius: '50%',
-                              background: isCompleted ? '#C9A84C' : isActive ? '#fff' : 'transparent',
-                              border: `2px solid ${isCompleted || isActive ? '#C9A84C' : '#78716c'}`,
+                              background: isCompleted ? '#9d2706' : isActive ? '#fff' : 'transparent',
+                              border: `2px solid ${isCompleted || isActive ? '#9d2706' : '#78716c'}`,
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -588,7 +588,7 @@ export default function VendorPortalPage() {
                             }}>
                               {isCompleted ? '✓' : idx + 1}
                             </div>
-                            <span style={{ fontSize: '0.62rem', fontWeight: isActive ? 700 : 500, color: isActive ? '#C9A84C' : '#d6d3d1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            <span style={{ fontSize: '0.62rem', fontWeight: isActive ? 700 : 500, color: isActive ? '#9d2706' : '#d6d3d1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                               {stage.label}
                             </span>
                           </div>
@@ -646,7 +646,7 @@ export default function VendorPortalPage() {
 
         {/* COLUMN 3: COMPLETED LOGS */}
         {completedJobs.length > 0 && (
-          <section className="glass-dark-gilded" style={{ background: 'rgba(28, 25, 23, 0.25)', border: '1px solid rgba(201, 168, 76, 0.1)', borderRadius: '16px', padding: '24px', backdropFilter: 'blur(8px)' }}>
+          <section className="glass-dark-gilded" style={{ background: 'rgba(28, 25, 23, 0.25)', border: '1px solid rgba(157, 39, 6, 0.1)', borderRadius: '16px', padding: '24px', backdropFilter: 'blur(8px)' }}>
             <h2 style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#a8a29e', borderBottom: '1px solid #292524', paddingBottom: '12px', marginBottom: '16px', marginTop: 0 }}>
               ✓ Completed History ({completedJobs.length})
             </h2>
@@ -673,7 +673,7 @@ export default function VendorPortalPage() {
             </h3>
             
             <p style={{ fontSize: '0.75rem', color: '#d6d3d1', lineHeight: '1.6', marginBottom: '20px' }}>
-              ⚠️ Declining will immediately remove this order from your portal queue and revert it back to the Byond Studio in-house production line.
+              ⚠️ Declining will immediately remove this order from your portal queue and revert it back to the Cobblyn in-house production line.
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
@@ -684,14 +684,14 @@ export default function VendorPortalPage() {
                 'Outsole Mold/Size Last Unavailable',
                 'Other / Custom Reason'
               ].map((reasonOption) => (
-                <label key={reasonOption} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.75rem', color: '#fff', cursor: 'pointer', background: rejectReason === reasonOption ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.2)', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${rejectReason === reasonOption ? '#C9A84C' : '#44403c'}`, transition: 'all 0.2s' }}>
+                <label key={reasonOption} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.75rem', color: '#fff', cursor: 'pointer', background: rejectReason === reasonOption ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.2)', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${rejectReason === reasonOption ? '#9d2706' : '#44403c'}`, transition: 'all 0.2s' }}>
                   <input 
                     type="radio" 
                     name="rejectReason" 
                     value={reasonOption}
                     checked={rejectReason === reasonOption}
                     onChange={(e) => setRejectReason(e.target.value)}
-                    style={{ accentColor: '#C9A84C' }}
+                    style={{ accentColor: '#9d2706' }}
                   />
                   <span>{reasonOption}</span>
                 </label>

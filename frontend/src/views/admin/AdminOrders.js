@@ -602,15 +602,15 @@ const AdminOrders = () => {
                           z-index: 2;
                         }
                         .stepper-step.completed .stepper-circle {
-                          background: #C9A84C;
-                          border-color: #C9A84C;
+                          background: #9d2706;
+                          border-color: #9d2706;
                           color: #fff;
                         }
                         .stepper-step.active .stepper-circle {
                           background: #111;
-                          border-color: #C9A84C;
-                          color: #C9A84C;
-                          box-shadow: 0 0 12px rgba(201,168,76,0.4);
+                          border-color: #9d2706;
+                          color: #9d2706;
+                          box-shadow: 0 0 12px rgba(157,39,6,0.4);
                         }
                         .stepper-label {
                           font-size: 0.68rem;
@@ -621,7 +621,7 @@ const AdminOrders = () => {
                           letter-spacing: 0.05em;
                         }
                         .stepper-step.active .stepper-label {
-                          color: #C9A84C;
+                          color: #9d2706;
                         }
                         .stepper-step.completed .stepper-label {
                           color: #1c1917;
@@ -638,7 +638,7 @@ const AdminOrders = () => {
                         .stepper-bar-progress {
                           width: 0%;
                           height: 100%;
-                          background: #C9A84C;
+                          background: #9d2706;
                           transition: width 0.6s ease;
                         }
                         .stepper-bar-progress.completed {
@@ -676,7 +676,7 @@ const AdminOrders = () => {
                         <div className="transit-route-details" style={{ border: '1px solid #e7e5e4', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
                           <div style={{ background: '#fafaf9', padding: '10px 16px', borderBottom: '1px solid #e7e5e4', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span style={{ fontSize: '0.72rem', fontWeight: 600, color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <Activity size={14} color="#C9A84C" /> Route Checkpoints & Location Details
+                              <Activity size={14} color="#9d2706" /> Route Checkpoints & Location Details
                             </span>
                           </div>
                           
@@ -685,7 +685,7 @@ const AdminOrders = () => {
                             {/* Point 1: Atelier Origin */}
                             <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
                               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#C9A84C', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '3px solid #f3f4f6', boxShadow: '0 0 0 2px #C9A84C' }}></div>
+                                <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#9d2706', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '3px solid #f3f4f6', boxShadow: '0 0 0 2px #9d2706' }}></div>
                                 <div style={{ width: '2px', height: '35px', background: '#e4e4e7', margin: '4px 0' }}></div>
                               </div>
                               <div style={{ flex: 1, fontSize: '0.78rem' }}>
@@ -702,7 +702,7 @@ const AdminOrders = () => {
                                   📍 Coordinates: <code style={{ background: '#f5f5f4', padding: '2px 4px', borderRadius: '3px', color: '#b45309' }}>{factoryCoords[0]}° N, {factoryCoords[1]}° E</code>
                                 </p>
                                 <p style={{ margin: '4px 0 0 0', fontSize: '0.7rem', color: '#a1a1aa', fontStyle: 'italic' }}>
-                                  🚚 Picked up from vendor by: <strong style={{ color: '#C9A84C' }}>{selectedOrder.courier_partner || 'Unassigned Carrier'}</strong>
+                                  🚚 Picked up from vendor by: <strong style={{ color: '#9d2706' }}>{selectedOrder.courier_partner || 'Unassigned Carrier'}</strong>
                                 </p>
                               </div>
                             </div>
@@ -711,7 +711,7 @@ const AdminOrders = () => {
                             {transitCheckpoints.map((cp, cpIdx) => (
                               <div key={cpIdx} style={{ display: 'flex', gap: '14px', alignItems: 'flex-start' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: activeIndex === 3 ? '#C9A84C' : activeIndex > 3 ? '#10B981' : '#f4f4f5', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '3px solid #f3f4f6', boxShadow: `0 0 0 2px ${activeIndex >= 3 ? (activeIndex === 3 ? '#C9A84C' : '#10B981') : '#e4e4e7'}` }}></div>
+                                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: activeIndex === 3 ? '#9d2706' : activeIndex > 3 ? '#10B981' : '#f4f4f5', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '3px solid #f3f4f6', boxShadow: `0 0 0 2px ${activeIndex >= 3 ? (activeIndex === 3 ? '#9d2706' : '#10B981') : '#e4e4e7'}` }}></div>
                                   <div style={{ width: '2px', height: '35px', background: '#e4e4e7', margin: '4px 0' }}></div>
                                 </div>
                                 <div style={{ flex: 1, fontSize: '0.78rem' }}>
@@ -880,7 +880,7 @@ const AdminOrders = () => {
                     </div>
                   ))}
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginTop: '12px', gap: '4px' }}>
-                    <div className="order-total" style={{ fontSize: '0.95rem', fontWeight: 700, color: '#C9A84C' }}>Total: ₹{(selectedOrder.total_amount || 0).toLocaleString()}</div>
+                    <div className="order-total" style={{ fontSize: '0.95rem', fontWeight: 700, color: '#9d2706' }}>Total: ₹{(selectedOrder.total_amount || 0).toLocaleString()}</div>
                     {selectedOrder.outstanding_amount > 0 && (
                       <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#d97706', background: '#fffbeb', border: '1px solid #fde68a', padding: '4px 8px', borderRadius: '4px' }}>
                         ⚠️ Outstanding customization balance to clear: ₹{selectedOrder.outstanding_amount.toLocaleString()}

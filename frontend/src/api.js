@@ -30,7 +30,7 @@ async function apiFetch(path, options = {}) {
   };
 
   // Add auth token from localStorage if available
-  let token = localStorage.getItem('byond_token');
+  let token = localStorage.getItem('cobblyn_token');
   if (token && !config.headers.Authorization) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -52,18 +52,18 @@ async function apiFetch(path, options = {}) {
           const refreshData = await refreshRes.json();
           const newToken = refreshData.token;
           if (newToken) {
-            localStorage.setItem('byond_token', newToken);
+            localStorage.setItem('cobblyn_token', newToken);
           }
           isRefreshing = false;
           onRefreshed(newToken);
         } else {
           isRefreshing = false;
-          localStorage.removeItem('byond_token');
+          localStorage.removeItem('cobblyn_token');
           onRefreshed(null);
         }
       } catch (err) {
         isRefreshing = false;
-        localStorage.removeItem('byond_token');
+        localStorage.removeItem('cobblyn_token');
         onRefreshed(null);
       }
     }
@@ -141,7 +141,7 @@ export const api = {
   uploadImage: async (file) => {
     const fd = new FormData();
     fd.append('file', file);
-    const token = localStorage.getItem('byond_token');
+    const token = localStorage.getItem('cobblyn_token');
     const res = await fetch(`${API_BASE}/api/uploads/image`, {
       method: 'POST',
       headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -188,21 +188,21 @@ export const api = {
   // Bulk uploads
   bulkUploadProducts: async (file) => {
     const fd = new FormData(); fd.append('file', file);
-    const token = localStorage.getItem('byond_token');
+    const token = localStorage.getItem('cobblyn_token');
     const res = await fetch(`${API_BASE}/api/admin/bulk/products`, { method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {}, body: fd });
     if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || `Upload failed`); }
     return res.json();
   },
   bulkUploadInventory: async (file) => {
     const fd = new FormData(); fd.append('file', file);
-    const token = localStorage.getItem('byond_token');
+    const token = localStorage.getItem('cobblyn_token');
     const res = await fetch(`${API_BASE}/api/admin/bulk/inventory`, { method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {}, body: fd });
     if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || `Upload failed`); }
     return res.json();
   },
   uploadImage: async (file) => {
     const fd = new FormData(); fd.append('file', file);
-    const token = localStorage.getItem('byond_token');
+    const token = localStorage.getItem('cobblyn_token');
     const res = await fetch(`${API_BASE}/api/uploads/image`, { 
       method: 'POST', 
       credentials: 'include',
@@ -336,7 +336,7 @@ export const api = {
   deleteAccessory: (id) => apiFetch(`/api/accessories/${id}`, { method: 'DELETE' }),
   bulkUploadAccessories: async (file) => {
     const fd = new FormData(); fd.append('file', file);
-    const token = localStorage.getItem('byond_token');
+    const token = localStorage.getItem('cobblyn_token');
     const res = await fetch(`${API_BASE}/api/accessories/bulk/upload`, { method: 'POST', headers: token ? { Authorization: `Bearer ${token}` } : {}, body: fd });
     if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.detail || 'Upload failed'); }
     return res.json();

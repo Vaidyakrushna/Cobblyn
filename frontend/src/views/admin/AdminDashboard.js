@@ -59,7 +59,7 @@ const AdminDashboard = () => {
   }, []);
 
   const cards = stats ? [
-    { label: 'Total Products', value: stats.total_products || 0, icon: <Package size={22} />, color: '#C9A84C' },
+    { label: 'Total Products', value: stats.total_products || 0, icon: <Package size={22} />, color: '#9d2706' },
     { label: 'Total Customers', value: stats.total_users || 0, icon: <Users size={22} />, color: '#2563EB' },
     { label: 'Total Orders', value: stats.total_orders || 0, icon: <ShoppingCart size={22} />, color: '#10B981' },
     { label: 'Pending Orders', value: stats.pending_orders || 0, icon: <Clock size={22} />, color: '#F59E0B' },
@@ -74,7 +74,7 @@ const AdminDashboard = () => {
       <div className="admin-page-header">
         <div>
           <h1>Dashboard</h1>
-          <p>Overview of your BYOND business {period !== 'all' && periodValue ? `Â· ${period}: ${periodValue}` : 'Â· all-time'}</p>
+          <p>Overview of your Cobblyn business {period !== 'all' && periodValue ? `Â· ${period}: ${periodValue}` : 'Â· all-time'}</p>
         </div>
 
         <div className="admin-period-filter" data-testid="admin-period-filter" style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -164,7 +164,7 @@ const AdminDashboard = () => {
           <div className="admin-section" data-testid="dashboard-recent-visits">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
               <h3 style={{ display: 'flex', alignItems: 'center', gap: 8, margin: 0 }}>
-                <CalendarCheck size={18} color="#C9A84C" /> Schedule a Visit
+                <CalendarCheck size={18} color="#9d2706" /> Schedule a Visit
               </h3>
               <Link href="/admin/visits" data-testid="dashboard-view-all-visits"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: '#1a1a1a', fontSize: 12, textDecoration: 'none', fontWeight: 600 }}>

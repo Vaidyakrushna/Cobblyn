@@ -241,7 +241,7 @@ const AdminCustomers = () => {
                     </label>
                     {fitForm.heatmap_image ? (
                       <div style={{ position: 'relative' }}>
-                        <img src={fitForm.heatmap_image} alt="Heatmap preview" style={{ width: 44, height: 44, borderRadius: 4, border: '1px solid #C9A84C', objectFit: 'cover' }} />
+                        <img src={fitForm.heatmap_image} alt="Heatmap preview" style={{ width: 44, height: 44, borderRadius: 4, border: '1px solid #9d2706', objectFit: 'cover' }} />
                         <button type="button" onClick={() => setFitForm({...fitForm, heatmap_image: ''})} style={{ position: 'absolute', top: -6, right: -6, background: '#EF4444', color: '#fff', border: 'none', borderRadius: '50%', width: 14, height: 14, fontSize: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>&times;</button>
                       </div>
                     ) : <span style={{ fontSize: '0.68rem', color: '#a8a29e' }}>No scan file uploaded</span>}
@@ -257,7 +257,7 @@ const AdminCustomers = () => {
                     </label>
                     {fitForm.arch_imprint_image ? (
                       <div style={{ position: 'relative' }}>
-                        <img src={fitForm.arch_imprint_image} alt="Imprint preview" style={{ width: 44, height: 44, borderRadius: 4, border: '1px solid #C9A84C', objectFit: 'cover' }} />
+                        <img src={fitForm.arch_imprint_image} alt="Imprint preview" style={{ width: 44, height: 44, borderRadius: 4, border: '1px solid #9d2706', objectFit: 'cover' }} />
                         <button type="button" onClick={() => setFitForm({...fitForm, arch_imprint_image: ''})} style={{ position: 'absolute', top: -6, right: -6, background: '#EF4444', color: '#fff', border: 'none', borderRadius: '50%', width: 14, height: 14, fontSize: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>&times;</button>
                       </div>
                     ) : <span style={{ fontSize: '0.68rem', color: '#a8a29e' }}>No imprint file uploaded</span>}

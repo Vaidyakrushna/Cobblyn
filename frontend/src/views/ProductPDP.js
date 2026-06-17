@@ -136,7 +136,7 @@ const ProductPDP = ({ gender = 'men' }) => {
     if (!isAuthenticated) { setLoginPanel(true); return; }
     try {
       await api.addToCart({ product_id: product.id, size: selectedSize, color: selectedColor, quantity });
-      window.dispatchEvent(new Event('byond-cart-update'));
+      window.dispatchEvent(new Event('cobblyn-cart-update'));
       // Open interstitial showing the just-added item with checkout option
       try {
         const cart = await api.getCart();
@@ -159,7 +159,7 @@ const ProductPDP = ({ gender = 'men' }) => {
         await api.addToWishlist(product.id);
         setIsWishlisted(true);
       }
-      window.dispatchEvent(new Event('byond-wishlist-update'));
+      window.dispatchEvent(new Event('cobblyn-wishlist-update'));
     } catch (err) {
       console.error('Wishlist error:', err);
     }
@@ -228,7 +228,7 @@ const ProductPDP = ({ gender = 'men' }) => {
         <div className="pdp-info-woodland">
           <div className="pdp-top-actions">
             <button className="pdp-action-btn" onClick={handleWishlistClick} data-testid="pdp-wishlist-button" title="Add to Wishlist">
-              <Heart size={16} fill={isWishlisted ? '#C9A84C' : 'none'} color={isWishlisted ? '#C9A84C' : 'currentColor'} />
+              <Heart size={16} fill={isWishlisted ? '#9d2706' : 'none'} color={isWishlisted ? '#9d2706' : 'currentColor'} />
               <span>{isWishlisted ? 'Wishlisted' : 'Wishlist'}</span>
             </button>
             <div className="pdp-share-wrapper">
@@ -250,7 +250,7 @@ const ProductPDP = ({ gender = 'men' }) => {
           <div className="pdp-rating-row" data-testid="product-rating">
             <div className="pdp-stars">
               {[1,2,3,4,5].map(i => (
-                <Star key={i} size={14} fill={i <= Math.round(avgRating) ? '#C9A84C' : 'none'} color="#C9A84C" />
+                <Star key={i} size={14} fill={i <= Math.round(avgRating) ? '#9d2706' : 'none'} color="#9d2706" />
               ))}
             </div>
             <span className="pdp-rating-text">{avgRating} | {mockReviews.length} Ratings</span>
@@ -286,8 +286,8 @@ const ProductPDP = ({ gender = 'men' }) => {
                 <span>Select Size (UK)</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <button type="button" onClick={() => setShowFitProfiler(true)} data-testid="open-fit-profiler"
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, color: '#C9A84C', fontSize: 12, textDecoration: 'underline', textTransform: 'none', letterSpacing: 0, fontWeight: '600' }}>
-                    <Star size={12} fill="#C9A84C" /> Find My Fit
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, color: '#9d2706', fontSize: 12, textDecoration: 'underline', textTransform: 'none', letterSpacing: 0, fontWeight: '600' }}>
+                    <Star size={12} fill="#9d2706" /> Find My Fit
                   </button>
                   <button type="button" onClick={() => setSizeGuideOpen(true)} data-testid="open-size-guide"
                     style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, color: '#6B7280', fontSize: 12, textDecoration: 'underline', textTransform: 'none', letterSpacing: 0 }}>
@@ -316,9 +316,9 @@ const ProductPDP = ({ gender = 'men' }) => {
                       opacity: isOutOfStock ? 0.4 : 1,
                       cursor: isOutOfStock ? 'not-allowed' : 'pointer',
                       border: selectedSize === size 
-                        ? '2px solid #C9A84C' 
+                        ? '2px solid #9d2706' 
                         : isLowStock 
-                          ? '1.5px solid rgba(201, 168, 76, 0.6)' 
+                          ? '1.5px solid rgba(157, 39, 6, 0.6)' 
                           : '1px solid #E5E7EB',
                       borderStyle: isOutOfStock ? 'dashed' : 'solid',
                       backgroundColor: isOutOfStock 
@@ -326,7 +326,7 @@ const ProductPDP = ({ gender = 'men' }) => {
                         : selectedSize === size 
                           ? '#FAF9F6' 
                           : isLowStock 
-                            ? 'rgba(201, 168, 76, 0.03)' 
+                            ? 'rgba(157, 39, 6, 0.03)' 
                             : 'inherit',
                       textDecoration: isOutOfStock ? 'line-through' : 'none',
                       position: 'relative',
@@ -351,8 +351,8 @@ const ProductPDP = ({ gender = 'men' }) => {
                         width: '5px',
                         height: '5px',
                         borderRadius: '50%',
-                        background: '#C9A84C',
-                        boxShadow: '0 0 4px rgba(201,168,76,0.8)'
+                        background: '#9d2706',
+                        boxShadow: '0 0 4px rgba(157,39,6,0.8)'
                       }} />
                     )}
                   </button>
@@ -378,8 +378,8 @@ const ProductPDP = ({ gender = 'men' }) => {
                     style={{ 
                       marginTop: '12px', 
                       padding: '12px 14px', 
-                      background: 'rgba(201, 168, 76, 0.07)', 
-                      border: '1px solid rgba(201, 168, 76, 0.4)', 
+                      background: 'rgba(157, 39, 6, 0.07)', 
+                      border: '1px solid rgba(157, 39, 6, 0.4)', 
                       borderRadius: '6px', 
                       fontSize: '0.75rem', 
                       color: '#9A7D32', 
@@ -387,7 +387,7 @@ const ProductPDP = ({ gender = 'men' }) => {
                       display: 'flex', 
                       alignItems: 'center', 
                       gap: '8px',
-                      boxShadow: '0 0 10px rgba(201, 168, 76, 0.15)',
+                      boxShadow: '0 0 10px rgba(157, 39, 6, 0.15)',
                       animation: 'pdpGlow 2s infinite ease-in-out'
                     }}
                   >
@@ -395,9 +395,9 @@ const ProductPDP = ({ gender = 'men' }) => {
                     <span>Only a few pairs left in size UK {selectedSize}! Order soon to secure your fit.</span>
                     <style>{`
                       @keyframes pdpGlow {
-                        0% { box-shadow: 0 0 6px rgba(201, 168, 76, 0.1); }
-                        50% { box-shadow: 0 0 14px rgba(201, 168, 76, 0.3); border-color: rgba(201, 168, 76, 0.6); }
-                        100% { box-shadow: 0 0 6px rgba(201, 168, 76, 0.1); }
+                        0% { box-shadow: 0 0 6px rgba(157, 39, 6, 0.1); }
+                        50% { box-shadow: 0 0 14px rgba(157, 39, 6, 0.3); border-color: rgba(157, 39, 6, 0.6); }
+                        100% { box-shadow: 0 0 6px rgba(157, 39, 6, 0.1); }
                       }
                     `}</style>
                   </div>
@@ -544,12 +544,12 @@ const ProductPDP = ({ gender = 'men' }) => {
       {/* Sizing Fit Profiler Modal */}
       {showFitProfiler && (
         <div className="interstitial-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <div className="interstitial-panel glass-gilded" style={{ maxWidth: 440, width: '100%', border: '1px solid rgba(201, 168, 76, 0.3)', borderRadius: '16px', padding: '24px 32px', position: 'relative' }}>
+          <div className="interstitial-panel glass-gilded" style={{ maxWidth: 440, width: '100%', border: '1px solid rgba(157, 39, 6, 0.3)', borderRadius: '16px', padding: '24px 32px', position: 'relative' }}>
             <button className="interstitial-close" onClick={() => { setShowFitProfiler(false); setFitResult(null); }} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', color: '#6B7280' }}>
               <X size={20} />
             </button>
             <div style={{ textAlign: 'center', marginBottom: 20 }}>
-              <Ruler size={32} color="#C9A84C" style={{ margin: '0 auto 8px' }} />
+              <Ruler size={32} color="#9d2706" style={{ margin: '0 auto 8px' }} />
               <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.4rem', color: '#1a1a1a', margin: 0, fontStyle: 'italic' }}>Bespoke Sizing Concierge</h3>
               <p style={{ fontSize: '11px', color: '#6B7280', margin: '4px 0 0 0' }}>Map your current footwear sizes to our handcrafted Italian lasts.</p>
             </div>
@@ -591,7 +591,7 @@ const ProductPDP = ({ gender = 'men' }) => {
                   Calculate Recommended Fit
                 </button>
               ) : (
-                <div style={{ marginTop: 10, padding: '14px', background: 'rgba(201, 168, 76, 0.08)', border: '1px solid rgba(201, 168, 76, 0.3)', borderRadius: '8px', textAlign: 'center' }}>
+                <div style={{ marginTop: 10, padding: '14px', background: 'rgba(157, 39, 6, 0.08)', border: '1px solid rgba(157, 39, 6, 0.3)', borderRadius: '8px', textAlign: 'center' }}>
                   <div style={{ fontSize: '11px', color: '#9A7D32', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Our Recommendation</div>
                   <div style={{ fontSize: '15px', color: '#1a1a1a', fontWeight: '800' }}>
                     UK {Math.floor(fitResult)} <span style={{ fontWeight: '400', fontSize: '13px', color: '#4B5563' }}>({fitWidth === 'Wide' ? 'Wide last adjustment' : fitWidth === 'Narrow' ? 'Narrow last adjustment' : 'Standard Fit'})</span>
@@ -607,7 +607,7 @@ const ProductPDP = ({ gender = 'men' }) => {
                       setShowFitProfiler(false);
                       setFitResult(null);
                     }}
-                    style={{ width: '100%', padding: '10px', background: '#C9A84C', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '700', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}
+                    style={{ width: '100%', padding: '10px', background: '#9d2706', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '700', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}
                   >
                     Apply Recommended Size UK {Math.floor(fitResult)}
                   </button>
@@ -620,7 +620,7 @@ const ProductPDP = ({ gender = 'men' }) => {
 
       {loginPanel && (
         <div className="interstitial-overlay" data-testid="pdp-login-interstitial" onClick={() => setLoginPanel(false)} style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }}>
-          <div className="interstitial-panel glass-gilded" onClick={(e) => e.stopPropagation()} style={{ border: '1px solid rgba(201, 168, 76, 0.3)' }}>
+          <div className="interstitial-panel glass-gilded" onClick={(e) => e.stopPropagation()} style={{ border: '1px solid rgba(157, 39, 6, 0.3)' }}>
             <button className="interstitial-close" onClick={() => setLoginPanel(false)} data-testid="pdp-interstitial-close">
               <X size={20} />
             </button>
@@ -639,7 +639,7 @@ const ProductPDP = ({ gender = 'men' }) => {
 
       {cartInterstitial && (
         <div className="interstitial-overlay" data-testid="add-to-cart-interstitial" onClick={() => setCartInterstitial(false)} style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }}>
-          <div className="interstitial-panel glass-gilded" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 540, border: '1px solid rgba(201, 168, 76, 0.3)' }}>
+          <div className="interstitial-panel glass-gilded" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 540, border: '1px solid rgba(157, 39, 6, 0.3)' }}>
             <button className="interstitial-close" onClick={() => setCartInterstitial(false)} data-testid="cart-interstitial-close">
               <X size={20} />
             </button>

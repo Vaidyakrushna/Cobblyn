@@ -180,8 +180,8 @@ const AdminReferrals = () => {
             padding: '8px 16px',
             background: 'none',
             border: 'none',
-            borderBottom: activeTab === 'ledger' ? '3px solid #C9A84C' : '3px solid transparent',
-            color: activeTab === 'ledger' ? '#C9A84C' : '#6B7280',
+            borderBottom: activeTab === 'ledger' ? '3px solid #9d2706' : '3px solid transparent',
+            color: activeTab === 'ledger' ? '#9d2706' : '#6B7280',
             fontWeight: 600,
             cursor: 'pointer',
             fontSize: '0.9rem'
@@ -196,8 +196,8 @@ const AdminReferrals = () => {
             padding: '8px 16px',
             background: 'none',
             border: 'none',
-            borderBottom: activeTab === 'config' ? '3px solid #C9A84C' : '3px solid transparent',
-            color: activeTab === 'config' ? '#C9A84C' : '#6B7280',
+            borderBottom: activeTab === 'config' ? '3px solid #9d2706' : '3px solid transparent',
+            color: activeTab === 'config' ? '#9d2706' : '#6B7280',
             fontWeight: 600,
             cursor: 'pointer',
             fontSize: '0.9rem'
@@ -212,8 +212,8 @@ const AdminReferrals = () => {
             padding: '8px 16px',
             background: 'none',
             border: 'none',
-            borderBottom: activeTab === 'audit' ? '3px solid #C9A84C' : '3px solid transparent',
-            color: activeTab === 'audit' ? '#C9A84C' : '#6B7280',
+            borderBottom: activeTab === 'audit' ? '3px solid #9d2706' : '3px solid transparent',
+            color: activeTab === 'audit' ? '#9d2706' : '#6B7280',
             fontWeight: 600,
             cursor: 'pointer',
             fontSize: '0.9rem'
@@ -372,7 +372,7 @@ const AdminReferrals = () => {
                           <button 
                             onClick={() => openAdjustWalletModal(r.referrer_id, r.referrer_name || 'Referrer', r.referrer_email)}
                             title="Adjust Referrer Wallet"
-                            style={{ padding: '6px', border: '1px solid #C9A84C', color: '#C9A84C', background: '#FFFDF5', borderRadius: 4, cursor: 'pointer' }}
+                            style={{ padding: '6px', border: '1px solid #9d2706', color: '#9d2706', background: '#FFFDF5', borderRadius: 4, cursor: 'pointer' }}
                           >
                             <Coins size={16} />
                           </button>
@@ -410,7 +410,7 @@ const AdminReferrals = () => {
       {activeTab === 'config' && (
         <div className="admin-card" style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 6, padding: 28, maxWidth: 640 }}>
           <h3 style={{ fontSize: '1.2rem', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Settings size={20} style={{ color: '#C9A84C' }} />
+            <Settings size={20} style={{ color: '#9d2706' }} />
             Rules & Campaigns Settings
           </h3>
           
@@ -509,7 +509,7 @@ const AdminReferrals = () => {
       {activeTab === 'audit' && (
         <div className="admin-card" style={{ background: '#fff', border: '1px solid #E5E7EB', borderRadius: 6, padding: 28 }}>
           <h3 style={{ fontSize: '1.2rem', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <FileText size={20} style={{ color: '#C9A84C' }} />
+            <FileText size={20} style={{ color: '#9d2706' }} />
             Referrals Audit Trail & Security Logs
           </h3>
 
@@ -526,14 +526,14 @@ const AdminReferrals = () => {
                   gap: 16, 
                   padding: '16px 20px', 
                   borderRadius: 4,
-                  borderLeft: log.action === 'flagged_fraud' ? '4px solid #DC2626' : '4px solid #C9A84C',
+                  borderLeft: log.action === 'flagged_fraud' ? '4px solid #DC2626' : '4px solid #9d2706',
                   background: log.action === 'flagged_fraud' ? '#FEF2F2' : '#F9FAFB'
                 }}
               >
                 {log.action === 'flagged_fraud' ? (
                   <AlertTriangle size={24} style={{ color: '#DC2626', flexShrink: 0 }} />
                 ) : (
-                  <FileText size={24} style={{ color: '#C9A84C', flexShrink: 0 }} />
+                  <FileText size={24} style={{ color: '#9d2706', flexShrink: 0 }} />
                 )}
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>

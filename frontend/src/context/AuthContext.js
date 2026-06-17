@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const checkAuth = useCallback(async () => {
-    const token = localStorage.getItem('byond_token');
+    const token = localStorage.getItem('cobblyn_token');
     if (!token) {
       setUser(false);
       setLoading(false);
@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
         const userData = await api.getMe();
         setUser(userData);
       } catch {
-        localStorage.removeItem('byond_token');
+        localStorage.removeItem('cobblyn_token');
         setUser(false);
       }
     }
@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const data = await api.login({ email, password });
-    localStorage.setItem('byond_token', data.token);
+    localStorage.setItem('cobblyn_token', data.token);
     setUser({
       id: data.id,
       name: data.name,
@@ -58,7 +58,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try { await api.logout(); } catch {}
-    localStorage.removeItem('byond_token');
+    localStorage.removeItem('cobblyn_token');
     setUser(false);
   };
 

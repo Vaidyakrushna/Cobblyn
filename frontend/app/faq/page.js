@@ -87,13 +87,13 @@ const faqs = [
   },
   {
     category: 'sizing',
-    q: 'How should I care for my BYOND leather shoes?',
+    q: 'How should I care for my Cobblyn leather shoes?',
     a: 'Keep them dry and avoid wearing them in heavy rain. Wipe dirt off with a soft brush, insert cedar shoe trees to maintain their shape, and apply premium leather conditioner every 2–3 months to keep the leather soft and prevent cracking.'
   },
   {
     category: 'sizing',
     q: 'Do you offer repair or resoling services?',
-    a: 'Yes. We build our shoes to last a lifetime, using Goodyear welt construction on select models. We offer a full recrafting and resoling service for a nominal fee. You can contact hello@byondshoes.com to arrange a pickup.'
+    a: 'Yes. We build our shoes to last a lifetime, using Goodyear welt construction on select models. We offer a full recrafting and resoling service for a nominal fee. You can contact hello@cobblynshoes.com to arrange a pickup.'
   }
 ];
 
@@ -144,7 +144,7 @@ export default function FAQPage() {
         }
         .faq-hero-title em {
           font-style: italic;
-          color: #C9A84C;
+          color: #9d2706;
         }
         .faq-hero-sub {
           color: #9CA3AF;
@@ -168,10 +168,10 @@ export default function FAQPage() {
           transition: all 0.3s ease;
         }
         .faq-search-input:focus {
-          border-color: #C9A84C;
+          border-color: #9d2706;
           outline: none;
           background: rgba(255, 255, 255, 0.12);
-          box-shadow: 0 0 15px rgba(201, 168, 76, 0.25);
+          box-shadow: 0 0 15px rgba(157, 39, 6, 0.25);
         }
         .faq-search-icon {
           position: absolute;
@@ -205,9 +205,9 @@ export default function FAQPage() {
           transition: all 0.2s ease;
         }
         .faq-category-btn:hover {
-          border-color: #C9A84C;
-          color: #C9A84C;
-          background: rgba(201, 168, 76, 0.02);
+          border-color: #9d2706;
+          color: #9d2706;
+          background: rgba(157, 39, 6, 0.02);
         }
         .faq-category-btn.active {
           background: #111;
@@ -230,10 +230,10 @@ export default function FAQPage() {
           transition: border-color 0.2s ease;
         }
         .faq-accordion-item:hover {
-          border-color: rgba(201, 168, 76, 0.4);
+          border-color: rgba(157, 39, 6, 0.4);
         }
         .faq-accordion-item.open {
-          border-color: #C9A84C;
+          border-color: #9d2706;
         }
         
         .faq-question-btn {
@@ -261,7 +261,7 @@ export default function FAQPage() {
         }
         .faq-accordion-item.open .faq-chevron {
           transform: rotate(180deg);
-          color: #C9A84C;
+          color: #9d2706;
         }
         
         .faq-answer {
@@ -303,7 +303,7 @@ export default function FAQPage() {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: #C9A84C;
+          background: #9d2706;
           color: #fff;
           padding: 12px 28px;
           border-radius: 24px;
@@ -319,17 +319,17 @@ export default function FAQPage() {
         .faq-cta-btn:hover {
           background: #D9B85C;
           transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(201, 168, 76, 0.25);
+          box-shadow: 0 6px 20px rgba(157, 39, 6, 0.25);
         }
       `}</style>
 
       {/* HERO SECTION */}
       <section className="faq-hero">
         <div className="faq-hero-content">
-          <div className="section-label" style={{ color: '#C9A84C', fontSize: '0.75rem', letterSpacing: '0.15em', fontWeight: 700, textTransform: 'uppercase' }}>FAQs</div>
+          <div className="section-label" style={{ color: '#9d2706', fontSize: '0.75rem', letterSpacing: '0.15em', fontWeight: 700, textTransform: 'uppercase' }}>FAQs</div>
           <h1 className="faq-hero-title">Commonly Asked<br /><em>Questions</em></h1>
           <p className="faq-hero-sub">
-            Find answers to questions about ordering, custom styles, shipping, resizing, and caring for your BYOND shoes.
+            Find answers to questions about ordering, custom styles, shipping, resizing, and caring for your Cobblyn shoes.
           </p>
 
           <div className="faq-search-wrap">
@@ -401,7 +401,7 @@ export default function FAQPage() {
       {/* CONCIERGE CTA */}
       <section className="faq-cta-section">
         <div style={{ maxWidth: '600px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
-          <div className="section-label" style={{ color: '#C9A84C', fontSize: '0.75rem', letterSpacing: '0.15em', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px' }}>STILL HAVE QUESTIONS?</div>
+          <div className="section-label" style={{ color: '#9d2706', fontSize: '0.75rem', letterSpacing: '0.15em', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px' }}>STILL HAVE QUESTIONS?</div>
           <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '2rem', fontWeight: 400, marginBottom: '16px', color: '#fff' }}>
             Speak With Our Concierge
           </h2>

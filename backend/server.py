@@ -169,7 +169,7 @@ app.mount("/api/uploads", StaticFiles(directory=str(_uploads_dir)), name="upload
 
 @app.get("/api")
 async def root():
-    return {"message": "BYOND Shoes API"}
+    return {"message": "Cobblyn Shoes API"}
 
 
 # Logging
@@ -190,12 +190,12 @@ async def startup():
     # Write test credentials
     creds_path = Path("/app/memory/test_credentials.md")
     creds_path.parent.mkdir(parents=True, exist_ok=True)
-    admin_email = os.environ.get("ADMIN_EMAIL", "admin@byond.com")
-    admin_password = os.environ.get("ADMIN_PASSWORD", "Byond@2026")
+    admin_email = os.environ.get("ADMIN_EMAIL", "admin@cobblyn.com")
+    admin_password = os.environ.get("ADMIN_PASSWORD", "Cobblyn@2026")
     creds_path.write_text(
         f"# Test Credentials\n\n"
         f"## Admin\n- Email: {admin_email}\n- Password: {admin_password}\n- Role: admin\n\n"
-        f"## Test User\n- Email: test@byond.com\n- Password: Test@1234\n- Role: user\n- (Create via /api/auth/register)\n\n"
+        f"## Test User\n- Email: test@cobblyn.com\n- Password: Test@1234\n- Role: user\n- (Create via /api/auth/register)\n\n"
         f"## Auth Endpoints\n"
         f"- POST /api/auth/register\n- POST /api/auth/login\n- POST /api/auth/logout\n"
         f"- GET /api/auth/me\n- POST /api/auth/refresh\n\n"

@@ -33,8 +33,8 @@ import Navigation from '../src/components/Navigation';
 import Footer from '../src/components/Footer';
 
 export const metadata = {
-  title: 'BYOND | Luxury Handcrafted Footwear',
-  description: 'BYOND Shoes - Bespoke luxury footwear handcrafted with timeless design.',
+  title: 'Cobblyn | Luxury Handcrafted Footwear',
+  description: 'Cobblyn Shoes - Bespoke luxury footwear handcrafted with timeless design.',
 };
 
 export const viewport = {

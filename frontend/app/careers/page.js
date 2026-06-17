@@ -125,8 +125,8 @@ export default function CareersPage() {
     <main className="careers-page" style={{ position: 'relative' }}>
       {/* Toast Notification */}
       {toastMessage && (
-        <div style={{ position: 'fixed', top: '24px', left: '50%', transform: 'translateX(-50%)', background: '#111', border: '2px solid #C9A84C', borderRadius: '8px', padding: '12px 24px', color: '#fff', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1100, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-          <Sparkles size={16} color="#C9A84C" />
+        <div style={{ position: 'fixed', top: '24px', left: '50%', transform: 'translateX(-50%)', background: '#111', border: '2px solid #9d2706', borderRadius: '8px', padding: '12px 24px', color: '#fff', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', zIndex: 1100, boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+          <Sparkles size={16} color="#9d2706" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -138,7 +138,7 @@ export default function CareersPage() {
           <h1 className="care-hero-title">
             Join the
             <br />
-            <em>BYOND Atelier</em>
+            <em>Cobblyn Atelier</em>
           </h1>
           <p className="care-hero-sub">
             Crafting the future of luxury footwear requires more than talent — it takes devotion. 
@@ -171,8 +171,8 @@ export default function CareersPage() {
           
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
             {coreValues.map((value, idx) => (
-              <div key={idx} style={{ padding: '24px', background: 'var(--off-white)', borderRadius: '12px', border: '1px solid rgba(201,168,76,0.15)', transition: 'all 0.3s ease' }}>
-                <div style={{ color: '#C9A84C', marginBottom: '16px' }}>{value.icon}</div>
+              <div key={idx} style={{ padding: '24px', background: 'var(--off-white)', borderRadius: '12px', border: '1px solid rgba(157,39,6,0.15)', transition: 'all 0.3s ease' }}>
+                <div style={{ color: '#9d2706', marginBottom: '16px' }}>{value.icon}</div>
                 <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '8px', color: '#1c1917' }}>{value.title}</h3>
                 <p style={{ fontSize: '0.8rem', color: '#78716c', lineHeight: 1.6 }}>{value.description}</p>
               </div>
@@ -199,14 +199,14 @@ export default function CareersPage() {
                 style={{ width: '100%', padding: '18px 24px', background: activeAccordion === idx ? '#111' : '#fff', border: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'all 0.3s ease', textAlign: 'left' }}
               >
                 <div>
-                  <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: activeAccordion === idx ? '#C9A84C' : 'var(--mid-grey)' }}>
+                  <span style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: activeAccordion === idx ? '#9d2706' : 'var(--mid-grey)' }}>
                     {pos.department} · {pos.location}
                   </span>
                   <h3 style={{ fontSize: '1rem', fontWeight: 700, color: activeAccordion === idx ? '#fff' : '#1c1917', marginTop: '4px' }}>
                     {pos.title}
                   </h3>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: activeAccordion === idx ? '#C9A84C' : 'var(--mid-grey)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: activeAccordion === idx ? '#9d2706' : 'var(--mid-grey)' }}>
                   <span style={{ fontSize: '0.72rem', fontWeight: 600 }}>{pos.type}</span>
                   <span style={{ transform: activeAccordion === idx ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease', display: 'inline-block' }}>▼</span>
                 </div>
@@ -226,7 +226,7 @@ export default function CareersPage() {
                   <a 
                     href="#apply" 
                     onClick={() => setSelectedRole(pos.title)} 
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 18px', background: '#C9A84C', color: '#fff', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', textDecoration: 'none', cursor: 'pointer' }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 18px', background: '#9d2706', color: '#fff', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', textDecoration: 'none', cursor: 'pointer' }}
                   >
                     Apply For This Role <ArrowRight size={14} />
                   </a>
@@ -248,9 +248,9 @@ export default function CareersPage() {
             </p>
           </div>
 
-          <form onSubmit={handleFormSubmit} className="glass-dark-gilded" style={{ border: '1px solid rgba(201, 168, 76, 0.4)', borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <form onSubmit={handleFormSubmit} className="glass-dark-gilded" style={{ border: '1px solid rgba(157, 39, 6, 0.4)', borderRadius: '16px', padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '0.62rem', color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Desired Role</label>
+              <label style={{ display: 'block', fontSize: '0.62rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Desired Role</label>
               <select 
                 required 
                 value={selectedRole}
@@ -267,7 +267,7 @@ export default function CareersPage() {
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.62rem', color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Your Name</label>
+                <label style={{ display: 'block', fontSize: '0.62rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Your Name</label>
                 <input 
                   type="text" 
                   required 
@@ -279,7 +279,7 @@ export default function CareersPage() {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.62rem', color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Email Address</label>
+                <label style={{ display: 'block', fontSize: '0.62rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Email Address</label>
                 <input 
                   type="email" 
                   required 
@@ -287,14 +287,14 @@ export default function CareersPage() {
                   value={applicationForm.email}
                   onChange={handleInputChange}
                   style={{ width: '100%', padding: '10px', background: '#1c1c1e', border: '1px solid #333', borderRadius: '6px', color: '#fff', fontSize: '0.8rem' }}
-                  placeholder="krushn@byondstudio.com"
+                  placeholder="krushn@cobblynstudio.com"
                 />
               </div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '0.62rem', color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Phone Number</label>
+                <label style={{ display: 'block', fontSize: '0.62rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Phone Number</label>
                 <input 
                   type="tel" 
                   required 
@@ -306,7 +306,7 @@ export default function CareersPage() {
                 />
               </div>
               <div>
-                <label style={{ display: 'block', fontSize: '0.62rem', color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Portfolio or LinkedIn Link</label>
+                <label style={{ display: 'block', fontSize: '0.62rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Portfolio or LinkedIn Link</label>
                 <input 
                   type="url" 
                   required 
@@ -320,7 +320,7 @@ export default function CareersPage() {
             </div>
 
             <div>
-              <label style={{ display: 'block', fontSize: '0.62rem', color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Why do you want to join BYOND?</label>
+              <label style={{ display: 'block', fontSize: '0.62rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '6px', fontWeight: 600 }}>Why do you want to join Cobblyn?</label>
               <textarea 
                 rows={4}
                 required
@@ -335,7 +335,7 @@ export default function CareersPage() {
             <button 
               type="submit" 
               disabled={isSubmitting}
-              style={{ width: '100%', padding: '12px', background: '#C9A84C', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.3s ease' }}
+              style={{ width: '100%', padding: '12px', background: '#9d2706', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.05em', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.3s ease' }}
             >
               {isSubmitting ? 'Transmitting Application...' : <><Send size={14} /> Submit Application</>}
             </button>

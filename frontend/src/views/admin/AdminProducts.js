@@ -231,7 +231,7 @@ const AdminProducts = () => {
                   <td>{p.tag ? <span className="status-badge">{p.tag}</span> : '-'}</td>
                   <td>
                     {p.customized ? (
-                      <span className="status-badge" style={{ background: 'rgba(201,168,76,0.1)', color: '#C9A84C', borderColor: 'rgba(201,168,76,0.3)', fontWeight: 600 }}>Yes</span>
+                      <span className="status-badge" style={{ background: 'rgba(157,39,6,0.1)', color: '#9d2706', borderColor: 'rgba(157,39,6,0.3)', fontWeight: 600 }}>Yes</span>
                     ) : (
                       <span style={{ color: '#9CA3AF' }}>No</span>
                     )}

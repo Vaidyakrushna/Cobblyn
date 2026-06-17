@@ -108,7 +108,7 @@ const LoginPage = () => {
             </div>
 
             <h2 className="auth-form-title">{isLogin ? 'Welcome back' : 'Create your account'}</h2>
-            <p className="auth-form-sub">{isLogin ? 'Log in to access your BYOND account' : 'Join BYOND and enjoy all the advantages'}</p>
+            <p className="auth-form-sub">{isLogin ? 'Log in to access your Cobblyn account' : 'Join Cobblyn and enjoy all the advantages'}</p>
 
             {error && (
               <div className="auth-error" data-testid="auth-error">
@@ -145,7 +145,7 @@ const LoginPage = () => {
               {!isLogin && (
                 <div className="auth-field">
                   <label>Referral Code (Optional)</label>
-                  <input type="text" placeholder="BYOND-XXXXXX" value={formData.referralCode} onChange={(e) => setFormData({ ...formData, referralCode: e.target.value })} data-testid="register-referral" />
+                  <input type="text" placeholder="COBBLYN-XXXXXX" value={formData.referralCode} onChange={(e) => setFormData({ ...formData, referralCode: e.target.value })} data-testid="register-referral" />
                 </div>
               )}
 

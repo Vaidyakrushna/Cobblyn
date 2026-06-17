@@ -262,7 +262,7 @@ const AdminBanners = () => {
                           </div>
                         </td>
                         <td>
-                          <div style={{ fontSize: 11, color: '#C9A84C', fontWeight: 600, letterSpacing: '0.08em' }}>{b.eyebrow}</div>
+                          <div style={{ fontSize: 11, color: '#9d2706', fontWeight: 600, letterSpacing: '0.08em' }}>{b.eyebrow}</div>
                           <strong>{b.title}</strong>
                         </td>
                         <td style={{ fontSize: 13, color: '#6B7280', maxWidth: 280 }}>
@@ -289,7 +289,7 @@ const AdminBanners = () => {
                             {galleryList.length > 0 && (
                               <div style={{ display: 'flex', gap: 4 }}>
                                 {galleryList.map((gImg, gIdx) => (
-                                  <div key={gIdx} style={{ width: 22, height: 22, borderRadius: 3, overflow: 'hidden', background: '#F3F4F6', border: '1px solid #C9A84C' }} title={`Perspective ${gIdx + 1}`}>
+                                  <div key={gIdx} style={{ width: 22, height: 22, borderRadius: 3, overflow: 'hidden', background: '#F3F4F6', border: '1px solid #9d2706' }} title={`Perspective ${gIdx + 1}`}>
                                     <img src={gImg} alt="Gallery Perspective" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                   </div>
                                 ))}
@@ -299,7 +299,7 @@ const AdminBanners = () => {
                         </td>
                         <td>
                           {b.eyebrow && (
-                            <span style={{ display: 'inline-block', fontSize: 9, background: '#C9A84C20', color: '#C9A84C', padding: '2px 6px', borderRadius: 4, fontWeight: 700, letterSpacing: '0.05em', marginBottom: 4 }}>
+                            <span style={{ display: 'inline-block', fontSize: 9, background: '#9d270620', color: '#9d2706', padding: '2px 6px', borderRadius: 4, fontWeight: 700, letterSpacing: '0.05em', marginBottom: 4 }}>
                               {b.eyebrow}
                             </span>
                           )}

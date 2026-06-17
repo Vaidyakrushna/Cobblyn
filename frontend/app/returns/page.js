@@ -11,13 +11,13 @@ const RETURN_STEPS = [
     num: '01',
     icon: <Mail size={26} />,
     title: 'Initiate Request',
-    desc: 'Email us at returns@byond.in or call within 15 days of delivery. Share your order number and reason.',
+    desc: 'Email us at returns@cobblyn.in or call within 15 days of delivery. Share your order number and reason.',
   },
   {
     num: '02',
     icon: <Package size={26} />,
     title: 'Pack Securely',
-    desc: 'Place the item back in its original dust bag and BYOND box. Attach the return label we email you.',
+    desc: 'Place the item back in its original dust bag and Cobblyn box. Attach the return label we email you.',
   },
   {
     num: '03',
@@ -72,7 +72,7 @@ const EXCHANGE_INFO = [
 
 const REFUND_METHODS = [
   { method: 'Original Payment Method', timeline: '5–7 business days', note: 'Credit/debit card, net banking, UPI' },
-  { method: 'Store Credit (BYOND Wallet)', timeline: 'Instant on approval', note: 'Extra 5% bonus credited' },
+  { method: 'Store Credit (Cobblyn Wallet)', timeline: 'Instant on approval', note: 'Extra 5% bonus credited' },
   { method: 'Bank Transfer (NEFT)', timeline: '3–5 business days', note: 'For COD orders' },
 ];
 
@@ -83,7 +83,7 @@ const FAQS = [
   },
   {
     q: 'What if I received a damaged item?',
-    a: 'Photograph the outer packaging and the product immediately and email returns@byond.in within 48 hours of delivery. We will send a replacement or issue a full refund with no questions asked.',
+    a: 'Photograph the outer packaging and the product immediately and email returns@cobblyn.in within 48 hours of delivery. We will send a replacement or issue a full refund with no questions asked.',
   },
   {
     q: 'How will I know my return has been received?',
@@ -91,7 +91,7 @@ const FAQS = [
   },
   {
     q: 'Can I return a gifted item?',
-    a: 'Yes. Contact us with the original order number (from the gifter) and your preferred outcome (exchange or store credit). We can credit a BYOND Wallet to your account.',
+    a: 'Yes. Contact us with the original order number (from the gifter) and your preferred outcome (exchange or store credit). We can credit a Cobblyn Wallet to your account.',
   },
   {
     q: 'What happens if my return is rejected?',
@@ -288,7 +288,7 @@ export default function ReturnsPage() {
             <p className="ret-cta-sub">Our team responds within 4 business hours on all working days.</p>
           </div>
           <div className="ret-cta-actions">
-            <a href="mailto:returns@byond.in" className="btn-hero-primary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <a href="mailto:returns@cobblyn.in" className="btn-hero-primary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
               <Mail size={15} /> Email Us
             </a>
             <a href="tel:+919876543210" className="btn-hero-ghost" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>

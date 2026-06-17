@@ -12,10 +12,10 @@ load_dotenv(ROOT_DIR / '.env')
 
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "http://localhost:8000").rstrip("/")
 MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
-DB_NAME = os.environ.get("DB_NAME", "byond_shoes")
+DB_NAME = os.environ.get("DB_NAME", "cobblyn_shoes")
 
-ADMIN_EMAIL = "admin@byond.com"
-ADMIN_PASSWORD = "Byond@2026"
+ADMIN_EMAIL = "admin@cobblyn.com"
+ADMIN_PASSWORD = "Cobblyn@2026"
 
 def _login(email, password):
     r = requests.post(f"{BASE_URL}/api/auth/login", json={"email": email, "password": password}, timeout=20)
@@ -37,7 +37,7 @@ def admin_headers():
 @pytest.fixture
 def user_setup():
     suffix = uuid.uuid4().hex[:6]
-    email = f"testuser_{suffix}@byond.com"
+    email = f"testuser_{suffix}@cobblyn.com"
     password = "Test@1234"
     
     r_reg = requests.post(

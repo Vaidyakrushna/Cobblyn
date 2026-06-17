@@ -1,4 +1,4 @@
-# BYOND Shoes — PRD
+# Cobblyn Shoes — PRD
 
 ## Original Problem Statement
 > Migrate React.js prototype to Next.js + ongoing enhancement passes. Reference module list: e-commerce-modules.pdf attached by user. User selected Phases B/C/D from a 14-feature plan (skipped Phase A emails).
