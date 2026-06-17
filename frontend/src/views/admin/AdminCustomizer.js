@@ -8,6 +8,40 @@ import {
 } from 'lucide-react';
 import api from '../../api';
 
+const defaultCatalog = {
+  men: [
+    { name: 'Oxford',     desc: 'Classic closed-lacing elegance',  img: 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=500&q=80&fit=crop' },
+    { name: 'Derby',      desc: 'Open-lacing versatility',          img: 'https://images.unsplash.com/photo-1616696038562-574c18066055?w=500&q=80&fit=crop' },
+    { name: 'Loafer',     desc: 'Slip-on sophistication',           img: 'https://images.pexels.com/photos/29258015/pexels-photo-29258015.jpeg?auto=compress&cs=tinysrgb&w=500' },
+    { name: 'Monk Strap', desc: 'Bold buckle statement',            img: 'https://images.unsplash.com/photo-1770198408387-7f45e5d6c056?w=500&q=80&fit=crop' },
+    { name: 'Desert Boot/Chukka Boots', desc: 'Chukka & desert silhouette', img: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=500&q=80&fit=crop' },
+    { name: 'Wing Tip',   desc: 'Decorative brogue detail',        img: 'https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=500&q=80&fit=crop' },
+    { name: 'Mule',       desc: 'Backless slip-on ease',           img: 'https://images.unsplash.com/photo-1603191659812-ee978eeeef76?w=500&q=80&fit=crop' },
+    { name: 'Jutis',      desc: 'Traditional Indian craft',         img: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=500&q=80&fit=crop' },
+    { name: 'Mojaris',    desc: 'Heritage pointed slip-on',        img: 'https://images.unsplash.com/photo-1610398061401-86320597d020?w=500&q=80&fit=crop' },
+    { name: 'Boat',       desc: 'Maritime deck shoe',              img: 'https://images.unsplash.com/photo-1562273138-f46be4ebdf33?w=500&q=80&fit=crop' }
+  ],
+  women: [
+    { name: 'Ballerina',  desc: 'Graceful flat elegance',           img: 'https://images.unsplash.com/photo-1774802536876-88b0e1ca7453?w=500&q=80&fit=crop' },
+    { name: 'Boots',      desc: 'Sculpted ankle silhouette',        img: 'https://images.unsplash.com/photo-1720603989488-1f3d16b7be9d?w=500&q=80&fit=crop' },
+    { name: 'Loafers',    desc: 'Polished everyday ease',           img: 'https://images.unsplash.com/photo-1583264739275-656ff57a087f?w=500&q=80&fit=crop' },
+    { name: 'Jutis',      desc: 'Festive embroidered beauty',       img: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=500&q=80&fit=crop' },
+    { name: 'Peep Toes',  desc: 'Glamorous open-toe heels',         img: 'https://images.unsplash.com/photo-1720604083961-88336789791e?w=500&q=80&fit=crop' }
+  ]
+};
+
+const getSubmodelKey = (gender, modelName) => {
+  if (gender === 'women' && modelName === 'Boots') {
+    return 'WomenBoots';
+  }
+  return modelName;
+};
+
+const getFriendlyModelName = (modelKey) => {
+  if (modelKey === 'WomenBoots') return 'Boots';
+  return modelKey;
+};
+
 const defaultSubmodels = {
   Oxford: [
     { name: 'Plain Toe Oxford', desc: 'Clean, unadorned vamp — the purest expression of the Oxford. Ideal for black-tie and boardrooms.', tag: 'Most Classic', img: 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=600&q=80&fit=crop' },
@@ -103,6 +137,7 @@ const AdminCustomizer = () => {
 
   // Style & Submodels state
   const [submodels, setSubmodels] = useState({});
+  const [selectedGender, setSelectedGender] = useState('men');
   const [selectedModel, setSelectedModel] = useState('Oxford');
   const [showSubmodelModal, setShowSubmodelModal] = useState(false);
   const [editingSubmodelIndex, setEditingSubmodelIndex] = useState(null);
@@ -121,17 +156,7 @@ const AdminCustomizer = () => {
   ]);
 
   // Model/Silhouette Catalog State
-  const [catalog, setCatalog] = useState({
-    men: [
-      { name: 'Oxford', desc: 'Classic closed-lacing elegance', img: 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=500&q=80&fit=crop' },
-      { name: 'Derby', desc: 'Open-lacing versatility', img: 'https://images.unsplash.com/photo-1616696038562-574c18066055?w=500&q=80&fit=crop' },
-      { name: 'Loafer', desc: 'Slip-on sophistication', img: 'https://images.pexels.com/photos/29258015/pexels-photo-29258015.jpeg?auto=compress&cs=tinysrgb&w=500' }
-    ],
-    women: [
-      { name: 'Ballerina', desc: 'Graceful flat elegance', img: 'https://images.unsplash.com/photo-1774802536876-88b0e1ca7453?w=500&q=80&fit=crop' },
-      { name: 'Boots', desc: 'Sculpted ankle silhouette', img: 'https://images.unsplash.com/photo-1720603989488-1f3d16b7be9d?w=500&q=80&fit=crop' }
-    ]
-  });
+  const [catalog, setCatalog] = useState(defaultCatalog);
 
   const [showCatalogModal, setShowCatalogModal] = useState(false);
   const [editingCatalogGender, setEditingCatalogGender] = useState('men');
@@ -183,7 +208,28 @@ const AdminCustomizer = () => {
     }
     const savedCatalog = localStorage.getItem('byond_customizer_catalog');
     if (savedCatalog) {
-      try { setCatalog(JSON.parse(savedCatalog)); } catch (e) {}
+      try {
+        const parsed = JSON.parse(savedCatalog);
+        const merged = { men: [...defaultCatalog.men], women: [...defaultCatalog.women] };
+        
+        parsed.men?.forEach(pItem => {
+          if (!merged.men.some(mItem => mItem.name.toLowerCase() === pItem.name.toLowerCase())) {
+            merged.men.push(pItem);
+          }
+        });
+        parsed.women?.forEach(pItem => {
+          if (!merged.women.some(mItem => mItem.name.toLowerCase() === pItem.name.toLowerCase())) {
+            merged.women.push(pItem);
+          }
+        });
+        setCatalog(merged);
+        localStorage.setItem('byond_customizer_catalog', JSON.stringify(merged));
+      } catch (e) {
+        setCatalog(defaultCatalog);
+      }
+    } else {
+      setCatalog(defaultCatalog);
+      localStorage.setItem('byond_customizer_catalog', JSON.stringify(defaultCatalog));
     }
     const savedSubmodels = localStorage.getItem('byond_customizer_submodels');
     if (savedSubmodels) {
@@ -259,6 +305,14 @@ const AdminCustomizer = () => {
     setCatalog(updatedCatalog);
     localStorage.setItem('byond_customizer_catalog', JSON.stringify(updatedCatalog));
     showToast('🗑️ Model deleted from catalog.');
+  };
+
+  const handleGenderChange = (gender) => {
+    setSelectedGender(gender);
+    const firstModel = catalog[gender]?.[0];
+    if (firstModel) {
+      setSelectedModel(getSubmodelKey(gender, firstModel.name));
+    }
   };
 
   // 2b. Style & Submodels Handlers
@@ -706,17 +760,47 @@ const AdminCustomizer = () => {
       {activeTab === 'submodels' && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e7e5e4', paddingBottom: '12px', marginBottom: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase' }}>Select Category Model:</span>
-              <select 
-                value={selectedModel} 
-                onChange={(e) => setSelectedModel(e.target.value)}
-                style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '0.85rem', color: '#1F2937', background: '#fff', fontWeight: 600 }}
-              >
-                {Object.keys(submodels).map(m => (
-                  <option key={m} value={m}>{m}</option>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              <div style={{ display: 'flex', border: '1px solid #d1d5db', borderRadius: '6px', overflow: 'hidden' }}>
+                {['men', 'women'].map(gender => (
+                  <button
+                    key={gender}
+                    type="button"
+                    onClick={() => handleGenderChange(gender)}
+                    style={{
+                      padding: '8px 16px',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      background: selectedGender === gender ? '#C9A84C' : '#fff',
+                      color: selectedGender === gender ? '#fff' : '#4b5563',
+                      border: 'none',
+                      cursor: 'pointer',
+                      textTransform: 'uppercase',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    {gender}
+                  </button>
                 ))}
-              </select>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase' }}>Select Category Model:</span>
+                <select 
+                  value={selectedModel} 
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '0.85rem', color: '#1F2937', background: '#fff', fontWeight: 600 }}
+                >
+                  {(catalog[selectedGender] || []).map(m => {
+                    const submodelKey = getSubmodelKey(selectedGender, m.name);
+                    return (
+                      <option key={submodelKey} value={submodelKey}>
+                        {m.name}
+                      </option>
+                    );
+                  })}
+                </select>
+              </div>
             </div>
             
             <button
@@ -786,7 +870,7 @@ const AdminCustomizer = () => {
             ))}
             {(submodels[selectedModel] || []).length === 0 && (
               <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', border: '1px dashed #d1d5db', borderRadius: '12px', color: '#78716c', fontSize: '0.85rem' }}>
-                No style variants defined for {selectedModel}. Click "Add Style Variant" to create one.
+                No style variants defined for {getFriendlyModelName(selectedModel)}. Click "Add Style Variant" to create one.
               </div>
             )}
           </div>
@@ -1267,7 +1351,7 @@ const AdminCustomizer = () => {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#fff', borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '480px', position: 'relative' }}>
             <button onClick={() => setShowSubmodelModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>&times;</button>
-            <h3 style={{ margin: '0 0 16px 0', fontSize: '1rem', fontWeight: 600 }}>{editingSubmodelIndex !== null ? 'Edit Style Variant' : `Add Style Variant to ${selectedModel}`}</h3>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '1rem', fontWeight: 600 }}>{editingSubmodelIndex !== null ? 'Edit Style Variant' : `Add Style Variant to ${getFriendlyModelName(selectedModel)}`}</h3>
             
             <form onSubmit={handleSaveSubmodel} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
