@@ -2725,9 +2725,9 @@ footer {
 .customize-progress {
   display: flex;
   justify-content: center;
-  gap: 24px;
-  padding: 16px 0;
-  margin-bottom: 24px;
+  gap: 48px;
+  padding: 32px 0;
+  margin-bottom: 48px;
   position: relative;
 }
 
@@ -2740,12 +2740,12 @@ footer {
 }
 
 .progress-num {
-  width: 24px;
-  height: 24px;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--light-grey);
   background: var(--white);
   color: var(--mid-grey);
-  font-size: 0.6rem;
+  font-size: 0.72rem;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -2766,9 +2766,9 @@ footer {
 }
 
 .progress-label {
-  font-size: 0.55rem;
+  font-size: 0.62rem;
   font-weight: 400;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--mid-grey);
 }
@@ -2778,7 +2778,7 @@ footer {
 
 .progress-line {
   position: absolute;
-  top: 28px;
+  top: 52px;
   left: 15%;
   right: 15%;
   height: 1px;
@@ -2827,8 +2827,7 @@ footer {
   border: 2px solid transparent;
   background: none;
   padding: 0;
-  height: 250px;
-  min-height: 250px;
+  min-height: 400px;
   transition: all 0.3s ease;
 }
 .gender-card:hover { border-color: var(--accent); }
@@ -2838,20 +2837,20 @@ footer {
 .gender-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 30%, rgba(10, 10, 10, 0.8) 100%);
+  background: linear-gradient(180deg, transparent 40%, rgba(10, 10, 10, 0.8) 100%);
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 20px;
+  padding: 40px;
 }
 .gender-overlay h3 {
   font-family: 'Playfair Display', serif;
-  font-size: 1.4rem;
+  font-size: 2rem;
   color: var(--white);
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 .gender-overlay p {
-  font-size: 0.72rem;
+  font-size: 0.85rem;
   font-weight: 300;
   color: rgba(255, 255, 255, 0.8);
 }
@@ -8776,4 +8775,40 @@ footer {
   -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
   border: 1px solid rgba(201, 168, 76, 0.3) !important;
   box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.4) !important;
+}
+
+/* ============================================================
+   CUSTOMIZER VIEWPORT HEIGHT OVERRIDES
+   ============================================================ */
+.customize-progress {
+  gap: 24px !important;
+  padding: 16px 0 !important;
+  margin-bottom: 24px !important;
+}
+.progress-num {
+  width: 24px !important;
+  height: 24px !important;
+  font-size: 0.6rem !important;
+}
+.progress-label {
+  font-size: 0.55rem !important;
+  letter-spacing: 0.1em !important;
+}
+.progress-line {
+  top: 28px !important;
+}
+.gender-card {
+  height: 250px !important;
+  min-height: 250px !important;
+}
+.gender-overlay {
+  background: linear-gradient(180deg, transparent 30%, rgba(10, 10, 10, 0.8) 100%) !important;
+  padding: 20px !important;
+}
+.gender-overlay h3 {
+  font-size: 1.4rem !important;
+  margin-bottom: 4px !important;
+}
+.gender-overlay p {
+  font-size: 0.72rem !important;
 }
