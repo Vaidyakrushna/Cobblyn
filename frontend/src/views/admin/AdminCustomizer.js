@@ -159,6 +159,7 @@ const AdminCustomizer = () => {
   const [catalog, setCatalog] = useState(defaultCatalog);
 
   const [showCatalogModal, setShowCatalogModal] = useState(false);
+  const [selectedCatalogGender, setSelectedCatalogGender] = useState('men');
   const [editingCatalogGender, setEditingCatalogGender] = useState('men');
   const [editingCatalogIndex, setEditingCatalogIndex] = useState(null);
   const [catalogForm, setCatalogForm] = useState({ name: '', desc: '', img: '' });
@@ -307,11 +308,54 @@ const AdminCustomizer = () => {
     showToast('🗑️ Model deleted from catalog.');
   };
 
+  const handleToggleCatalogItemAvailability = (gender, index) => {
+    const updatedCatalog = { ...catalog };
+    const item = updatedCatalog[gender][index];
+    item.available = item.available === false ? true : false;
+    setCatalog(updatedCatalog);
+    localStorage.setItem('byond_customizer_catalog', JSON.stringify(updatedCatalog));
+    showToast(`✨ Model "${item.name}" ${item.available ? 'activated' : 'deactivated'} successfully!`);
+  };
+
   const handleGenderChange = (gender) => {
     setSelectedGender(gender);
     const firstModel = catalog[gender]?.[0];
     if (firstModel) {
       setSelectedModel(getSubmodelKey(gender, firstModel.name));
+    }
+  };
+
+  const handleCatalogImageUpload = async (e) => {
+    const selected = e.target.files[0];
+    if (!selected) return;
+    showToast('📤 Uploading catalog image...');
+    try {
+      const res = await api.uploadImage(selected);
+      const uploadedUrl = res.url;
+      const filename = res.filename;
+      const backendBase = uploadedUrl.split('/api/uploads/')[0];
+      const finalUrl = `${backendBase}/api/assets/cdn/${filename}`;
+      setCatalogForm(prev => ({ ...prev, img: finalUrl }));
+      showToast('✨ Catalog image uploaded successfully!');
+    } catch (err) {
+      showToast(`❌ Upload failed: ${err.message}`);
+    }
+  };
+
+  const handleSubmodelImageUpload = async (e) => {
+    const selected = e.target.files[0];
+    if (!selected) return;
+    showToast('📤 Uploading variant image...');
+    try {
+      const res = await api.uploadImage(selected);
+      const uploadedUrl = res.url;
+      const filename = res.filename;
+      const backendBase = uploadedUrl.split('/api/uploads/')[0];
+      const finalUrl = `${backendBase}/api/assets/cdn/${filename}`;
+      setSubmodelForm(prev => ({ ...prev, img: finalUrl }));
+      showToast('✨ Variant image uploaded successfully!');
+    } catch (err) {
+      showToast(`❌ Upload failed: ${err.message}`);
     }
   };
 
@@ -354,6 +398,15 @@ const AdminCustomizer = () => {
     setSubmodels(updated);
     localStorage.setItem('byond_customizer_submodels', JSON.stringify(updated));
     showToast('🗑️ Submodel variant deleted.');
+  };
+
+  const handleToggleSubmodelAvailability = (index) => {
+    const updatedSubmodels = { ...submodels };
+    const item = updatedSubmodels[selectedModel][index];
+    item.available = item.available === false ? true : false;
+    setSubmodels(updatedSubmodels);
+    localStorage.setItem('byond_customizer_submodels', JSON.stringify(updatedSubmodels));
+    showToast(`✨ Variant "${item.name}" ${item.available ? 'activated' : 'deactivated'} successfully!`);
   };
 
   // 3. CDN Assets Handlers
@@ -684,75 +737,130 @@ const AdminCustomizer = () => {
       {/* Tab content 2: Model & Silhouette Catalog */}
       {activeTab === 'catalog' && (
         <div>
-          {['men', 'women'].map(gender => (
-            <div key={gender} style={{ marginBottom: '40px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e7e5e4', paddingBottom: '8px', marginBottom: '20px' }}>
-                <h3 style={{ textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.9rem', color: '#C9A84C' }}>
-                  {gender === 'men' ? "Men's Silhouette Categories" : "Women's Silhouette Categories"}
-                </h3>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e7e5e4', paddingBottom: '12px', marginBottom: '24px' }}>
+            <div style={{ 
+              display: 'inline-flex', 
+              border: '1px solid #d1d5db', 
+              borderRadius: '8px', 
+              overflow: 'hidden',
+              background: '#fff',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
+            }}>
+              {['men', 'women'].map((gender, idx) => (
                 <button
-                  onClick={() => handleOpenCatalogModal(gender)}
+                  key={gender}
+                  type="button"
+                  onClick={() => setSelectedCatalogGender(gender)}
                   style={{
-                    padding: '8px 14px',
-                    fontSize: '0.75rem',
-                    background: '#111',
-                    color: '#fff',
+                    padding: '10px 28px',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    fontFamily: 'Montserrat, sans-serif',
+                    letterSpacing: '0.06em',
+                    background: selectedCatalogGender === gender ? '#C9A84C' : '#fff',
+                    color: selectedCatalogGender === gender ? '#fff' : '#2E3A4E',
                     border: 'none',
-                    borderRadius: '6px',
                     cursor: 'pointer',
-                    fontWeight: 600,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px'
+                    textTransform: 'uppercase',
+                    transition: 'all 0.2s ease',
+                    outline: 'none',
+                    borderLeft: idx > 0 ? '1px solid #d1d5db' : 'none'
                   }}
                 >
-                  <Plus size={14} /> Add Category
+                  {gender}
                 </button>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
-                {catalog[gender].map((item, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      background: '#fff',
-                      border: '1px solid #e7e5e4',
-                      borderRadius: '12px',
-                      overflow: 'hidden',
-                      boxShadow: '0 4px 15px rgba(0,0,0,0.01)',
-                      display: 'flex',
-                      flexDirection: 'column'
-                    }}
-                  >
-                    <div style={{ height: '140px', background: '#F9FAFB', overflow: 'hidden' }}>
-                      <img src={item.img} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                    <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                      <div>
-                        <h4 style={{ margin: '0 0 6px 0', fontSize: '0.85rem', fontWeight: 700 }}>{item.name}</h4>
-                        <p style={{ margin: 0, fontSize: '0.72rem', color: '#78716c', lineHeight: 1.4 }}>{item.desc}</p>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '8px', marginTop: '16px', borderTop: '1px solid #f3f4f6', paddingTop: '12px' }}>
-                        <button
-                          onClick={() => handleOpenCatalogModal(gender, idx)}
-                          style={{ flex: 1, padding: '6px', fontSize: '0.7rem', background: 'none', border: '1px solid #d1d5db', color: '#4b5563', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
-                        >
-                          <Edit2 size={12} /> Edit Details
-                        </button>
-                        <button
-                          onClick={() => handleDeleteCatalogItem(gender, idx)}
-                          style={{ padding: '6px 10px', background: 'none', border: '1px solid #f3f4f6', color: '#dc2626', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                        >
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              ))}
             </div>
-          ))}
+
+            <button
+              onClick={() => handleOpenCatalogModal(selectedCatalogGender)}
+              style={{
+                padding: '8px 14px',
+                fontSize: '0.75rem',
+                background: '#111',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              <Plus size={14} /> Add Category
+            </button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+            {(catalog[selectedCatalogGender] || []).map((item, idx) => (
+              <div
+                key={idx}
+                style={{
+                  background: '#fff',
+                  border: '1px solid #e7e5e4',
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.01)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  opacity: item.available !== false ? 1 : 0.65
+                }}
+              >
+                <div style={{ height: '140px', background: '#F9FAFB', overflow: 'hidden', position: 'relative' }}>
+                  <img src={item.img} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  {item.available === false && (
+                    <span style={{ position: 'absolute', top: '8px', right: '8px', background: '#dc2626', color: '#fff', fontSize: '0.6rem', fontWeight: 700, padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Inactive
+                    </span>
+                  )}
+                </div>
+                <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div>
+                    <h4 style={{ margin: '0 0 6px 0', fontSize: '0.85rem', fontWeight: 700 }}>{item.name}</h4>
+                    <p style={{ margin: 0, fontSize: '0.72rem', color: '#78716c', lineHeight: 1.4 }}>{item.desc}</p>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '16px', borderTop: '1px solid #f3f4f6', paddingTop: '12px' }}>
+                    <button
+                      onClick={() => handleOpenCatalogModal(selectedCatalogGender, idx)}
+                      style={{ flex: 1, padding: '6px', fontSize: '0.7rem', background: 'none', border: '1px solid #d1d5db', color: '#4b5563', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
+                    >
+                      <Edit2 size={12} /> Edit Details
+                    </button>
+                    <button
+                      onClick={() => handleToggleCatalogItemAvailability(selectedCatalogGender, idx)}
+                      style={{ 
+                        padding: '6px 10px', 
+                        background: 'none', 
+                        border: '1px solid #d1d5db', 
+                        color: item.available !== false ? '#059669' : '#78716c', 
+                        borderRadius: '6px', 
+                        cursor: 'pointer', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center' 
+                      }}
+                      title={item.available !== false ? "Deactivate Model" : "Activate Model"}
+                    >
+                      {item.available !== false ? <Eye size={12} /> : <EyeOff size={12} />}
+                    </button>
+                    <button
+                      onClick={() => handleDeleteCatalogItem(selectedCatalogGender, idx)}
+                      style={{ padding: '6px 10px', background: 'none', border: '1px solid #f3f4f6', color: '#dc2626', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+            {(catalog[selectedCatalogGender] || []).length === 0 && (
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px', border: '1px dashed #d1d5db', borderRadius: '12px', color: '#78716c', fontSize: '0.85rem' }}>
+                No categories defined for {selectedCatalogGender}. Click "Add Category" to create one.
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -761,22 +869,33 @@ const AdminCustomizer = () => {
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #e7e5e4', paddingBottom: '12px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-              <div style={{ display: 'flex', border: '1px solid #d1d5db', borderRadius: '6px', overflow: 'hidden' }}>
-                {['men', 'women'].map(gender => (
+              <div style={{ 
+                display: 'inline-flex', 
+                border: '1px solid #d1d5db', 
+                borderRadius: '8px', 
+                overflow: 'hidden',
+                background: '#fff',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.05)'
+              }}>
+                {['men', 'women'].map((gender, idx) => (
                   <button
                     key={gender}
                     type="button"
                     onClick={() => handleGenderChange(gender)}
                     style={{
-                      padding: '8px 16px',
-                      fontSize: '0.8rem',
-                      fontWeight: 600,
+                      padding: '10px 28px',
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      fontFamily: 'Montserrat, sans-serif',
+                      letterSpacing: '0.06em',
                       background: selectedGender === gender ? '#C9A84C' : '#fff',
-                      color: selectedGender === gender ? '#fff' : '#4b5563',
+                      color: selectedGender === gender ? '#fff' : '#2E3A4E',
                       border: 'none',
                       cursor: 'pointer',
                       textTransform: 'uppercase',
-                      transition: 'all 0.2s ease'
+                      transition: 'all 0.2s ease',
+                      outline: 'none',
+                      borderLeft: idx > 0 ? '1px solid #d1d5db' : 'none'
                     }}
                   >
                     {gender}
@@ -834,7 +953,8 @@ const AdminCustomizer = () => {
                   overflow: 'hidden',
                   boxShadow: '0 4px 15px rgba(0,0,0,0.01)',
                   display: 'flex',
-                  flexDirection: 'column'
+                  flexDirection: 'column',
+                  opacity: item.available !== false ? 1 : 0.65
                 }}
               >
                 <div style={{ height: '140px', background: '#F9FAFB', overflow: 'hidden', position: 'relative' }}>
@@ -842,6 +962,11 @@ const AdminCustomizer = () => {
                   {item.tag && (
                     <span style={{ position: 'absolute', top: '8px', left: '8px', background: '#C9A84C', color: '#fff', fontSize: '0.6rem', fontWeight: 700, padding: '2px 8px', borderRadius: '20px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       {item.tag}
+                    </span>
+                  )}
+                  {item.available === false && (
+                    <span style={{ position: 'absolute', top: '8px', right: '8px', background: '#dc2626', color: '#fff', fontSize: '0.6rem', fontWeight: 700, padding: '2px 8px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Inactive
                     </span>
                   )}
                 </div>
@@ -857,6 +982,23 @@ const AdminCustomizer = () => {
                       style={{ flex: 1, padding: '6px', fontSize: '0.7rem', background: 'none', border: '1px solid #d1d5db', color: '#4b5563', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                     >
                       <Edit2 size={12} /> Edit Details
+                    </button>
+                    <button
+                      onClick={() => handleToggleSubmodelAvailability(idx)}
+                      style={{ 
+                        padding: '6px 10px', 
+                        background: 'none', 
+                        border: '1px solid #d1d5db', 
+                        color: item.available !== false ? '#059669' : '#78716c', 
+                        borderRadius: '6px', 
+                        cursor: 'pointer', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center' 
+                      }}
+                      title={item.available !== false ? "Deactivate Style" : "Activate Style"}
+                    >
+                      {item.available !== false ? <Eye size={12} /> : <EyeOff size={12} />}
                     </button>
                     <button
                       onClick={() => handleDeleteSubmodel(idx)}
@@ -1239,6 +1381,40 @@ const AdminCustomizer = () => {
                 />
               </div>
 
+              <div>
+                <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: '#4b5563', textTransform: 'uppercase', marginBottom: '6px' }}>Or Upload Local Image</label>
+                <div style={{ 
+                  border: '2px dashed #C9A84C', 
+                  borderRadius: '8px', 
+                  background: '#f9fafb', 
+                  padding: '16px', 
+                  textAlign: 'center', 
+                  position: 'relative', 
+                  cursor: 'pointer',
+                  transition: 'border-color 0.2s ease'
+                }}>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={handleCatalogImageUpload}
+                    style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }}
+                  />
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                    <Upload size={20} color="#C9A84C" />
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#4b5563' }}>Click to upload local image</span>
+                    <span style={{ fontSize: '0.62rem', color: '#78716c' }}>PNG, JPG, WEBP up to 5MB</span>
+                  </div>
+                </div>
+                {catalogForm.img && (
+                  <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '6px' }}>
+                    <span style={{ fontSize: '0.7rem', color: '#065f46', fontWeight: 600, wordBreak: 'break-all' }}>
+                      Current Image: {catalogForm.img.substring(catalogForm.img.lastIndexOf('/') + 1)}
+                    </span>
+                    <img src={catalogForm.img} alt="Preview" style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '4px', marginLeft: 'auto', border: '1px solid #d1d5db' }} />
+                  </div>
+                )}
+              </div>
+
               <button type="submit" style={{ width: '100%', padding: '12px', background: '#111', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '0.75rem', textTransform: 'uppercase', cursor: 'pointer' }}>
                 Save Model Details
               </button>
@@ -1397,6 +1573,40 @@ const AdminCustomizer = () => {
                   style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #d1d5db', fontSize: '0.8rem' }}
                   placeholder="Paste picture URL"
                 />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 700, color: '#4b5563', textTransform: 'uppercase', marginBottom: '6px' }}>Or Upload Local Image</label>
+                <div style={{ 
+                  border: '2px dashed #C9A84C', 
+                  borderRadius: '8px', 
+                  background: '#f9fafb', 
+                  padding: '16px', 
+                  textAlign: 'center', 
+                  position: 'relative', 
+                  cursor: 'pointer',
+                  transition: 'border-color 0.2s ease'
+                }}>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={handleSubmodelImageUpload}
+                    style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }}
+                  />
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+                    <Upload size={20} color="#C9A84C" />
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#4b5563' }}>Click to upload local image</span>
+                    <span style={{ fontSize: '0.62rem', color: '#78716c' }}>PNG, JPG, WEBP up to 5MB</span>
+                  </div>
+                </div>
+                {submodelForm.img && (
+                  <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '6px' }}>
+                    <span style={{ fontSize: '0.7rem', color: '#065f46', fontWeight: 600, wordBreak: 'break-all' }}>
+                      Current Image: {submodelForm.img.substring(submodelForm.img.lastIndexOf('/') + 1)}
+                    </span>
+                    <img src={submodelForm.img} alt="Preview" style={{ width: '32px', height: '32px', objectFit: 'cover', borderRadius: '4px', marginLeft: 'auto', border: '1px solid #d1d5db' }} />
+                  </div>
+                )}
               </div>
 
               <button type="submit" style={{ width: '100%', padding: '12px', background: '#111', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, fontSize: '0.75rem', textTransform: 'uppercase', cursor: 'pointer' }}>

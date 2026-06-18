@@ -8,7 +8,8 @@ import {
 import { useAuth } from '../../src/context/AuthContext';
 import { api } from '../../src/api';
 
-const styleOptions = ['Oxford', 'Loafer', 'Monk Strap', 'Derby', 'Wing Tip', 'Desert Boot', 'Jutis', 'Mojaris', 'Mule', 'Boat'];
+const menStyles = ['Oxford', 'Loafer', 'Monk Strap', 'Derby', 'Wing Tip', 'Desert Boot', 'Jutis', 'Mojaris', 'Mule', 'Boat'];
+const womenStyles = ['Ballerina', 'Boots', 'Loafers', 'Jutis', 'Peep Toes'];
 const materialOptions = ['Full-Grain Leather', 'Suede', 'Nubuck', 'Patent Leather', 'Italian Calfskin', 'Shell Cordovan', 'Silk Brocade'];
 
 const initialForm = {
@@ -78,6 +79,18 @@ export default function BespokePage() {
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleGenderSelect = (gender) => {
+    const nextGender = formData.visitFor === gender ? '' : gender;
+    setFormData(prev => {
+      const updated = { ...prev, visitFor: nextGender };
+      const activeStyles = nextGender === 'women' ? womenStyles : (nextGender === 'men' ? menStyles : Array.from(new Set([...menStyles, ...womenStyles])));
+      if (prev.style && !activeStyles.includes(prev.style)) {
+        updated.style = '';
+      }
+      return updated;
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -209,59 +222,6 @@ export default function BespokePage() {
         </div>
       </section>
 
-      {/* ── MATERIALS STRIP ─────────────────────────────────── */}
-      <section className="bespoke-materials-strip">
-        <div className="bespoke-materials-inner">
-          <div className="bespoke-materials-content">
-            <div className="bespoke-section-label" style={{ textAlign: 'left', color: 'var(--accent)' }}>OUR LEATHERS</div>
-            <h2 className="bespoke-section-title" style={{ textAlign: 'left', color: 'var(--white)' }}>Sourced from the World&apos;s Finest Tanneries</h2>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem', lineHeight: '1.85', marginBottom: '32px', maxWidth: '440px' }}>
-              From Italian full-grain calf to rare shell cordovan — our artisan brings
-              over 40 leather swatches, so you can feel every option before you decide.
-            </p>
-            <div className="bespoke-materials-tags">
-              {materialOptions.map(m => (
-                <span key={m} className="bespoke-material-tag">{m}</span>
-              ))}
-            </div>
-          </div>
-          <div className="bespoke-materials-img">
-            <img
-              src="https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=700&q=85&fit=crop"
-              alt="Leather swatches"
-            />
-            <div className="bespoke-materials-badge">
-              <Shield size={16} fill="currentColor" />
-              <span>100% Genuine Leather</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── TESTIMONIALS ────────────────────────────────────── */}
-      <section className="bespoke-testimonials">
-        <div className="bespoke-section-label">CLIENT STORIES</div>
-        <h2 className="bespoke-section-title">What Our Bespoke Clients Say</h2>
-        <div className="bespoke-testimonials-grid">
-          {TESTIMONIALS.map((t, i) => (
-            <div key={i} className="bespoke-testimonial-card">
-              <Quote size={28} className="bespoke-quote-icon" />
-              <p className="bespoke-testimonial-text">{t.text}</p>
-              <div className="bespoke-testimonial-footer">
-                <div className="bespoke-testimonial-stars">
-                  {[1,2,3,4,5].map(s => (
-                    <Star key={s} size={12} fill="#9d2706" color="#9d2706" />
-                  ))}
-                </div>
-                <div className="bespoke-testimonial-author">
-                  <strong>{t.name}</strong>
-                  <span>{t.city}</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
 
       {/* ── FORM SECTION ────────────────────────────────────── */}
       <div className="bespoke-form-section" id="bespoke-form">
@@ -379,15 +339,28 @@ export default function BespokePage() {
                 </div>
 
                 <div className="bespoke-field">
+                  <label>For</label>
+                  <div className="bespoke-gender-toggle">
+                    <button type="button" className={`bespoke-gender-btn ${formData.visitFor === 'men' ? 'active' : ''}`}
+                      onClick={() => handleGenderSelect('men')}>Men</button>
+                    <button type="button" className={`bespoke-gender-btn ${formData.visitFor === 'women' ? 'active' : ''}`}
+                      onClick={() => handleGenderSelect('women')}>Women</button>
+                  </div>
+                </div>
+
+                <div className="bespoke-field">
                   <label>Choose Style</label>
                   <div className="bespoke-style-chips" data-testid="visit-style-chips">
-                    {styleOptions.map(s => (
-                      <button key={s} type="button"
-                        className={`bespoke-chip ${formData.style === s ? 'active' : ''}`}
-                        onClick={() => handleChange('style', formData.style === s ? '' : s)}
-                        data-testid={`visit-style-${s.toLowerCase().replace(/\s/g, '-')}`}
-                      >{s}</button>
-                    ))}
+                    {(() => {
+                      const activeStyles = formData.visitFor === 'women' ? womenStyles : (formData.visitFor === 'men' ? menStyles : Array.from(new Set([...menStyles, ...womenStyles])));
+                      return activeStyles.map(s => (
+                        <button key={s} type="button"
+                          className={`bespoke-chip ${formData.style === s ? 'active' : ''}`}
+                          onClick={() => handleChange('style', formData.style === s ? '' : s)}
+                          data-testid={`visit-style-${s.toLowerCase().replace(/\s+/g, '-')}`}
+                        >{s}</button>
+                      ));
+                    })()}
                   </div>
                 </div>
 
@@ -412,16 +385,6 @@ export default function BespokePage() {
                 </div>
 
                 <div className="bespoke-field">
-                  <label>For</label>
-                  <div className="bespoke-gender-toggle">
-                    <button type="button" className={`bespoke-gender-btn ${formData.visitFor === 'men' ? 'active' : ''}`}
-                      onClick={() => handleChange('visitFor', formData.visitFor === 'men' ? '' : 'men')}>Men</button>
-                    <button type="button" className={`bespoke-gender-btn ${formData.visitFor === 'women' ? 'active' : ''}`}
-                      onClick={() => handleChange('visitFor', formData.visitFor === 'women' ? '' : 'women')}>Women</button>
-                  </div>
-                </div>
-
-                <div className="bespoke-field">
                   <label>Notes (optional)</label>
                   <textarea rows="3" placeholder="Preferred time of day, special requirements, occasion..."
                     value={formData.notes} onChange={(e) => handleChange('notes', e.target.value)} data-testid="visit-notes" />
@@ -442,6 +405,31 @@ export default function BespokePage() {
           </div>
         </div>
       </div>
+
+      {/* ── TESTIMONIALS ────────────────────────────────────── */}
+      <section className="bespoke-testimonials" style={{ padding: '80px 0', borderTop: '1px solid #f3f4f6' }}>
+        <div className="bespoke-section-label">CLIENT STORIES</div>
+        <h2 className="bespoke-section-title">What Our Bespoke Clients Say</h2>
+        <div className="bespoke-testimonials-grid">
+          {TESTIMONIALS.map((t, i) => (
+            <div key={i} className="bespoke-testimonial-card">
+              <Quote size={28} className="bespoke-quote-icon" />
+              <p className="bespoke-testimonial-text">{t.text}</p>
+              <div className="bespoke-testimonial-footer">
+                <div className="bespoke-testimonial-stars">
+                  {[1,2,3,4,5].map(s => (
+                    <Star key={s} size={12} fill="#9d2706" color="#9d2706" />
+                  ))}
+                </div>
+                <div className="bespoke-testimonial-author">
+                  <strong>{t.name}</strong>
+                  <span>{t.city}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
     </div>
   );

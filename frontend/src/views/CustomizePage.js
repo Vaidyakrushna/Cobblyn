@@ -507,6 +507,17 @@ const CustomizePage = () => {
   const [activeLeathers, setActiveLeathers] = useState(leathers);
   const [activeColors, setActiveColors] = useState(colors);
   const [activeSoles, setActiveSoles] = useState(soles);
+  const [activeModels, setActiveModels] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('byond_customizer_catalog');
+        if (saved) return JSON.parse(saved);
+      } catch (e) {
+        console.error('Failed to load catalog:', e);
+      }
+    }
+    return models;
+  });
   const [activeSubmodels, setActiveSubmodels] = useState(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -537,15 +548,19 @@ const CustomizePage = () => {
     };
     fetchDbData();
 
-    // Sync submodels from localStorage
+    // Sync catalog and submodels from localStorage
     if (typeof window !== 'undefined') {
       try {
-        const saved = localStorage.getItem('byond_customizer_submodels');
-        if (saved) {
-          setActiveSubmodels(JSON.parse(saved));
+        const savedSub = localStorage.getItem('byond_customizer_submodels');
+        if (savedSub) {
+          setActiveSubmodels(JSON.parse(savedSub));
+        }
+        const savedCat = localStorage.getItem('byond_customizer_catalog');
+        if (savedCat) {
+          setActiveModels(JSON.parse(savedCat));
         }
       } catch (e) {
-        console.error('Failed to parse submodels from localStorage:', e);
+        console.error('Failed to parse catalog/submodels from localStorage:', e);
       }
     }
   }, []);
@@ -1037,11 +1052,14 @@ const CustomizePage = () => {
   // Resolve the correct submodel list based on gender + model
   const getSubmodels = () => {
     if (!config.model) return [];
+    let list = [];
     // Women's Boots use 'WomenBoots' key to avoid collision with Men's Boots
     if (config.model === 'Boots' && config.gender === 'women') {
-      return activeSubmodels['WomenBoots'] || [];
+      list = activeSubmodels['WomenBoots'] || [];
+    } else {
+      list = activeSubmodels[config.model] || [];
     }
-    return activeSubmodels[config.model] || [];
+    return list.filter(sm => sm.available !== false);
   };
 
   const pick = (key, val, nextStep) => {
@@ -1156,8 +1174,50 @@ const CustomizePage = () => {
             <div className="customize-step" data-testid="step-model">
               <h2 className="step-question">Choose your shoe category</h2>
               <p className="step-sub">Select a category to explore the specific styles within it.</p>
+              
+              {/* Segmented Men/Women Toggle */}
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
+                <div style={{ 
+                  display: 'inline-flex', 
+                  border: '1px solid #d1d5db', 
+                  borderRadius: '8px', 
+                  overflow: 'hidden',
+                  background: '#fff',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                }}>
+                  {['men', 'women'].map((gender, idx) => (
+                    <button
+                      key={gender}
+                      type="button"
+                      onClick={() => setConfig(prev => {
+                        const nextGender = gender;
+                        const firstModel = activeModels[nextGender]?.[0]?.name || '';
+                        return { ...prev, gender: nextGender, model: firstModel, submodel: '' };
+                      })}
+                      style={{
+                        padding: '10px 28px',
+                        fontSize: '0.85rem',
+                        fontWeight: 700,
+                        fontFamily: 'Montserrat, sans-serif',
+                        letterSpacing: '0.06em',
+                        background: config.gender === gender ? '#C9A84C' : '#fff',
+                        color: config.gender === gender ? '#fff' : '#2E3A4E',
+                        border: 'none',
+                        cursor: 'pointer',
+                        textTransform: 'uppercase',
+                        transition: 'all 0.2s ease',
+                        outline: 'none',
+                        borderLeft: idx > 0 ? '1px solid #d1d5db' : 'none'
+                      }}
+                    >
+                      {gender}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="model-grid">
-                {(models[config.gender] || models.men).map((m) => (
+                {(activeModels[config.gender] || activeModels.men).filter(m => m.available !== false).map((m) => (
                   <button
                     key={m.name}
                     className={`model-card ${config.model === m.name ? 'active' : ''}`}
