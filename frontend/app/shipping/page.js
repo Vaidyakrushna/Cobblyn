@@ -60,8 +60,8 @@ export default function ShippingPage() {
               icon: <Truck size={28} />,
               title: 'Express Delivery',
               detail: '2–3 Business Days',
-              note: 'Flat ₹199 across India',
-              highlight: true,
+              note: 'For Ready-to-Ship items',
+              highlight: false,
             },
             {
               icon: <Clock size={28} />,
@@ -116,7 +116,7 @@ export default function ShippingPage() {
               {
                 icon: <Truck size={22} />,
                 title: 'Shipping Charges',
-                content: 'Standard shipping is complimentary on all orders above ₹2,999 within India. For orders below ₹2,999, a flat shipping fee of ₹99 applies. Express delivery (2–3 business days) is available for ₹199 regardless of order value.',
+                content: 'Standard shipping is complimentary on all orders above ₹2,999 within India. For orders below ₹2,999, a flat shipping fee of ₹99 applies. Express delivery (2–3 business days) is available for ₹199, but please note this is only applicable for our Ready-to-Ship footwear collection and Accessories.',
               },
               {
                 icon: <MapPin size={22} />,
@@ -208,7 +208,7 @@ export default function ShippingPage() {
         <p style={{ color: 'var(--mid-grey)', fontSize: '0.9rem', maxWidth: '480px', margin: '0 auto 36px' }}>
           Our support team is always happy to help. Reach out to us through any of our contact channels.
         </p>
-        <a href="/contact" className="btn-hero-primary" style={{ textDecoration: 'none' }}>
+        <a href="/contact" className="btn-hero-primary" style={{ textDecoration: 'none', backgroundColor: 'var(--accent)', color: 'var(--white)', border: 'none' }}>
           Contact Support
         </a>
       </section>

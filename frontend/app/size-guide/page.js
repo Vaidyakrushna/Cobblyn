@@ -47,12 +47,11 @@ const HOW_TO_STEPS = [
 ];
 
 const FIT_TIPS = [
-  { scenario: 'Between two sizes', advice: 'Choose the larger size. Leather stretches and forms to your foot.' },
+  { scenario: 'Between two sizes', advice: 'Choose the smaller size. High-quality leather will naturally stretch and mold to the shape of your foot over time.' },
   { scenario: 'Wide feet', advice: 'Size up by ½ for extra room across the metatarsals.' },
   { scenario: 'Narrow feet', advice: 'Stay true to size; add a half-insole for a snug fit.' },
-  { scenario: 'High arch', advice: 'Goodyear-welt or rubber-sole constructions offer better cushioning.' },
+  { scenario: 'High arch', advice: 'Opt for Derby or Monk Strap styles, which provide more adjustability over the instep than closed-lace Oxfords.' },
   { scenario: 'One foot slightly larger', advice: 'Always fit to your larger foot. Never the other way.' },
-  { scenario: 'Measuring in the evening', advice: 'Feet swell during the day. Evening measurements are most accurate.' },
 ];
 
 const STYLE_NOTES = [
@@ -62,7 +61,7 @@ const STYLE_NOTES = [
   },
   {
     style: 'Loafers',
-    note: 'Half size up recommended for slip-on comfort, especially in full-grain leather.',
+    note: 'Stay true to size or size down half a size. A snug initial fit prevents heel slippage as the leather softens.',
   },
   {
     style: 'Monk Straps',
@@ -172,7 +171,7 @@ export default function SizeGuidePage() {
             <div className="section-label" style={{ color: 'var(--accent)' }}>AT HOME</div>
             <h2 className="section-title" style={{ color: 'var(--white)' }}>How to Measure Your Foot</h2>
             <p style={{ color: 'rgba(255,255,255,0.55)', maxWidth: '520px', margin: '0 auto', fontSize: '0.88rem', lineHeight: '1.85' }}>
-              Measure in the evening when your feet are at their largest. Always measure both feet — use the larger measurement.
+              Always measure both feet — use the larger measurement.
             </p>
           </div>
           <div className="sg-how-grid">
@@ -236,10 +235,10 @@ export default function SizeGuidePage() {
             </p>
           </div>
           <div className="sg-cta-actions">
-            <Link href="/bespoke" className="btn-hero-primary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <Link href="/bespoke" className="btn-hero-primary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8, backgroundColor: '#9d2706', color: '#ffffff', border: 'none' }}>
               Book a Home Visit <ArrowRight size={14} />
             </Link>
-            <Link href="/contact" className="btn-hero-ghost" style={{ textDecoration: 'none' }}>
+            <Link href="/contact" className="btn-hero-ghost" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #fff', color: '#fff', backgroundColor: 'transparent', padding: '0 24px' }}>
               Contact Us
             </Link>
           </div>

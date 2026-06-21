@@ -17,10 +17,10 @@ const SIZE_TABLE_WOMEN = [
 ];
 
 const FIT_TIPS = [
-  { label: 'Foot length is between two sizes', tip: 'Pick the larger size for daily wear, smaller for occasion shoes' },
+  { label: 'Between two sizes', tip: 'Choose the smaller size as leather naturally stretches' },
   { label: 'Wide feet', tip: 'Size up by ½ for extra room across the metatarsals' },
   { label: 'Narrow feet', tip: 'Stay true to size; consider an insole for snug fit' },
-  { label: 'High arch', tip: 'Choose Goodyear-welt or rubber-sole styles for cushioning' },
+  { label: 'High arch', tip: 'Opt for Derby or Monk Strap styles for better instep adjustability' },
 ];
 
 const SizeGuide = ({ open, onClose, gender = 'men' }) => {
@@ -62,7 +62,7 @@ const SizeGuide = ({ open, onClose, gender = 'men' }) => {
         </div>
 
         <p style={{ fontSize: 12, color: '#6B7280', marginTop: 16 }}>
-          Tip: Measure your foot in the evening (when it's largest) and add 0.5 cm of room from your longest toe.
+          Tip: Ensure you measure both feet and use the larger measurement. Add 0.5 cm of room from your longest toe.
         </p>
       </div>
     </div>

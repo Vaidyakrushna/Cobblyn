@@ -126,6 +126,7 @@ const Navigation = () => {
                     <ul className="dropdown-list">
                       <li><Link href="/men?tag=ready-to-ship">Ready to ship</Link></li>
                       <li><Link href="/bespoke">Schedule Visit</Link></li>
+                      <li><Link href="/fitting-experience">Fitting Experience</Link></li>
                       <li><Link href="/customize/men">Customisation</Link></li>
                     </ul>
                   </div>
@@ -159,6 +160,7 @@ const Navigation = () => {
                     <ul className="dropdown-list">
                       <li><Link href="/women?tag=ready-to-ship">Ready to ship</Link></li>
                       <li><Link href="/bespoke">Schedule Visit</Link></li>
+                      <li><Link href="/fitting-experience">Fitting Experience</Link></li>
                       <li><Link href="/customize/women">Customisation</Link></li>
                     </ul>
                   </div>

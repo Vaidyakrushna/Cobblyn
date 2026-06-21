@@ -96,6 +96,57 @@ export default function BespokePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    // Frontend Validations
+    if (!formData.firstName.trim()) {
+      setError('First name is required.');
+      return;
+    }
+    if (!formData.lastName.trim()) {
+      setError('Last name is required.');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    const cleanPhone = formData.contactNumber.replace(/[^0-9]/g, '');
+    if (cleanPhone.length < 10) {
+      setError('Please enter a valid contact number of at least 10 digits.');
+      return;
+    }
+
+    if (!formData.visitDate) {
+      setError('Please select a visit date.');
+      return;
+    }
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const selectedDate = new Date(formData.visitDate);
+    if (selectedDate <= today) {
+      setError('Visit date must be a future date (at least tomorrow).');
+      return;
+    }
+
+    if (!formData.visitFor) {
+      setError('Please select who the visit is for (Men/Women).');
+      return;
+    }
+
+    if (!formData.style) {
+      setError('Please select a style chip.');
+      return;
+    }
+
+    const cleanPin = formData.pinCode.replace(/[^0-9]/g, '');
+    if (cleanPin.length !== 6) {
+      setError('PIN Code must be a 6-digit number (e.g. 400001).');
+      return;
+    }
+
     setSubmitting(true);
     try {
       await api.scheduleVisit({
