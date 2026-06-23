@@ -45,7 +45,7 @@ const ELIGIBLE = [
 const NOT_ELIGIBLE = [
   'Worn, used, or washed items',
   'Products without original packaging',
-  'Customized or bespoke orders (made-to-measure)',
+  'Bespoke / Customized orders (unless manufacturing defect)',
   'Sale or final-clearance items marked "non-returnable"',
   'Requests raised after 15 days of delivery',
   'Items with visible signs of damage caused by misuse',
@@ -54,7 +54,7 @@ const NOT_ELIGIBLE = [
 const EXCHANGE_INFO = [
   {
     q: 'Can I exchange for a different size?',
-    a: 'Yes — size exchanges are our most common request and are fully free. We\'ll ship the replacement once we receive and verify your return. If your new size isn\'t in stock, we\'ll offer a full refund or store credit.',
+    a: 'Yes, it is possible. We\'ll ship the replacement once we receive and verify your return. If your new size isn\'t in stock, we will communicate accordingly.',
   },
   {
     q: 'Can I exchange for a different colour or style?',
@@ -66,7 +66,7 @@ const EXCHANGE_INFO = [
   },
   {
     q: 'Can I exchange an accessory?',
-    a: 'Accessories can be exchanged within 7 days. Items must be unused and in original packaging. The Shoe Care and Lace categories can be exchanged for a different variant.',
+    a: 'Accessories can be exchanged within 7 days. Items must be unused and in original packaging. The Shoe Care and Lace categories can be exchanged for a different variant. Please note that unpacked socks cannot be returned or exchanged.',
   },
 ];
 
@@ -83,7 +83,7 @@ const FAQS = [
   },
   {
     q: 'What if I received a damaged item?',
-    a: 'Photograph the outer packaging and the product immediately and email returns@cobblyn.in within 48 hours of delivery. We will send a replacement or issue a full refund with no questions asked.',
+    a: 'Photograph the outer packaging and the product immediately and email returns@cobblyn.in within 48 hours of delivery. We will arrange a replacement or issue a refund upon verification.',
   },
   {
     q: 'How will I know my return has been received?',
@@ -96,6 +96,10 @@ const FAQS = [
   {
     q: 'What happens if my return is rejected?',
     a: 'If an item doesn\'t meet our return criteria, we\'ll explain why in detail and return the item to you free of charge. We aim to be transparent at every step.',
+  },
+  {
+    q: 'Can you pick up the return from a different address?',
+    a: 'No. For security and logistics reasons, return orders can only be picked up from the original delivery address used during ordering.',
   },
 ];
 
@@ -143,13 +147,13 @@ export default function ReturnsPage() {
             Four simple steps — and you never have to leave your home.
           </p>
         </div>
-        <div className="ret-steps-grid">
+        <div className="shipping-cards-grid" style={{ marginTop: '48px' }}>
           {RETURN_STEPS.map((step, i) => (
-            <div key={i} className="ret-step-card">
-              <div className="ret-step-num">{step.num}</div>
-              <div className="ret-step-icon">{step.icon}</div>
-              <h3 className="ret-step-title">{step.title}</h3>
-              <p className="ret-step-desc">{step.desc}</p>
+            <div key={i} className="shipping-card">
+              <div className="shipping-card-icon">{step.icon}</div>
+              <h3 className="shipping-card-title">{step.title}</h3>
+              <div className="shipping-card-detail">Step {step.num}</div>
+              <div className="shipping-card-note">{step.desc}</div>
             </div>
           ))}
         </div>
@@ -177,7 +181,7 @@ export default function ReturnsPage() {
             <div className="ret-elig-col">
               <div className="ret-elig-header ret-elig-no">
                 <XCircle size={20} />
-                <span>Not Eligible for Return</span>
+                <span>Not Eligible for Return and Exchange</span>
               </div>
               <ul className="ret-elig-list">
                 {NOT_ELIGIBLE.map((item, i) => (
@@ -189,6 +193,10 @@ export default function ReturnsPage() {
           <div className="ret-elig-note">
             <AlertCircle size={16} />
             <p>Customized / bespoke orders are made to your exact specifications and cannot be returned unless there is a manufacturing defect.</p>
+          </div>
+          <div className="ret-elig-note" style={{ marginTop: '16px' }}>
+            <AlertCircle size={16} />
+            <p>For Ready-to-Ship products, you must share 4-5 photos to validate the item's condition. Once our internal team reviews and approves the photos, the return order will be accepted and picked up.</p>
           </div>
         </div>
       </section>

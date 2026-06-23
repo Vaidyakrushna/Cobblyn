@@ -13,7 +13,7 @@ const FALLBACK_SLIDES = [
     subtitle: 'Elegance in every step — bespoke beauty redefined. Each pair tells a story of mastery passed down through generations.',
     image: '/wf-hero.png',
     primary_cta: 'Explore Collection', primary_cta_link: '/men',
-    secondary_cta: 'Schedule Visit', secondary_cta_link: '#bespoke',
+    secondary_cta: 'Bespoke Order', secondary_cta_link: '#bespoke',
   },
   {
     eyebrow: 'Luxe Collection',

@@ -27,6 +27,14 @@ const CheckoutPage = () => {
   const [useWallet, setUseWallet] = useState(false);
   const [walletBalance, setWalletBalance] = useState(0);
 
+  const hasCustomizedItem = cartItems.some(item => item.customized || item.is_customized || item.product?.customized || item.category === 'bespoke' || item.name?.toLowerCase().includes('bespoke') || item.name?.toLowerCase().includes('custom'));
+
+  useEffect(() => {
+    if (hasCustomizedItem && payment.method === 'cod') {
+      setPayment(p => ({ ...p, method: 'upi' }));
+    }
+  }, [hasCustomizedItem, payment.method]);
+
   // Fetch cart from API
   useEffect(() => {
     const fetchCart = async () => {
@@ -417,13 +425,15 @@ const CheckoutPage = () => {
                   <p className="ck-form-desc">Choose your preferred payment method.</p>
 
                   <div className="payment-methods">
-                    <label className={`payment-option ${payment.method === 'cod' ? 'active' : ''}`} data-testid="payment-cod">
-                      <input type="radio" name="paymentMethod" value="cod" checked={payment.method === 'cod'} onChange={(e) => setPayment({ ...payment, method: e.target.value })} />
-                      <div className="payment-option-content">
-                        <strong>Cash on Delivery</strong>
-                        <p>Pay when your order arrives at your doorstep</p>
-                      </div>
-                    </label>
+                    {!hasCustomizedItem && (
+                      <label className={`payment-option ${payment.method === 'cod' ? 'active' : ''}`} data-testid="payment-cod">
+                        <input type="radio" name="paymentMethod" value="cod" checked={payment.method === 'cod'} onChange={(e) => setPayment({ ...payment, method: e.target.value })} />
+                        <div className="payment-option-content">
+                          <strong>Cash on Delivery</strong>
+                          <p>Pay when your order arrives at your doorstep</p>
+                        </div>
+                      </label>
+                    )}
 
                     <label className={`payment-option ${payment.method === 'upi' ? 'active' : ''}`} data-testid="payment-upi">
                       <input type="radio" name="paymentMethod" value="upi" checked={payment.method === 'upi'} onChange={(e) => setPayment({ ...payment, method: e.target.value })} />

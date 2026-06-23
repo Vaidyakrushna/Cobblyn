@@ -33,12 +33,17 @@ const faqs = [
   {
     category: 'ordering',
     q: 'What payment methods do you accept?',
-    a: 'We accept all major credit/debit cards (Visa, MasterCard, RuPay, American Express), Net Banking, popular UPI options (GPay, PhonePe, Paytm), and Cash on Delivery (COD) for eligible PIN codes across India.'
+    a: 'We accept all major credit/debit cards (Visa, MasterCard, RuPay, American Express), Net Banking, popular UPI options (GPay, PhonePe, Paytm), and Cash on Delivery (COD) for eligible PIN codes across India. Please note that COD is only available for Ready-to-Ship products and Accessories. Customized and Bespoke orders require prepaid payment.'
   },
   {
     category: 'ordering',
     q: 'Can I modify or cancel my order after placing it?',
     a: 'Since we process standard orders quickly to ensure fast delivery, changes or cancellations can only be requested within 12 hours of placing the order. For bespoke or customized orders, changes cannot be made once our artisans have begun crafting your pair.'
+  },
+  {
+    category: 'ordering',
+    q: 'Are Cobblyn shoes made of genuine leather?',
+    a: 'Yes, all Cobblyn shoes are handcrafted using premium, full-grain genuine leather. We source the finest materials, including Italian calfskin and premium suede, ensuring our luxury footwear is highly durable, breathable, and develops a beautiful patina over time.'
   },
   {
     category: 'custom',
@@ -56,6 +61,16 @@ const faqs = [
     a: 'Every custom and bespoke pair is handcrafted from scratch by our master artisans in Jaipur. This detailed process takes 15–20 business days of crafting time before the product is ready to be dispatched.'
   },
   {
+    category: 'custom',
+    q: 'Where are Cobblyn shoes manufactured?',
+    a: 'Every pair of Cobblyn shoes is meticulously handcrafted by master cobblers in our Jaipur atelier, bringing together decades of traditional Indian shoemaking heritage and world-class luxury design.'
+  },
+  {
+    category: 'custom',
+    q: 'What types of soles do you offer?',
+    a: 'Our 3D customizer allows you to choose between traditional Leather soles for classic formal elegance, standard Rubber soles for versatile all-weather grip, and Commando soles for a rugged, durable finish.'
+  },
+  {
     category: 'shipping',
     q: 'Do you offer free shipping?',
     a: 'Yes! Standard shipping is complimentary on all orders across India. We also offer Express Delivery (2-3 business days) for a flat fee of ₹199.'
@@ -68,7 +83,7 @@ const faqs = [
   {
     category: 'returns',
     q: 'What is your return and exchange policy?',
-    a: 'We offer a hassle-free 15-day return and size exchange policy on all standard, unworn shoes in their original packaging. We will arrange a free home pick-up for your returns.'
+    a: 'We offer a 15-day return and size exchange policy on standard, unworn shoes in their original packaging. For returns, you will need to share 4-5 photos to validate the item\'s condition. Once approved, we will arrange a free home pick-up exclusively from your original delivery address.'
   },
   {
     category: 'returns',
@@ -88,7 +103,12 @@ const faqs = [
   {
     category: 'sizing',
     q: 'How should I care for my Cobblyn leather shoes?',
-    a: 'Keep them dry and avoid wearing them in heavy rain. Wipe dirt off with a soft brush, insert cedar shoe trees to maintain their shape, and apply premium leather conditioner every 2–3 months to keep the leather soft and prevent cracking.'
+    a: 'Keep them dry and avoid wearing them in heavy rain. Wipe dirt off with a soft horsehair brush, insert cedar shoe trees to maintain their shape, and apply premium leather conditioner every 2–3 months to keep the leather soft and prevent cracking.'
+  },
+  {
+    category: 'sizing',
+    q: 'How do I clean and polish leather shoes?',
+    a: 'We recommend brushing off dirt with a horsehair brush after every wear. For deep cleaning and shining, use a high-quality wax polish and leather conditioner. Always use cedar shoe trees to absorb moisture and maintain the shape of your shoes.'
   },
   {
     category: 'sizing',
@@ -116,13 +136,13 @@ export default function FAQPage() {
   };
 
   return (
-    <main className="faq-page" style={{ background: '#FCFCFC', minHeight: '100vh', paddingBottom: '80px' }}>
+    <main className="faq-page" style={{ background: 'var(--off-white)', minHeight: '100vh', paddingBottom: '80px' }}>
       {/* CSS STYLES FOR THE PREMIUM AESTHETIC */}
       <style jsx global>{`
         .faq-hero {
           position: relative;
-          background: #111;
-          color: #fff;
+          background: var(--black);
+          color: var(--white);
           padding: 80px 48px;
           text-align: center;
           overflow: hidden;
@@ -144,10 +164,10 @@ export default function FAQPage() {
         }
         .faq-hero-title em {
           font-style: italic;
-          color: #9d2706;
+          color: var(--accent);
         }
         .faq-hero-sub {
-          color: #9CA3AF;
+          color: var(--mid-grey);
           font-size: 0.95rem;
           line-height: 1.6;
         }
@@ -162,13 +182,13 @@ export default function FAQPage() {
           border-radius: 30px;
           border: 1px solid rgba(255, 255, 255, 0.2);
           background: rgba(255, 255, 255, 0.08);
-          color: #fff;
+          color: var(--white);
           font-size: 0.95rem;
           backdrop-filter: blur(8px);
           transition: all 0.3s ease;
         }
         .faq-search-input:focus {
-          border-color: #9d2706;
+          border-color: var(--accent);
           outline: none;
           background: rgba(255, 255, 255, 0.12);
           box-shadow: 0 0 15px rgba(157, 39, 6, 0.25);
@@ -178,7 +198,7 @@ export default function FAQPage() {
           left: 18px;
           top: 50%;
           transform: translateY(-50%);
-          color: #9CA3AF;
+          color: var(--mid-grey);
         }
         
         .faq-category-nav {
@@ -196,23 +216,23 @@ export default function FAQPage() {
           gap: 8px;
           padding: 10px 18px;
           border-radius: 20px;
-          border: 1px solid #E5E7EB;
-          background: #fff;
-          color: #4B5563;
+          border: 1px solid var(--light-grey);
+          background: var(--white);
+          color: var(--dark-grey);
           font-size: 0.88rem;
           font-weight: 500;
           cursor: pointer;
           transition: all 0.2s ease;
         }
         .faq-category-btn:hover {
-          border-color: #9d2706;
-          color: #9d2706;
+          border-color: var(--accent);
+          color: var(--accent);
           background: rgba(157, 39, 6, 0.02);
         }
         .faq-category-btn.active {
-          background: #111;
-          border-color: #111;
-          color: #fff;
+          background: var(--black);
+          border-color: var(--black);
+          color: var(--white);
         }
         
         .faq-list-container {
@@ -222,8 +242,8 @@ export default function FAQPage() {
         }
         
         .faq-accordion-item {
-          background: #fff;
-          border: 1px solid #E5E7EB;
+          background: var(--white);
+          border: 1px solid var(--light-grey);
           border-radius: 12px;
           margin-bottom: 16px;
           overflow: hidden;
@@ -233,7 +253,7 @@ export default function FAQPage() {
           border-color: rgba(157, 39, 6, 0.4);
         }
         .faq-accordion-item.open {
-          border-color: #9d2706;
+          border-color: var(--accent);
         }
         
         .faq-question-btn {
@@ -247,7 +267,7 @@ export default function FAQPage() {
           text-align: left;
           font-size: 1rem;
           font-weight: 600;
-          color: #1F2937;
+          color: var(--black);
           cursor: pointer;
           gap: 16px;
         }
@@ -255,13 +275,13 @@ export default function FAQPage() {
           line-height: 1.4;
         }
         .faq-chevron {
-          color: #9CA3AF;
+          color: var(--mid-grey);
           transition: transform 0.3s ease, color 0.3s ease;
           flex-shrink: 0;
         }
         .faq-accordion-item.open .faq-chevron {
           transform: rotate(180deg);
-          color: #9d2706;
+          color: var(--accent);
         }
         
         .faq-answer {
@@ -274,7 +294,7 @@ export default function FAQPage() {
         }
         .faq-answer-content {
           padding: 0 24px 20px;
-          color: #4B5563;
+          color: var(--dark-grey);
           font-size: 0.92rem;
           line-height: 1.6;
         }
@@ -282,16 +302,16 @@ export default function FAQPage() {
         .faq-empty {
           text-align: center;
           padding: 48px 24px;
-          color: #6B7280;
+          color: var(--mid-grey);
         }
         .faq-empty-icon {
           margin-bottom: 12px;
-          color: #D1D5DB;
+          color: var(--light-grey);
         }
 
         .faq-cta-section {
-          background: #111;
-          color: #fff;
+          background: var(--black);
+          color: var(--white);
           margin: 80px 24px 0;
           padding: 60px 48px;
           border-radius: 16px;
@@ -303,8 +323,8 @@ export default function FAQPage() {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          background: #9d2706;
-          color: #fff;
+          background: var(--accent);
+          color: var(--white);
           padding: 12px 28px;
           border-radius: 24px;
           font-weight: 600;
@@ -317,7 +337,7 @@ export default function FAQPage() {
           cursor: pointer;
         }
         .faq-cta-btn:hover {
-          background: #D9B85C;
+          background: var(--dark-grey);
           transform: translateY(-2px);
           box-shadow: 0 6px 20px rgba(157, 39, 6, 0.25);
         }
@@ -326,7 +346,7 @@ export default function FAQPage() {
       {/* HERO SECTION */}
       <section className="faq-hero">
         <div className="faq-hero-content">
-          <div className="section-label" style={{ color: '#9d2706', fontSize: '0.75rem', letterSpacing: '0.15em', fontWeight: 700, textTransform: 'uppercase' }}>FAQs</div>
+          <div className="section-label" style={{ color: 'var(--accent)', fontSize: '0.75rem', letterSpacing: '0.15em', fontWeight: 700, textTransform: 'uppercase' }}>FAQs</div>
           <h1 className="faq-hero-title">Commonly Asked<br /><em>Questions</em></h1>
           <p className="faq-hero-sub">
             Find answers to questions about ordering, custom styles, shipping, resizing, and caring for your Cobblyn shoes.
@@ -401,11 +421,11 @@ export default function FAQPage() {
       {/* CONCIERGE CTA */}
       <section className="faq-cta-section">
         <div style={{ maxWidth: '600px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
-          <div className="section-label" style={{ color: '#9d2706', fontSize: '0.75rem', letterSpacing: '0.15em', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px' }}>STILL HAVE QUESTIONS?</div>
-          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '2rem', fontWeight: 400, marginBottom: '16px', color: '#fff' }}>
+          <div className="section-label" style={{ color: 'var(--accent)', fontSize: '0.75rem', letterSpacing: '0.15em', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px' }}>STILL HAVE QUESTIONS?</div>
+          <h2 style={{ fontFamily: 'Playfair Display, serif', fontSize: '2rem', fontWeight: 400, marginBottom: '16px', color: 'var(--white)' }}>
             Speak With Our Concierge
           </h2>
-          <p style={{ color: '#9CA3AF', fontSize: '0.92rem', lineHeight: '1.6', marginBottom: '32px' }}>
+          <p style={{ color: 'var(--mid-grey)', fontSize: '0.92rem', lineHeight: '1.6', marginBottom: '32px' }}>
             Our support desk and master stylists are available Monday to Saturday, 10:00 AM to 6:00 PM IST to assist with sizing advice, custom order details, or logistics support.
           </p>
           <Link href="/contact" className="faq-cta-btn">

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight, Ruler, Info, ArrowRight } from 'lucide-react';
+import { ChevronRight, Ruler, Info, ArrowRight, PenTool, Footprints, CheckCircle } from 'lucide-react';
 
 const SIZE_TABLE_MEN = [
   { uk: 6,  us: 7,    eu: 39, ind: 7,  cm: 24.5 },
@@ -26,21 +26,25 @@ const SIZE_TABLE_WOMEN = [
 const HOW_TO_STEPS = [
   {
     num: '01',
+    icon: <PenTool size={26} />,
     title: 'Gather Your Tools',
     desc: 'You need a blank sheet of paper (larger than your foot), a pen or pencil, and a ruler or measuring tape.',
   },
   {
     num: '02',
+    icon: <Footprints size={26} />,
     title: 'Trace Your Foot',
     desc: 'Stand on the paper with your full weight on your foot. Hold the pen upright and trace around the outside edge of your foot.',
   },
   {
     num: '03',
+    icon: <Ruler size={26} />,
     title: 'Measure the Length',
     desc: 'Draw a straight line from the tip of your longest toe to the back of your heel. Measure this length in centimetres.',
   },
   {
     num: '04',
+    icon: <CheckCircle size={26} />,
     title: 'Find Your Size',
     desc: 'Match your measurement (cm) to the size chart above. If between sizes, always size up for all-day comfort.',
   },
@@ -174,12 +178,13 @@ export default function SizeGuidePage() {
               Always measure both feet — use the larger measurement.
             </p>
           </div>
-          <div className="sg-how-grid">
+          <div className="shipping-cards-grid" style={{ marginTop: '48px' }}>
             {HOW_TO_STEPS.map((step) => (
-              <div key={step.num} className="sg-how-card">
-                <div className="sg-how-num">{step.num}</div>
-                <h3 className="sg-how-title">{step.title}</h3>
-                <p className="sg-how-desc">{step.desc}</p>
+              <div key={step.num} className="shipping-card shipping-card-highlight" style={{ cursor: 'default' }}>
+                <div className="shipping-card-icon">{step.icon}</div>
+                <h3 className="shipping-card-title">{step.title}</h3>
+                <div className="shipping-card-detail">Step {step.num}</div>
+                <div className="shipping-card-note">{step.desc}</div>
               </div>
             ))}
           </div>
@@ -195,9 +200,9 @@ export default function SizeGuidePage() {
           </div>
           <div className="sg-tips-grid">
             {FIT_TIPS.map((tip, i) => (
-              <div key={i} className="sg-tip-card">
-                <div className="sg-tip-scenario">{tip.scenario}</div>
-                <div className="sg-tip-advice">{tip.advice}</div>
+              <div key={i} className="sg-tip-card group hover:bg-[#2A2826] transition-colors duration-300 cursor-default">
+                <div className="sg-tip-scenario group-hover:text-white transition-colors duration-300">{tip.scenario}</div>
+                <div className="sg-tip-advice group-hover:text-white/80 transition-colors duration-300">{tip.advice}</div>
               </div>
             ))}
           </div>

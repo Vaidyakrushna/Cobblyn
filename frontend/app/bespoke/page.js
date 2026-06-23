@@ -186,8 +186,8 @@ export default function BespokePage() {
       <section className="bespoke-hero-v2">
         <div className="bespoke-hero-v2-bg">
           <img
-            src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1600&q=85&fit=crop"
-            alt="Cobblyn Bespoke"
+            src="/bespoke_banner_new.png"
+            alt="Master shoemaker crafting a bespoke shoe"
           />
           <div className="bespoke-hero-v2-overlay" />
         </div>
@@ -214,21 +214,6 @@ export default function BespokePage() {
             <Link href="/size-guide" className="btn-hero-ghost" style={{ textDecoration: 'none' }}>
               <Ruler size={14} /> Size Guide
             </Link>
-          </div>
-        </div>
-        {/* Floating stat cards */}
-        <div className="bespoke-hero-v2-stats">
-          <div className="bespoke-stat-card">
-            <div className="bespoke-stat-num">500+</div>
-            <div className="bespoke-stat-label">Bespoke pairs crafted</div>
-          </div>
-          <div className="bespoke-stat-card">
-            <div className="bespoke-stat-num">15–20</div>
-            <div className="bespoke-stat-label">Days to delivery</div>
-          </div>
-          <div className="bespoke-stat-card">
-            <div className="bespoke-stat-num">12</div>
-            <div className="bespoke-stat-label">Precise measurements</div>
           </div>
         </div>
       </section>
@@ -458,9 +443,11 @@ export default function BespokePage() {
       </div>
 
       {/* ── TESTIMONIALS ────────────────────────────────────── */}
-      <section className="bespoke-testimonials" style={{ padding: '80px 0', borderTop: '1px solid #f3f4f6' }}>
-        <div className="bespoke-section-label">CLIENT STORIES</div>
-        <h2 className="bespoke-section-title">What Our Bespoke Clients Say</h2>
+      <section className="bespoke-testimonials" style={{ padding: '80px 0', borderTop: '1px solid var(--light-grey)' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div className="bespoke-section-label">CLIENT STORIES</div>
+          <h2 className="bespoke-section-title">What Our Bespoke Clients Say</h2>
+        </div>
         <div className="bespoke-testimonials-grid">
           {TESTIMONIALS.map((t, i) => (
             <div key={i} className="bespoke-testimonial-card">
@@ -469,7 +456,7 @@ export default function BespokePage() {
               <div className="bespoke-testimonial-footer">
                 <div className="bespoke-testimonial-stars">
                   {[1,2,3,4,5].map(s => (
-                    <Star key={s} size={12} fill="#9d2706" color="#9d2706" />
+                    <Star key={s} size={12} fill="var(--accent)" color="var(--accent)" />
                   ))}
                 </div>
                 <div className="bespoke-testimonial-author">

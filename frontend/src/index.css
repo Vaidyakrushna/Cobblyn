@@ -7359,7 +7359,7 @@ footer {
 }
 
 .shipping-card:hover,
-.shipping-card-highlight { background: var(--black); }
+.shipping-card-highlight { background: var(--dark-grey); }
 
 .shipping-card:hover .shipping-card-icon,
 .shipping-card-highlight .shipping-card-icon { color: var(--accent); }

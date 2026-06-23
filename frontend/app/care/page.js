@@ -6,7 +6,7 @@ const careTips = [
   {
     icon: <Sparkles size={28} />,
     title: 'Daily Cleaning',
-    color: '#9d2706',
+    color: 'var(--accent)',
     steps: [
       'Remove surface dust with a soft horsehair brush — always brush in one direction following the grain.',
       'Use a slightly damp cloth to wipe off any light marks or stains. Avoid soaking the leather.',
@@ -17,7 +17,7 @@ const careTips = [
   {
     icon: <Droplets size={28} />,
     title: 'Deep Conditioning',
-    color: '#8B6914',
+    color: 'var(--dark-grey)',
     steps: [
       'Apply a small amount of leather conditioner using a soft cloth in circular motions.',
       'Focus on flex points — the toe box crease and the vamp — where leather is most prone to drying.',
@@ -28,7 +28,7 @@ const careTips = [
   {
     icon: <Sun size={28} />,
     title: 'Polishing',
-    color: '#9d2706',
+    color: 'var(--accent)',
     steps: [
       'Choose a wax-based polish that matches your shoe colour. Apply with a dauber brush.',
       'Use circular motions to work the polish into the leather, paying attention to any scuffs.',
@@ -39,7 +39,7 @@ const careTips = [
   {
     icon: <Wind size={28} />,
     title: 'Drying After Rain',
-    color: '#9A9590',
+    color: 'var(--mid-grey)',
     steps: [
       'Stuff shoes with newspaper or paper to absorb moisture and maintain shape.',
       'Allow to air dry slowly at room temperature — never near a radiator or in direct sunlight.',
@@ -50,7 +50,7 @@ const careTips = [
   {
     icon: <Shield size={28} />,
     title: 'Waterproofing',
-    color: '#9d2706',
+    color: 'var(--accent)',
     steps: [
       'Apply a quality waterproofing spray designed for full-grain leather before first wear.',
       'Hold the spray 20–30 cm from the shoe and apply in an even coat.',
@@ -61,7 +61,7 @@ const careTips = [
   {
     icon: <AlertTriangle size={28} />,
     title: 'Storage',
-    color: '#8B6914',
+    color: 'var(--black)',
     steps: [
       'Always store in the provided dust bags to protect from scratches and dust.',
       'Use your original Cobblyn box or a breathable shoe bag — avoid airtight plastic.',
@@ -134,8 +134,8 @@ export default function CarePage() {
         </div>
         <div className="care-hero-visual">
           <img
-            src="https://images.unsplash.com/photo-1542621334-a254cf47733d?w=900&q=85&fit=crop"
-            alt="Shoe care and maintenance"
+            src="/shoe_care_banner.png"
+            alt="Shoe care and maintenance banner showcasing premium craftsmanship"
           />
           <div className="care-hero-img-overlay" />
         </div>

@@ -421,7 +421,7 @@ const ProductPDP = ({ gender = 'men' }) => {
               <button className="pincode-check-btn" data-testid="pincode-check-btn">Check</button>
             </div>
             <div className="pdp-delivery-badges">
-              <span>COD available</span>
+              {(!product.customized && product.category !== 'bespoke') && <span>COD available</span>}
               <span>100% Originals</span>
               <span>Free Shipping</span>
               <span>Easy 15 days returns</span>
