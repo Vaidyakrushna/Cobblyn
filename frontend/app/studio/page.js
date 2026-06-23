@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { Scissors, Award, Clock, Users, MapPin, Star, Gem, Heart } from 'lucide-react';
+import { Scissors, Award, Clock, Users, MapPin, Star, Gem, Heart, Video } from 'lucide-react';
 
 const craftSteps = [
   {
@@ -72,8 +72,8 @@ export default function StudioPage() {
       <section className="studio-hero">
         <div className="studio-hero-bg">
           <img
-            src="https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=1600&q=85&fit=crop"
-            alt="Cobblyn craftsman at work"
+            src="/studio_hero_banner.png"
+            alt="Cobblyn Atelier - Craftsmanship and Culture"
           />
           <div className="studio-hero-overlay" />
         </div>
@@ -127,14 +127,14 @@ export default function StudioPage() {
           <div className="studio-phil-right">
             <div className="studio-phil-img-main">
               <img
-                src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&q=85&fit=crop"
-                alt="Master craftsman at work"
+                src="/studio_craft_main.png"
+                alt="Master craftsman stitching premium leather"
               />
             </div>
             <div className="studio-phil-img-accent">
               <img
-                src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=85&fit=crop"
-                alt="Premium leather materials"
+                src="/studio_leather_accent.png"
+                alt="Rolls of premium full-grain leather"
               />
               <div className="studio-phil-badge">
                 <Star size={16} fill="currentColor" />
@@ -187,27 +187,26 @@ export default function StudioPage() {
         </div>
       </section>
 
-      {/* LOCATION BAND */}
+      {/* VIRTUAL ATELIER BAND */}
       <section className="studio-location-band">
         <div className="studio-location-inner">
           <div className="studio-location-content">
-            <MapPin size={24} color="var(--accent)" />
+            <Video size={24} color="var(--accent)" />
             <div>
-              <div className="section-label" style={{ marginBottom: '4px' }}>VISIT THE ATELIER</div>
-              <h2 className="studio-location-title">Our Studio Is Open By Appointment</h2>
+              <div className="section-label" style={{ marginBottom: '4px', color: 'var(--accent)', fontSize: '0.75rem', letterSpacing: '0.15em', fontWeight: 'bold' }}>DIGITAL ATELIER</div>
+              <h2 className="studio-location-title">Experience Our Virtual Studio</h2>
               <p className="studio-location-desc">
-                We welcome clients who wish to experience the Cobblyn studio first-hand — 
-                to see the craft, feel the materials, and commission something truly personal.
+                While our physical atelier is currently under construction in Jaipur, we bring the bespoke experience directly to you. Book a virtual consultation with our master stylists to explore premium leathers, discuss fits, and commission your unique pair from anywhere in the world.
               </p>
-              <a href="/contact" className="btn-hero-primary" style={{ display: 'inline-block', marginTop: '24px', textDecoration: 'none' }}>
-                Book a Studio Visit
+              <a href="/fitting-experience" className="btn-hero-primary" style={{ display: 'inline-block', marginTop: '24px', textDecoration: 'none', background: 'var(--accent)', color: 'var(--white)', padding: '12px 24px', borderRadius: '4px', fontWeight: 'bold' }}>
+                Book Virtual Consultation
               </a>
             </div>
           </div>
           <div className="studio-location-img">
             <img
-              src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=700&q=85&fit=crop"
-              alt="Cobblyn studio exterior"
+              src="/studio_virtual_consultation.png"
+              alt="Virtual bespoke consultation workspace"
             />
           </div>
         </div>
