@@ -35,8 +35,8 @@ const StudioSection = () => {
       <div className="studio-layout">
         <div className="studio-left">
           <img 
-            src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=900&q=85&fit=crop" 
-            alt="Cobblyn"
+            src="/cobblyn_magic_creative.png" 
+            alt="The Cobblyn Magic - Master Craftsmanship"
           />
           <div className="studio-left-overlay"></div>
           <div className="studio-badge">

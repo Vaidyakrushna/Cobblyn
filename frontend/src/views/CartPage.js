@@ -31,7 +31,14 @@ const CartPage = () => {
   const updateQuantity = async (item, delta) => {
     const newQty = Math.max(1, item.quantity + delta);
     try {
-      await api.updateCart({ product_id: item.product_id, size: item.size, color: item.color, quantity: newQty });
+      await api.updateCart({ 
+        product_id: item.product_id, 
+        size: item.size, 
+        color: item.color, 
+        quantity: newQty,
+        is_customized: item.is_customized || false,
+        custom_attributes: item.custom_attributes || null
+      });
       fetchCart();
       window.dispatchEvent(new Event('cobblyn-cart-update'));
     } catch (err) { console.error(err); }
@@ -39,7 +46,14 @@ const CartPage = () => {
 
   const removeItem = async (item) => {
     try {
-      await api.removeFromCart(item.product_id, item.size, item.color);
+      await api.removeFromCart({ 
+        product_id: item.product_id, 
+        size: item.size, 
+        color: item.color, 
+        quantity: 1,
+        is_customized: item.is_customized || false,
+        custom_attributes: item.custom_attributes || null
+      });
       fetchCart();
       window.dispatchEvent(new Event('cobblyn-cart-update'));
     } catch (err) { console.error(err); }
@@ -106,6 +120,15 @@ const CartPage = () => {
                       <span className="meta-divider">|</span>
                       <span>Color: <strong>{item.color}</strong></span>
                     </div>
+                    {item.is_customized && item.custom_attributes && (
+                      <div className="cart-card-customization" style={{ marginTop: '8px', fontSize: '0.8rem', color: '#666' }}>
+                        <div style={{ color: '#C9A84C', fontWeight: 600, marginBottom: '4px' }}>✨ Bespoke Selection</div>
+                        {item.custom_attributes.material && <div>• Material: {item.custom_attributes.material}</div>}
+                        {item.custom_attributes.sole_type && <div>• Sole: {item.custom_attributes.sole_type}</div>}
+                        {item.custom_attributes.style && <div>• Style: {item.custom_attributes.style}</div>}
+                        {item.custom_attributes.monogram && <div>• Monogram: {item.custom_attributes.monogram}</div>}
+                      </div>
+                    )}
                   </div>
                   <div className="cart-card-actions">
                     <div className="cart-qty-control">
@@ -114,9 +137,14 @@ const CartPage = () => {
                       <button onClick={() => updateQuantity(item, 1)} data-testid={`qty-plus-${idx}`}><Plus size={14} /></button>
                     </div>
                   </div>
-                  <div className="cart-card-price">
-                    <span className="cart-card-unit">{item.price?.toLocaleString()} each</span>
-                    <span className="cart-card-total">{item.item_total?.toLocaleString()}</span>
+                  <div className="cart-card-price" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                    {item.is_customized && item.base_price && item.base_price !== item.price && (
+                      <span className="cart-card-original" style={{ textDecoration: 'line-through', color: '#999', fontSize: '0.8rem' }}>
+                        ₹{item.base_price?.toLocaleString()}
+                      </span>
+                    )}
+                    <span className="cart-card-unit" style={{ fontWeight: item.is_customized ? 600 : 400 }}>₹{item.price?.toLocaleString()} each</span>
+                    <span className="cart-card-total" style={{ fontSize: '1.1rem', fontWeight: 700 }}>₹{item.item_total?.toLocaleString()}</span>
                   </div>
                 </div>
               </div>

@@ -144,6 +144,8 @@ const CheckoutPage = () => {
           quantity: item.quantity,
           price: item.price,
           material: item.material || '',
+          is_customized: item.is_customized || false,
+          custom_attributes: item.custom_attributes || null,
         })),
         shipping_address: {
           name: `${personal.firstName} ${personal.lastName}`.trim(),
@@ -529,6 +531,13 @@ const CheckoutPage = () => {
                 <div className="ck-summary-details">
                   <h4>{item.name}</h4>
                   <p>Size: {item.size} | {item.color}</p>
+                  {item.is_customized && item.custom_attributes && (
+                    <div style={{ fontSize: '0.7rem', color: '#666', marginTop: '4px' }}>
+                      <div style={{ color: '#C9A84C', fontWeight: 600 }}>✨ Bespoke</div>
+                      {item.custom_attributes.material && <div>• {item.custom_attributes.material}</div>}
+                      {item.custom_attributes.sole_type && <div>• {item.custom_attributes.sole_type}</div>}
+                    </div>
+                  )}
                 </div>
                 <span className="ck-summary-price">{'\u20B9'}{(item.price * item.quantity).toLocaleString()}</span>
               </div>

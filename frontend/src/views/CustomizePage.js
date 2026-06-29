@@ -697,7 +697,14 @@ const CustomizePage = () => {
         product_id: prodId,
         size: String(config.size || '8'), // Dynamic customer size selection
         color: config.color || 'Black',
-        quantity: 1
+        quantity: 1,
+        is_customized: true,
+        custom_attributes: {
+          material: config.leather || '',
+          sole_type: config.sole || '',
+          style: config.submodel || '',
+          monogram: config.monogram || ''
+        }
       });
       setToastMsg('🛒 Bespoke shoe added to cart! Redirecting to checkout bag...');
       setTimeout(() => {

@@ -217,8 +217,7 @@ export const api = {
   getCart: () => apiFetch('/api/cart'),
   addToCart: (data) => apiFetch('/api/cart/add', { method: 'POST', body: JSON.stringify(data) }),
   updateCart: (data) => apiFetch('/api/cart/update', { method: 'PUT', body: JSON.stringify(data) }),
-  removeFromCart: (productId, size, color) =>
-    apiFetch(`/api/cart/remove?product_id=${productId}&size=${encodeURIComponent(size)}&color=${encodeURIComponent(color)}`, { method: 'DELETE' }),
+  removeFromCart: (data) => apiFetch(`/api/cart/remove`, { method: 'POST', body: JSON.stringify(data) }),
   clearCart: () => apiFetch('/api/cart/clear', { method: 'DELETE' }),
 
   // Wishlist
