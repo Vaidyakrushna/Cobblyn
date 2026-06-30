@@ -52,7 +52,7 @@ const Footer = () => {
           <ul className="footer-links">
             <li><a href="/size-guide">Size Guide</a></li>
             <li><a href="/shipping">Shipping Info</a></li>
-            <li><a href="/returns">Returns & Exchange</a></li>
+            <li><a href="/policies#returns">Returns & Exchange</a></li>
             <li><a href="/care">Shoe Care</a></li>
             <li><a href="/fitting-experience">Fitting Experience</a></li>
             <li><a href="/faq">FAQ</a></li>
@@ -93,9 +93,11 @@ const Footer = () => {
       <div className="footer-bottom">
         <p className="footer-copy">© 2026 Cobblyn Shoes. All rights reserved.</p>
         <div className="footer-bottom-links">
-          <a href="/privacy">Privacy Policy</a>
-          <a href="/terms">Terms of Service</a>
-          <a href="/cookies">Cookie Policy</a>
+          <a href="/policies#privacy">Privacy Policy</a>
+          <a href="/policies#terms">Terms of Use</a>
+          <a href="/policies#warranty">Warranty Policy</a>
+          <a href="/policies#returns">Refund Policy</a>
+          <a href="/policies#cookie">Cookie Policy</a>
         </div>
       </div>
     </footer>
