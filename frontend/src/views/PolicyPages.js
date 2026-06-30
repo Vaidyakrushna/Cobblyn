@@ -116,18 +116,38 @@ const CookiePolicy = () => (
   </div>
 );
 
+const ShippingPolicy = () => (
+  <div className="policy-content">
+    <h2>Shipping & Delivery Policy</h2>
+    <p>At Cobblyn, we take immense pride in handcrafting your bespoke footwear and ensuring it arrives securely at your doorstep.</p>
+    
+    <h3>1. Crafting & Delivery Timeframes</h3>
+    <p><strong>Bespoke Orders:</strong> True craftsmanship takes time. Once your bespoke order is placed and your foot profile is verified, our artisans immediately begin the crafting process. Please allow <strong>15 to 20 business days</strong> for your bespoke shoes to be crafted, quality-checked, and delivered to you.</p>
+    <p><strong>Ready-to-Ship & Accessories:</strong> Standard non-customized items are typically processed within 1-2 business days and delivered within 3-7 business days, depending on your location.</p>
+    
+    <h3>2. Domestic Shipping Only</h3>
+    <p>Currently, Cobblyn operates exclusively within India. We do not offer international shipping or process international deliveries at this time.</p>
+    
+    <h3>3. Shipping Costs</h3>
+    <p>We provide complimentary standard shipping on all bespoke footwear orders across India. For ready-to-ship items or accessories, standard shipping rates may apply based on your location and will be calculated at checkout.</p>
+    
+    <h3>4. Order Tracking & Security</h3>
+    <p>Given the high value of our products, all shipments are fully insured during transit. Once your order is dispatched, you will receive an email and WhatsApp notification with your courier tracking details. A signature will be required upon delivery to ensure your luxury item reaches you safely.</p>
+  </div>
+);
+
 const PolicyPages = () => {
   const [activeTab, setActiveTab] = useState('privacy');
 
   React.useEffect(() => {
     const hash = window.location.hash.replace('#', '');
-    if (['privacy', 'terms', 'warranty', 'returns', 'cookie'].includes(hash)) {
+    if (['privacy', 'terms', 'warranty', 'returns', 'shipping', 'cookie'].includes(hash)) {
       setActiveTab(hash);
     }
 
     const handleHashChange = () => {
       const newHash = window.location.hash.replace('#', '');
-      if (['privacy', 'terms', 'warranty', 'returns', 'cookie'].includes(newHash)) {
+      if (['privacy', 'terms', 'warranty', 'returns', 'shipping', 'cookie'].includes(newHash)) {
         setActiveTab(newHash);
       }
     };
@@ -147,6 +167,7 @@ const PolicyPages = () => {
       case 'terms': return <TermsOfUse />;
       case 'warranty': return <WarrantyPolicy />;
       case 'returns': return <ReturnPolicy />;
+      case 'shipping': return <ShippingPolicy />;
       case 'cookie': return <CookiePolicy />;
       default: return <PrivacyPolicy />;
     }
@@ -161,6 +182,7 @@ const PolicyPages = () => {
           <li className={activeTab === 'terms' ? 'active' : ''} onClick={() => handleTabClick('terms')}>Terms of Use</li>
           <li className={activeTab === 'warranty' ? 'active' : ''} onClick={() => handleTabClick('warranty')}>Warranty Policy</li>
           <li className={activeTab === 'returns' ? 'active' : ''} onClick={() => handleTabClick('returns')}>Returns & Exchanges</li>
+          <li className={activeTab === 'shipping' ? 'active' : ''} onClick={() => handleTabClick('shipping')}>Shipping Policy</li>
           <li className={activeTab === 'cookie' ? 'active' : ''} onClick={() => handleTabClick('cookie')}>Cookie Policy</li>
         </ul>
       </div>

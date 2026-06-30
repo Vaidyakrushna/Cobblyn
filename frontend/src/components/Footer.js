@@ -51,7 +51,7 @@ const Footer = () => {
           <div className="footer-col-title">Help</div>
           <ul className="footer-links">
             <li><a href="/size-guide">Size Guide</a></li>
-            <li><a href="/shipping">Shipping Info</a></li>
+            <li><a href="/policies#shipping">Shipping Info</a></li>
             <li><a href="/policies#returns">Returns & Exchange</a></li>
             <li><a href="/care">Shoe Care</a></li>
             <li><a href="/fitting-experience">Fitting Experience</a></li>
