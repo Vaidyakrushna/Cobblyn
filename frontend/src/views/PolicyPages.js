@@ -6,67 +6,113 @@ const PrivacyPolicy = () => (
   <div className="policy-content">
     <h2>Privacy Policy</h2>
     <p>Last updated: June 2026</p>
-    <p>At Cobblyn, we respect your privacy and are committed to protecting your personal data. This privacy policy will inform you as to how we look after your personal data when you visit our website (regardless of where you visit it from) and tell you about your privacy rights and how the law protects you.</p>
+    <p>At Cobblyn, we respect your privacy and are committed to protecting your personal data. This privacy policy informs you how we collect, use, store, and protect your data when interacting with our website, 3D Customizer, and Virtual Atelier services.</p>
+    
     <h3>1. Information We Collect</h3>
-    <p>We collect information you provide directly to us when you create an account, use the 3D Customizer, submit your foot measurements (such as via our Virtual Atelier), or communicate with us. This may include your name, email address, shipping address, and payment information.</p>
-    <h3>2. How We Use Your Information</h3>
-    <p>We use the information we collect to process your bespoke orders, communicate with you about your order status, and to personalize your experience. Your foot profile data is strictly used for crafting your custom footwear and is never sold to third parties.</p>
-    <h3>3. Data Security</h3>
-    <p>We have put in place appropriate security measures to prevent your personal data from being accidentally lost, used, or accessed in an unauthorized way, altered, or disclosed.</p>
+    <p><strong>Personal Identification Information:</strong> Name, billing/shipping address, email address, and phone number.</p>
+    <p><strong>Biometric & Fitting Data:</strong> Detailed foot measurements, sizing profiles, and 3D scans submitted via the Virtual Atelier. This data is strictly used for the bespoke crafting process.</p>
+    <p><strong>Financial Data:</strong> We do not store raw credit card numbers. All payments are securely processed via certified third-party payment gateways (e.g., Stripe, Razorpay).</p>
+    <p><strong>Technical Data:</strong> IP address, browser type, device identifiers, and interaction data within our 3D Customizer.</p>
+    
+    <h3>2. How We Use Your Data</h3>
+    <p>We use your data to: (a) Craft and fulfill your bespoke footwear orders. (b) Maintain your foot profile for seamless future orders. (c) Process transactions and combat fraud. (d) Send critical order updates and, if opted in, exclusive marketing communications.</p>
+    
+    <h3>3. Data Sharing & Third Parties</h3>
+    <p>We strictly do not sell your personal or biometric data. We only share necessary data with trusted partners essential to fulfilling your order, such as logistics/shipping providers and secure payment processors, who are contractually obligated to protect your data.</p>
+    
+    <h3>4. Data Retention & Security</h3>
+    <p>Your foot profile is retained indefinitely to allow for seamless future bespoke orders unless you request its deletion. We employ industry-standard encryption (SSL/TLS) and secure server environments to prevent unauthorized access, alteration, or data breaches.</p>
+
+    <h3>5. Your Rights (GDPR/CCPA Compliance)</h3>
+    <p>Depending on your jurisdiction, you have the right to access, correct, or request the deletion of your personal data. You may opt out of marketing communications at any time. To exercise these rights, please contact our Data Protection Officer at privacy@cobblyn.com.</p>
   </div>
 );
 
 const TermsOfUse = () => (
   <div className="policy-content">
     <h2>Terms of Use</h2>
-    <p>Welcome to Cobblyn. By accessing or using our website, 3D Customizer, or Virtual Atelier, you agree to be bound by these Terms of Use.</p>
-    <h3>1. Bespoke Orders</h3>
-    <p>All bespoke orders are crafted specifically to your requested specifications and foot profile. Once an order is placed and production begins, modifications may not be possible.</p>
-    <h3>2. Intellectual Property</h3>
-    <p>The designs, 3D models, graphics, and content on this website are the intellectual property of Cobblyn. You may not reproduce, distribute, or create derivative works without our express written consent.</p>
-    <h3>3. Limitation of Liability</h3>
-    <p>Cobblyn shall not be liable for any indirect, incidental, special, or consequential damages resulting from the use or inability to use our products or services.</p>
+    <p>Welcome to Cobblyn. By accessing our website, 3D Customizer, or purchasing our products, you agree to be bound by these comprehensive Terms of Use.</p>
+    
+    <h3>1. Bespoke Order Finality</h3>
+    <p>All bespoke orders are explicitly crafted to your unique specifications. Once an order enters the production phase (typically within 24 hours of payment), the order cannot be modified, cancelled, or altered. By submitting a bespoke order, you accept full responsibility for the design choices made in the 3D Customizer.</p>
+    
+    <h3>2. Pricing, Errors, and Dynamic Pricing</h3>
+    <p>Our bespoke engine dynamically calculates pricing based on real-time material costs, artisan labor, and customization complexity. While we strive for accuracy, in the event of a critical pricing error due to systemic glitches, Cobblyn reserves the right to cancel or refuse any order placed at the incorrect price, issuing a full refund.</p>
+    
+    <h3>3. Material Variations & Handcrafting</h3>
+    <p>Because we use premium natural leathers (including full-grain calfskin and Shell Cordovan) and hand-dyeing techniques (patina), slight variations in color, texture, and grain are inherent to the luxury crafting process. These are hallmarks of authentic bespoke craftsmanship, not defects.</p>
+    
+    <h3>4. Intellectual Property & User Content</h3>
+    <p>The 3D models, website graphics, proprietary fitting algorithms, and branding are the exclusive intellectual property of Cobblyn. Any designs you create using our 3D Customizer remain the property of Cobblyn for production purposes. You may not reverse-engineer our customizer or scrape our 3D assets.</p>
+
+    <h3>5. Force Majeure & Production Delays</h3>
+    <p>Cobblyn is not liable for delays or failures in delivery caused by events beyond our reasonable control, including but not limited to global supply chain disruptions for exotic leathers, natural disasters, or logistical strikes.</p>
+
+    <h3>6. Governing Law & Dispute Resolution</h3>
+    <p>These terms shall be governed by the laws of India. Any disputes arising from these terms shall be subject to the exclusive jurisdiction of the courts in Jaipur, Rajasthan. We encourage resolving disputes informally through our concierge team before seeking legal arbitration.</p>
   </div>
 );
 
 const WarrantyPolicy = () => (
   <div className="policy-content">
     <h2>Warranty Policy</h2>
-    <p>We stand behind the craftsmanship of every Cobblyn shoe.</p>
-    <h3>1. Craftsmanship Guarantee</h3>
-    <p>All Cobblyn bespoke and ready-to-ship footwear comes with a 1-year warranty against manufacturing defects (e.g., sole delamination, stitching failure under normal wear).</p>
-    <h3>2. What is Not Covered</h3>
-    <p>The warranty does not cover normal wear and tear, intentional damage, damage from improper care (e.g., lack of conditioning for Shell Cordovan leather), or changes in the natural patina of the leather.</p>
-    <h3>3. Claim Process</h3>
-    <p>To initiate a warranty claim, please contact our support team with your Order ID and detailed photographs of the issue. Our artisans will review the claim and, if approved, we will repair or replace the item at our discretion.</p>
+    <p>At Cobblyn, we stand behind the generational quality of our craftsmanship.</p>
+    
+    <h3>1. 1-Year Craftsmanship Guarantee</h3>
+    <p>Every pair of Cobblyn shoes comes with a comprehensive 1-year warranty against structural manufacturing defects. This includes issues such as sole delamination, structural stitching failure, and hardware malfunction (e.g., broken buckles on monk straps) under normal wear conditions.</p>
+    
+    <h3>2. Exclusions (What is Not Covered)</h3>
+    <p>The warranty strictly excludes: (a) Normal wear and tear, including sole wear and heel drag. (b) Creasing of the leather, which is a natural characteristic of how shoes adapt to your feet. (c) Changes in the natural patina, scuffs, scratches, or water damage. (d) Damage resulting from improper care (e.g., failure to condition leather, exposure to extreme heat, or using harsh chemicals). (e) Fit issues arising from significant weight changes or medical foot conditions developed post-purchase.</p>
+    
+    <h3>3. Voiding the Warranty</h3>
+    <p>Any modifications, repairs, or resoling performed by an unauthorized third-party cobbler will immediately void the Cobblyn warranty. We strongly recommend using our official Cobblyn Refurbishment Service for resoling.</p>
+    
+    <h3>4. Claim Process & Shipping</h3>
+    <p>To initiate a claim, submit high-resolution photos and your Order ID to our concierge. If the claim is validated as a manufacturing defect, Cobblyn will cover the shipping costs for the repair or replacement. If the issue is deemed wear-and-tear, the customer is responsible for shipping and repair fees.</p>
   </div>
 );
 
 const ReturnPolicy = () => (
   <div className="policy-content">
     <h2>Returns, Exchanges, and Refund Policy</h2>
-    <p>At Cobblyn, we strive for perfection in every pair we craft.</p>
-    <h3>1. Bespoke and Customized Orders</h3>
-    <p><strong>Strict Policy:</strong> Because bespoke and customized orders are crafted specifically for your foot profile and aesthetic choices, <strong>they cannot be returned, exchanged, or refunded</strong> unless there is a clear manufacturing defect.</p>
-    <h3>2. Ready-to-Ship Products</h3>
-    <p>Ready-to-ship products (non-customized) can be returned or exchanged within 14 days of delivery, provided they are unworn, in pristine condition, and in their original packaging.</p>
-    <h3>3. Fit Guarantee (Bespoke)</h3>
-    <p>If your bespoke shoe does not fit perfectly despite following our Virtual Atelier sizing process, we offer complimentary adjustments within 30 days of receipt. We do not offer full refunds for sizing issues on custom orders.</p>
-    <h3>4. Cash on Delivery (COD)</h3>
-    <p>COD is strictly restricted to 'Ready-to-Ship' products and 'Accessories'. COD is not available for bespoke orders, and refunds for COD orders will be processed via bank transfer.</p>
+    <p>Due to the hyper-personalized nature of our business, our return policies strictly differentiate between bespoke and ready-to-ship items.</p>
+    
+    <h3>1. Bespoke & Custom-Made Footwear</h3>
+    <p><strong>Strict Policy:</strong> Any shoe created via our 3D Customizer or Virtual Atelier is crafted uniquely for you. Therefore, <strong>bespoke items are strictly non-refundable and cannot be returned or exchanged for a change of mind, style, or color.</strong> Refunds are only issued in the exceedingly rare event of an unrepairable manufacturing defect.</p>
+    
+    <h3>2. The Cobblyn Fit Guarantee</h3>
+    <p>We understand the anxiety of bespoke sizing. If your bespoke shoe does not fit perfectly despite correctly following our Virtual Atelier scanning process, we offer complimentary fit adjustments (e.g., stretching, insole modification) within 30 days of delivery. If the poor fit is due to the customer providing intentionally false measurements, adjustment fees will apply.</p>
+    
+    <h3>3. Ready-to-Ship Products & Accessories</h3>
+    <p>Non-customized, ready-to-ship items may be returned within 14 days of delivery. To qualify for a full refund or exchange, the shoes must be in pristine, unworn condition with absolutely no creases on the vamp or scratches on the sole. We recommend trying them on a carpeted surface only. If the item shows signs of wear, it will be rejected and shipped back at your expense.</p>
+    
+    <h3>4. Cash on Delivery (COD) & Failed Deliveries</h3>
+    <p>COD is strictly available only for Ready-to-Ship items and Accessories. Bespoke orders require 100% upfront payment. If a customer refuses a COD delivery at the door without valid reason, their account will be permanently banned from using the COD payment method in the future.</p>
+
+    <h3>5. International Orders & Customs Duties</h3>
+    <p>For international shipments, Cobblyn is not responsible for any import duties, customs taxes, or clearance delays levied by the destination country. In the event of an authorized international return, original shipping costs and customs duties are non-refundable.</p>
   </div>
 );
 
 const CookiePolicy = () => (
   <div className="policy-content">
     <h2>Cookie Policy</h2>
-    <p>Cobblyn uses cookies to enhance your browsing experience, serve personalized ads or content, and analyze our traffic.</p>
+    <p>This policy outlines how Cobblyn utilizes cookies and similar tracking technologies to provide a premium online experience.</p>
+    
     <h3>1. What are Cookies?</h3>
-    <p>Cookies are small text files placed on your device to store data that can be recalled by a web server in the domain that placed the cookie.</p>
-    <h3>2. How We Use Cookies</h3>
-    <p>We use essential cookies to maintain your session (e.g., keeping your bespoke shoe in the cart) and analytics cookies to understand how you interact with our 3D Customizer so we can improve performance.</p>
-    <h3>3. Managing Cookies</h3>
-    <p>You can set your browser to refuse all or some browser cookies, or to alert you when websites set or access cookies. Note that disabling cookies may affect the functionality of the 3D Customizer.</p>
+    <p>Cookies are small encrypted text files stored on your device that allow our servers to recognize your browser, maintain your session, and remember your preferences.</p>
+    
+    <h3>2. Essential Cookies</h3>
+    <p>These are strictly necessary for the website to function securely. They maintain your logged-in state, keep your bespoke designs saved in the shopping cart across sessions, and securely process your payment. The website cannot function properly without these.</p>
+    
+    <h3>3. Performance & 3D Customizer Cookies</h3>
+    <p>We use specialized cookies to cache 3D assets (textures, models) to drastically improve the load times and performance of the 3D Customizer upon your return visits. We also use analytics tools (like Google Analytics) to anonymously track user flow and identify UI bottlenecks.</p>
+
+    <h3>4. Advertising & Marketing Cookies</h3>
+    <p>With your consent, we may use third-party tracking cookies (e.g., Meta Pixel) to deliver highly relevant advertisements for Cobblyn products across other platforms, based on your browsing behavior on our site.</p>
+    
+    <h3>5. Managing Your Preferences</h3>
+    <p>You can adjust your browser settings to block or delete cookies at any time. However, please be warned that disabling Essential or Performance cookies will likely cause the 3D Customizer to malfunction and prevent you from completing bespoke orders.</p>
   </div>
 );
 
