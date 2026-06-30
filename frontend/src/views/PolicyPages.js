@@ -58,16 +58,25 @@ const WarrantyPolicy = () => (
     <h2>Warranty Policy</h2>
     <p>At Cobblyn, we stand behind the generational quality of our craftsmanship.</p>
     
-    <h3>1. 1-Year Craftsmanship Guarantee</h3>
-    <p>Every pair of Cobblyn shoes comes with a comprehensive 1-year warranty against structural manufacturing defects. This includes issues such as sole delamination, structural stitching failure, and hardware malfunction (e.g., broken buckles on monk straps) under normal wear conditions.</p>
+    <h3>1. 180-Day Craftsmanship Guarantee</h3>
+    <p>Every pair of Cobblyn shoes comes with a comprehensive warranty against structural manufacturing defects valid for <strong>180 days from the day of delivery</strong>. This includes issues such as sole delamination, structural stitching failure, and hardware malfunction (e.g., broken buckles on monk straps) under normal wear conditions.</p>
     
-    <h3>2. Exclusions (What is Not Covered)</h3>
+    <h3>2. Condition-Based Exclusions (What is Not Covered)</h3>
     <p>The warranty strictly excludes: (a) Normal wear and tear, including sole wear and heel drag. (b) Creasing of the leather, which is a natural characteristic of how shoes adapt to your feet. (c) Changes in the natural patina, scuffs, scratches, or water damage. (d) Damage resulting from improper care (e.g., failure to condition leather, exposure to extreme heat, or using harsh chemicals). (e) Fit issues arising from significant weight changes or medical foot conditions developed post-purchase.</p>
     
-    <h3>3. Voiding the Warranty</h3>
+    <h3>3. Product Exclusions (Items Not Under Warranty)</h3>
+    <p>The following products and categories are explicitly excluded from the 180-day footwear warranty:</p>
+    <ul>
+      <li><strong>Shoe Care Products & Accessories:</strong> Shoe trees, creams, brushes, laces, and removable insoles.</li>
+      <li><strong>Leather Accessories:</strong> Belts, wallets, and bags (unless a separate specific warranty is provided for that item).</li>
+      <li><strong>Clearance & Final Sale Items:</strong> Any product purchased at a heavily discounted clearance price.</li>
+      <li><strong>Promotional/Free Items:</strong> Gifts or promotional merchandise included with an order.</li>
+    </ul>
+
+    <h3>4. Voiding the Warranty</h3>
     <p>Any modifications, repairs, or resoling performed by an unauthorized third-party cobbler will immediately void the Cobblyn warranty. We strongly recommend using our official Cobblyn Refurbishment Service for resoling.</p>
     
-    <h3>4. Claim Process & Shipping</h3>
+    <h3>5. Claim Process & Shipping</h3>
     <p>To initiate a claim, submit high-resolution photos and your Order ID to our concierge. If the claim is validated as a manufacturing defect, Cobblyn will cover the shipping costs for the repair or replacement. If the issue is deemed wear-and-tear, the customer is responsible for shipping and repair fees.</p>
   </div>
 );
