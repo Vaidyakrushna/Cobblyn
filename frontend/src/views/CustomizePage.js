@@ -12,7 +12,7 @@ const models = {
   men: [
     { name: 'Oxford',     desc: 'Classic closed-lacing elegance',  img: 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=500&q=80&fit=crop' },
     { name: 'Derby',      desc: 'Open-lacing versatility',          img: 'https://images.unsplash.com/photo-1616696038562-574c18066055?w=500&q=80&fit=crop' },
-    { name: 'Loafer',     desc: 'Slip-on sophistication',           img: 'https://images.pexels.com/photos/29258015/pexels-photo-29258015.jpeg?auto=compress&cs=tinysrgb&w=500' },
+    { name: 'Loafer',     desc: 'Slip-on sophistication',           img: '/loafer-photo-1.png' },
     { name: 'Monk Strap', desc: 'Bold buckle statement',            img: 'https://images.unsplash.com/photo-1770198408387-7f45e5d6c056?w=500&q=80&fit=crop' },
     { name: 'Desert Boot/Chukka Boots', desc: 'Chukka & desert silhouette', img: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=500&q=80&fit=crop' },
     { name: 'Wing Tip',   desc: 'Decorative brogue detail',        img: 'https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=500&q=80&fit=crop' },
@@ -114,7 +114,7 @@ const submodels = {
       name: 'Penny Loafer',
       desc: 'The definitive loafer — a saddle strap across the vamp with the iconic penny slot.',
       tag: 'Most Classic',
-      img: 'https://images.pexels.com/photos/29258015/pexels-photo-29258015.jpeg?auto=compress&cs=tinysrgb&w=600',
+      img: '/loafer-photo-1.png',
     },
     {
       name: 'Horsebit Loafer',

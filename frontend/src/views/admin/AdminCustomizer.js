@@ -12,7 +12,7 @@ const defaultCatalog = {
   men: [
     { name: 'Oxford',     desc: 'Classic closed-lacing elegance',  img: 'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=500&q=80&fit=crop' },
     { name: 'Derby',      desc: 'Open-lacing versatility',          img: 'https://images.unsplash.com/photo-1616696038562-574c18066055?w=500&q=80&fit=crop' },
-    { name: 'Loafer',     desc: 'Slip-on sophistication',           img: 'https://images.pexels.com/photos/29258015/pexels-photo-29258015.jpeg?auto=compress&cs=tinysrgb&w=500' },
+    { name: 'Loafer',     desc: 'Slip-on sophistication',           img: '/loafer-photo-1.png' },
     { name: 'Monk Strap', desc: 'Bold buckle statement',            img: 'https://images.unsplash.com/photo-1770198408387-7f45e5d6c056?w=500&q=80&fit=crop' },
     { name: 'Desert Boot/Chukka Boots', desc: 'Chukka & desert silhouette', img: 'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=500&q=80&fit=crop' },
     { name: 'Wing Tip',   desc: 'Decorative brogue detail',        img: 'https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=500&q=80&fit=crop' },
@@ -59,7 +59,7 @@ const defaultSubmodels = {
     { name: 'Norwegian Derby', desc: 'Rugged storm welt with split-toe or moc-toe stitching. Built for the elements.', tag: 'Most Rugged', img: 'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=600&q=80&fit=crop' }
   ],
   Loafer: [
-    { name: 'Penny Loafer', desc: 'The definitive loafer — a saddle strap across the vamp with the iconic penny slot.', tag: 'Most Classic', img: 'https://images.pexels.com/photos/29258015/pexels-photo-29258015.jpeg?auto=compress&cs=tinysrgb&w=600' },
+    { name: 'Penny Loafer', desc: 'The definitive loafer — a saddle strap across the vamp with the iconic penny slot.', tag: 'Most Classic', img: '/loafer-photo-1.png' },
     { name: 'Horsebit Loafer', desc: 'Gold-tone horsebit hardware on the instep — the quintessential Italian loafer.', tag: 'Most Iconic', img: 'https://images.unsplash.com/photo-1627384113743-6bd5a479fffd?w=600&q=80&fit=crop' },
     { name: 'Tassel Loafer', desc: 'Leather tassels swing with every step. Ivy League heritage, forever in style.', tag: 'Bestseller', img: 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=600&q=80&fit=crop' },
     { name: 'Driving Loafer', desc: 'Rubber pebble sole wraps up the heel. Designed for the driver, loved by all.', tag: 'Most Casual', img: 'https://images.unsplash.com/photo-1573100925118-870b8efc799d?w=600&q=80&fit=crop' },

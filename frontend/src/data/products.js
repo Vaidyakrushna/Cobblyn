@@ -52,8 +52,8 @@ export const menProducts = [
     articleCode: 'BYD-LOA-002',
     description: 'A contemporary take on the timeless penny loafer, crafted from a luxurious blend of suede and leather. The slip-on design offers effortless elegance, perfect for both casual outings and smart-casual occasions.',
     images: [
-      'https://images.pexels.com/photos/29258015/pexels-photo-29258015.jpeg?auto=compress&cs=tinysrgb&w=800',
-      'https://images.pexels.com/photos/9992899/pexels-photo-9992899.jpeg?auto=compress&cs=tinysrgb&w=800',
+      '/loafer-photo-1.png',
+      '/loafer-photo-2.png',
       'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=800&q=85&fit=crop',
       'https://images.unsplash.com/photo-1634304138376-43a922e96c80?w=800&q=85&fit=crop'
     ],
