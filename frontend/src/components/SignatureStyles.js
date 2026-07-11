@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, Star, X, Truck, Eye } from 'lucide-react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
 
@@ -222,15 +223,20 @@ const SignatureStyles = () => {
       </div>
 
       <div className="sig-grid">
-        {products.map((product) => {
+        {products.map((product, idx) => {
           const selectedColor = selectedColors[product.id] || (product.colors && product.colors.length > 0 ? product.colors[0] : null);
           const activeImage = selectedColor ? selectedColor.image : product.images[0];
           
           return (
-            <div 
+            <motion.div 
               key={product.id} 
               className="sig-card"
               data-testid={`product-card-${product.id}`}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.6, delay: idx * 0.1 }}
+              whileHover={{ y: -5, transition: { duration: 0.2 } }}
             >
               <div className="sig-card-tag">{product.tag}</div>
               
@@ -290,7 +296,7 @@ const SignatureStyles = () => {
                   Quick View
                 </button>
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>

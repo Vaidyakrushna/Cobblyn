@@ -1,7 +1,9 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Factory, Users, Clock, Zap, ChevronRight, Eye, X, UserPlus, Trash2, FileText, CheckCircle, Circle, ArrowRight, Star, MessageSquare } from 'lucide-react';
+import { Factory, Users, Clock, Zap, ChevronRight, Eye, X, UserPlus, Trash2, FileText, CheckCircle, Circle, ArrowRight, Star, MessageSquare, FileDown } from 'lucide-react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import { api } from '../../api';
 
 const STAGE_COLORS = {
@@ -81,6 +83,68 @@ const AdminProduction = () => {
       console.error("Failed to load fulfilled orders:", err);
     } finally {
       setLoadingFulfilled(false);
+    }
+  };
+
+  const generatePackingSlip = (job) => {
+    try {
+      const doc = new jsPDF();
+      doc.setFontSize(22);
+      doc.setTextColor(28, 25, 23);
+      doc.text('Cobblyn - Packing Slip', 14, 22);
+      
+      doc.setFontSize(11);
+      doc.setTextColor(120, 113, 108);
+      doc.text(`Order Number: #${job.order_number}`, 14, 34);
+      doc.text(`Date Generated: ${new Date().toLocaleDateString('en-IN')}`, 14, 40);
+      
+      doc.setTextColor(28, 25, 23);
+      doc.setFontSize(12);
+      doc.text(`Customer: ${job.customer_name}`, 14, 52);
+      
+      if (job.shipping_address) {
+        doc.setFontSize(11);
+        doc.setTextColor(120, 113, 108);
+        doc.text('Shipping Address:', 14, 62);
+        doc.setTextColor(68, 64, 60);
+        doc.text(job.shipping_address.name || '', 14, 68);
+        doc.text(job.shipping_address.address || '', 14, 74);
+        doc.text(`${job.shipping_address.city || ''}, ${job.shipping_address.state || ''} - ${job.shipping_address.pincode || ''}`, 14, 80);
+        doc.text(`Phone: ${job.shipping_address.phone || ''}`, 14, 86);
+      }
+      
+      const tableColumn = ["Item", "Color", "Size (UK)", "Qty"];
+      const tableRows = [];
+      
+      if (job.items) {
+        job.items.forEach(item => {
+          tableRows.push([
+            item.name,
+            item.color || 'N/A',
+            item.size,
+            item.quantity
+          ]);
+        });
+      }
+      
+      doc.autoTable({
+        head: [tableColumn],
+        body: tableRows,
+        startY: 96,
+        theme: 'grid',
+        headStyles: { fillColor: [157, 39, 6] },
+        styles: { fontSize: 10 }
+      });
+      
+      const finalY = doc.lastAutoTable.finalY || 96;
+      doc.setFontSize(10);
+      doc.setTextColor(168, 162, 158);
+      doc.text('Thank you for shopping with Cobblyn. For support, contact concierge@cobblyn.com', 14, finalY + 15);
+      
+      doc.save(`packing-slip-${job.order_number}.pdf`);
+    } catch (err) {
+      console.error('Error generating PDF:', err);
+      alert('Failed to generate packing slip. Please check console.');
     }
   };
 
@@ -1667,8 +1731,18 @@ const AdminProduction = () => {
 
           <div className="pd-header">
             <div>
-              <h2>Order #{selectedJob.order_number}</h2>
-              <div className="pd-meta">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <h2 style={{ margin: 0 }}>Order #{selectedJob.order_number}</h2>
+                <button 
+                  className="admin-btn-secondary" 
+                  onClick={() => generatePackingSlip(selectedJob)} 
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', margin: 0, padding: '4px 12px', fontSize: '0.75rem' }}
+                  data-testid="print-packing-slip-btn"
+                >
+                  <FileDown size={14} /> Packing Slip
+                </button>
+              </div>
+              <div className="pd-meta" style={{ marginTop: '8px' }}>
                 <span>{selectedJob.customer_name} ({selectedJob.customer_email})</span>
                 <span className="pj-priority" style={{ color: PRIORITY_COLORS[selectedJob.priority] }}>{selectedJob.priority?.toUpperCase()}</span>
                 {selectedJob.assigned_to && <span>Assigned: <strong>{selectedJob.assigned_to}</strong></span>}

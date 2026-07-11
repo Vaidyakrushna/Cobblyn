@@ -2,6 +2,7 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import Image from 'next/image';
 import { api } from '../api';
@@ -71,36 +72,91 @@ const HeroSlider = () => {
 
   return (
     <section className="hero" data-testid="hero-slider">
-      {slides.map((slide, index) => (
-        <div
-          key={slide.id || index}
-          className={`slide ${index === currentSlide ? 'active' : ''}`}
-          data-testid={`hero-slide-${index}`}
-        >
-          <div className="slide-content">
-            {slide.eyebrow && <div className="slide-eyebrow">{slide.eyebrow}</div>}
-            <h1 className="slide-title">{slide.title}</h1>
-            {slide.subtitle && <p className="slide-sub">{slide.subtitle}</p>}
-            <div className="slide-actions">
-              <CTA text={slide.primary_cta || slide.primaryCTA} link={slide.primary_cta_link} variant="primary" testId="hero-primary-cta" />
-              <CTA text={slide.secondary_cta || slide.secondaryCTA} link={slide.secondary_cta_link} variant="ghost" testId="hero-secondary-cta" />
-            </div>
-            {slide.price && <div className="slide-price-tag">Starting {slide.price}</div>}
-          </div>
-          <div className="slide-image">
-            <Image
-              src={slide.image}
-              alt={slide.title}
-              fill
-              priority={index === 0}
-              sizes="(max-width: 768px) 100vw, 50vw"
-              style={{ objectFit: 'cover' }}
-              unoptimized={!slide.image?.includes('unsplash.com')}
-            />
-            <div className="slide-image-overlay"></div>
-          </div>
-        </div>
-      ))}
+      <AnimatePresence mode="wait">
+        {slides.map((slide, index) => {
+          if (index !== currentSlide) return null;
+          return (
+            <motion.div
+              key={slide.id || index}
+              className={`slide active`}
+              data-testid={`hero-slide-${index}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.2 }}
+            >
+              <div className="slide-content">
+                {slide.eyebrow && (
+                  <motion.div 
+                    className="slide-eyebrow"
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.3, duration: 0.8 }}
+                  >
+                    {slide.eyebrow}
+                  </motion.div>
+                )}
+                <motion.h1 
+                  className="slide-title"
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.5, duration: 0.8 }}
+                >
+                  {slide.title}
+                </motion.h1>
+                {slide.subtitle && (
+                  <motion.p 
+                    className="slide-sub"
+                    initial={{ y: 30, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ delay: 0.7, duration: 0.8 }}
+                  >
+                    {slide.subtitle}
+                  </motion.p>
+                )}
+                <motion.div 
+                  className="slide-actions"
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.9, duration: 0.8 }}
+                >
+                  <CTA text={slide.primary_cta || slide.primaryCTA} link={slide.primary_cta_link} variant="primary" testId="hero-primary-cta" />
+                  <CTA text={slide.secondary_cta || slide.secondaryCTA} link={slide.secondary_cta_link} variant="ghost" testId="hero-secondary-cta" />
+                </motion.div>
+                {slide.price && (
+                  <motion.div 
+                    className="slide-price-tag"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.2, duration: 0.8 }}
+                  >
+                    Starting {slide.price}
+                  </motion.div>
+                )}
+              </div>
+              <div className="slide-image">
+                <motion.div
+                  initial={{ scale: 1.05 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 6, ease: "easeOut" }}
+                  style={{ width: '100%', height: '100%', position: 'absolute' }}
+                >
+                  <Image
+                    src={slide.image}
+                    alt={slide.title}
+                    fill
+                    priority={index === 0}
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    style={{ objectFit: 'cover' }}
+                    unoptimized={!slide.image?.includes('unsplash.com')}
+                  />
+                </motion.div>
+                <div className="slide-image-overlay"></div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
 
       {total > 1 && (
         <div className="hero-nav" data-testid="hero-dots">

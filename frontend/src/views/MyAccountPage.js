@@ -803,27 +803,25 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
           {/* Horizontal Stepper and Map Integration */}
           {(() => {
             const orderStages = [
-              { name: 'pending', label: 'Placed' },
-              { name: 'confirmed', label: 'Confirmed' },
-              { name: 'in_production', label: 'In Production' },
-              { name: 'shipped', label: 'Dispatched' },
+              { name: 'order_received', label: 'Order Received' },
+              { name: 'pattern_cutting', label: 'Pattern Cutting' },
+              { name: 'assembling_finishing', label: 'Assembling & Finishing' },
+              { name: 'quality_check', label: 'Quality Check' },
+              { name: 'ready_to_ship', label: 'Dispatched' },
               { name: 'delivered', label: 'Delivered' }
             ];
 
-            const getActiveStageIndex = (status) => {
-              const mapping = {
-                'pending': 0,
-                'confirmed': 1,
-                'in_production': 2,
-                'quality_check': 2,
-                'shipped': 3,
-                'ready_to_ship': 3,
-                'delivered': 4
-              };
-              return mapping[status] ?? 0;
+            const getActiveStageIndex = (status, currentProdStage) => {
+              if (status === 'delivered') return 5;
+              if (status === 'shipped' || status === 'ready_to_ship' || currentProdStage === 'ready_to_ship') return 4;
+              if (currentProdStage === 'quality_check' || status === 'quality_check') return 3;
+              if (currentProdStage === 'assembling_finishing' || status === 'in_production') return 2;
+              if (currentProdStage === 'pattern_cutting') return 1;
+              if (status === 'confirmed' || status === 'pending' || currentProdStage === 'order_received') return 0;
+              return 0;
             };
 
-            const activeIndex = getActiveStageIndex(selectedOrder.status);
+            const activeIndex = getActiveStageIndex(selectedOrder.status, selectedOrder.current_production_stage);
             
             // Factory Coordinate Resolver
             const factoryCity = selectedOrder.order_number % 2 === 0 ? 'Mumbai Atelier' : 'Jaipur Atelier';
@@ -959,129 +957,6 @@ const OrdersTab = ({ setActiveTab, setSupportOrderContext }) => {
                     width: 100%;
                   }
                 `}</style>
-
-                {/* Feature A: Atelier Craftsman Production Timeline */}
-                {(() => {
-                  const isCustomBespoke = selectedOrder.production_type === 'crafted' || 
-                                          selectedOrder.is_custom === true || 
-                                          selectedOrder.items?.some(item => item.is_custom || item.custom_design_id || item.material || item.sole);
-
-                  if (!isCustomBespoke) return null;
-
-                  // Fallback or custom stages resolver
-                  const currentProdStage = selectedOrder.current_production_stage || (
-                    selectedOrder.status === 'delivered' ? 'ready_to_ship' : (
-                      selectedOrder.status === 'shipped' ? 'ready_to_ship' : (
-                        selectedOrder.status === 'ready_to_ship' ? 'ready_to_ship' : (
-                          selectedOrder.status === 'quality_check' ? 'quality_check' : (
-                            selectedOrder.status === 'in_production' ? 'upper_assembly' : 'order_received'
-                          )
-                        )
-                      )
-                    )
-                  );
-
-                  const allStages = [
-                    { name: 'order_received', label: 'Order Received' },
-                    { name: 'pattern_cutting', label: 'Pattern Cutting' },
-                    { name: 'upper_assembly', label: 'Upper Assembly' },
-                    { name: 'sole_attachment', label: 'Sole Attachment' },
-                    { name: 'finishing', label: 'Finishing & Polishing' },
-                    { name: 'quality_check', label: 'Quality Check' },
-                    { name: 'ready_to_ship', label: 'Ready to Ship' }
-                  ];
-
-                  const getStageStatus = (stageName) => {
-                    if (selectedOrder.production_stages && selectedOrder.production_stages.length > 0) {
-                      const matched = selectedOrder.production_stages.find(s => s.name === stageName);
-                      return matched ? matched.status : 'pending';
-                    }
-                    // Simulate based on currentProdStage
-                    const indexMap = {
-                      'order_received': 0,
-                      'pattern_cutting': 1,
-                      'upper_assembly': 2,
-                      'sole_attachment': 3,
-                      'finishing': 4,
-                      'quality_check': 5,
-                      'ready_to_ship': 6
-                    };
-                    const currentIndex = indexMap[currentProdStage] ?? 0;
-                    const stageIndex = indexMap[stageName];
-                    if (stageIndex < currentIndex || selectedOrder.status === 'delivered' || selectedOrder.status === 'shipped') return 'completed';
-                    if (stageIndex === currentIndex) return 'active';
-                    return 'pending';
-                  };
-
-                  return (
-                    <div className="atelier-tracker-card glass-gilded" style={{ 
-                      padding: '24px 20px', 
-                      borderRadius: '12px', 
-                      border: '1px solid rgba(157, 39, 6, 0.3)', 
-                      background: 'rgba(255, 255, 255, 0.85)', 
-                      backdropFilter: 'blur(12px)',
-                      WebkitBackdropFilter: 'blur(12px)',
-                      margin: '24px 0', 
-                      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.04)' 
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                        <Sparkles size={16} color="#9d2706" />
-                        <h4 style={{ margin: 0, fontFamily: 'Montserrat, sans-serif', fontSize: '0.85rem', color: '#1c1917', letterSpacing: '0.05em', textTransform: 'uppercase', fontWeight: 700 }}>
-                          Atelier Progress Tracker
-                        </h4>
-                      </div>
-                      <p style={{ margin: '0 0 20px 0', fontSize: '0.72rem', color: '#78716c', lineHeight: 1.4 }}>
-                        Your footwear is individually bench-made inside our workshops. Track the meticulous journey of your pair:
-                      </p>
-
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '12px', position: 'relative' }}>
-                        {allStages.map((stage, idx) => {
-                          const status = getStageStatus(stage.name);
-                          const isCompleted = status === 'completed';
-                          const isActive = status === 'active';
-                          
-                          return (
-                            <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', position: 'relative' }}>
-                              <div style={{
-                                width: '30px',
-                                height: '30px',
-                                borderRadius: '50%',
-                                background: isCompleted ? '#9d2706' : (isActive ? '#111' : '#f4f4f5'),
-                                border: isActive ? '2px solid #9d2706' : '2px solid #e4e4e7',
-                                color: isCompleted ? '#fff' : (isActive ? '#9d2706' : '#a1a1aa'),
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyItems: 'center',
-                                justifyContent: 'center',
-                                fontWeight: 700,
-                                fontSize: '0.7rem',
-                                boxShadow: isActive ? '0 0 10px rgba(157, 39, 6, 0.4)' : 'none',
-                                transition: 'all 0.3s ease',
-                                zIndex: 2
-                              }}>
-                                {isCompleted ? <Check size={12} strokeWidth={3} /> : (idx + 1)}
-                              </div>
-                              <div style={{ 
-                                fontSize: '0.62rem', 
-                                fontWeight: (isActive || isCompleted) ? 700 : 500, 
-                                color: isActive ? '#9d2706' : (isCompleted ? '#1c1917' : '#78716c'), 
-                                marginTop: '8px', 
-                                textTransform: 'uppercase', 
-                                letterSpacing: '0.02em', 
-                                lineHeight: '1.2' 
-                              }}>
-                                {stage.label}
-                              </div>
-                              <div style={{ fontSize: '0.58rem', color: '#a1a1aa', marginTop: '2px' }}>
-                                {isCompleted ? 'Done' : (isActive ? 'Atelier Work' : 'Queued')}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })()}
 
                 <h4>Order Transit Status</h4>
                 

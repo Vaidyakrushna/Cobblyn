@@ -2,8 +2,9 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
-import { Search, User, Heart, ShoppingBag, ChevronDown, LogOut, LayoutDashboard, UserCircle } from 'lucide-react';
+import { Search, User, Heart, ShoppingBag, ChevronDown, LogOut, LayoutDashboard, UserCircle, Menu } from 'lucide-react';
 import SearchOverlay from './SearchOverlay';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
@@ -110,8 +111,17 @@ const Navigation = () => {
         <ul className="nav-links nav-links-left">
           <li onMouseEnter={() => setActiveDropdown('men')} onMouseLeave={() => setActiveDropdown(null)}>
             <Link href="/men" data-testid="nav-link-men">Men <ChevronDown size={14} className="ml-1" /></Link>
+            <AnimatePresence>
             {activeDropdown === 'men' && (
-              <div className="dropdown" data-testid="men-submenu">
+              <motion.div 
+                className="dropdown" 
+                data-testid="men-submenu"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.2 }}
+                style={{ backdropFilter: 'blur(16px)', background: 'rgba(255, 255, 255, 0.9)' }}
+              >
                 <div className="dropdown-inner">
                   <div>
                     <div className="dropdown-title">Style</div>
@@ -139,13 +149,23 @@ const Navigation = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
+            </AnimatePresence>
           </li>
           <li onMouseEnter={() => setActiveDropdown('women')} onMouseLeave={() => setActiveDropdown(null)}>
             <Link href="/women" data-testid="nav-link-women">Women <ChevronDown size={14} className="ml-1" /></Link>
+            <AnimatePresence>
             {activeDropdown === 'women' && (
-              <div className="dropdown" data-testid="women-submenu">
+              <motion.div 
+                className="dropdown" 
+                data-testid="women-submenu"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.2 }}
+                style={{ backdropFilter: 'blur(16px)', background: 'rgba(255, 255, 255, 0.9)' }}
+              >
                 <div className="dropdown-inner">
                   <div>
                     <div className="dropdown-title">Style</div>
@@ -173,8 +193,9 @@ const Navigation = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
+            </AnimatePresence>
           </li>
           <li>
             <Link href="/customize" data-testid="nav-link-customize">Customize</Link>
@@ -182,8 +203,17 @@ const Navigation = () => {
           <li><Link href="/luxe-collection" data-testid="nav-link-luxe-collection">Luxe Collection</Link></li>
           <li onMouseEnter={() => setActiveDropdown('accessories')} onMouseLeave={() => setActiveDropdown(null)}>
             <Link href="/accessories" data-testid="nav-link-accessories">Accessories <ChevronDown size={14} className="ml-1" /></Link>
+            <AnimatePresence>
             {activeDropdown === 'accessories' && (
-              <div className="dropdown dropdown-accessories" data-testid="accessories-submenu" style={{ minWidth: '500px', left: 'auto', right: 0, transform: 'none' }}>
+              <motion.div 
+                className="dropdown dropdown-accessories" 
+                data-testid="accessories-submenu" 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                transition={{ duration: 0.2 }}
+                style={{ minWidth: '500px', left: 'auto', right: 0, transform: 'none', backdropFilter: 'blur(16px)', background: 'rgba(255, 255, 255, 0.9)' }}
+              >
                 <div className="dropdown-inner">
                   <div>
                     <div className="dropdown-title">Categories</div>
@@ -206,8 +236,9 @@ const Navigation = () => {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             )}
+            </AnimatePresence>
           </li>
         </ul>
 
