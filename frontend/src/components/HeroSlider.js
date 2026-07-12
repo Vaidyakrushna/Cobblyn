@@ -9,10 +9,10 @@ import { api } from '../api';
 
 const FALLBACK_SLIDES = [
   {
-    eyebrow: 'New Collection 2026',
-    title: 'Crafted for the Discerning Few',
+    eyebrow: 'Cobcult',
+    title: 'Crafting Cobbler Culture',
     subtitle: 'Elegance in every step — bespoke beauty redefined. Each pair tells a story of mastery passed down through generations.',
-    image: '/wf-hero.png',
+    image: '/studio_hero_banner.png',
     primary_cta: 'Explore Collection', primary_cta_link: '/men',
     secondary_cta: 'Bespoke Order', secondary_cta_link: '#bespoke',
   },
@@ -20,7 +20,7 @@ const FALLBACK_SLIDES = [
     eyebrow: 'Luxe Collection',
     title: 'Where Tradition Meets Artistry',
     subtitle: 'Over 200 hours of craftsmanship in each bespoke pair. Handcrafted with Italian leather, finished with timeless elegance.',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1800&q=85&fit=crop',
+    image: '/studio_craft_main.png',
     primary_cta: 'View Luxe Collection', primary_cta_link: '#luxe-collection',
     secondary_cta: 'Our Story', secondary_cta_link: '/about',
   }

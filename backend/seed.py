@@ -10,211 +10,187 @@ SEED_PRODUCTS = [
         "numericId": 1, "name": "Classic Oxford", "style": "Oxford", "occasion": "Office",
         "material": "Full-Grain Leather", "gender": "men", "price": 8500, "tag": "BESTSELLER",
         "articleCode": "BYD-OXF-001",
-        "description": "Handcrafted with the finest full-grain leather, our Classic Oxford represents the pinnacle of formal footwear. Each pair is bench-made using traditional Goodyear welt construction.",
-        "colors": [{"name": "Black", "hex": "#1a1a1a"}, {"name": "Brown", "hex": "#5C4033"}, {"name": "Tan", "hex": "#C19A6B"}],
+        "description": "Handcrafted with the finest full-grain leather, our Classic Oxford represents the pinnacle of formal footwear.",
+        "colors": [{"name": "Black", "hex": "#1a1a1a"}, {"name": "Brown", "hex": "#5C4033"}],
         "sizes": ["6", "7", "8", "9", "10", "11"],
-        "images": [
-            "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1605733160314-4fc7dac4bb16?w=900&q=85&fit=crop"
-        ],
-        "features": ["Goodyear Welt Construction", "Hand-stitched detailing", "Full leather lining", "Cushioned insole", "Blake-stitched sole option"],
-        "specifications": {"Upper": "Full-Grain Leather", "Lining": "Leather", "Sole": "Leather with rubber heel", "Construction": "Goodyear Welt", "MRP": "₹8,500"}
+        "images": ["/3d_oxford_cap_toe.png", "/shoe-oxford.png"],
+        "features": ["Goodyear Welt Construction", "Hand-stitched detailing", "Full leather lining"],
+        "specifications": {"Upper": "Full-Grain Leather", "Lining": "Leather", "Sole": "Leather", "Construction": "Goodyear Welt", "MRP": "₹8,500"}
     },
     {
         "numericId": 2, "name": "Penny Loafer", "style": "Loafer", "occasion": "Casual",
         "material": "Suede", "gender": "men", "price": 7200, "tag": "NEW",
         "articleCode": "BYD-LFR-002",
-        "description": "The quintessential slip-on, reimagined with premium Italian suede. Perfect for the gentleman who values effortless sophistication.",
-        "colors": [{"name": "Navy", "hex": "#1B2A4A"}, {"name": "Burgundy", "hex": "#722F37"}, {"name": "Olive", "hex": "#556B2F"}],
+        "description": "The quintessential slip-on, reimagined with premium Italian suede.",
+        "colors": [{"name": "Navy", "hex": "#1B2A4A"}, {"name": "Burgundy", "hex": "#722F37"}],
         "sizes": ["6", "7", "8", "9", "10", "11"],
-        "images": [
-            "https://images.unsplash.com/photo-1582897085656-c636d006a246?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1605733160314-4fc7dac4bb16?w=900&q=85&fit=crop"
-        ],
-        "features": ["Hand-lasted construction", "Penny strap detail", "Cushioned footbed", "Flexible Blake-stitched sole", "Metal-free tanning process"],
+        "images": ["/3d_loafer_penny.png", "/shoe-loafer.png"],
+        "features": ["Hand-lasted construction", "Penny strap detail", "Cushioned footbed"],
         "specifications": {"Upper": "Italian Suede", "Lining": "Calf Leather", "Sole": "Leather", "Construction": "Blake Stitch", "MRP": "₹7,200"}
     },
     {
         "numericId": 3, "name": "Double Monk Strap", "style": "Monk Strap", "occasion": "Office",
         "material": "Italian Leather", "gender": "men", "price": 9200, "tag": "PREMIUM",
         "articleCode": "BYD-MNK-003",
-        "description": "A statement of refined taste. Our Double Monk Strap features hand-burnished Italian leather with antique brass buckles.",
-        "colors": [{"name": "Cognac", "hex": "#834A24"}, {"name": "Black", "hex": "#1a1a1a"}, {"name": "Mahogany", "hex": "#4E1609"}],
+        "description": "A statement of refined taste. Our Double Monk Strap features hand-burnished Italian leather.",
+        "colors": [{"name": "Cognac", "hex": "#834A24"}, {"name": "Black", "hex": "#1a1a1a"}],
         "sizes": ["6", "7", "8", "9", "10", "11"],
-        "images": [
-            "https://images.unsplash.com/photo-1770198408387-7f45e5d6c056?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=900&q=85&fit=crop"
-        ],
-        "features": ["Antique brass buckles", "Hand-burnished finish", "Double monk strap design", "Leather sole with rubber injections", "Padded collar"],
-        "specifications": {"Upper": "Italian Calfskin", "Lining": "Full Leather", "Sole": "Leather/Rubber combo", "Construction": "Goodyear Welt", "MRP": "₹9,200"}
+        "images": ["/3d_monk_double.png", "/shoe-monkstrap.png"],
+        "features": ["Antique brass buckles", "Hand-burnished finish", "Double monk strap design"],
+        "specifications": {"Upper": "Italian Calfskin", "Lining": "Full Leather", "Sole": "Leather/Rubber", "Construction": "Goodyear Welt", "MRP": "₹9,200"}
     },
     {
         "numericId": 4, "name": "Derby Elegance", "style": "Derby", "occasion": "Daily Wear",
         "material": "Premium Calfskin", "gender": "men", "price": 7800, "tag": None,
         "articleCode": "BYD-DRB-004",
-        "description": "An everyday classic with open-lacing for superior comfort. Crafted from premium calfskin with a hand-painted patina.",
+        "description": "An everyday classic with open-lacing for superior comfort.",
         "colors": [{"name": "Dark Brown", "hex": "#3B2316"}, {"name": "Black", "hex": "#1a1a1a"}],
         "sizes": ["6", "7", "8", "9", "10", "11"],
-        "images": [
-            "https://images.unsplash.com/photo-1616696038562-574c18066055?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1605733160314-4fc7dac4bb16?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=900&q=85&fit=crop"
-        ],
-        "features": ["Open lacing system", "Hand-painted patina", "Memory foam insole", "Dainite rubber sole", "Storm welt option"],
+        "images": ["/3d_derby_cap_toe.png", "/shoe-derby.png"],
+        "features": ["Open lacing system", "Hand-painted patina", "Memory foam insole"],
         "specifications": {"Upper": "Premium Calfskin", "Lining": "Leather", "Sole": "Dainite Rubber", "Construction": "Goodyear Welt", "MRP": "₹7,800"}
     },
     {
         "numericId": 5, "name": "Wing Tip Brogue", "style": "Oxford", "occasion": "Party",
         "material": "Polished Leather", "gender": "men", "price": 8800, "tag": "POPULAR",
         "articleCode": "BYD-WNG-005",
-        "description": "Bold broguing meets classic wing tip design. Hand-perforated patterns on polished leather for the connoisseur who appreciates detail.",
-        "colors": [{"name": "Chestnut", "hex": "#954535"}, {"name": "Black", "hex": "#1a1a1a"}, {"name": "Oxblood", "hex": "#4A0000"}],
+        "description": "Bold broguing meets classic wing tip design.",
+        "colors": [{"name": "Chestnut", "hex": "#954535"}, {"name": "Black", "hex": "#1a1a1a"}],
         "sizes": ["6", "7", "8", "9", "10", "11"],
-        "images": [
-            "https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1605733160314-4fc7dac4bb16?w=900&q=85&fit=crop"
-        ],
-        "features": ["Full brogue perforations", "Wing tip medallion", "Double leather sole", "Fiddle back waist", "Channelled stitching"],
+        "images": ["/3d_wingtip_brogue.png", "/shoe-oxford-wingtip.png"],
+        "features": ["Full brogue perforations", "Wing tip medallion", "Double leather sole"],
         "specifications": {"Upper": "Polished Leather", "Lining": "Full Leather", "Sole": "Double Leather", "Construction": "Goodyear Welt", "MRP": "₹8,800"}
     },
     {
         "numericId": 6, "name": "Desert Boot", "style": "Desert Boot/Chukka Boots", "occasion": "Casual",
         "material": "Suede", "gender": "men", "price": 6500, "tag": None,
         "articleCode": "BYD-DST-006",
-        "description": "The timeless desert boot, reimagined in premium Italian suede. Two-eyelet lacing with crepe rubber sole for all-day comfort.",
-        "colors": [{"name": "Sand", "hex": "#C2B280"}, {"name": "Grey", "hex": "#808080"}, {"name": "Tobacco", "hex": "#7B5B3A"}],
+        "description": "The timeless desert boot, reimagined in premium Italian suede.",
+        "colors": [{"name": "Sand", "hex": "#C2B280"}, {"name": "Grey", "hex": "#808080"}],
         "sizes": ["6", "7", "8", "9", "10", "11"],
-        "images": [
-            "https://images.unsplash.com/photo-1605733160314-4fc7dac4bb16?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1582897085656-c636d006a246?w=900&q=85&fit=crop"
-        ],
-        "features": ["Two-eyelet lacing", "Natural crepe rubber sole", "Unlined for breathability", "Stitch-down construction", "Hand-finished edges"],
+        "images": ["/3d_desert_boot.png", "/men-desertboot.png"],
+        "features": ["Two-eyelet lacing", "Natural crepe rubber sole", "Unlined for breathability"],
         "specifications": {"Upper": "Italian Suede", "Lining": "Unlined", "Sole": "Crepe Rubber", "Construction": "Stitch-down", "MRP": "₹6,500"}
     },
     {
         "numericId": 7, "name": "Embroidered Jutis", "style": "Jutis", "occasion": "Wedding",
         "material": "Silk & Leather", "gender": "men", "price": 6800, "tag": "FESTIVE",
         "articleCode": "BYD-JTS-007",
-        "description": "Traditional Indian craftsmanship meets contemporary design. Hand-embroidered silk upper on a cushioned leather sole.",
-        "colors": [{"name": "Gold", "hex": "#9d2706"}, {"name": "Maroon", "hex": "#800000"}, {"name": "Royal Blue", "hex": "#002366"}],
+        "description": "Traditional Indian craftsmanship meets contemporary design.",
+        "colors": [{"name": "Gold", "hex": "#9d2706"}, {"name": "Maroon", "hex": "#800000"}],
         "sizes": ["6", "7", "8", "9", "10", "11"],
-        "images": [
-            "https://images.unsplash.com/photo-1582897085656-c636d006a246?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=900&q=85&fit=crop"
-        ],
-        "features": ["Hand-embroidered silk", "Traditional Rajasthani threadwork", "Cushioned leather insole", "Pointed toe design", "Lightweight construction"],
+        "images": ["/3d_juti_classic.png", "/men-jutis.png"],
+        "features": ["Hand-embroidered silk", "Traditional Rajasthani threadwork", "Pointed toe design"],
         "specifications": {"Upper": "Silk with embroidery", "Lining": "Soft Leather", "Sole": "Leather", "Construction": "Hand-stitched", "MRP": "₹6,800"}
     },
     {
         "numericId": 8, "name": "Boat Shoe Classic", "style": "Boat", "occasion": "Travel",
         "material": "Nubuck Leather", "gender": "men", "price": 6200, "tag": None,
         "articleCode": "BYD-BOT-008",
-        "description": "Nautical heritage meets Indian luxury. Premium nubuck leather with hand-sewn moccasin construction and 360-degree lacing.",
+        "description": "Nautical heritage meets Indian luxury.",
         "colors": [{"name": "Navy", "hex": "#1B2A4A"}, {"name": "Tan", "hex": "#C19A6B"}],
         "sizes": ["6", "7", "8", "9", "10", "11"],
+        "images": ["/men-boat.png"],
+        "features": ["360-degree lacing system", "Non-marking rubber sole", "Hand-sewn moccasin toe"],
+        "specifications": {"Upper": "Nubuck Leather", "Lining": "Quick-dry", "Sole": "Siped rubber", "Construction": "Moccasin", "MRP": "₹6,200"}
+    },
+    {
+        "numericId": 9, "name": "Loafer Slipper (Black)", "style": "Loafer", "occasion": "Party",
+        "material": "Smooth Leather", "gender": "men", "price": 7900, "tag": "BESPOKE",
+        "articleCode": "BYD-LFR-009",
+        "description": "A classic men's Venetian loafer slipper with a smooth seamless unadorned toe for a clean minimal look.",
+        "colors": [{"name": "Black", "hex": "#1a1a1a"}],
+        "sizes": ["6", "7", "8", "9", "10", "11"],
         "images": [
-            "https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1605733160314-4fc7dac4bb16?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=900&q=85&fit=crop"
+            "/loafer-slipper/loafer_slipper_black_side_1783692713406.png", 
+            "/loafer-slipper/loafer_slipper_black_top_1783707643628.png", 
+            "/loafer-slipper/loafer_slipper_black_front_1783707686012.png", 
+            "/loafer-slipper/loafer_slipper_black_pair_1783707723108.png"
         ],
-        "features": ["360-degree lacing system", "Non-marking rubber sole", "Hand-sewn moccasin toe", "Rust-proof brass eyelets", "Drainage ports"],
-        "specifications": {"Upper": "Nubuck Leather", "Lining": "Quick-dry textile", "Sole": "Siped rubber", "Construction": "Moccasin", "MRP": "₹6,200"}
+        "features": ["Venetian style", "Seamless toe", "Clean minimal aesthetics"],
+        "specifications": {"Upper": "Smooth Black Leather", "Lining": "Leather", "Sole": "Leather", "Construction": "Blake Stitch", "MRP": "₹7,900"}
+    },
+    {
+        "numericId": 10, "name": "Tassel Loafer (Black)", "style": "Loafer", "occasion": "Office",
+        "material": "Smooth Leather", "gender": "men", "price": 8100, "tag": "NEW",
+        "articleCode": "BYD-LFR-010",
+        "description": "A refined men's Tassel Loafer featuring moc-toe stitching and decorative leather tassels.",
+        "colors": [{"name": "Black", "hex": "#1a1a1a"}],
+        "sizes": ["6", "7", "8", "9", "10", "11"],
+        "images": [
+            "/loafer-tassel/loafer_tassel_black_side_1783707859705.png", 
+            "/loafer-tassel/loafer_tassel_black_top_1783707898592.png", 
+            "/loafer-tassel/loafer_tassel_black_front_1783707933596.png",
+            "/loafer-tassel/loafer_tassel_black_pair_1783736371237.png"
+        ],
+        "features": ["Moc-toe stitching", "Leather tassels on vamp", "Timeless sophistication"],
+        "specifications": {"Upper": "Smooth Black Leather", "Lining": "Leather", "Sole": "Leather", "Construction": "Blake Stitch", "MRP": "₹8,100"}
     },
     {
         "numericId": 101, "name": "Ballet Flats", "style": "Ballerina", "occasion": "Daily Wear",
         "material": "Nappa Leather", "gender": "women", "price": 6200, "tag": "BESTSELLER",
         "articleCode": "BYD-BLT-101",
-        "description": "Pure elegance in every step. Our Ballet Flats are crafted from butter-soft Nappa leather with an anatomically designed insole for all-day comfort.",
-        "colors": [{"name": "Nude", "hex": "#E3BC9A"}, {"name": "Black", "hex": "#1a1a1a"}, {"name": "Red", "hex": "#8B0000"}],
+        "description": "Pure elegance in every step. Our Ballet Flats are crafted from butter-soft Nappa leather.",
+        "colors": [{"name": "Nude", "hex": "#E3BC9A"}, {"name": "Black", "hex": "#1a1a1a"}],
         "sizes": ["3", "4", "5", "6", "7", "8"],
-        "images": [
-            "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1720603989488-1f3d16b7be9d?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=900&q=85&fit=crop"
-        ],
-        "features": ["Butter-soft Nappa leather", "Anatomical insole", "Elasticated topline", "Hand-finished edges", "Lightweight construction"],
-        "specifications": {"Upper": "Nappa Leather", "Lining": "Kid Leather", "Sole": "Leather with rubber pad", "Construction": "Turned", "MRP": "₹6,200"}
+        "images": ["/3d_women_flat_classic.png", "/women-ballerina.png"],
+        "features": ["Butter-soft Nappa leather", "Anatomical insole", "Elasticated topline"],
+        "specifications": {"Upper": "Nappa Leather", "Lining": "Kid Leather", "Sole": "Leather", "Construction": "Turned", "MRP": "₹6,200"}
     },
     {
         "numericId": 102, "name": "Ankle Boots", "style": "Boots", "occasion": "Office",
         "material": "Full-Grain Leather", "gender": "women", "price": 8900, "tag": "NEW",
         "articleCode": "BYD-ANK-102",
-        "description": "Commanding presence, refined design. These ankle boots feature a sculpted heel and hand-burnished leather that develops a rich patina over time.",
-        "colors": [{"name": "Black", "hex": "#1a1a1a"}, {"name": "Cognac", "hex": "#834A24"}, {"name": "Burgundy", "hex": "#722F37"}],
+        "description": "Commanding presence, refined design. These ankle boots feature a sculpted heel.",
+        "colors": [{"name": "Black", "hex": "#1a1a1a"}, {"name": "Cognac", "hex": "#834A24"}],
         "sizes": ["3", "4", "5", "6", "7", "8"],
-        "images": [
-            "https://images.unsplash.com/photo-1720603989488-1f3d16b7be9d?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1720603989488-1f3d16b7be9d?w=900&q=85&fit=crop"
-        ],
-        "features": ["Sculpted 60mm heel", "Inside zip closure", "Hand-burnished finish", "Memory foam padding", "Anti-slip sole"],
-        "specifications": {"Upper": "Full-Grain Leather", "Lining": "Full Leather", "Sole": "Leather with rubber", "Construction": "Blake Stitch", "Heel Height": "60mm", "MRP": "₹8,900"}
+        "images": ["/3d_women_boot_ankle.png", "/women-boots.png"],
+        "features": ["Sculpted 60mm heel", "Inside zip closure", "Hand-burnished finish"],
+        "specifications": {"Upper": "Full-Grain", "Lining": "Leather", "Sole": "Rubber", "Construction": "Blake Stitch", "MRP": "₹8,900"}
     },
     {
         "numericId": 103, "name": "Classic Loafers", "style": "Loafers", "occasion": "Casual",
         "material": "Patent Leather", "gender": "women", "price": 7400, "tag": None,
         "articleCode": "BYD-CLF-103",
-        "description": "Effortless elegance meets everyday wearability. Patent leather finish with a modern silhouette designed for the modern woman.",
-        "colors": [{"name": "Black", "hex": "#1a1a1a"}, {"name": "White", "hex": "#F5F5F5"}, {"name": "Forest", "hex": "#228B22"}],
+        "description": "Effortless elegance meets everyday wearability.",
+        "colors": [{"name": "Black", "hex": "#1a1a1a"}, {"name": "White", "hex": "#F5F5F5"}],
         "sizes": ["3", "4", "5", "6", "7", "8"],
-        "images": [
-            "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1720603989488-1f3d16b7be9d?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=900&q=85&fit=crop"
-        ],
-        "features": ["Mirror-finish patent leather", "Chain-link hardware", "Cushioned footbed", "Flexible sole", "Anti-fatigue technology"],
-        "specifications": {"Upper": "Patent Leather", "Lining": "Sheep Leather", "Sole": "Rubber with leather", "Construction": "Cemented + Stitched", "MRP": "₹7,400"}
+        "images": ["/3d_women_loafer_penny.png", "/women-loafers.png"],
+        "features": ["Mirror-finish patent leather", "Chain-link hardware", "Cushioned footbed"],
+        "specifications": {"Upper": "Patent Leather", "Lining": "Sheep Leather", "Sole": "Rubber", "Construction": "Cemented", "MRP": "₹7,400"}
     },
     {
         "numericId": 104, "name": "Silk Jutis", "style": "Jutis", "occasion": "Wedding",
         "material": "Silk Brocade", "gender": "women", "price": 6800, "tag": "FESTIVE",
         "articleCode": "BYD-SJT-104",
-        "description": "A bridal favourite. Woven silk brocade with zardozi embroidery, handcrafted by artisans in Jaipur. Perfect for sangeet to reception.",
-        "colors": [{"name": "Pink", "hex": "#FF69B4"}, {"name": "Gold", "hex": "#9d2706"}, {"name": "Silver", "hex": "#C0C0C0"}],
+        "description": "A bridal favourite. Woven silk brocade with zardozi embroidery.",
+        "colors": [{"name": "Pink", "hex": "#FF69B4"}, {"name": "Gold", "hex": "#9d2706"}],
         "sizes": ["3", "4", "5", "6", "7", "8"],
-        "images": [
-            "https://images.unsplash.com/photo-1720603989488-1f3d16b7be9d?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1720603989488-1f3d16b7be9d?w=900&q=85&fit=crop"
-        ],
-        "features": ["Silk brocade upper", "Zardozi embroidery", "Cushioned leather insole", "Pointed toe silhouette", "Lightweight padded sole"],
-        "specifications": {"Upper": "Silk Brocade", "Lining": "Soft Leather", "Sole": "Leather padded", "Construction": "Hand-stitched", "MRP": "₹6,800"}
+        "images": ["/3d_juti_mojari.png", "/women-jutis.png"],
+        "features": ["Silk brocade upper", "Zardozi embroidery", "Cushioned leather insole"],
+        "specifications": {"Upper": "Silk Brocade", "Lining": "Leather", "Sole": "Leather", "Construction": "Hand-stitched", "MRP": "₹6,800"}
     },
     {
         "numericId": 105, "name": "Peep Toe Heels", "style": "Peep Toes", "occasion": "Party",
         "material": "Patent Leather", "gender": "women", "price": 7500, "tag": "TRENDING",
         "articleCode": "BYD-PTP-105",
-        "description": "Make an entrance. Our Peep Toe Heels combine a flattering open-toe design with a stable block heel for confident strides.",
-        "colors": [{"name": "Red", "hex": "#8B0000"}, {"name": "Black", "hex": "#1a1a1a"}, {"name": "Nude", "hex": "#E3BC9A"}],
+        "description": "Make an entrance. Our Peep Toe Heels combine a flattering open-toe design.",
+        "colors": [{"name": "Red", "hex": "#8B0000"}, {"name": "Black", "hex": "#1a1a1a"}],
         "sizes": ["3", "4", "5", "6", "7", "8"],
-        "images": [
-            "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1720603989488-1f3d16b7be9d?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=900&q=85&fit=crop"
-        ],
-        "features": ["Block heel for stability", "Peep-toe opening", "Adjustable ankle strap", "Suede-lined footbed", "Non-slip sole"],
-        "specifications": {"Upper": "Patent Leather", "Lining": "Suede", "Sole": "Leather/Rubber", "Construction": "Cemented", "Heel Height": "75mm", "MRP": "₹7,500"}
+        "images": ["/3d_women_peep_block.png", "/women-peeptoes.png"],
+        "features": ["Block heel for stability", "Peep-toe opening", "Adjustable ankle strap"],
+        "specifications": {"Upper": "Patent Leather", "Lining": "Suede", "Sole": "Leather", "Construction": "Cemented", "MRP": "₹7,500"}
     },
     {
         "numericId": 106, "name": "Strappy Sandals", "style": "Ballerina", "occasion": "Party",
         "material": "Metallic Leather", "gender": "women", "price": 6500, "tag": None,
         "articleCode": "BYD-SND-106",
-        "description": "Evening glamour redefined. Metallic leather straps hand-woven into an intricate pattern on a low heel. Adjustable buckle closure.",
-        "colors": [{"name": "Gold", "hex": "#9d2706"}, {"name": "Silver", "hex": "#C0C0C0"}, {"name": "Rose Gold", "hex": "#B76E79"}],
+        "description": "Evening glamour redefined. Metallic leather straps hand-woven.",
+        "colors": [{"name": "Gold", "hex": "#9d2706"}, {"name": "Silver", "hex": "#C0C0C0"}],
         "sizes": ["3", "4", "5", "6", "7", "8"],
-        "images": [
-            "https://images.unsplash.com/photo-1720603989488-1f3d16b7be9d?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=900&q=85&fit=crop",
-            "https://images.unsplash.com/photo-1720603989488-1f3d16b7be9d?w=900&q=85&fit=crop"
-        ],
-        "features": ["Hand-woven metallic straps", "Low kitten heel", "Adjustable buckle closure", "Padded footbed", "Anti-tarnish coating"],
-        "specifications": {"Upper": "Metallic Leather", "Lining": "Kid Leather", "Sole": "Leather", "Construction": "Cemented", "Heel Height": "40mm", "MRP": "₹6,500"}
+        "images": ["/3d_women_flat_bow.png", "/women-ballerina.png"],
+        "features": ["Hand-woven metallic straps", "Low kitten heel", "Adjustable buckle closure"],
+        "specifications": {"Upper": "Metallic", "Lining": "Leather", "Sole": "Leather", "Construction": "Cemented", "MRP": "₹6,500"}
     }
 ]
 
