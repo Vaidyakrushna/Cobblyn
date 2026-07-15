@@ -13,7 +13,16 @@ SEED_PRODUCTS = [
         "description": "Handcrafted with the finest full-grain leather, our Classic Oxford represents the pinnacle of formal footwear.",
         "colors": [{"name": "Black", "hex": "#1a1a1a"}, {"name": "Brown", "hex": "#5C4033"}],
         "sizes": ["6", "7", "8", "9", "10", "11"],
-        "images": ["/3d_oxford_cap_toe.png", "/shoe-oxford.png"],
+        "images": [
+            "/oxford/oxford_black_side.png",
+            "/oxford/oxford_black_top.png",
+            "/oxford/oxford_black_front.png",
+            "/oxford/oxford_black_pair.png",
+            "/oxford/oxford_brown_side.png",
+            "/oxford/oxford_brown_top.png",
+            "/oxford/oxford_brown_front.png",
+            "/oxford/oxford_brown_pair.png"
+        ],
         "features": ["Goodyear Welt Construction", "Hand-stitched detailing", "Full leather lining"],
         "specifications": {"Upper": "Full-Grain Leather", "Lining": "Leather", "Sole": "Leather", "Construction": "Goodyear Welt", "MRP": "₹8,500"}
     },
@@ -24,7 +33,16 @@ SEED_PRODUCTS = [
         "description": "The quintessential slip-on, reimagined with premium Italian suede.",
         "colors": [{"name": "Navy", "hex": "#1B2A4A"}, {"name": "Burgundy", "hex": "#722F37"}],
         "sizes": ["6", "7", "8", "9", "10", "11"],
-        "images": ["/3d_loafer_penny.png", "/shoe-loafer.png"],
+        "images": [
+            "/penny-loafer/penny_loafer_navy_side.png",
+            "/penny-loafer/penny_loafer_navy_top.png",
+            "/penny-loafer/penny_loafer_navy_front.png",
+            "/penny-loafer/penny_loafer_navy_pair.png",
+            "/penny-loafer/penny_loafer_burgundy_side.png",
+            "/penny-loafer/penny_loafer_burgundy_top.png",
+            "/penny-loafer/penny_loafer_burgundy_front.png",
+            "/penny-loafer/penny_loafer_burgundy_pair.png"
+        ],
         "features": ["Hand-lasted construction", "Penny strap detail", "Cushioned footbed"],
         "specifications": {"Upper": "Italian Suede", "Lining": "Calf Leather", "Sole": "Leather", "Construction": "Blake Stitch", "MRP": "₹7,200"}
     },
@@ -35,7 +53,12 @@ SEED_PRODUCTS = [
         "description": "A statement of refined taste. Our Double Monk Strap features hand-burnished Italian leather.",
         "colors": [{"name": "Cognac", "hex": "#834A24"}, {"name": "Black", "hex": "#1a1a1a"}],
         "sizes": ["6", "7", "8", "9", "10", "11"],
-        "images": ["/3d_monk_double.png", "/shoe-monkstrap.png"],
+        "images": [
+            "/monk-strap/monk_strap_cognac_side.png",
+            "/monk-strap/monk_strap_cognac_top.png",
+            "/3d_monk_double.png",
+            "/shoe-monkstrap.png"
+        ],
         "features": ["Antique brass buckles", "Hand-burnished finish", "Double monk strap design"],
         "specifications": {"Upper": "Italian Calfskin", "Lining": "Full Leather", "Sole": "Leather/Rubber", "Construction": "Goodyear Welt", "MRP": "₹9,200"}
     },
@@ -46,7 +69,16 @@ SEED_PRODUCTS = [
         "description": "An everyday classic with open-lacing for superior comfort.",
         "colors": [{"name": "Dark Brown", "hex": "#3B2316"}, {"name": "Black", "hex": "#1a1a1a"}],
         "sizes": ["6", "7", "8", "9", "10", "11"],
-        "images": ["/3d_derby_cap_toe.png", "/shoe-derby.png"],
+        "images": [
+            "/derby-elegance/derby_darkbrown_side.png",
+            "/derby-elegance/derby_darkbrown_top.png",
+            "/derby-elegance/derby_darkbrown_front.png",
+            "/derby-elegance/derby_darkbrown_pair.png",
+            "/derby-elegance/derby_black_side.png",
+            "/derby-elegance/derby_black_top.png",
+            "/derby-elegance/derby_black_front.png",
+            "/derby-elegance/derby_black_pair.png"
+        ],
         "features": ["Open lacing system", "Hand-painted patina", "Memory foam insole"],
         "specifications": {"Upper": "Premium Calfskin", "Lining": "Leather", "Sole": "Dainite Rubber", "Construction": "Goodyear Welt", "MRP": "₹7,800"}
     },
@@ -57,7 +89,16 @@ SEED_PRODUCTS = [
         "description": "Bold broguing meets classic wing tip design.",
         "colors": [{"name": "Chestnut", "hex": "#954535"}, {"name": "Black", "hex": "#1a1a1a"}],
         "sizes": ["6", "7", "8", "9", "10", "11"],
-        "images": ["/3d_wingtip_brogue.png", "/shoe-oxford-wingtip.png"],
+        "images": [
+            "/wingtip/wingtip_chestnut_side.png",
+            "/wingtip/wingtip_chestnut_top.png",
+            "/wingtip/wingtip_chestnut_front.png",
+            "/wingtip/wingtip_chestnut_pair.png",
+            "/wingtip/wingtip_black_side.png",
+            "/wingtip/wingtip_black_top.png",
+            "/wingtip/wingtip_black_front.png",
+            "/wingtip/wingtip_black_pair.png"
+        ],
         "features": ["Full brogue perforations", "Wing tip medallion", "Double leather sole"],
         "specifications": {"Upper": "Polished Leather", "Lining": "Full Leather", "Sole": "Double Leather", "Construction": "Goodyear Welt", "MRP": "₹8,800"}
     },
