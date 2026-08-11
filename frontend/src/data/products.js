@@ -93,10 +93,10 @@ export const menProducts = [
     articleCode: 'BYD-MNK-003',
     description: 'A bold statement piece featuring double monk strap buckles in polished brass. Crafted from premium Italian leather with meticulous attention to detail, these shoes command respect and admiration.',
     images: [
-      'https://images.unsplash.com/photo-1770198408387-7f45e5d6c056?w=800&q=85&fit=crop',
-      'https://images.unsplash.com/photo-1571859856639-d54ab2c18ba0?w=800&q=85&fit=crop',
-      'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=800&q=85&fit=crop',
-      'https://images.unsplash.com/photo-1634304138376-43a922e96c80?w=800&q=85&fit=crop'
+      '/double-monk/double_monk_black_side.png',
+      '/double-monk/double_monk_suede_side.png',
+      '/double-monk/double_monk_brown_side.png',
+      '/double-monk/double_monk_black_pair.png'
     ],
     colors: [
       { name: 'Black', hex: '#0A0A0A' },

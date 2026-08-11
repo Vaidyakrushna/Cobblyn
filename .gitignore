@@ -127,3 +127,8 @@ credentials.json
 *.pem
 *.key
 .credentials
+
+# Local database and logs
+backend/data/
+backend/mongodb.log
+

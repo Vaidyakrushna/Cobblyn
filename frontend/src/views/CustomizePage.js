@@ -159,7 +159,7 @@ const submodels = {
       name: 'Double Monk',
       desc: 'Two straps, two buckles — maximum visual impact. A true statement in formal wear.',
       tag: 'Most Distinctive',
-      img: 'https://images.unsplash.com/photo-1519415943484-9fa1873496d4?w=600&q=80&fit=crop',
+      img: '/double-monk/double_monk_black_side.png',
     },
     {
       name: 'Brogue Monk',
