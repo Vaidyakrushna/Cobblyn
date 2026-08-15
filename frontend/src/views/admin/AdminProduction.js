@@ -53,7 +53,9 @@ const AdminProduction = () => {
   const [selectedVendorPerformance, setSelectedVendorPerformance] = useState(null);
   const [fulfilledJobs, setFulfilledJobs] = useState([]);
   const [loadingFulfilled, setLoadingFulfilled] = useState(false);
-  const [perfTab, setPerfTab] = useState('specs'); // specs, feedback
+  const [perfTab, setPerfTab] = useState('specs'); // specs, feedback, ledger
+  const [vendorLedger, setVendorLedger] = useState({ ledger: [], total_due: 0, total_paid: 0, balance_outstanding: 0 });
+  const [loadingLedger, setLoadingLedger] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackJobId, setFeedbackJobId] = useState(null);
   const [feedbackForm, setFeedbackForm] = useState({ rating: 5, comment: '' });
@@ -83,6 +85,47 @@ const AdminProduction = () => {
       setLoadingFulfilled(false);
     }
   };
+
+  const fetchVendorLedgerData = async (vendorId) => {
+    setLoadingLedger(true);
+    try {
+      const data = await api.request(`/admin/vendors/${vendorId}/ledger`);
+      setVendorLedger(data || { ledger: [], total_due: 0, total_paid: 0, balance_outstanding: 0 });
+    } catch (err) {
+      console.error("Failed to load vendor ledger:", err);
+    } finally {
+      setLoadingLedger(false);
+    }
+  };
+
+  const handleSettlePayout = async (ledgerId, amountDue) => {
+    if (!selectedVendorPerformance) return;
+    const confirmSettle = window.confirm(`Are you sure you want to approve and settle the outstanding balance of INR ${amountDue.toFixed(2)} directly to the vendor's bank account?`);
+    if (!confirmSettle) return;
+    
+    try {
+      const txnRef = "UPI-SETTLE-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+      await api.request(`/admin/vendors/${selectedVendorPerformance.id}/payments/${ledgerId}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          amount: amountDue,
+          ref_number: txnRef,
+          notes: "Settled automatically via Admin Dashboard direct payout click."
+        })
+      });
+      alert(`✓ Payment of INR ${amountDue.toFixed(2)} settled successfully. Transaction ID: ${txnRef}`);
+      fetchVendorLedgerData(selectedVendorPerformance.id);
+      fetchVendors();
+    } catch (err) {
+      alert("Failed to process payout settlement: " + err.message);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedVendorPerformance && perfTab === 'ledger') {
+      fetchVendorLedgerData(selectedVendorPerformance.id);
+    }
+  }, [selectedVendorPerformance, perfTab]);
 
   const handleSubmitFeedback = async (e) => {
     e.preventDefault();
@@ -350,6 +393,8 @@ const AdminProduction = () => {
                     <th style={{ padding: '12px' }}>Contact Person</th>
                     <th style={{ padding: '12px' }}>GST & Address</th>
                     <th style={{ padding: '12px' }}>Orders (Active / Done)</th>
+                    <th style={{ padding: '12px' }}>SLA Compliance</th>
+                    <th style={{ padding: '12px' }}>Declined</th>
                     <th style={{ padding: '12px' }}>Avg. Completion</th>
                     <th style={{ padding: '12px' }}>Rating</th>
                     <th style={{ padding: '12px' }}>Status</th>
@@ -390,6 +435,18 @@ const AdminProduction = () => {
                           </span>
                         </div>
                         <div style={{ fontSize: '0.65rem', color: '#a8a29e', marginTop: '6px' }}>Cap: {v.monthly_capacity || 100}/mo • LT: {v.average_lead_time_days || 14}d</div>
+                      </td>
+                      <td style={{ padding: '12px' }}>
+                        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#ca8a04', background: '#fef9c3', padding: '2px 8px', borderRadius: '12px', display: 'inline-block' }}>
+                          {v.sla_acknowledgement_rate !== undefined ? `${v.sla_acknowledgement_rate}%` : '100%'}
+                        </div>
+                        <div style={{ fontSize: '0.6rem', color: '#78716c', marginTop: '2px' }}>SLA Confirmed</div>
+                      </td>
+                      <td style={{ padding: '12px' }}>
+                        <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#dc2626', background: '#fef2f2', padding: '2px 8px', borderRadius: '12px', display: 'inline-block' }}>
+                          {v.declined_orders_count || 0}
+                        </div>
+                        <div style={{ fontSize: '0.6rem', color: '#78716c', marginTop: '2px' }}>rejected</div>
                       </td>
                       <td style={{ padding: '12px' }}>
                         <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#1c1917' }}>
@@ -922,6 +979,12 @@ const AdminProduction = () => {
                 >
                   ⭐ Customer Feedback Book
                 </button>
+                <button
+                  className={`perf-tab-btn ${perfTab === 'ledger' ? 'active' : ''}`}
+                  onClick={() => setPerfTab('ledger')}
+                >
+                  🧾 Ledger & Payouts
+                </button>
               </div>
 
               {/* Drawer Content */}
@@ -947,6 +1010,14 @@ const AdminProduction = () => {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f5f5f4', paddingBottom: '6px' }}>
                           <span style={{ color: '#78716c', fontWeight: 500 }}>Completed Orders</span>
                           <strong style={{ color: '#16a34a' }}>{selectedVendorPerformance.completed_orders || 0} done</strong>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f5f5f4', paddingBottom: '6px' }}>
+                          <span style={{ color: '#78716c', fontWeight: 500 }}>SLA Compliance</span>
+                          <strong style={{ color: '#ca8a04' }}>{selectedVendorPerformance.sla_acknowledgement_rate !== undefined ? `${selectedVendorPerformance.sla_acknowledgement_rate}%` : '100%'}</strong>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f5f5f4', paddingBottom: '6px' }}>
+                          <span style={{ color: '#78716c', fontWeight: 500 }}>Declined Orders</span>
+                          <strong style={{ color: '#dc2626' }}>{selectedVendorPerformance.declined_orders_count || 0}</strong>
                         </div>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f5f5f4', paddingBottom: '6px', gridColumn: 'span 2' }}>
                           <span style={{ color: '#78716c', fontWeight: 500 }}>GST Number</span>
@@ -1156,6 +1227,107 @@ const AdminProduction = () => {
                           ))
                       )}
                     </div>
+                  </div>
+                )}
+
+                {perfTab === 'ledger' && (
+                  <div>
+                    {loadingLedger ? (
+                      <div style={{ fontSize: '0.78rem', color: '#78716c', padding: '20px', textAlign: 'center' }}>Loading ledger and statements...</div>
+                    ) : (
+                      <div>
+                        {/* Financial Payout Summary stats */}
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '12px', marginBottom: '24px' }}>
+                          <div style={{ background: '#fafaf9', border: '1px solid #e7e5e4', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
+                            <span style={{ fontSize: '0.6rem', color: '#78716c', textTransform: 'uppercase', fontWeight: 600, display: 'block' }}>Total Payouts (Inc. GST)</span>
+                            <strong style={{ fontSize: '1rem', color: '#1c1917', display: 'block', marginTop: '4px' }}>INR {vendorLedger.total_due?.toFixed(2)}</strong>
+                            <span style={{ fontSize: '0.55rem', color: '#a8a29e' }}>Base: INR {(vendorLedger.total_due / 1.18).toFixed(2)}</span>
+                          </div>
+                          <div style={{ background: '#fafaf9', border: '1px solid #e7e5e4', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
+                            <span style={{ fontSize: '0.6rem', color: '#78716c', textTransform: 'uppercase', fontWeight: 600, display: 'block' }}>Cleared (Inc. GST)</span>
+                            <strong style={{ fontSize: '1rem', color: '#16a34a', display: 'block', marginTop: '4px' }}>INR {vendorLedger.total_paid?.toFixed(2)}</strong>
+                            <span style={{ fontSize: '0.55rem', color: '#a8a29e' }}>Base Cleared: INR {(vendorLedger.total_paid / 1.18).toFixed(2)}</span>
+                          </div>
+                          <div style={{ background: '#fafaf9', border: '1px solid #e7e5e4', padding: '12px', borderRadius: '10px', textAlign: 'center' }}>
+                            <span style={{ fontSize: '0.6rem', color: '#78716c', textTransform: 'uppercase', fontWeight: 600, display: 'block' }}>Outstanding Due</span>
+                            <strong style={{ fontSize: '1rem', color: '#dc2626', display: 'block', marginTop: '4px' }}>INR {vendorLedger.balance_outstanding?.toFixed(2)}</strong>
+                            <span style={{ fontSize: '0.55rem', color: '#a8a29e' }}>Base Bal: INR {(vendorLedger.balance_outstanding / 1.18).toFixed(2)}</span>
+                          </div>
+                        </div>
+
+                        {/* Statement Details List */}
+                        <h4 style={{ margin: '0 0 12px 0', fontSize: '0.85rem', color: '#1c1917', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Artisan Statements & Billing</h4>
+                        {vendorLedger.ledger.length === 0 ? (
+                          <div style={{ border: '1.5px dashed #e7e5e4', borderRadius: '8px', padding: '24px', textAlign: 'center', color: '#a8a29e', fontSize: '0.78rem' }}>
+                            No billing records logged for this vendor.
+                          </div>
+                        ) : (
+                          vendorLedger.ledger.map(entry => {
+                            const entryBase = entry.amount_due / 1.18;
+                            const entryGst = entry.amount_due - entryBase;
+                            const remainingDue = entry.amount_due - entry.amount_paid;
+
+                            return (
+                              <div key={entry.id} style={{ background: '#fff', border: '1px solid #e7e5e4', borderRadius: '12px', padding: '16px', marginBottom: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.01)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                  <div>
+                                    <strong style={{ fontSize: '0.85rem', color: '#1c1917' }}>Order Reference: #{entry.order_number}</strong>
+                                    <div style={{ fontSize: '0.65rem', color: '#78716c', marginTop: '2px' }}>Registered: {new Date(entry.created_at).toLocaleDateString('en-IN')}</div>
+                                  </div>
+                                  <span style={{
+                                    fontSize: '0.62rem',
+                                    fontWeight: 700,
+                                    padding: '3px 8px',
+                                    borderRadius: '4px',
+                                    textTransform: 'uppercase',
+                                    background: entry.payment_status === 'settled' ? '#dcfce7' : entry.payment_status === 'partially_paid' ? '#fef9c3' : '#fee2e2',
+                                    color: entry.payment_status === 'settled' ? '#16a34a' : entry.payment_status === 'partially_paid' ? '#ca8a04' : '#ef4444'
+                                  }}>
+                                    {entry.payment_status}
+                                  </span>
+                                </div>
+
+                                <div style={{ background: '#fafaf9', padding: '10px', borderRadius: '8px', border: '1px solid #f5f5f4', fontSize: '0.75rem', color: '#44403c', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
+                                  <div>Base Fee: <strong>INR {entryBase.toFixed(2)}</strong></div>
+                                  <div>CGST (9%): <strong>INR {(entryGst / 2).toFixed(2)}</strong></div>
+                                  <div>SGST (9%): <strong>INR {(entryGst / 2).toFixed(2)}</strong></div>
+                                  <div>Total Payout: <strong>INR {entry.amount_due.toFixed(2)}</strong></div>
+                                  <div style={{ gridColumn: 'span 2', borderTop: '1px solid #e7e5e4', paddingTop: '6px', marginTop: '2px', display: 'flex', justifyContent: 'space-between' }}>
+                                    <span>Cleared: <strong>INR {entry.amount_paid.toFixed(2)}</strong></span>
+                                    <span style={{ color: remainingDue > 0 ? '#dc2626' : '#16a34a' }}>Remaining Due: <strong>INR {remainingDue.toFixed(2)}</strong></span>
+                                  </div>
+                                </div>
+
+                                {remainingDue > 0 && (
+                                  <button
+                                    onClick={() => handleSettlePayout(entry.id, remainingDue)}
+                                    style={{
+                                      width: '100%',
+                                      padding: '8px',
+                                      background: '#9d2706',
+                                      border: 'none',
+                                      borderRadius: '6px',
+                                      color: '#fff',
+                                      fontSize: '0.72rem',
+                                      fontWeight: 700,
+                                      cursor: 'pointer',
+                                      textTransform: 'uppercase',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      gap: '6px',
+                                      transition: 'background-color 0.2s'
+                                    }}
+                                  >
+                                    💳 Approve & Settle Payout (Direct to Account)
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

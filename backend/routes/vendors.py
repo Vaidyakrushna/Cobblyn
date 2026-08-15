@@ -101,6 +101,18 @@ async def list_vendors(request: Request):
             "fulfillment_vendor": v["name"],
             "status": "completed"
         })
+        
+        rejections = await db.production_jobs.count_documents({
+            "activity_log": {
+                "$elemMatch": {
+                    "action": {"$regex": f"REJECTED by vendor '{v['name']}'|missed 12-hour SLA|SLA confirmation window expired.*'{v['name']}'", "$options": "i"}
+                }
+            }
+        })
+        total_routed = v["assigned_orders"] + v["completed_orders"] + rejections
+        v["sla_acknowledgement_rate"] = round((v["assigned_orders"] + v["completed_orders"]) / total_routed * 100, 1) if total_routed > 0 else 100.0
+        v["declined_orders_count"] = rejections
+        v["total_routed_orders"] = total_routed
 
         # Calculate dynamic average completion time (assigned_at to completed_at)
         completed_cursor = db.production_jobs.find({
@@ -156,7 +168,30 @@ async def get_vendor(vendor_id: str, request: Request):
     doc = await db.vendors.find_one({"_id": ObjectId(vendor_id)})
     if not doc:
         raise HTTPException(status_code=404, detail="Vendor not found")
-    return serialize_vendor(doc)
+    v = serialize_vendor(doc)
+    v["assigned_orders"] = await db.production_jobs.count_documents({
+        "crafted_by": "vendor",
+        "fulfillment_vendor": v["name"],
+        "status": {"$ne": "completed"}
+    })
+    v["completed_orders"] = await db.production_jobs.count_documents({
+        "crafted_by": "vendor",
+        "fulfillment_vendor": v["name"],
+        "status": "completed"
+    })
+    
+    rejections = await db.production_jobs.count_documents({
+        "activity_log": {
+            "$elemMatch": {
+                "action": {"$regex": f"REJECTED by vendor '{v['name']}'|missed 12-hour SLA|SLA confirmation window expired.*'{v['name']}'", "$options": "i"}
+            }
+        }
+    })
+    total_routed = v["assigned_orders"] + v["completed_orders"] + rejections
+    v["sla_acknowledgement_rate"] = round((v["assigned_orders"] + v["completed_orders"]) / total_routed * 100, 1) if total_routed > 0 else 100.0
+    v["declined_orders_count"] = rejections
+    v["total_routed_orders"] = total_routed
+    return v
 
 
 # ===== Create Vendor =====

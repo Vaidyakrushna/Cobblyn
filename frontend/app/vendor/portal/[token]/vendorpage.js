@@ -74,6 +74,7 @@ export default function VendorPortalPage() {
   // Secure endpoints data
   const [secureJobs, setSecureJobs] = useState({ completed_jobs: [], declined_jobs: [] });
   const [dateFilterActive, setDateFilterActive] = useState(false);
+  const [activeHotspot, setActiveHotspot] = useState(null);
   const [secureLedger, setSecureLedger] = useState({ ledger: [], total_due: 0, total_paid: 0, balance_outstanding: 0 });
 
   // PDF report range selection
@@ -666,9 +667,21 @@ export default function VendorPortalPage() {
                     {job.items?.map((item, itemIdx) => (
                       item.images && item.images.length > 0 && (
                         <div key={itemIdx} style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '12px', scrollbarWidth: 'thin' }}>
-                          {item.images.map((imgUrl, imgIdx) => (
-                            <div key={imgIdx} style={{ flexShrink: 0, width: '100px', height: '75px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e5e7eb', background: '#fff', position: 'relative' }}>
-                              <img src={imgUrl} alt={`${item.name} Angle ${imgIdx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                           {item.images.map((imgUrl, imgIdx) => (
+                            <div 
+                              key={imgIdx} 
+                              onContextMenu={(e) => e.preventDefault()}
+                              onDragStart={(e) => e.preventDefault()}
+                              style={{ flexShrink: 0, width: '100px', height: '75px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e5e7eb', background: '#fff', position: 'relative', userSelect: 'none' }}
+                            >
+                              <img 
+                                src={imgUrl} 
+                                alt={`${item.name} Angle ${imgIdx + 1}`} 
+                                onContextMenu={(e) => e.preventDefault()}
+                                onDragStart={(e) => e.preventDefault()}
+                                style={{ width: '100%', height: '100%', objectFit: 'cover', userSelect: 'none', pointerEvents: 'none', WebkitUserDrag: 'none' }} 
+                              />
+                              {/* Anti-Download Shield & Watermark */}
                               <div style={{
                                 position: 'absolute',
                                 top: 0,
@@ -678,17 +691,20 @@ export default function VendorPortalPage() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                pointerEvents: 'none',
+                                pointerEvents: 'auto',
                                 transform: 'rotate(-25deg)',
-                                fontSize: '0.45rem',
+                                fontSize: '0.38rem',
                                 fontWeight: 800,
-                                color: 'rgba(157, 39, 6, 0.18)',
-                                letterSpacing: '0.08em',
+                                color: 'rgba(157, 39, 6, 0.28)',
+                                letterSpacing: '0.04em',
                                 whiteSpace: 'nowrap',
                                 textTransform: 'uppercase',
-                                width: '100%'
+                                width: '100%',
+                                textAlign: 'center',
+                                userSelect: 'none',
+                                background: 'rgba(0,0,0,0)'
                               }}>
-                                Cobblyn ATELIER
+                                CONFIDENTIAL DO NOT SHARE
                               </div>
                             </div>
                           ))}
@@ -874,9 +890,21 @@ export default function VendorPortalPage() {
                       {job.items?.map((item, itemIdx) => (
                         item.images && item.images.length > 0 && (
                           <div key={itemIdx} style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '10px', marginBottom: '12px', scrollbarWidth: 'thin' }}>
-                            {item.images.map((imgUrl, imgIdx) => (
-                              <div key={imgIdx} style={{ flexShrink: 0, width: '100px', height: '75px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e5e7eb', background: '#fff', position: 'relative' }}>
-                                <img src={imgUrl} alt={`${item.name} Angle ${imgIdx + 1}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                             {item.images.map((imgUrl, imgIdx) => (
+                              <div 
+                                key={imgIdx} 
+                                onContextMenu={(e) => e.preventDefault()}
+                                onDragStart={(e) => e.preventDefault()}
+                                style={{ flexShrink: 0, width: '100px', height: '75px', borderRadius: '6px', overflow: 'hidden', border: '1px solid #e5e7eb', background: '#fff', position: 'relative', userSelect: 'none' }}
+                              >
+                                <img 
+                                  src={imgUrl} 
+                                  alt={`${item.name} Angle ${imgIdx + 1}`} 
+                                  onContextMenu={(e) => e.preventDefault()}
+                                  onDragStart={(e) => e.preventDefault()}
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover', userSelect: 'none', pointerEvents: 'none', WebkitUserDrag: 'none' }} 
+                                />
+                                {/* Anti-Download Shield & Watermark */}
                                 <div style={{
                                   position: 'absolute',
                                   top: 0,
@@ -886,17 +914,20 @@ export default function VendorPortalPage() {
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  pointerEvents: 'none',
+                                  pointerEvents: 'auto',
                                   transform: 'rotate(-25deg)',
-                                  fontSize: '0.45rem',
+                                  fontSize: '0.38rem',
                                   fontWeight: 800,
-                                  color: 'rgba(157, 39, 6, 0.18)',
-                                  letterSpacing: '0.08em',
+                                  color: 'rgba(157, 39, 6, 0.28)',
+                                  letterSpacing: '0.04em',
                                   whiteSpace: 'nowrap',
                                   textTransform: 'uppercase',
-                                  width: '100%'
+                                  width: '100%',
+                                  textAlign: 'center',
+                                  userSelect: 'none',
+                                  background: 'rgba(0,0,0,0)'
                                 }}>
-                                  Cobblyn ATELIER
+                                  CONFIDENTIAL DO NOT SHARE
                                 </div>
                               </div>
                             ))}
@@ -920,6 +951,95 @@ export default function VendorPortalPage() {
                           <strong>Artisan Note:</strong> {job.tech_pack.special_instructions}
                         </div>
                       )}
+
+                      {/* Interactive Design Schematic Map Viewer (Recommendation 5) */}
+                      <div style={{ marginTop: '16px', background: '#F9FAFB', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '16px' }}>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'block', marginBottom: '12px' }}>
+                          🔍 Interactive Spec Schematic
+                        </span>
+                        
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'center', justifyContent: 'center' }}>
+                          {/* Left Panel: Drawing Representation */}
+                          <div style={{ position: 'relative', width: '220px', height: '110px', background: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', userSelect: 'none' }} onContextMenu={e => e.preventDefault()} onDragStart={e => e.preventDefault()}>
+                            {/* Watermark overlay on the blueprint to block screenshot/download */}
+                            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.01)', zIndex: 10 }} />
+                            
+                            {/* Simple CSS-rendered shoe layout outline */}
+                            <div style={{ position: 'absolute', width: '160px', height: '50px', border: '2px solid #78716c', borderRadius: '0 80px 20px 20px', transform: 'skewX(-10deg)', background: '#F7F5F2' }} />
+                            
+                            {/* Hotspots */}
+                            {[
+                              { id: 'toe', name: 'Toe Box', top: '45px', left: '140px', specs: 'Full-Grain Leather, standard round mold, size last standard.' },
+                              { id: 'vamp', name: 'Vamp', top: '35px', left: '100px', specs: 'Hand-sewn lockstitching, 12 stitches per inch.' },
+                              { id: 'quarter', name: 'Quarter', top: '25px', left: '50px', specs: 'Genuine lining calfskin, custom gold foil monogram stamp.' },
+                              { id: 'welt', name: 'Welt & Sole', top: '65px', left: '90px', specs: 'Genuine Leather Goodyear Welt construction with dark stain finishing.' }
+                            ].map(spot => {
+                              const isSelected = activeHotspot === `${job.id}_${spot.id}`;
+                              return (
+                                <button
+                                  key={spot.id}
+                                  onClick={() => setActiveHotspot(isSelected ? null : `${job.id}_${spot.id}`)}
+                                  title={`Click to view ${spot.name} specifications`}
+                                  style={{
+                                    position: 'absolute',
+                                    top: spot.top,
+                                    left: spot.left,
+                                    width: '18px',
+                                    height: '18px',
+                                    borderRadius: '50%',
+                                    background: isSelected ? '#9d2706' : '#fff',
+                                    border: `2.5px solid ${isSelected ? '#fff' : '#9d2706'}`,
+                                    boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                                    cursor: 'pointer',
+                                    zIndex: 20,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '0.65rem',
+                                    fontWeight: 900,
+                                    color: isSelected ? '#fff' : '#9d2706',
+                                    outline: 'none',
+                                    transition: 'all 0.2s ease'
+                                  }}
+                                >
+                                  •
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Right Panel: Spec Callout Window */}
+                          <div style={{ flex: 1, minWidth: '220px', minHeight: '90px', display: 'flex', alignItems: 'center' }}>
+                            {(() => {
+                              const activeSpot = [
+                                { id: 'toe', name: 'Toe Box Specs', specs: 'Full-Grain Leather, standard round mold, size last standard.' },
+                                { id: 'vamp', name: 'Vamp Specs', specs: 'Hand-sewn lockstitching, 12 stitches per inch.' },
+                                { id: 'quarter', name: 'Quarter / Counter', specs: 'Genuine lining calfskin, custom gold foil monogram stamp.' },
+                                { id: 'welt', name: 'Goodyear Welt & Sole', specs: 'Genuine Leather Goodyear Welt construction with dark stain finishing.' }
+                              ].find(spot => activeHotspot === `${job.id}_${spot.id}`);
+
+                              if (!activeSpot) {
+                                return (
+                                  <div style={{ fontSize: '0.7rem', color: '#6B7280', fontStyle: 'italic', lineHeight: '1.4' }}>
+                                    💡 Click on any active hotspot indicator (•) on the shoe blueprint to view localized crafting specs and sizing instructions.
+                                  </div>
+                                );
+                              }
+
+                              return (
+                                <div style={{ background: '#fff', border: '1px solid #d1d5db', borderRadius: '8px', padding: '10px 12px', width: '100%', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
+                                  <strong style={{ fontSize: '0.72rem', color: '#9d2706', display: 'block', marginBottom: '4px', textTransform: 'uppercase' }}>
+                                    {activeSpot.name}
+                                  </strong>
+                                  <p style={{ fontSize: '0.7rem', color: '#2A2826', margin: 0, lineHeight: '1.4' }}>
+                                    {activeSpot.specs}
+                                  </p>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', justifyContent: 'space-between', borderTop: '1px solid #e5e7eb', borderBottom: '1px solid #e5e7eb', padding: '16px 0' }}>
