@@ -73,6 +73,7 @@ export default function VendorPortalPage() {
 
   // Secure endpoints data
   const [secureJobs, setSecureJobs] = useState({ completed_jobs: [], declined_jobs: [] });
+  const [dateFilterActive, setDateFilterActive] = useState(false);
   const [secureLedger, setSecureLedger] = useState({ ledger: [], total_due: 0, total_paid: 0, balance_outstanding: 0 });
 
   // PDF report range selection
@@ -351,6 +352,63 @@ export default function VendorPortalPage() {
     });
 
     doc.save(`Ledger_Report_${vendor?.name.replace(/\s+/g, '_')}_${pdfStartDate}.pdf`);
+  };
+
+  const handleDownloadSingleInvoice = (entry) => {
+    const doc = new jsPDF();
+    
+    // Header styling
+    doc.setFillColor(157, 39, 6);
+    doc.rect(0, 0, 210, 35, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('Helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.text('COBBLYN ATELIER', 14, 18);
+    doc.setFontSize(10);
+    doc.setFont('Helvetica', 'normal');
+    doc.text('Artisan Invoice Receipt', 14, 25);
+
+    doc.setTextColor(10, 10, 10);
+    doc.setFontSize(11);
+    doc.setFont('Helvetica', 'bold');
+    doc.text('Workshop Name:', 14, 45);
+    doc.setFont('Helvetica', 'normal');
+    doc.text(`${vendor?.name}`, 50, 45);
+
+    doc.setFont('Helvetica', 'bold');
+    doc.text('Order Ref:', 14, 51);
+    doc.setFont('Helvetica', 'normal');
+    doc.text(`${entry.order_number}`, 50, 51);
+
+    doc.setFont('Helvetica', 'bold');
+    doc.text('Registered Date:', 14, 57);
+    doc.setFont('Helvetica', 'normal');
+    doc.text(`${new Date(entry.created_at).toLocaleDateString()}`, 50, 57);
+
+    // Summary Box
+    doc.setFillColor(247, 245, 242);
+    doc.rect(14, 68, 182, 35, 'F');
+    
+    const entryBase = entry.amount_due / 1.18;
+    const entryGst = entry.amount_due - entryBase;
+
+    doc.setFont('Helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.text('Invoice Summary Breakdowns:', 20, 75);
+    doc.setFont('Helvetica', 'normal');
+    doc.text(`Base Crafting Payout:  INR ${entryBase.toFixed(2)}`, 20, 82);
+    doc.text(`CGST (9% Split):      INR ${(entryGst / 2).toFixed(2)}`, 20, 88);
+    doc.text(`SGST (9% Split):      INR ${(entryGst / 2).toFixed(2)}`, 20, 94);
+    
+    doc.setFont('Helvetica', 'bold');
+    doc.text(`Total Payout Due:     INR ${entry.amount_due.toFixed(2)}`, 20, 100);
+
+    doc.setFont('Helvetica', 'bold');
+    doc.text('Payment Status:', 14, 115);
+    doc.setFont('Helvetica', 'normal');
+    doc.text(`${entry.payment_status?.toUpperCase() || 'PENDING'} (Cleared: INR ${entry.amount_paid.toFixed(2)})`, 55, 115);
+
+    doc.save(`Invoice_${entry.order_number}.pdf`);
   };
 
   const toggleGate = (jobId, gateName) => {
@@ -1068,6 +1126,40 @@ export default function VendorPortalPage() {
           ) : (
             /* AUTHENTICATED WORKSPACE CONTAINER */
             <div>
+              {/* Workload Analytics Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '12px', marginBottom: '24px', background: '#F7F5F2', border: '1px solid #d1d5db', borderRadius: '12px', padding: '16px' }}>
+                <div style={{ padding: '4px' }}>
+                  <span style={{ fontSize: '0.62rem', color: '#6B7280', textTransform: 'uppercase', fontWeight: 700 }}>Total Routed Orders</span>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 800, margin: '4px 0' }}>{pendingJobs.length + activeJobs.length + secureJobs.completed_jobs.length + secureJobs.declined_jobs.length}</h4>
+                  <span style={{ fontSize: '0.58rem', color: '#6B7280' }}>All-time pipeline</span>
+                </div>
+                <div style={{ padding: '4px', borderLeft: '1px solid #e5e7eb', paddingLeft: '12px' }}>
+                  <span style={{ fontSize: '0.62rem', color: '#ca8a04', textTransform: 'uppercase', fontWeight: 700 }}>Awaiting Accept</span>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ca8a04', margin: '4px 0' }}>{pendingJobs.length}</h4>
+                  <span style={{ fontSize: '0.58rem', color: '#ca8a04' }}>12h SLA active</span>
+                </div>
+                <div style={{ padding: '4px', borderLeft: '1px solid #e5e7eb', paddingLeft: '12px' }}>
+                  <span style={{ fontSize: '0.62rem', color: '#2563eb', textTransform: 'uppercase', fontWeight: 700 }}>Active WIP</span>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#2563eb', margin: '4px 0' }}>{activeJobs.length}</h4>
+                  <span style={{ fontSize: '0.58rem', color: '#2563eb' }}>In production</span>
+                </div>
+                <div style={{ padding: '4px', borderLeft: '1px solid #e5e7eb', paddingLeft: '12px' }}>
+                  <span style={{ fontSize: '0.62rem', color: '#16a34a', textTransform: 'uppercase', fontWeight: 700 }}>Completed</span>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#16a34a', margin: '4px 0' }}>{secureJobs.completed_jobs.length}</h4>
+                  <span style={{ fontSize: '0.58rem', color: '#16a34a' }}>Delivered to client</span>
+                </div>
+                <div style={{ padding: '4px', borderLeft: '1px solid #e5e7eb', paddingLeft: '12px' }}>
+                  <span style={{ fontSize: '0.62rem', color: '#ef4444', textTransform: 'uppercase', fontWeight: 700 }}>Declined / Reverted</span>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ef4444', margin: '4px 0' }}>{secureJobs.declined_jobs.length}</h4>
+                  <span style={{ fontSize: '0.58rem', color: '#ef4444' }}>Returned to queue</span>
+                </div>
+                <div style={{ padding: '4px', borderLeft: '1px solid #e5e7eb', paddingLeft: '12px' }}>
+                  <span style={{ fontSize: '0.62rem', color: '#ca8a04', textTransform: 'uppercase', fontWeight: 700 }}>Artisan Rating</span>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ca8a04', margin: '4px 0' }}>{vendor?.satisfaction_score ? `${vendor.satisfaction_score} / 5 ⭐` : 'N/A'}</h4>
+                  <span style={{ fontSize: '0.58rem', color: '#ca8a04' }}>Customer reviews</span>
+                </div>
+              </div>
+
               {/* Workspace Navigation Tabs */}
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', borderBottom: '1px solid #e5e7eb', paddingBottom: '12px', marginBottom: '24px' }}>
                 {[
@@ -1149,12 +1241,26 @@ export default function VendorPortalPage() {
                         style={{ width: '100%', padding: '8px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '0.75rem', outline: 'none' }}
                       />
                     </div>
-                    <button 
-                      onClick={handleGeneratePdfReport}
-                      style={{ padding: '10px 16px', background: '#9d2706', border: 'none', borderRadius: '6px', color: '#fff', fontSize: '0.72rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}
-                    >
-                      <Download size={14} /> Download PDF Invoice Report
-                    </button>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                      <button 
+                        onClick={() => setDateFilterActive(true)}
+                        style={{ padding: '10px 16px', background: '#0A0A0A', border: 'none', borderRadius: '6px', color: '#fff', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
+                      >
+                        🔍 Filter Table View
+                      </button>
+                      <button 
+                        onClick={() => { setDateFilterActive(false); setPdfStartDate(''); setPdfEndDate(''); }}
+                        style={{ padding: '10px 16px', background: '#F7F5F2', border: '1px solid #d1d5db', borderRadius: '6px', color: '#4B5563', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
+                      >
+                        🧹 Reset Filter
+                      </button>
+                      <button 
+                        onClick={handleGeneratePdfReport}
+                        style={{ padding: '10px 16px', background: '#9d2706', border: 'none', borderRadius: '6px', color: '#fff', fontSize: '0.72rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', transition: 'all 0.2s' }}
+                      >
+                        <Download size={14} /> Download PDF Invoice Report
+                      </button>
+                    </div>
                   </div>
 
                   {/* Ledger Table */}
@@ -1170,15 +1276,32 @@ export default function VendorPortalPage() {
                           <th style={{ padding: '12px' }}>Total Payout (Inc. GST)</th>
                           <th style={{ padding: '12px' }}>Amount Cleared</th>
                           <th style={{ padding: '12px' }}>Payment Status</th>
+                          <th style={{ padding: '12px', textAlign: 'center' }}>Receipt</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {secureLedger.ledger.length === 0 ? (
-                          <tr>
-                            <td colSpan={8} style={{ textAlign: 'center', padding: '24px', color: '#6B7280' }}>No billing ledgers found.</td>
-                          </tr>
-                        ) : (
-                          secureLedger.ledger.map(entry => {
+                        {(() => {
+                          const displayedLedger = dateFilterActive && pdfStartDate && pdfEndDate
+                            ? secureLedger.ledger.filter(entry => {
+                                const date = new Date(entry.created_at);
+                                const start = new Date(pdfStartDate);
+                                const end = new Date(pdfEndDate);
+                                end.setHours(23, 59, 59, 999);
+                                return date >= start && date <= end;
+                              })
+                            : secureLedger.ledger;
+
+                          if (displayedLedger.length === 0) {
+                            return (
+                              <tr>
+                                <td colSpan={9} style={{ textAlign: 'center', padding: '24px', color: '#6B7280' }}>
+                                  {dateFilterActive ? 'No ledger transactions match the selected date filters.' : 'No ledger transactions found.'}
+                                </td>
+                              </tr>
+                            );
+                          }
+
+                          return displayedLedger.map(entry => {
                             const entryBase = entry.amount_due / 1.18;
                             const entryGst = (entry.amount_due - entryBase) / 2;
                             return (
@@ -1204,10 +1327,19 @@ export default function VendorPortalPage() {
                                     {entry.payment_status || 'PENDING'}
                                   </span>
                                 </td>
+                                <td style={{ padding: '12px', textAlign: 'center' }}>
+                                  <button 
+                                    onClick={() => handleDownloadSingleInvoice(entry)}
+                                    title="Download Single Receipt PDF"
+                                    style={{ background: 'none', border: 'none', color: '#9d2706', cursor: 'pointer', padding: '4px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+                                  >
+                                    <Download size={14} />
+                                  </button>
+                                </td>
                               </tr>
                             );
-                          })
-                        )}
+                          });
+                        })()}
                       </tbody>
                     </table>
                   </div>
