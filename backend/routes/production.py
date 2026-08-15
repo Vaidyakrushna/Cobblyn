@@ -659,6 +659,18 @@ async def update_job_operational(job_id: str, data: JobOperationalUpdate, reques
             {"$set": order_update}
         )
 
+    # Trigger WhatsApp notification if job is newly assigned to vendor or vendor changes
+    is_routed_to_vendor = (update_fields.get("crafted_by") == "vendor" and job.get("crafted_by") != "vendor")
+    vendor_changed = (update_fields.get("fulfillment_vendor") and job.get("fulfillment_vendor") != update_fields.get("fulfillment_vendor"))
+    if (is_routed_to_vendor or vendor_changed) or (update_fields.get("crafted_by") == "vendor" and "fulfillment_vendor" in update_fields):
+        from whatsapp_utils import send_whatsapp_order_notification
+        import asyncio
+        vendor_name = update_fields.get("fulfillment_vendor") or job.get("fulfillment_vendor")
+        if vendor_name:
+            updated_job = await db.production_jobs.find_one({"_id": oid})
+            if updated_job:
+                asyncio.create_task(send_whatsapp_order_notification(db, vendor_name, updated_job))
+
     return {"message": "Job operational details updated successfully"}
 
 
@@ -739,6 +751,12 @@ async def auto_create_production_job(database, order_id: str) -> bool:
     }
 
     await database.production_jobs.insert_one(doc)
+
+    # Trigger WhatsApp notification if auto-routed to vendor
+    if doc.get("crafted_by") == "vendor" and doc.get("fulfillment_vendor"):
+        from whatsapp_utils import send_whatsapp_order_notification
+        import asyncio
+        asyncio.create_task(send_whatsapp_order_notification(database, doc["fulfillment_vendor"], doc))
     
     # Update parent order's status to in_production
     await database.orders.update_one(

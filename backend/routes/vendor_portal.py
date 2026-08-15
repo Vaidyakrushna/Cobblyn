@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request, Response
 from pydantic import BaseModel
 from typing import Optional, List
 from bson import ObjectId
 from datetime import datetime, timezone
+from auth_utils import hash_password, verify_password, create_access_token, create_refresh_token, set_auth_cookies
 
 router = APIRouter(prefix="/api/vendor/portal", tags=["vendor-portal"])
 
@@ -25,6 +26,246 @@ class RejectPayload(BaseModel):
     details: Optional[str] = None
 
 
+# ===== Secure Authentication & Management Endpoints (Defined first so paths don't get hijacked by /{token} wildcard) =====
+
+async def get_current_vendor(request: Request) -> dict:
+    token = request.cookies.get("access_token")
+    if not token:
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.startswith("Bearer "):
+            token = auth_header[7:]
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        import jwt
+        from auth_utils import get_jwt_secret, JWT_ALGORITHM
+        payload = jwt.decode(token, get_jwt_secret(), algorithms=[JWT_ALGORITHM])
+        if payload.get("role") != "vendor":
+            raise HTTPException(status_code=401, detail="Invalid role context")
+            
+        vendor = await db.vendors.find_one({"_id": ObjectId(payload["sub"]), "active": True})
+        if not vendor:
+            raise HTTPException(status_code=401, detail="Vendor not found or inactive")
+        return vendor
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
+class VendorLoginRequest(BaseModel):
+    identifier: str  # Email or Phone number
+    secret: str      # Password or PIN
+
+
+class VendorResetSecurityRequest(BaseModel):
+    token: str
+    new_password: Optional[str] = None
+    new_pin: Optional[str] = None
+
+
+class VendorProfileUpdate(BaseModel):
+    contact_person: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+
+
+@router.post("/login")
+async def vendor_login(req: VendorLoginRequest, response: Response):
+    # Lookup active vendor by email or phone number
+    vendor = await db.vendors.find_one({
+        "$or": [{"email": req.identifier}, {"phone": req.identifier}],
+        "active": True
+    })
+    if not vendor:
+        raise HTTPException(status_code=401, detail="Invalid credentials or inactive account")
+
+    # Check pin or password hash
+    pin_hash = vendor.get("pin_hash")
+    password_hash = vendor.get("password_hash")
+
+    verified = False
+    if pin_hash and verify_password(req.secret, pin_hash):
+        verified = True
+    elif password_hash and verify_password(req.secret, password_hash):
+        verified = True
+
+    if not verified:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    # Create tokens with role="vendor"
+    access_token = create_access_token(str(vendor["_id"]), vendor["email"], role="vendor")
+    refresh_token = create_refresh_token(str(vendor["_id"]))
+
+    set_auth_cookies(response, access_token, refresh_token)
+    return {
+        "message": "Login successful",
+        "vendor": {
+            "name": vendor["name"],
+            "contact_person": vendor["contact_person"],
+            "email": vendor["email"],
+            "phone": vendor["phone"],
+            "address": vendor.get("address", "")
+        }
+    }
+
+
+@router.post("/logout")
+async def vendor_logout(response: Response):
+    response.delete_cookie("access_token", path="/")
+    response.delete_cookie("refresh_token", path="/")
+    return {"message": "Logout successful"}
+
+
+@router.post("/reset-security")
+async def vendor_reset_security(req: VendorResetSecurityRequest):
+    if not req.token.startswith("vt_"):
+        raise HTTPException(status_code=401, detail="Invalid magic token")
+
+    vendor = await db.vendors.find_one({"portal_token": req.token, "active": True})
+    if not vendor:
+        raise HTTPException(status_code=401, detail="Unauthorized magic token")
+
+    updates = {}
+    if req.new_password:
+        updates["password_hash"] = hash_password(req.new_password)
+    if req.new_pin:
+        updates["pin_hash"] = hash_password(req.new_pin)
+
+    if not updates:
+        raise HTTPException(status_code=400, detail="Must provide new password or PIN")
+
+    updates["updated_at"] = datetime.now(timezone.utc).isoformat()
+    await db.vendors.update_one({"_id": vendor["_id"]}, {"$set": updates})
+    return {"message": "Security credentials updated successfully"}
+
+
+@router.get("/me")
+async def get_vendor_profile(request: Request):
+    vendor = await get_current_vendor(request)
+    return {
+        "vendor": {
+            "name": vendor["name"],
+            "contact_person": vendor["contact_person"],
+            "email": vendor["email"],
+            "phone": vendor["phone"],
+            "address": vendor.get("address", ""),
+            "specialty": vendor.get("specialty", []),
+            "has_pin": "pin_hash" in vendor,
+            "has_password": "password_hash" in vendor
+        }
+    }
+
+
+@router.put("/me")
+async def update_vendor_profile(req: VendorProfileUpdate, request: Request):
+    vendor = await get_current_vendor(request)
+    
+    update_data = {}
+    if req.contact_person is not None:
+        update_data["contact_person"] = req.contact_person
+    if req.email is not None:
+        update_data["email"] = req.email
+    if req.phone is not None:
+        update_data["phone"] = req.phone
+    if req.address is not None:
+        update_data["address"] = req.address
+
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No profile fields provided to update")
+
+    update_data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    await db.vendors.update_one({"_id": vendor["_id"]}, {"$set": update_data})
+    
+    return {"message": "Profile updated successfully"}
+
+
+@router.get("/jobs/secure")
+async def get_vendor_secure_jobs(request: Request):
+    vendor = await get_current_vendor(request)
+    
+    # Completed jobs history
+    cursor_comp = db.production_jobs.find({
+        "crafted_by": "vendor",
+        "fulfillment_vendor": vendor["name"],
+        "status": "completed"
+    }).sort("completed_at", -1)
+    
+    completed_jobs = []
+    async for doc in cursor_comp:
+        completed_jobs.append({
+            "id": str(doc["_id"]),
+            "order_number": doc.get("order_number", ""),
+            "customer_name": doc.get("customer_name", ""),
+            "customer_email": doc.get("customer_email", ""),
+            "completed_at": doc.get("completed_at"),
+            "items": doc.get("items", []),
+            "rating": doc.get("customer_feedback", {}).get("rating"),
+            "feedback_comment": doc.get("customer_feedback", {}).get("comment"),
+            "feedback_submitted_at": doc.get("customer_feedback", {}).get("submitted_at")
+        })
+
+    # Declined/rejected jobs history
+    cursor_decl = db.production_jobs.find({
+        "activity_log": {
+            "$elemMatch": {
+                "action": {"$regex": f"actively REJECTED by vendor '{vendor['name']}'", "$options": "i"}
+            }
+        }
+    }).sort("updated_at", -1)
+    
+    declined_jobs = []
+    async for doc in cursor_decl:
+        reason = "Declined"
+        for log in doc.get("activity_log", []):
+            if "actively REJECTED" in log.get("action", ""):
+                reason = log.get("action", "Declined")
+                break
+        declined_jobs.append({
+            "id": str(doc["_id"]),
+            "order_number": doc.get("order_number", "") or f"COBBLYN-W-{str(doc['_id'])[-5:].upper()}",
+            "items": doc.get("items", []),
+            "declined_at": doc.get("updated_at"),
+            "reason": reason
+        })
+
+    return {
+        "completed_jobs": completed_jobs,
+        "declined_jobs": declined_jobs
+    }
+
+
+@router.get("/ledger")
+async def get_vendor_secure_ledger(request: Request):
+    vendor = await get_current_vendor(request)
+    
+    cursor = db.vendor_ledgers.find({"vendor_id": vendor["_id"]}).sort("created_at", -1)
+    ledger_entries = []
+    total_due = 0.0
+    total_paid = 0.0
+    
+    async for doc in cursor:
+        doc["id"] = str(doc.pop("_id"))
+        doc["vendor_id"] = str(doc["vendor_id"])
+        if isinstance(doc.get("order_id"), ObjectId):
+            doc["order_id"] = str(doc["order_id"])
+        
+        ledger_entries.append(doc)
+        total_due += doc.get("amount_due", 0.0)
+        total_paid += doc.get("amount_paid", 0.0)
+        
+    balance_outstanding = round(total_due - total_paid, 2)
+    
+    return {
+        "ledger": ledger_entries,
+        "total_due": round(total_due, 2),
+        "total_paid": round(total_paid, 2),
+        "balance_outstanding": balance_outstanding
+    }
+
+
+# ===== JIT Magic-Token Access Endpoints (Wildcards placed at end) =====
 
 @router.get("/{token}")
 async def get_vendor_portal(token: str):
@@ -145,6 +386,7 @@ async def get_vendor_portal(token: str):
             "contact_person": vendor["contact_person"],
             "email": vendor["email"],
             "phone": vendor["phone"],
+            "address": vendor.get("address", ""),
             "specialty": vendor.get("specialty", []),
         },
         "jobs": jobs
@@ -169,7 +411,6 @@ async def confirm_vendor_job(token: str, job_id: str):
     if not job:
         raise HTTPException(status_code=404, detail="Assigned production job not found")
 
-    # Double check SLA expiry (JIT helper would have reclaimed it, but safety check here)
     if job.get("vendor_confirmed"):
         return {"message": "Job already confirmed", "vendor_confirmed": True}
 
@@ -179,7 +420,6 @@ async def confirm_vendor_job(token: str, job_id: str):
         now = datetime.now(timezone.utc)
         diff = now - assigned_at
         if diff.total_seconds() > 12 * 3600:
-            # Revert to inhouse immediately
             from routes.production import resolve_sla_reversions
             await resolve_sla_reversions(db)
             raise HTTPException(status_code=400, detail="Confirmation window expired (12h SLA missed). Reverted to In-House.")
@@ -203,7 +443,6 @@ async def confirm_vendor_job(token: str, job_id: str):
         }
     )
 
-    # Log in parent order history
     if job.get("order_id"):
         await db.orders.update_one(
             {"_id": ObjectId(str(job["order_id"]))},
@@ -217,6 +456,24 @@ async def confirm_vendor_job(token: str, job_id: str):
                 }
             }
         )
+
+    # Check if a vendor ledger entry already exists for this order, create one if not!
+    # Upfront vendor cost could be set, let's use a dummy crafting fee (e.g. INR 4500.0)
+    existing_ledger = await db.vendor_ledgers.find_one({"order_id": job["order_id"]})
+    if not existing_ledger:
+        ledger_doc = {
+            "vendor_id": vendor["_id"],
+            "vendor_name": vendor["name"],
+            "order_id": job["order_id"],
+            "order_number": job.get("order_number", ""),
+            "amount_due": 4500.0,
+            "amount_paid": 0.0,
+            "payment_status": "pending",
+            "payments": [],
+            "created_at": now_iso,
+            "updated_at": now_iso
+        }
+        await db.vendor_ledgers.insert_one(ledger_doc)
 
     return {"message": "Crafting order confirmed successfully", "vendor_confirmed": True}
 
@@ -255,7 +512,6 @@ async def reject_vendor_job(token: str, job_id: str, payload: Optional[RejectPay
 
     now_iso = datetime.now(timezone.utc).isoformat()
 
-    # Revert to In-House directly
     await db.production_jobs.update_one(
         {"_id": oid},
         {
@@ -278,7 +534,6 @@ async def reject_vendor_job(token: str, job_id: str, payload: Optional[RejectPay
         }
     )
 
-    # Re-initialize all stages status to pending (except order_received which becomes in_progress)
     job_doc = await db.production_jobs.find_one({"_id": oid})
     if job_doc and job_doc.get("stages"):
         stages = job_doc["stages"]
@@ -291,7 +546,6 @@ async def reject_vendor_job(token: str, job_id: str, payload: Optional[RejectPay
             {"$set": {"stages": stages}}
         )
 
-    # Sync parent storefront order to revert crafted_by and fulfillment_vendor
     order_id = job.get("order_id")
     if order_id:
         await db.orders.update_one(
@@ -325,7 +579,7 @@ async def update_vendor_job_stage(token: str, job_id: str, data: StageUpdate):
     if not vendor:
         raise HTTPException(status_code=401, detail="Unauthorized access token")
 
-    from routes.production import STAGE_NAMES, PRODUCTION_STAGES
+    from routes.production import STAGE_NAMES
     if data.stage not in STAGE_NAMES:
         raise HTTPException(status_code=400, detail=f"Invalid stage. Must be one of: {STAGE_NAMES}")
 
@@ -344,7 +598,6 @@ async def update_vendor_job_stage(token: str, job_id: str, data: StageUpdate):
     stages = doc.get("stages", [])
     now = datetime.now(timezone.utc).isoformat()
 
-    # Preceding auto-completion cascade
     target_idx = STAGE_NAMES.index(data.stage)
     for idx, s in enumerate(stages):
         if idx < target_idx:
@@ -362,7 +615,6 @@ async def update_vendor_job_stage(token: str, job_id: str, data: StageUpdate):
             if data.notes:
                 s["notes"] = data.notes
 
-    # Determine current/next stage
     current_stage = "delivered"
     job_status = "in_progress"
     for s in stages:
@@ -393,7 +645,6 @@ async def update_vendor_job_stage(token: str, job_id: str, data: StageUpdate):
         {"$set": update_fields, "$push": {"activity_log": activity_entry}}
     )
 
-    # Sync to order status automatically
     order_id = doc.get("order_id")
     if order_id:
         safe_oid = ObjectId(str(order_id))
