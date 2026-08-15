@@ -279,7 +279,7 @@ export default function VendorPortalPage() {
 
     // Ledger Summary Box
     doc.setFillColor(247, 245, 242);
-    doc.rect(14, 60, 182, 24, 'F');
+    doc.rect(14, 60, 182, 28, 'F');
     
     let rangeTotalDue = 0;
     let rangeTotalPaid = 0;
@@ -288,29 +288,37 @@ export default function VendorPortalPage() {
       rangeTotalPaid += entry.amount_paid || 0;
     });
 
+    const rangeBase = rangeTotalDue / 1.18;
+    const rangeGst = rangeTotalDue - rangeBase;
+
     doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(10);
-    doc.text('Outstanding Balance:', 20, 68);
-    doc.text('Period Total Invoiced:', 20, 74);
-    doc.text('Period Total Cleared:', 20, 80);
+    doc.setFontSize(8);
+    doc.text('Period Base Payout:', 20, 66);
+    doc.text('Period CGST (9%):', 20, 72);
+    doc.text('Period SGST (9%):', 20, 78);
+    doc.text('Period Total Payout (Inc. GST):', 20, 84);
 
     doc.setFont('Helvetica', 'normal');
-    doc.text(`INR ${(rangeTotalDue - rangeTotalPaid).toFixed(2)}`, 65, 68);
-    doc.text(`INR ${rangeTotalDue.toFixed(2)}`, 65, 74);
-    doc.text(`INR ${rangeTotalPaid.toFixed(2)}`, 65, 80);
+    doc.text(`INR ${rangeBase.toFixed(2)}`, 75, 66);
+    doc.text(`INR ${(rangeGst / 2).toFixed(2)}`, 75, 72);
+    doc.text(`INR ${(rangeGst / 2).toFixed(2)}`, 75, 78);
+    doc.text(`INR ${rangeTotalDue.toFixed(2)} (Cleared: INR ${rangeTotalPaid.toFixed(2)})`, 75, 84);
 
     // Draw table headers
-    let y = 98;
+    let y = 100;
     doc.setFillColor(10, 10, 10);
     doc.rect(14, y - 5, 182, 8, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFont('Helvetica', 'bold');
-    doc.setFontSize(8);
+    doc.setFontSize(7);
     doc.text('Date', 16, y);
-    doc.text('Order Ref', 45, y);
-    doc.text('Amount Due', 85, y);
-    doc.text('Amount Paid', 125, y);
-    doc.text('Fulfillment Status', 165, y);
+    doc.text('Order Ref', 38, y);
+    doc.text('Base Fee', 68, y);
+    doc.text('CGST (9%)', 92, y);
+    doc.text('SGST (9%)', 116, y);
+    doc.text('Total Due', 140, y);
+    doc.text('Cleared', 162, y);
+    doc.text('Status', 184, y);
 
     // Write table entries
     doc.setTextColor(10, 10, 10);
@@ -324,12 +332,18 @@ export default function VendorPortalPage() {
         y = 20;
       }
       
+      const entryBase = entry.amount_due / 1.18;
+      const entryGst = (entry.amount_due - entryBase) / 2;
       const entryDate = new Date(entry.created_at).toLocaleDateString();
+      
       doc.text(entryDate, 16, y);
-      doc.text(entry.order_number || 'N/A', 45, y);
-      doc.text(`INR ${entry.amount_due.toFixed(2)}`, 85, y);
-      doc.text(`INR ${entry.amount_paid.toFixed(2)}`, 125, y);
-      doc.text(entry.payment_status?.toUpperCase() || 'PENDING', 165, y);
+      doc.text(entry.order_number || 'N/A', 38, y);
+      doc.text(`INR ${entryBase.toFixed(2)}`, 68, y);
+      doc.text(`INR ${entryGst.toFixed(2)}`, 92, y);
+      doc.text(`INR ${entryGst.toFixed(2)}`, 116, y);
+      doc.text(`INR ${entry.amount_due.toFixed(2)}`, 140, y);
+      doc.text(`INR ${entry.amount_paid.toFixed(2)}`, 162, y);
+      doc.text(entry.payment_status?.toUpperCase() || 'PENDING', 184, y);
 
       // Light underline
       doc.setDrawColor(229, 229, 229);
@@ -1091,18 +1105,27 @@ export default function VendorPortalPage() {
               {activeSecureTab === 'ledger' && (
                 <div>
                   {/* Ledger Summary Stats Cards */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px', marginBottom: '24px' }}>
                     <div style={{ background: '#F7F5F2', padding: '16px', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
-                      <span style={{ fontSize: '0.62rem', color: '#6B7280', textTransform: 'uppercase', fontWeight: 700 }}>Total Earned</span>
+                      <span style={{ fontSize: '0.62rem', color: '#6B7280', textTransform: 'uppercase', fontWeight: 700 }}>Total Earned (Inc. GST)</span>
                       <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0A0A0A', margin: '4px 0' }}>INR {secureLedger.total_due?.toFixed(2)}</h3>
+                      <div style={{ fontSize: '0.62rem', color: '#6B7280', marginTop: '4px' }}>
+                        Base Fee: INR {(secureLedger.total_due / 1.18).toFixed(2)} | CGST: INR {((secureLedger.total_due - (secureLedger.total_due / 1.18)) / 2).toFixed(2)} | SGST: INR {((secureLedger.total_due - (secureLedger.total_due / 1.18)) / 2).toFixed(2)}
+                      </div>
                     </div>
                     <div style={{ background: '#F7F5F2', padding: '16px', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
-                      <span style={{ fontSize: '0.62rem', color: '#6B7280', textTransform: 'uppercase', fontWeight: 700 }}>Cleared/Paid</span>
+                      <span style={{ fontSize: '0.62rem', color: '#6B7280', textTransform: 'uppercase', fontWeight: 700 }}>Cleared/Paid (Inc. GST)</span>
                       <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#16a34a', margin: '4px 0' }}>INR {secureLedger.total_paid?.toFixed(2)}</h3>
+                      <div style={{ fontSize: '0.62rem', color: '#16a34a', marginTop: '4px' }}>
+                        Base Cleared: INR {(secureLedger.total_paid / 1.18).toFixed(2)} | CGST Cleared: INR {((secureLedger.total_paid - (secureLedger.total_paid / 1.18)) / 2).toFixed(2)} | SGST Cleared: INR {((secureLedger.total_paid - (secureLedger.total_paid / 1.18)) / 2).toFixed(2)}
+                      </div>
                     </div>
                     <div style={{ background: '#F7F5F2', padding: '16px', borderRadius: '12px', border: '1px solid #e5e7eb' }}>
-                      <span style={{ fontSize: '0.62rem', color: '#6B7280', textTransform: 'uppercase', fontWeight: 700 }}>Outstanding Balance</span>
+                      <span style={{ fontSize: '0.62rem', color: '#6B7280', textTransform: 'uppercase', fontWeight: 700 }}>Outstanding Balance (Inc. GST)</span>
                       <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#9d2706', margin: '4px 0' }}>INR {secureLedger.balance_outstanding?.toFixed(2)}</h3>
+                      <div style={{ fontSize: '0.62rem', color: '#9d2706', marginTop: '4px' }}>
+                        Base Bal: INR {(secureLedger.balance_outstanding / 1.18).toFixed(2)} | GST Bal: INR {(secureLedger.balance_outstanding - (secureLedger.balance_outstanding / 1.18)).toFixed(2)}
+                      </div>
                     </div>
                   </div>
 
@@ -1136,12 +1159,15 @@ export default function VendorPortalPage() {
 
                   {/* Ledger Table */}
                   <div style={{ overflowX: 'auto', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem', background: '#fff' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.72rem', background: '#fff' }}>
                       <thead>
                         <tr style={{ background: '#F7F5F2', borderBottom: '1px solid #e5e7eb', textAlign: 'left' }}>
                           <th style={{ padding: '12px' }}>Date Registered</th>
                           <th style={{ padding: '12px' }}>Order Number</th>
-                          <th style={{ padding: '12px' }}>Amount Due</th>
+                          <th style={{ padding: '12px' }}>Base Fee</th>
+                          <th style={{ padding: '12px' }}>CGST (9%)</th>
+                          <th style={{ padding: '12px' }}>SGST (9%)</th>
+                          <th style={{ padding: '12px' }}>Total Payout (Inc. GST)</th>
                           <th style={{ padding: '12px' }}>Amount Cleared</th>
                           <th style={{ padding: '12px' }}>Payment Status</th>
                         </tr>
@@ -1149,31 +1175,38 @@ export default function VendorPortalPage() {
                       <tbody>
                         {secureLedger.ledger.length === 0 ? (
                           <tr>
-                            <td colSpan={5} style={{ textAlign: 'center', padding: '24px', color: '#6B7280' }}>No billing ledgers found.</td>
+                            <td colSpan={8} style={{ textAlign: 'center', padding: '24px', color: '#6B7280' }}>No billing ledgers found.</td>
                           </tr>
                         ) : (
-                          secureLedger.ledger.map(entry => (
-                            <tr key={entry.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                              <td style={{ padding: '12px' }}>{new Date(entry.created_at).toLocaleDateString()}</td>
-                              <td style={{ padding: '12px', fontWeight: 700 }}>{entry.order_number}</td>
-                              <td style={{ padding: '12px' }}>INR {entry.amount_due?.toFixed(2)}</td>
-                              <td style={{ padding: '12px' }}>INR {entry.amount_paid?.toFixed(2)}</td>
-                              <td style={{ padding: '12px' }}>
-                                <span style={{
-                                  display: 'inline-block',
-                                  padding: '2px 8px',
-                                  borderRadius: '4px',
-                                  fontSize: '0.62rem',
-                                  fontWeight: 700,
-                                  textTransform: 'uppercase',
-                                  background: entry.payment_status === 'settled' ? '#dcfce7' : entry.payment_status === 'partially_paid' ? '#fef9c3' : '#fee2e2',
-                                  color: entry.payment_status === 'settled' ? '#16a34a' : entry.payment_status === 'partially_paid' ? '#ca8a04' : '#ef4444'
-                                }}>
-                                  {entry.payment_status || 'PENDING'}
-                                </span>
-                              </td>
-                            </tr>
-                          ))
+                          secureLedger.ledger.map(entry => {
+                            const entryBase = entry.amount_due / 1.18;
+                            const entryGst = (entry.amount_due - entryBase) / 2;
+                            return (
+                              <tr key={entry.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                                <td style={{ padding: '12px' }}>{new Date(entry.created_at).toLocaleDateString()}</td>
+                                <td style={{ padding: '12px', fontWeight: 700 }}>{entry.order_number}</td>
+                                <td style={{ padding: '12px' }}>INR {entryBase.toFixed(2)}</td>
+                                <td style={{ padding: '12px' }}>INR {entryGst.toFixed(2)}</td>
+                                <td style={{ padding: '12px' }}>INR {entryGst.toFixed(2)}</td>
+                                <td style={{ padding: '12px', fontWeight: 600 }}>INR {entry.amount_due?.toFixed(2)}</td>
+                                <td style={{ padding: '12px' }}>INR {entry.amount_paid?.toFixed(2)}</td>
+                                <td style={{ padding: '12px' }}>
+                                  <span style={{
+                                    display: 'inline-block',
+                                    padding: '2px 8px',
+                                    borderRadius: '4px',
+                                    fontSize: '0.62rem',
+                                    fontWeight: 700,
+                                    textTransform: 'uppercase',
+                                    background: entry.payment_status === 'settled' ? '#dcfce7' : entry.payment_status === 'partially_paid' ? '#fef9c3' : '#fee2e2',
+                                    color: entry.payment_status === 'settled' ? '#16a34a' : entry.payment_status === 'partially_paid' ? '#ca8a04' : '#ef4444'
+                                  }}>
+                                    {entry.payment_status || 'PENDING'}
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })
                         )}
                       </tbody>
                     </table>
