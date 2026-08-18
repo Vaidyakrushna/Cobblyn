@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Package, Layers, Calculator, ShoppingCart, Users,
   MessageSquare, Warehouse, Factory, CalendarCheck, Image as ImageIcon,
   Tag, RotateCcw, BarChart3, Shield, ChevronRight, Briefcase, UserCog,
-  FolderTree, ShoppingBag, Cpu, Star, Sliders
+  FolderTree, ShoppingBag, Cpu, Star, Sliders, Coins
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -29,6 +29,10 @@ const NAV_STRUCTURE = [
     { to: '/admin/production?tab=vendors', icon: <Users size={16} />, label: 'Vendors' },
     { to: '/admin/orders', icon: <ShoppingCart size={16} />, label: 'Order' },
     { to: '/admin/inventory', icon: <Warehouse size={16} />, label: 'Inventory' },
+  ]},
+
+  { type: 'group', key: 'financials', icon: <Calculator size={18} />, label: 'Financials & HR', items: [
+    { to: '/admin/accounting', icon: <Coins size={16} />, label: 'Accounting & Payroll' },
   ]},
 
   { type: 'group', key: 'customers', icon: <UserCog size={18} />, label: 'Customer Profile', items: [
