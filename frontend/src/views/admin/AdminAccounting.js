@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { 
   TrendingUp, Coins, Users, Wallet, CreditCard, 
-  Plus, Trash2, X, Download, Calendar, ArrowUpRight, ArrowDownRight, Layers, LogOut, CheckCircle, ChevronDown, ChevronUp
+  Plus, Trash2, X, Download, Calendar, ArrowUpRight, ArrowDownRight, Layers, LogOut, CheckCircle, ChevronDown, ChevronUp, Edit3
 } from 'lucide-react';
 import { api } from '../../api';
 
@@ -12,6 +12,7 @@ function AdminAccounting() {
   const tabParam = searchParams?.get('tab');
 
   const [activeTab, setActiveTab] = useState('summary'); // summary, directory, payroll, expenses, exits, vendors
+  const [hrSubTab, setHrSubTab] = useState('registry'); // registry, assets
   
   // Data States
   const [summary, setSummary] = useState(null);
@@ -45,6 +46,9 @@ function AdminAccounting() {
     address: '', dob: '', education: '', aadhaar_no: '', pan_no: '',
     emergency_name: '', emergency_phone: ''
   });
+
+  const [showEditEmployeeModal, setShowEditEmployeeModal] = useState(false);
+  const [editEmployeeForm, setEditEmployeeForm] = useState(null);
   
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [expenseForm, setExpenseForm] = useState({
@@ -58,6 +62,11 @@ function AdminAccounting() {
   const [selectedExitEmployee, setSelectedExitEmployee] = useState(null);
   const [exitForm, setExitForm] = useState({
     exit_date: '', fnf_amount: '0', notes: ''
+  });
+
+  // Global Asset Form
+  const [globalAssetForm, setGlobalAssetForm] = useState({
+    employee_id: '', asset_type: 'corporate_email', name: '', serial_no: ''
   });
 
   // Sync tab active states from layout query parameters
@@ -253,6 +262,45 @@ function AdminAccounting() {
     }
   };
 
+  // Launch Edit Modal
+  const handleOpenEditEmployee = (emp) => {
+    setEditEmployeeForm({ ...emp });
+    setShowEditEmployeeModal(true);
+  };
+
+  const handleEditEmployeeSubmit = async (e) => {
+    e.preventDefault();
+    if (!editEmployeeForm) return;
+    try {
+      await api.request(`/admin/accounting/employees/${editEmployeeForm.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          name: editEmployeeForm.name,
+          email: editEmployeeForm.email,
+          phone: editEmployeeForm.phone,
+          role: editEmployeeForm.role,
+          salary: parseFloat(editEmployeeForm.salary || '0'),
+          join_date: editEmployeeForm.join_date,
+          bank_name: editEmployeeForm.bank_name,
+          account_no: editEmployeeForm.account_no,
+          ifsc_code: editEmployeeForm.ifsc_code,
+          address: editEmployeeForm.address,
+          dob: editEmployeeForm.dob,
+          education: editEmployeeForm.education,
+          aadhaar_no: editEmployeeForm.aadhaar_no,
+          pan_no: editEmployeeForm.pan_no,
+          emergency_name: editEmployeeForm.emergency_name,
+          emergency_phone: editEmployeeForm.emergency_phone
+        })
+      });
+      setShowEditEmployeeModal(false);
+      setEditEmployeeForm(null);
+      fetchEmployeesData();
+    } catch (err) {
+      alert("Failed to update employee: " + err.message);
+    }
+  };
+
   // Delete Employee record
   const handleDeleteEmployee = async (id) => {
     if (!window.confirm("Delete this employee record permanently from the database?")) return;
@@ -292,6 +340,34 @@ function AdminAccounting() {
       fetchSummary();
     } catch (err) {
       alert("Failed to finalize exit: " + err.message);
+    }
+  };
+
+  // Assign global asset from master view
+  const handleAssignGlobalAsset = async (e) => {
+    e.preventDefault();
+    const empId = globalAssetForm.employee_id;
+    if (!empId) {
+      alert("Please select an employee.");
+      return;
+    }
+    if (!globalAssetForm.name.trim()) {
+      alert("Please enter the asset name or email address.");
+      return;
+    }
+    try {
+      await api.request(`/admin/accounting/employees/${empId}/assets`, {
+        method: 'POST',
+        body: JSON.stringify({
+          asset_type: globalAssetForm.asset_type,
+          name: globalAssetForm.name,
+          serial_no: globalAssetForm.serial_no
+        })
+      });
+      setGlobalAssetForm({ employee_id: '', asset_type: 'corporate_email', name: '', serial_no: '' });
+      fetchEmployeesData();
+    } catch (err) {
+      alert("Failed to assign asset: " + err.message);
     }
   };
 
@@ -346,238 +422,403 @@ function AdminAccounting() {
     setExpandedEmpId(expandedEmpId === empId ? null : empId);
   };
 
+  // Compute master assets list globally across all active employees
+  const globalAssetsList = [];
+  employees.filter(e => e.status === 'active').forEach(emp => {
+    if (emp.assets && emp.assets.length > 0) {
+      emp.assets.forEach((asset, idx) => {
+        globalAssetsList.push({
+          ...asset,
+          employeeId: emp.id,
+          employeeName: emp.name,
+          employeeUid: emp.employee_id,
+          index: idx
+        });
+      });
+    }
+  });
+
   if (loading) return <div className="admin-loading">Loading financial workspaces…</div>;
 
   return (
     <div className="admin-page" data-testid="admin-accounting-page" style={{ padding: '24px', background: '#F7F5F2', minHeight: '100vh' }}>
       
-      {/* 1. HR PORTAL / STAFF DIRECTORY MODE */}
+      {/* 1. HR PORTAL / STAFF DIRECTORY TAB SELECTORS */}
       {activeTab === 'directory' ? (
         <div>
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
             <div>
               <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.8rem', color: '#1c1917', margin: 0 }}>Staff Directory & KYC Registry</h1>
-              <p style={{ fontSize: '0.85rem', color: '#78716c', margin: '4px 0 0 0' }}>Register new artisans, edit contact coordinates, expand KYC records, and manage assigned company assets</p>
+              <p style={{ fontSize: '0.85rem', color: '#78716c', margin: '4px 0 0 0' }}>Register new staff, edit profile files, assign hardware and manage corporate accounts</p>
             </div>
-            <div>
-              <button 
-                onClick={() => setShowEmployeeModal(true)}
-                style={{ background: '#9d2706', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: '8px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
-              >
-                <Plus size={14} /> Register New Employee
-              </button>
-            </div>
+            {hrSubTab === 'registry' && (
+              <div>
+                <button 
+                  onClick={() => setShowEmployeeModal(true)}
+                  style={{ background: '#9d2706', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: '8px', fontSize: '0.82rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <Plus size={14} /> Register New Employee
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Directory Grid */}
-          <div className="admin-table-wrapper" style={{ background: '#fff', border: '1px solid #e7e5e4', borderRadius: '12px', padding: '8px' }}>
-            <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ textAlign: 'left', borderBottom: '1px solid #e7e5e4' }}>
-                  <th style={{ padding: '12px' }}>Employee ID & Name</th>
-                  <th style={{ padding: '12px' }}>Role / Salary</th>
-                  <th style={{ padding: '12px' }}>Emergency Contact</th>
-                  <th style={{ padding: '12px' }}>Bank Account Specs</th>
-                  <th style={{ padding: '12px' }}>Government IDs (KYC)</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>KYC File</th>
-                  <th style={{ padding: '12px', textAlign: 'center' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {employees.filter(e => e.status === 'active').length === 0 ? (
-                  <tr>
-                    <td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: '#a8a29e', fontSize: '0.78rem' }}>No active employees found in directory.</td>
+          {/* Directory Inner Sub-navigation Tabs */}
+          <div style={{ display: 'flex', borderBottom: '2px solid #e7e5e4', marginBottom: '20px', gap: '16px' }}>
+            <button 
+              onClick={() => setHrSubTab('registry')}
+              style={{ padding: '8px 16px', background: 'transparent', border: 'none', borderBottom: hrSubTab === 'registry' ? '3px solid #9d2706' : 'none', color: hrSubTab === 'registry' ? '#9d2706' : '#78716c', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }}
+            >
+              👤 Staff Profiles Directory
+            </button>
+            <button 
+              onClick={() => setHrSubTab('assets')}
+              style={{ padding: '8px 16px', background: 'transparent', border: 'none', borderBottom: hrSubTab === 'assets' ? '3px solid #9d2706' : 'none', color: hrSubTab === 'assets' ? '#9d2706' : '#78716c', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }}
+            >
+              💻 Company Assets Tracker
+            </button>
+          </div>
+
+          {/* HR SUB-VIEW 1: STAFF DIRECTORY */}
+          {hrSubTab === 'registry' && (
+            <div className="admin-table-wrapper" style={{ background: '#fff', border: '1px solid #e7e5e4', borderRadius: '12px', padding: '8px' }}>
+              <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ textAlign: 'left', borderBottom: '1px solid #e7e5e4' }}>
+                    <th style={{ padding: '12px' }}>Employee ID & Name</th>
+                    <th style={{ padding: '12px' }}>Role / Salary</th>
+                    <th style={{ padding: '12px' }}>Emergency Contact</th>
+                    <th style={{ padding: '12px' }}>Bank Account Specs</th>
+                    <th style={{ padding: '12px' }}>Government IDs (KYC)</th>
+                    <th style={{ padding: '12px', textAlign: 'center' }}>KYC File</th>
+                    <th style={{ padding: '12px', textAlign: 'center' }}>Actions</th>
                   </tr>
-                ) : (
-                  employees.filter(e => e.status === 'active').map(emp => (
-                    <React.Fragment key={emp.id}>
-                      <tr style={{ borderBottom: '1px solid #f5f5f4' }}>
-                        <td style={{ padding: '12px' }}>
-                          <div style={{ fontSize: '0.65rem', fontFamily: 'monospace', color: '#9d2706', fontWeight: 700 }}>{emp.employee_id || 'PENDING'}</div>
-                          <strong style={{ fontSize: '0.82rem', color: '#1c1917' }}>{emp.name}</strong>
-                          <div style={{ fontSize: '0.7rem', color: '#78716c', marginTop: '2px' }}>{emp.phone} • {emp.email}</div>
-                        </td>
-                        <td style={{ padding: '12px' }}>
-                          <div style={{ fontSize: '0.78rem', color: '#44403c', fontWeight: 600 }}>{emp.role}</div>
-                          <div style={{ fontSize: '0.72rem', color: '#78716c', marginTop: '2px' }}>INR {parseFloat(emp.salary).toLocaleString()} /mo</div>
-                        </td>
-                        <td style={{ padding: '12px', fontSize: '0.75rem', color: '#44403c' }}>
-                          {emp.emergency_name ? (
-                            <>
-                              <div>{emp.emergency_name}</div>
-                              <div style={{ fontSize: '0.68rem', color: '#78716c' }}>{emp.emergency_phone}</div>
-                            </>
-                          ) : '—'}
-                        </td>
-                        <td style={{ padding: '12px', fontSize: '0.7rem', color: '#44403c' }}>
-                          <div>{emp.bank_name || 'N/A'}</div>
-                          <div style={{ fontFamily: 'monospace', color: '#78716c', marginTop: '2px' }}>{emp.account_no || 'N/A'}</div>
-                        </td>
-                        <td style={{ padding: '12px', fontSize: '0.7rem', color: '#44403c' }}>
-                          <div>Aadhaar: <span style={{ fontFamily: 'monospace', color: '#78716c' }}>{emp.aadhaar_no || '—'}</span></div>
-                          <div style={{ marginTop: '2px' }}>PAN: <span style={{ fontFamily: 'monospace', color: '#78716c' }}>{emp.pan_no || '—'}</span></div>
-                        </td>
-                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                          <button 
-                            onClick={() => toggleRowExpansion(emp.id)}
-                            style={{ background: 'transparent', border: 'none', color: '#78716c', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', margin: '0 auto', fontSize: '0.7rem', fontWeight: 600 }}
-                          >
-                            {expandedEmpId === emp.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />} 
-                            {expandedEmpId === emp.id ? 'Close' : 'View KYC'}
-                          </button>
-                        </td>
-                        <td style={{ padding: '12px', textAlign: 'center' }}>
-                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                </thead>
+                <tbody>
+                  {employees.filter(e => e.status === 'active').length === 0 ? (
+                    <tr>
+                      <td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: '#a8a29e', fontSize: '0.78rem' }}>No active employees found in directory.</td>
+                    </tr>
+                  ) : (
+                    employees.filter(e => e.status === 'active').map(emp => (
+                      <React.Fragment key={emp.id}>
+                        <tr style={{ borderBottom: '1px solid #f5f5f4' }}>
+                          <td style={{ padding: '12px' }}>
+                            <div style={{ fontSize: '0.65rem', fontFamily: 'monospace', color: '#9d2706', fontWeight: 700 }}>{emp.employee_id || 'PENDING'}</div>
+                            <strong style={{ fontSize: '0.82rem', color: '#1c1917' }}>{emp.name}</strong>
+                            <div style={{ fontSize: '0.7rem', color: '#78716c', marginTop: '2px' }}>{emp.phone} • {emp.email}</div>
+                          </td>
+                          <td style={{ padding: '12px' }}>
+                            <div style={{ fontSize: '0.78rem', color: '#44403c', fontWeight: 600 }}>{emp.role}</div>
+                            <div style={{ fontSize: '0.72rem', color: '#78716c', marginTop: '2px' }}>INR {parseFloat(emp.salary).toLocaleString()} /mo</div>
+                          </td>
+                          <td style={{ padding: '12px', fontSize: '0.75rem', color: '#44403c' }}>
+                            {emp.emergency_name ? (
+                              <>
+                                <div>{emp.emergency_name}</div>
+                                <div style={{ fontSize: '0.68rem', color: '#78716c' }}>{emp.emergency_phone}</div>
+                              </>
+                            ) : '—'}
+                          </td>
+                          <td style={{ padding: '12px', fontSize: '0.7rem', color: '#44403c' }}>
+                            <div>{emp.bank_name || 'N/A'}</div>
+                            <div style={{ fontFamily: 'monospace', color: '#78716c', marginTop: '2px' }}>{emp.account_no || 'N/A'}</div>
+                          </td>
+                          <td style={{ padding: '12px', fontSize: '0.7rem', color: '#44403c' }}>
+                            <div>Aadhaar: <span style={{ fontFamily: 'monospace', color: '#78716c' }}>{emp.aadhaar_no || '—'}</span></div>
+                            <div style={{ marginTop: '2px' }}>PAN: <span style={{ fontFamily: 'monospace', color: '#78716c' }}>{emp.pan_no || '—'}</span></div>
+                          </td>
+                          <td style={{ padding: '12px', textAlign: 'center' }}>
                             <button 
-                              onClick={() => handleOpenExitModal(emp)}
-                              style={{ background: '#fef2f2', border: '1px solid #fee2e2', color: '#dc2626', padding: '4px 8px', borderRadius: '4px', fontSize: '0.65rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px', fontWeight: 700 }}
-                              title="Exit company and settle FNF"
+                              onClick={() => toggleRowExpansion(emp.id)}
+                              style={{ background: 'transparent', border: 'none', color: '#78716c', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', margin: '0 auto', fontSize: '0.7rem', fontWeight: 600 }}
                             >
-                              <LogOut size={10} /> Exit Staff
+                              {expandedEmpId === emp.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />} 
+                              {expandedEmpId === emp.id ? 'Close' : 'View KYC'}
                             </button>
-                            <button 
-                              onClick={() => handleDeleteEmployee(emp.id)}
-                              style={{ background: 'transparent', border: 'none', color: '#a8a29e', cursor: 'pointer' }}
-                              title="Remove Record"
-                            >
-                              <Trash2 size={12} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      {expandedEmpId === emp.id && (
-                        <tr style={{ background: '#fcfbf9' }}>
-                          <td colSpan="7" style={{ padding: '16px 24px', borderBottom: '1px solid #e7e5e4' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '32px' }}>
-                              {/* Left: KYC Details */}
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                <div>
-                                  <h5 style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Personal Profile</h5>
-                                  <div style={{ fontSize: '0.75rem', color: '#1c1917', lineHeight: '1.4' }}>
-                                    <div>Date of Birth: <strong>{emp.dob || 'Not logged'}</strong></div>
-                                    <div style={{ marginTop: '4px' }}>Joining Date: <strong>{emp.join_date}</strong></div>
-                                  </div>
-                                </div>
-                                <div>
-                                  <h5 style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Academic Details</h5>
-                                  <div style={{ fontSize: '0.75rem', color: '#1c1917', lineHeight: '1.4' }}>
-                                    <div>Education / Degree:</div>
-                                    <strong>{emp.education || 'Not logged'}</strong>
-                                  </div>
-                                </div>
-                                <div>
-                                  <h5 style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Physical Address</h5>
-                                  <div style={{ fontSize: '0.75rem', color: '#1c1917', lineHeight: '1.4', fontStyle: emp.address ? 'normal' : 'italic' }}>
-                                    {emp.address || 'No residential address logged.'}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Right: Assets Management */}
-                              <div style={{ borderLeft: '1px solid #e7e5e4', paddingLeft: '24px' }}>
-                                <h5 style={{ margin: '0 0 12px 0', fontSize: '0.72rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Assigned Company Assets</h5>
-                                
-                                {/* List of assets */}
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
-                                  {(!emp.assets || emp.assets.length === 0) ? (
-                                    <div style={{ fontSize: '0.72rem', color: '#a8a29e', fontStyle: 'italic' }}>No assets currently assigned to this employee.</div>
-                                  ) : (
-                                    emp.assets.map((asset, idx) => (
-                                      <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', border: '1px solid #e7e5e4', padding: '8px 12px', borderRadius: '6px' }}>
-                                        <div style={{ fontSize: '0.75rem' }}>
-                                          <span style={{ fontWeight: 600, color: '#1c1917' }}>
-                                            {asset.asset_type === 'corporate_email' ? '📧 Email ID: ' : asset.asset_type === 'laptop' ? '💻 Laptop: ' : asset.asset_type === 'tools' ? '🔧 Tools: ' : '📦 '}
-                                            {asset.name}
-                                          </span>
-                                          {asset.serial_no && <span style={{ color: '#78716c', fontSize: '0.68rem', fontFamily: 'monospace', marginLeft: '6px' }}>(S/N: {asset.serial_no})</span>}
-                                        </div>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                          <span style={{
-                                            fontSize: '0.62rem',
-                                            padding: '2px 6px',
-                                            borderRadius: '4px',
-                                            fontWeight: 700,
-                                            textTransform: 'uppercase',
-                                            background: asset.status === 'assigned' ? '#fee2e2' : '#dcfce7',
-                                            color: asset.status === 'assigned' ? '#ef4444' : '#16a34a'
-                                          }}>
-                                            {asset.status}
-                                          </span>
-                                          {asset.status === 'assigned' && (
-                                            <button
-                                              onClick={() => handleToggleAsset(emp.id, idx)}
-                                              style={{ background: 'transparent', border: 'none', color: '#9d2706', fontSize: '0.68rem', fontWeight: 600, cursor: 'pointer' }}
-                                            >
-                                              {asset.asset_type === 'corporate_email' ? 'Close Email' : 'Recover'}
-                                            </button>
-                                          )}
-                                        </div>
-                                      </div>
-                                    ))
-                                  )}
-                                </div>
-
-                                {/* Assign Asset Inline Form */}
-                                <form onSubmit={(e) => handleAssignAsset(e, emp.id)} style={{ background: '#fafaf9', border: '1px solid #e7e5e4', padding: '12px', borderRadius: '8px' }}>
-                                  <h6 style={{ margin: '0 0 8px 0', fontSize: '0.7rem', color: '#44403c', textTransform: 'uppercase' }}>Assign New Asset</h6>
-                                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.5fr 1fr auto', gap: '8px', alignItems: 'end' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                      <label style={{ fontSize: '0.62rem', color: '#78716c' }}>Asset Type</label>
-                                      <select
-                                        value={getAssetForm(emp.id).asset_type}
-                                        onChange={(e) => updateAssetForm(emp.id, { asset_type: e.target.value })}
-                                        style={{ padding: '4px 8px', border: '1px solid #e7e5e4', borderRadius: '4px', fontSize: '0.7rem' }}
-                                      >
-                                        <option value="corporate_email">Corporate Email</option>
-                                        <option value="laptop">Laptop / PC</option>
-                                        <option value="tools">Machinery / Tools</option>
-                                        <option value="other">Other Asset</option>
-                                      </select>
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                      <label style={{ fontSize: '0.62rem', color: '#78716c' }}>Asset Name / Email</label>
-                                      <input
-                                        type="text"
-                                        placeholder="e.g. Dell PC or email@cob.com"
-                                        value={getAssetForm(emp.id).name}
-                                        onChange={(e) => updateAssetForm(emp.id, { name: e.target.value })}
-                                        style={{ padding: '4px 8px', border: '1px solid #e7e5e4', borderRadius: '4px', fontSize: '0.7rem' }}
-                                      />
-                                    </div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                      <label style={{ fontSize: '0.62rem', color: '#78716c' }}>Serial / Ref No.</label>
-                                      <input
-                                        type="text"
-                                        placeholder="Optional serial number"
-                                        value={getAssetForm(emp.id).serial_no}
-                                        onChange={(e) => updateAssetForm(emp.id, { serial_no: e.target.value })}
-                                        style={{ padding: '4px 8px', border: '1px solid #e7e5e4', borderRadius: '4px', fontSize: '0.7rem' }}
-                                      />
-                                    </div>
-                                    <button
-                                      type="submit"
-                                      style={{ background: '#9d2706', border: 'none', color: '#fff', padding: '6px 12px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer' }}
-                                    >
-                                      Assign
-                                    </button>
-                                  </div>
-                                </form>
-                              </div>
+                          </td>
+                          <td style={{ padding: '12px', textAlign: 'center' }}>
+                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                              <button 
+                                onClick={() => handleOpenEditEmployee(emp)}
+                                style={{ background: '#f5f5f4', border: '1px solid #e7e5e4', color: '#44403c', padding: '4px', borderRadius: '4px', cursor: 'pointer' }}
+                                title="Edit Profile Details"
+                              >
+                                <Edit3 size={12} />
+                              </button>
+                              <button 
+                                onClick={() => handleOpenExitModal(emp)}
+                                style={{ background: '#fef2f2', border: '1px solid #fee2e2', color: '#dc2626', padding: '4px 8px', borderRadius: '4px', fontSize: '0.65rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px', fontWeight: 700 }}
+                                title="Exit company and settle FNF"
+                              >
+                                <LogOut size={10} /> Exit Staff
+                              </button>
+                              <button 
+                                onClick={() => handleDeleteEmployee(emp.id)}
+                                style={{ background: 'transparent', border: 'none', color: '#a8a29e', cursor: 'pointer' }}
+                                title="Remove Record"
+                              >
+                                <Trash2 size={12} />
+                              </button>
                             </div>
                           </td>
                         </tr>
-                      )}
-                    </React.Fragment>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                        {expandedEmpId === emp.id && (
+                          <tr style={{ background: '#fcfbf9' }}>
+                            <td colSpan="7" style={{ padding: '16px 24px', borderBottom: '1px solid #e7e5e4' }}>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '32px' }}>
+                                {/* Left: KYC Details */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                  <div>
+                                    <h5 style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Personal Profile</h5>
+                                    <div style={{ fontSize: '0.75rem', color: '#1c1917', lineHeight: '1.4' }}>
+                                      <div>Date of Birth: <strong>{emp.dob || 'Not logged'}</strong></div>
+                                      <div style={{ marginTop: '4px' }}>Joining Date: <strong>{emp.join_date}</strong></div>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <h5 style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Academic Details</h5>
+                                    <div style={{ fontSize: '0.75rem', color: '#1c1917', lineHeight: '1.4' }}>
+                                      <div>Education / Degree:</div>
+                                      <strong>{emp.education || 'Not logged'}</strong>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <h5 style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Physical Address</h5>
+                                    <div style={{ fontSize: '0.75rem', color: '#1c1917', lineHeight: '1.4', fontStyle: emp.address ? 'normal' : 'italic' }}>
+                                      {emp.address || 'No residential address logged.'}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Right: Assets Management */}
+                                <div style={{ borderLeft: '1px solid #e7e5e4', paddingLeft: '24px' }}>
+                                  <h5 style={{ margin: '0 0 12px 0', fontSize: '0.72rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Assigned Company Assets</h5>
+                                  
+                                  {/* List of assets */}
+                                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                                    {(!emp.assets || emp.assets.length === 0) ? (
+                                      <div style={{ fontSize: '0.72rem', color: '#a8a29e', fontStyle: 'italic' }}>No assets currently assigned to this employee.</div>
+                                    ) : (
+                                      emp.assets.map((asset, idx) => (
+                                        <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', border: '1px solid #e7e5e4', padding: '8px 12px', borderRadius: '6px' }}>
+                                          <div style={{ fontSize: '0.75rem' }}>
+                                            <span style={{ fontWeight: 600, color: '#1c1917' }}>
+                                              {asset.asset_type === 'corporate_email' ? '📧 Email ID: ' : asset.asset_type === 'laptop' ? '💻 Laptop: ' : asset.asset_type === 'tools' ? '🔧 Tools: ' : '📦 '}
+                                              {asset.name}
+                                            </span>
+                                            {asset.serial_no && <span style={{ color: '#78716c', fontSize: '0.68rem', fontFamily: 'monospace', marginLeft: '6px' }}>(S/N: {asset.serial_no})</span>}
+                                          </div>
+                                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{
+                                              fontSize: '0.62rem',
+                                              padding: '2px 6px',
+                                              borderRadius: '4px',
+                                              fontWeight: 700,
+                                              textTransform: 'uppercase',
+                                              background: asset.status === 'assigned' ? '#fee2e2' : '#dcfce7',
+                                              color: asset.status === 'assigned' ? '#ef4444' : '#16a34a'
+                                            }}>
+                                              {asset.status}
+                                            </span>
+                                            {asset.status === 'assigned' && (
+                                              <button
+                                                onClick={() => handleToggleAsset(emp.id, idx)}
+                                                style={{ background: 'transparent', border: 'none', color: '#9d2706', fontSize: '0.68rem', fontWeight: 600, cursor: 'pointer' }}
+                                              >
+                                                {asset.asset_type === 'corporate_email' ? 'Close Email' : 'Recover'}
+                                              </button>
+                                            )}
+                                          </div>
+                                        </div>
+                                      ))
+                                    )}
+                                  </div>
+
+                                  {/* Assign Asset Inline Form */}
+                                  <form onSubmit={(e) => handleAssignAsset(e, emp.id)} style={{ background: '#fafaf9', border: '1px solid #e7e5e4', padding: '12px', borderRadius: '8px' }}>
+                                    <h6 style={{ margin: '0 0 8px 0', fontSize: '0.7rem', color: '#44403c', textTransform: 'uppercase' }}>Assign New Asset</h6>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.5fr 1fr auto', gap: '8px', alignItems: 'end' }}>
+                                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <label style={{ fontSize: '0.62rem', color: '#78716c' }}>Asset Type</label>
+                                        <select
+                                          value={getAssetForm(emp.id).asset_type}
+                                          onChange={(e) => updateAssetForm(emp.id, { asset_type: e.target.value })}
+                                          style={{ padding: '4px 8px', border: '1px solid #e7e5e4', borderRadius: '4px', fontSize: '0.7rem' }}
+                                        >
+                                          <option value="corporate_email">Corporate Email</option>
+                                          <option value="laptop">Laptop / PC</option>
+                                          <option value="tools">Machinery / Tools</option>
+                                          <option value="other">Other Asset</option>
+                                        </select>
+                                      </div>
+                                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <label style={{ fontSize: '0.62rem', color: '#78716c' }}>Asset Name / Email</label>
+                                        <input
+                                          type="text"
+                                          placeholder="e.g. Dell PC or email@cob.com"
+                                          value={getAssetForm(emp.id).name}
+                                          onChange={(e) => updateAssetForm(emp.id, { name: e.target.value })}
+                                          style={{ padding: '4px 8px', border: '1px solid #e7e5e4', borderRadius: '4px', fontSize: '0.7rem' }}
+                                        />
+                                      </div>
+                                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                        <label style={{ fontSize: '0.62rem', color: '#78716c' }}>Serial / Ref No.</label>
+                                        <input
+                                          type="text"
+                                          placeholder="Optional serial number"
+                                          value={getAssetForm(emp.id).serial_no}
+                                          onChange={(e) => updateAssetForm(emp.id, { serial_no: e.target.value })}
+                                          style={{ padding: '4px 8px', border: '1px solid #e7e5e4', borderRadius: '4px', fontSize: '0.7rem' }}
+                                        />
+                                      </div>
+                                      <button
+                                        type="submit"
+                                        style={{ background: '#9d2706', border: 'none', color: '#fff', padding: '6px 12px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer' }}
+                                      >
+                                        Assign
+                                      </button>
+                                    </div>
+                                  </form>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* HR SUB-VIEW 2: GLOBAL ASSETS TRACKER */}
+          {hrSubTab === 'assets' && (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '20px', alignItems: 'start' }}>
+              {/* Assets List */}
+              <div className="admin-table-wrapper" style={{ background: '#fff', border: '1px solid #e7e5e4', borderRadius: '12px', padding: '8px' }}>
+                <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ textAlign: 'left', borderBottom: '1px solid #e7e5e4' }}>
+                      <th style={{ padding: '12px' }}>Asset Category</th>
+                      <th style={{ padding: '12px' }}>Asset Identifier / Name</th>
+                      <th style={{ padding: '12px' }}>Serial Number</th>
+                      <th style={{ padding: '12px' }}>Assigned Holder (Employee)</th>
+                      <th style={{ padding: '12px' }}>Status</th>
+                      <th style={{ padding: '12px', textAlign: 'center' }}>Clear Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {globalAssetsList.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" style={{ textAlign: 'center', padding: '24px', color: '#a8a29e', fontSize: '0.78rem' }}>No company assets assigned yet.</td>
+                      </tr>
+                    ) : (
+                      globalAssetsList.map((asset, idx) => (
+                        <tr key={idx} style={{ borderBottom: '1px solid #f5f5f4' }}>
+                          <td style={{ padding: '12px' }}>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: '#44403c' }}>
+                              {asset.asset_type === 'corporate_email' ? '📧 Corporate Email' : asset.asset_type === 'laptop' ? '💻 Laptop / PC' : asset.asset_type === 'tools' ? '🔧 Tools & Machinery' : '📦 Other Asset'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px', fontSize: '0.78rem', fontWeight: 700, color: '#1c1917' }}>{asset.name}</td>
+                          <td style={{ padding: '12px', fontSize: '0.72rem', color: '#78716c', fontFamily: 'monospace' }}>{asset.serial_no || '—'}</td>
+                          <td style={{ padding: '12px' }}>
+                            <strong style={{ fontSize: '0.78rem', color: '#1c1917' }}>{asset.employeeName}</strong>
+                            <div style={{ fontSize: '0.65rem', fontFamily: 'monospace', color: '#78716c' }}>{asset.employeeUid}</div>
+                          </td>
+                          <td style={{ padding: '12px' }}>
+                            <span style={{
+                              fontSize: '0.62rem',
+                              padding: '2px 8px',
+                              borderRadius: '4px',
+                              fontWeight: 700,
+                              textTransform: 'uppercase',
+                              background: asset.status === 'assigned' ? '#fee2e2' : '#dcfce7',
+                              color: asset.status === 'assigned' ? '#ef4444' : '#16a34a'
+                            }}>
+                              {asset.status}
+                            </span>
+                          </td>
+                          <td style={{ padding: '12px', textAlign: 'center' }}>
+                            {asset.status === 'assigned' ? (
+                              <button
+                                onClick={() => handleToggleAsset(asset.employeeId, asset.index)}
+                                style={{ background: '#9d2706', border: 'none', color: '#fff', padding: '4px 10px', borderRadius: '4px', fontSize: '0.68rem', fontWeight: 700, cursor: 'pointer' }}
+                              >
+                                {asset.asset_type === 'corporate_email' ? 'Close Email' : 'Recover Asset'}
+                              </button>
+                            ) : (
+                              <span style={{ fontSize: '0.7rem', color: '#16a34a', fontWeight: 600 }}>✓ Settled</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* centralized assign form */}
+              <div style={{ background: '#fff', border: '1px solid #e7e5e4', padding: '20px', borderRadius: '12px' }}>
+                <h3 style={{ margin: '0 0 16px 0', fontSize: '0.8rem', color: '#1c1917', textTransform: 'uppercase', borderBottom: '1px solid #e7e5e4', paddingBottom: '6px' }}>Allocate Company Asset</h3>
+                <form onSubmit={handleAssignGlobalAsset} className="admin-form">
+                  <div className="af-field">
+                    <label>Assigned Employee *</label>
+                    <select
+                      value={globalAssetForm.employee_id}
+                      onChange={e => setGlobalAssetForm({...globalAssetForm, employee_id: e.target.value})}
+                      required
+                    >
+                      <option value="">-- Pick Active Employee --</option>
+                      {employees.filter(e => e.status === 'active').map(emp => (
+                        <option key={emp.id} value={emp.id}>{emp.name} ({emp.employee_id})</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="af-field">
+                    <label>Asset Type *</label>
+                    <select
+                      value={globalAssetForm.asset_type}
+                      onChange={e => setGlobalAssetForm({...globalAssetForm, asset_type: e.target.value})}
+                      required
+                    >
+                      <option value="corporate_email">Corporate Email</option>
+                      <option value="laptop">Laptop / PC</option>
+                      <option value="tools">Machinery / Tools</option>
+                      <option value="other">Other Asset</option>
+                    </select>
+                  </div>
+                  <div className="af-field">
+                    <label>Asset Name / Address *</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. laptop-29 or email@cob.com" 
+                      value={globalAssetForm.name} 
+                      onChange={e => setGlobalAssetForm({...globalAssetForm, name: e.target.value})}
+                      required 
+                    />
+                  </div>
+                  <div className="af-field">
+                    <label>Serial / Reference Number</label>
+                    <input 
+                      type="text" 
+                      placeholder="S/N references" 
+                      value={globalAssetForm.serial_no} 
+                      onChange={e => setGlobalAssetForm({...globalAssetForm, serial_no: e.target.value})}
+                    />
+                  </div>
+                  <button type="submit" className="admin-btn-primary" style={{ width: '100%', marginTop: '12px' }}>Allocate & Log Asset</button>
+                </form>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         
-        /* 2. CORE FINANCIAL PORTAL MODE (TABS SHOWN) */
+        /* 2. CORE FINANCIAL DASHBOARD (TABS INTACT) */
         <div>
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
@@ -1004,7 +1245,7 @@ function AdminAccounting() {
 
       {/* --- MODALS BLOCK (SHARED) --- */}
 
-      {/* Employee modal */}
+      {/* Employee registration modal */}
       {showEmployeeModal && (
         <div className="admin-modal-overlay" onClick={() => setShowEmployeeModal(false)} style={{ zIndex: 1200 }}>
           <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '750px', maxHeight: '90vh', overflowY: 'auto' }}>
@@ -1095,7 +1336,104 @@ function AdminAccounting() {
                 </div>
               </div>
               
-              <button type="submit" className="admin-btn-primary" style={{ marginTop: '20px', width: '100%' }}>Register Employee KYC Profile</button>
+              <button type="submit" className="admin-btn-primary" style={{ marginTop: '20px', width: '100%' }}>Register Employee Profile</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Employee Edit Profile Modal */}
+      {showEditEmployeeModal && editEmployeeForm && (
+        <div className="admin-modal-overlay" onClick={() => { setShowEditEmployeeModal(false); setEditEmployeeForm(null); }} style={{ zIndex: 1200 }}>
+          <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '750px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <button className="admin-modal-close" onClick={() => { setShowEditEmployeeModal(false); setEditEmployeeForm(null); }}><X size={18} /></button>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', marginBottom: '16px' }}>Edit Employee Details ({editEmployeeForm.employee_id})</h3>
+            <form onSubmit={handleEditEmployeeSubmit} className="admin-form">
+              <h4 style={{ fontSize: '0.75rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #e7e5e4', paddingBottom: '4px', marginBottom: '12px' }}>General & Professional Info</h4>
+              <div className="af-row">
+                <div className="af-field">
+                  <label>Full Name *</label>
+                  <input type="text" value={editEmployeeForm.name} onChange={e => setEditEmployeeForm({...editEmployeeForm, name: e.target.value})} required />
+                </div>
+                <div className="af-field">
+                  <label>Designation / Role *</label>
+                  <input type="text" value={editEmployeeForm.role} onChange={e => setEditEmployeeForm({...editEmployeeForm, role: e.target.value})} required />
+                </div>
+              </div>
+              <div className="af-row">
+                <div className="af-field">
+                  <label>Monthly Salary (INR) *</label>
+                  <input type="number" value={editEmployeeForm.salary} onChange={e => setEditEmployeeForm({...editEmployeeForm, salary: e.target.value})} required />
+                </div>
+                <div className="af-field">
+                  <label>Joining Date</label>
+                  <input type="date" value={editEmployeeForm.join_date} onChange={e => setEditEmployeeForm({...editEmployeeForm, join_date: e.target.value})} />
+                </div>
+                <div className="af-field">
+                  <label>Date of Birth</label>
+                  <input type="date" value={editEmployeeForm.dob} onChange={e => setEditEmployeeForm({...editEmployeeForm, dob: e.target.value})} />
+                </div>
+              </div>
+
+              <h4 style={{ fontSize: '0.75rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #e7e5e4', paddingBottom: '4px', marginTop: '16px', marginBottom: '12px' }}>Contact Details & Academics</h4>
+              <div className="af-row">
+                <div className="af-field">
+                  <label>Phone Number *</label>
+                  <input type="text" value={editEmployeeForm.phone} onChange={e => setEditEmployeeForm({...editEmployeeForm, phone: e.target.value})} required />
+                </div>
+                <div className="af-field">
+                  <label>Email Address *</label>
+                  <input type="email" value={editEmployeeForm.email} onChange={e => setEditEmployeeForm({...editEmployeeForm, email: e.target.value})} required />
+                </div>
+                <div className="af-field">
+                  <label>Education / Degree</label>
+                  <input type="text" value={editEmployeeForm.education} onChange={e => setEditEmployeeForm({...editEmployeeForm, education: e.target.value})} />
+                </div>
+              </div>
+              <div className="af-field">
+                <label>Physical Residential Address</label>
+                <input type="text" value={editEmployeeForm.address} onChange={e => setEditEmployeeForm({...editEmployeeForm, address: e.target.value})} />
+              </div>
+
+              <h4 style={{ fontSize: '0.75rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #e7e5e4', paddingBottom: '4px', marginTop: '16px', marginBottom: '12px' }}>Government KYC IDs & Emergency Contacts</h4>
+              <div className="af-row">
+                <div className="af-field">
+                  <label>Aadhaar Number</label>
+                  <input type="text" value={editEmployeeForm.aadhaar_no} onChange={e => setEditEmployeeForm({...editEmployeeForm, aadhaar_no: e.target.value})} />
+                </div>
+                <div className="af-field">
+                  <label>PAN Number</label>
+                  <input type="text" value={editEmployeeForm.pan_no} onChange={e => setEditEmployeeForm({...editEmployeeForm, pan_no: e.target.value})} />
+                </div>
+              </div>
+              <div className="af-row">
+                <div className="af-field">
+                  <label>Emergency Contact Name</label>
+                  <input type="text" value={editEmployeeForm.emergency_name} onChange={e => setEditEmployeeForm({...editEmployeeForm, emergency_name: e.target.value})} />
+                </div>
+                <div className="af-field">
+                  <label>Emergency Contact Phone</label>
+                  <input type="text" value={editEmployeeForm.emergency_phone} onChange={e => setEditEmployeeForm({...editEmployeeForm, emergency_phone: e.target.value})} />
+                </div>
+              </div>
+
+              <h4 style={{ fontSize: '0.75rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #e7e5e4', paddingBottom: '4px', marginTop: '16px', marginBottom: '12px' }}>Bank Transfer Specs</h4>
+              <div className="af-row">
+                <div className="af-field">
+                  <label>Bank Name</label>
+                  <input type="text" value={editEmployeeForm.bank_name} onChange={e => setEditEmployeeForm({...editEmployeeForm, bank_name: e.target.value})} />
+                </div>
+                <div className="af-field">
+                  <label>Account Number</label>
+                  <input type="text" value={editEmployeeForm.account_no} onChange={e => setEditEmployeeForm({...editEmployeeForm, account_no: e.target.value})} />
+                </div>
+                <div className="af-field">
+                  <label>IFSC Code</label>
+                  <input type="text" value={editEmployeeForm.ifsc_code} onChange={e => setEditEmployeeForm({...editEmployeeForm, ifsc_code: e.target.value})} />
+                </div>
+              </div>
+              
+              <button type="submit" className="admin-btn-primary" style={{ marginTop: '20px', width: '100%' }}>Save Employee Details</button>
             </form>
           </div>
         </div>
