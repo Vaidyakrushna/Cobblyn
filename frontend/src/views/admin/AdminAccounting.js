@@ -118,7 +118,7 @@ function AdminAccounting() {
   const fetchVendorsData = useCallback(async () => {
     try {
       const data = await api.request('/admin/vendors');
-      setVendorsList(data || []);
+      setVendorsList(data.vendors || []);
     } catch (err) {
       console.error(err);
     }

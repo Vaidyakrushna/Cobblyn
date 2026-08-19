@@ -76,6 +76,7 @@ async def list_raw_materials(
         pipeline.append({"$match": match_conditions})
         
     pipeline.append({"$project": {
+        "_id": 0,
         "id": {"$toString": "$_id"},
         "material_id": {"$toString": "$material_id"},
         "name": {"$ifNull": ["$name", "$material_details.name"]},
@@ -113,6 +114,7 @@ async def get_reorder_alerts(request: Request):
         }},
         {"$unwind": "$details"},
         {"$project": {
+            "_id": 0,
             "id": {"$toString": "$_id"},
             "material_id": {"$toString": "$material_id"},
             "name": 1,
