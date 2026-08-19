@@ -117,7 +117,7 @@ function AdminLogistics() {
 
   const fetchOrders = useCallback(async () => {
     try {
-      const data = await api.request('/admin/orders');
+      const data = await api.request('/orders');
       setOrders(data.orders || []);
     } catch (err) {
       console.error(err);
