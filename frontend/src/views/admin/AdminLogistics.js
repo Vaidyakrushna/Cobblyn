@@ -22,6 +22,7 @@ function AdminLogistics() {
   const [orders, setOrders] = useState([]);
 
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
   // Forms
   const [showHandoverModal, setShowHandoverModal] = useState(false);
@@ -139,6 +140,7 @@ function AdminLogistics() {
   }, [fetchSummary, fetchHandovers, fetchShipments, fetchInbound, fetchReturns, fetchRawMaterials, fetchWorkshops, fetchOrders]);
 
   useEffect(() => {
+    setMounted(true);
     loadAllData();
   }, []);
 
@@ -306,7 +308,7 @@ function AdminLogistics() {
     }
   };
 
-  if (loading) return <div className="admin-loading">Loading logistics channels…</div>;
+  if (!mounted || loading) return <div className="admin-loading" style={{ padding: '24px', color: '#78716c' }}>Loading logistics channels…</div>;
 
   return (
     <div className="admin-page" data-testid="admin-logistics-page" style={{ padding: '24px', background: '#F7F5F2', minHeight: '100vh' }}>
