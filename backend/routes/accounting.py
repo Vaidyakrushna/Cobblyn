@@ -30,6 +30,13 @@ class EmployeeCreate(BaseModel):
     bank_name: Optional[str] = ""
     account_no: Optional[str] = ""
     ifsc_code: Optional[str] = ""
+    address: Optional[str] = ""
+    dob: Optional[str] = ""
+    education: Optional[str] = ""
+    aadhaar_no: Optional[str] = ""
+    pan_no: Optional[str] = ""
+    emergency_name: Optional[str] = ""
+    emergency_phone: Optional[str] = ""
 
 class EmployeeUpdate(BaseModel):
     name: Optional[str] = None
@@ -41,6 +48,13 @@ class EmployeeUpdate(BaseModel):
     bank_name: Optional[str] = None
     account_no: Optional[str] = None
     ifsc_code: Optional[str] = None
+    address: Optional[str] = None
+    dob: Optional[str] = None
+    education: Optional[str] = None
+    aadhaar_no: Optional[str] = None
+    pan_no: Optional[str] = None
+    emergency_name: Optional[str] = None
+    emergency_phone: Optional[str] = None
 
 class EmployeeExit(BaseModel):
     exit_date: str

@@ -1,13 +1,17 @@
 "use client";
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { 
   TrendingUp, Coins, Users, Wallet, CreditCard, 
-  Plus, Trash2, X, Download, Calendar, ArrowUpRight, ArrowDownRight, Layers, LogOut, CheckCircle
+  Plus, Trash2, X, Download, Calendar, ArrowUpRight, ArrowDownRight, Layers, LogOut, CheckCircle, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { api } from '../../api';
 
 function AdminAccounting() {
-  const [activeTab, setActiveTab] = useState('summary'); // summary, directory, payroll, expenses, exits
+  const searchParams = useSearchParams();
+  const tabParam = searchParams?.get('tab');
+
+  const [activeTab, setActiveTab] = useState('summary'); // summary, directory, payroll, expenses, exits, vendors
   
   // Data States
   const [summary, setSummary] = useState(null);
@@ -16,6 +20,13 @@ function AdminAccounting() {
   const [expenses, setExpenses] = useState([]);
   const [rawMaterials, setRawMaterials] = useState([]);
   
+  // Vendor Payments States
+  const [vendorsList, setVendorsList] = useState([]);
+  const [selectedVendor, setSelectedVendor] = useState(null);
+  const [vendorLedger, setVendorLedger] = useState([]);
+  const [selectedVendorDues, setSelectedVendorDues] = useState({ total_due: 0, total_paid: 0, balance: 0 });
+  const [loadingVendorLedger, setLoadingVendorLedger] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
@@ -23,11 +34,16 @@ function AdminAccounting() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   
+  // Expandable Row States for KYC
+  const [expandedEmpId, setExpandedEmpId] = useState(null);
+
   // Modals & Form States
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [employeeForm, setEmployeeForm] = useState({
     name: '', email: '', phone: '', role: '', salary: '', join_date: '',
-    bank_name: '', account_no: '', ifsc_code: ''
+    bank_name: '', account_no: '', ifsc_code: '',
+    address: '', dob: '', education: '', aadhaar_no: '', pan_no: '',
+    emergency_name: '', emergency_phone: ''
   });
   
   const [showExpenseModal, setShowExpenseModal] = useState(false);
@@ -44,7 +60,14 @@ function AdminAccounting() {
     exit_date: '', fnf_amount: '0', notes: ''
   });
 
-  // Fetch data functions
+  // Sync tab active states from layout query parameters
+  useEffect(() => {
+    if (tabParam) {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
+
+  // Fetch functions
   const fetchSummary = useCallback(async () => {
     try {
       let queryParams = '';
@@ -92,20 +115,77 @@ function AdminAccounting() {
     }
   }, []);
 
+  const fetchVendorsData = useCallback(async () => {
+    try {
+      const data = await api.request('/admin/vendors');
+      setVendorsList(data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
   const loadAllData = useCallback(async () => {
     setLoading(true);
     await Promise.all([
       fetchSummary(), 
       fetchEmployeesData(), 
       fetchExpensesData(),
-      fetchRawMaterials()
+      fetchRawMaterials(),
+      fetchVendorsData()
     ]);
     setLoading(false);
-  }, [fetchSummary, fetchEmployeesData, fetchExpensesData, fetchRawMaterials]);
+  }, [fetchSummary, fetchEmployeesData, fetchExpensesData, fetchRawMaterials, fetchVendorsData]);
 
   useEffect(() => {
     loadAllData();
   }, [startDate, endDate]);
+
+  // Load selected vendor's ledger
+  const fetchSelectedVendorLedger = async (vendorId) => {
+    setLoadingVendorLedger(true);
+    try {
+      const data = await api.request(`/admin/vendors/${vendorId}/ledger`);
+      setVendorLedger(data.ledger || []);
+      setSelectedVendorDues({
+        total_due: data.total_due || 0,
+        total_paid: data.total_paid || 0,
+        balance: data.balance_outstanding || 0
+      });
+    } catch (err) {
+      console.error(err);
+      alert("Failed to load vendor ledger: " + err.message);
+    }
+    setLoadingVendorLedger(false);
+  };
+
+  const handleSelectVendor = (vendor) => {
+    setSelectedVendor(vendor);
+    fetchSelectedVendorLedger(vendor.id);
+  };
+
+  // Settle single vendor billing row
+  const handleSettleVendorPayment = async (ledgerId, remainingDue) => {
+    if (!selectedVendor) return;
+    const confirmSettle = window.confirm(`Clear outstanding balance of INR ${remainingDue.toLocaleString()} for this job?`);
+    if (!confirmSettle) return;
+    
+    try {
+      const txnRef = "UPI-SETTLE-" + Math.random().toString(36).substring(2, 10).toUpperCase();
+      await api.request(`/admin/vendors/${selectedVendor.id}/payments/${ledgerId}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          amount: remainingDue,
+          ref_number: txnRef,
+          notes: "Settled via Administrative Accounting ledger tab."
+        })
+      });
+      alert(`✓ Clear successful. Txn ID: ${txnRef}`);
+      fetchSelectedVendorLedger(selectedVendor.id);
+      fetchSummary();
+    } catch (err) {
+      alert("Failed to settle: " + err.message);
+    }
+  };
 
   // Create Employee
   const handleCreateEmployee = async (e) => {
@@ -121,7 +201,9 @@ function AdminAccounting() {
       setShowEmployeeModal(false);
       setEmployeeForm({
         name: '', email: '', phone: '', role: '', salary: '', join_date: '',
-        bank_name: '', account_no: '', ifsc_code: ''
+        bank_name: '', account_no: '', ifsc_code: '',
+        address: '', dob: '', education: '', aadhaar_no: '', pan_no: '',
+        emergency_name: '', emergency_phone: ''
       });
       fetchEmployeesData();
       fetchSummary();
@@ -130,19 +212,19 @@ function AdminAccounting() {
     }
   };
 
-  // Delete/Remove Employee Record
+  // Delete Employee record
   const handleDeleteEmployee = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this employee record permanently from the database?")) return;
+    if (!window.confirm("Delete this employee record permanently from the database?")) return;
     try {
       await api.request(`/admin/accounting/employees/${id}`, { method: 'DELETE' });
       fetchEmployeesData();
       fetchSummary();
     } catch (err) {
-      alert("Failed to remove employee record: " + err.message);
+      alert("Failed to delete record: " + err.message);
     }
   };
 
-  // Settle Exit & FNF
+  // Settle Exit FnF
   const handleOpenExitModal = (employee) => {
     setSelectedExitEmployee(employee);
     setExitForm({ exit_date: new Date().toISOString().split('T')[0], fnf_amount: '0', notes: '' });
@@ -168,11 +250,11 @@ function AdminAccounting() {
       fetchExpensesData();
       fetchSummary();
     } catch (err) {
-      alert("Failed to finalize exit settlement: " + err.message);
+      alert("Failed to finalize exit: " + err.message);
     }
   };
 
-  // Create Expense & Procurement with stock increment sync
+  // Create Expense with inventory sync
   const handleCreateExpense = async (e) => {
     e.preventDefault();
     try {
@@ -197,7 +279,7 @@ function AdminAccounting() {
     }
   };
 
-  // Disburse Payroll for active staff only
+  // Disburse Payroll to active employees
   const handleDisbursePayroll = async (e) => {
     e.preventDefault();
     try {
@@ -219,15 +301,19 @@ function AdminAccounting() {
     window.print();
   };
 
-  if (loading) return <div className="admin-loading">Loading financial systems…</div>;
+  const toggleRowExpansion = (empId) => {
+    setExpandedEmpId(expandedEmpId === empId ? null : empId);
+  };
+
+  if (loading) return <div className="admin-loading">Loading financial workspaces…</div>;
 
   return (
     <div className="admin-page" data-testid="admin-accounting-page" style={{ padding: '24px', background: '#F7F5F2', minHeight: '100vh' }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.8rem', color: '#1c1917', margin: 0 }}>Accounting, Tax & Payroll</h1>
-          <p style={{ fontSize: '0.85rem', color: '#78716c', margin: '4px 0 0 0' }}>Manage internal staff directory, disburse active salaries, track vendor payouts, procurement tax and net profits</p>
+          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.8rem', color: '#1c1917', margin: 0 }}>Accounting & Finance</h1>
+          <p style={{ fontSize: '0.85rem', color: '#78716c', margin: '4px 0 0 0' }}>Manage complete internal employee records, disburse monthly salaries, clear vendor ledgers, and view net profits</p>
         </div>
         <div style={{ display: 'flex', gap: '12px' }}>
           <button 
@@ -268,13 +354,13 @@ function AdminAccounting() {
         )}
       </div>
 
-      {/* Main Tab Links */}
+      {/* Main Tab Navigation */}
       <div style={{ display: 'flex', borderBottom: '2px solid #e7e5e4', marginBottom: '24px', flexWrap: 'wrap', gap: '8px' }}>
         <button 
           onClick={() => setActiveTab('summary')}
           style={{ padding: '12px 18px', background: 'transparent', border: 'none', borderBottom: activeTab === 'summary' ? '3px solid #9d2706' : 'none', color: activeTab === 'summary' ? '#9d2706' : '#78716c', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
         >
-          📊 Financial Summary & Cost Centers
+          📊 Financial Summary
         </button>
         <button 
           onClick={() => setActiveTab('directory')}
@@ -287,6 +373,12 @@ function AdminAccounting() {
           style={{ padding: '12px 18px', background: 'transparent', border: 'none', borderBottom: activeTab === 'payroll' ? '3px solid #9d2706' : 'none', color: activeTab === 'payroll' ? '#9d2706' : '#78716c', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
         >
           💸 Monthly Payroll
+        </button>
+        <button 
+          onClick={() => setActiveTab('vendors')}
+          style={{ padding: '12px 18px', background: 'transparent', border: 'none', borderBottom: activeTab === 'vendors' ? '3px solid #9d2706' : 'none', color: activeTab === 'vendors' ? '#9d2706' : '#78716c', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
+        >
+          💳 Vendor Payments
         </button>
         <button 
           onClick={() => setActiveTab('expenses')}
@@ -302,10 +394,10 @@ function AdminAccounting() {
         </button>
       </div>
 
-      {/* --- SUMMARY TAB --- */}
+      {/* --- FINANCIAL SUMMARY TAB --- */}
       {activeTab === 'summary' && summary && (
         <div>
-          {/* Main summary cards deck */}
+          {/* Main cards */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '24px' }}>
             <div style={{ background: '#fff', border: '1px solid #e7e5e4', padding: '20px', borderRadius: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
@@ -313,7 +405,7 @@ function AdminAccounting() {
                 <span style={{ color: '#16a34a', background: '#f0fdf4', padding: '4px', borderRadius: '50%' }}><TrendingUp size={16} /></span>
               </div>
               <strong style={{ fontSize: '1.4rem', color: '#1c1917' }}>INR {summary.sales.total_sales.toLocaleString('en-IN')}</strong>
-              <div style={{ fontSize: '0.65rem', color: '#a8a29e', marginTop: '4px' }}>Sales base + dynamic taxes</div>
+              <div style={{ fontSize: '0.65rem', color: '#a8a29e', marginTop: '4px' }}>Completed and active orders</div>
             </div>
 
             <div style={{ background: '#fff', border: '1px solid #e7e5e4', padding: '20px', borderRadius: '12px' }}>
@@ -335,24 +427,23 @@ function AdminAccounting() {
                 <span style={{ color: '#ef4444', background: '#fef2f2', padding: '4px', borderRadius: '50%' }}><Wallet size={16} /></span>
               </div>
               <strong style={{ fontSize: '1.4rem', color: '#dc2626' }}>INR {summary.vendor_payouts.total_paid.toLocaleString('en-IN')}</strong>
-              <div style={{ fontSize: '0.65rem', color: '#78716c', marginTop: '4px' }}>Outstanding Due: INR {summary.vendor_payouts.outstanding.toLocaleString()}</div>
+              <div style={{ fontSize: '0.65rem', color: '#78716c', marginTop: '4px' }}>Outstanding: INR {summary.vendor_payouts.outstanding.toLocaleString()}</div>
             </div>
 
             <div style={{ background: '#fff', border: '1px solid #e7e5e4', padding: '20px', borderRadius: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                <span style={{ fontSize: '0.7rem', color: '#78716c', fontWeight: 600, textTransform: 'uppercase' }}>Operating Net Profit</span>
+                <span style={{ fontSize: '0.7rem', color: '#78716c', fontWeight: 600, textTransform: 'uppercase' }}>Estimated Net Profit</span>
                 <span style={{ color: '#16a34a', background: '#f0fdf4', padding: '4px', borderRadius: '50%' }}><TrendingUp size={16} /></span>
               </div>
               <strong style={{ fontSize: '1.4rem', color: summary.net_profit >= 0 ? '#16a34a' : '#dc2626' }}>
                 INR {summary.net_profit.toLocaleString('en-IN')}
               </strong>
-              <div style={{ fontSize: '0.65rem', color: '#a8a29e', marginTop: '4px' }}>Sales minus all outflows</div>
+              <div style={{ fontSize: '0.65rem', color: '#a8a29e', marginTop: '4px' }}>Net profits post-salaries & vendor costs</div>
             </div>
           </div>
 
-          {/* Cost center and GST split details */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-            {/* GST ITC Split Card */}
+            {/* GST offsets */}
             <div style={{ background: '#fff', border: '1px solid #e7e5e4', padding: '20px', borderRadius: '12px' }}>
               <h4 style={{ margin: '0 0 16px 0', borderBottom: '1px solid #e7e5e4', paddingBottom: '8px', fontSize: '0.8rem', color: '#1c1917', textTransform: 'uppercase', letterSpacing: '0.05em' }}>GST Tax Ledger (Input Credit)</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.78rem' }}>
@@ -381,19 +472,18 @@ function AdminAccounting() {
               </div>
             </div>
 
-            {/* In-house vs Outsourced Cost Centers */}
+            {/* Cost center details */}
             <div style={{ background: '#fff', border: '1px solid #e7e5e4', padding: '20px', borderRadius: '12px' }}>
               <h4 style={{ margin: '0 0 16px 0', borderBottom: '1px solid #e7e5e4', paddingBottom: '8px', fontSize: '0.8rem', color: '#1c1917', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Production Cost Centers</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.78rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f5f5f4', paddingBottom: '6px' }}>
-                  <span style={{ color: '#78716c' }}>In-house Factory Costs (Staff salaries + Leather/Procurement)</span>
+                  <span style={{ color: '#78716c' }}>In-house Factory Cost Center (Staff + Procurement)</span>
                   <strong style={{ color: '#1c1917' }}>INR {summary.cost_centers.internal_factory.toLocaleString()}</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f5f5f4', paddingBottom: '6px' }}>
-                  <span style={{ color: '#78716c' }}>Outsourced Artisan Workshop Costs (Vendor bills paid)</span>
+                  <span style={{ color: '#78716c' }}>Outsourced Artisan Workshop Cost Center (Vendor pay)</span>
                   <strong style={{ color: '#1c1917' }}>INR {summary.cost_centers.external_vendors.toLocaleString()}</strong>
                 </div>
-                
                 <div style={{ padding: '10px', background: '#fafaf9', borderLeft: '3px solid #9d2706', borderRadius: '0 8px 8px 0', fontSize: '0.7rem', color: '#78716c', lineHeight: '1.4', marginTop: '10px' }}>
                   💡 **Cost Allocation Note:** Split metrics help you identify where to deploy capital. If your in-house factory cost center increases, evaluate bulk raw materials purchases to claim higher Input Tax Credit offset benefits.
                 </div>
@@ -403,16 +493,16 @@ function AdminAccounting() {
         </div>
       )}
 
-      {/* --- STAFF DIRECTORY TAB --- */}
+      {/* --- STAFF DIRECTORY TAB (HR) --- */}
       {activeTab === 'directory' && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.2rem', color: '#1c1917', margin: 0 }}>Registered Employees</h3>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.2rem', color: '#1c1917', margin: 0 }}>Registered Employees (Active)</h3>
             <button 
               onClick={() => setShowEmployeeModal(true)}
               style={{ background: '#9d2706', border: 'none', color: '#fff', padding: '6px 14px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
-              <Plus size={14} /> Add New Employee
+              <Plus size={14} /> Register New Employee
             </button>
           </div>
 
@@ -421,60 +511,105 @@ function AdminAccounting() {
               <thead>
                 <tr style={{ textAlign: 'left', borderBottom: '1px solid #e7e5e4' }}>
                   <th style={{ padding: '12px' }}>Employee ID & Name</th>
-                  <th style={{ padding: '12px' }}>Designation / Role</th>
-                  <th style={{ padding: '12px' }}>Monthly Salary</th>
-                  <th style={{ padding: '12px' }}>Status</th>
-                  <th style={{ padding: '12px' }}>Bank Account Details</th>
-                  <th style={{ padding: '12px' }}>Joining Date</th>
+                  <th style={{ padding: '12px' }}>Role / Salary</th>
+                  <th style={{ padding: '12px' }}>Emergency Contact</th>
+                  <th style={{ padding: '12px' }}>Bank Account Specs</th>
+                  <th style={{ padding: '12px' }}>Government IDs (KYC)</th>
+                  <th style={{ padding: '12px', textAlign: 'center' }}>KYC File</th>
                   <th style={{ padding: '12px', textAlign: 'center' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {employees.filter(e => e.status === 'active').length === 0 ? (
                   <tr>
-                    <td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: '#a8a29e', fontSize: '0.78rem' }}>No active employees found in the directory.</td>
+                    <td colSpan="7" style={{ textAlign: 'center', padding: '24px', color: '#a8a29e', fontSize: '0.78rem' }}>No active employees found in directory.</td>
                   </tr>
                 ) : (
                   employees.filter(e => e.status === 'active').map(emp => (
-                    <tr key={emp.id} style={{ borderBottom: '1px solid #f5f5f4' }}>
-                      <td style={{ padding: '12px' }}>
-                        <div style={{ fontSize: '0.65rem', fontFamily: 'monospace', color: '#9d2706', fontWeight: 700 }}>{emp.employee_id || 'PENDING'}</div>
-                        <strong style={{ fontSize: '0.82rem', color: '#1c1917' }}>{emp.name}</strong>
-                        <div style={{ fontSize: '0.7rem', color: '#78716c', marginTop: '2px' }}>{emp.phone} • {emp.email}</div>
-                      </td>
-                      <td style={{ padding: '12px', fontSize: '0.78rem', color: '#44403c', fontWeight: 500 }}>{emp.role}</td>
-                      <td style={{ padding: '12px', fontSize: '0.82rem', fontWeight: 700, color: '#1c1917' }}>
-                        INR {parseFloat(emp.salary).toLocaleString()}
-                      </td>
-                      <td style={{ padding: '12px' }}>
-                        <span style={{ fontSize: '0.62rem', background: '#dcfce7', color: '#16a34a', padding: '2px 8px', borderRadius: '12px', fontWeight: 700, textTransform: 'uppercase' }}>
-                          {emp.status}
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px', fontSize: '0.7rem', color: '#44403c' }}>
-                        <div>{emp.bank_name || 'N/A'}</div>
-                        <div style={{ fontFamily: 'monospace', color: '#78716c', marginTop: '2px' }}>{emp.account_no || 'N/A'} (IFSC: {emp.ifsc_code || 'N/A'})</div>
-                      </td>
-                      <td style={{ padding: '12px', fontSize: '0.75rem', color: '#78716c' }}>{emp.join_date}</td>
-                      <td style={{ padding: '12px', textAlign: 'center' }}>
-                        <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                    <React.Fragment key={emp.id}>
+                      <tr style={{ borderBottom: '1px solid #f5f5f4' }}>
+                        <td style={{ padding: '12px' }}>
+                          <div style={{ fontSize: '0.65rem', fontFamily: 'monospace', color: '#9d2706', fontWeight: 700 }}>{emp.employee_id || 'PENDING'}</div>
+                          <strong style={{ fontSize: '0.82rem', color: '#1c1917' }}>{emp.name}</strong>
+                          <div style={{ fontSize: '0.7rem', color: '#78716c', marginTop: '2px' }}>{emp.phone} • {emp.email}</div>
+                        </td>
+                        <td style={{ padding: '12px' }}>
+                          <div style={{ fontSize: '0.78rem', color: '#44403c', fontWeight: 600 }}>{emp.role}</div>
+                          <div style={{ fontSize: '0.72rem', color: '#78716c', marginTop: '2px' }}>INR {parseFloat(emp.salary).toLocaleString()} /mo</div>
+                        </td>
+                        <td style={{ padding: '12px', fontSize: '0.75rem', color: '#44403c' }}>
+                          {emp.emergency_name ? (
+                            <>
+                              <div>{emp.emergency_name}</div>
+                              <div style={{ fontSize: '0.68rem', color: '#78716c' }}>{emp.emergency_phone}</div>
+                            </>
+                          ) : '—'}
+                        </td>
+                        <td style={{ padding: '12px', fontSize: '0.7rem', color: '#44403c' }}>
+                          <div>{emp.bank_name || 'N/A'}</div>
+                          <div style={{ fontFamily: 'monospace', color: '#78716c', marginTop: '2px' }}>{emp.account_no || 'N/A'}</div>
+                        </td>
+                        <td style={{ padding: '12px', fontSize: '0.7rem', color: '#44403c' }}>
+                          <div>Aadhaar: <span style={{ fontFamily: 'monospace', color: '#78716c' }}>{emp.aadhaar_no || '—'}</span></div>
+                          <div style={{ marginTop: '2px' }}>PAN: <span style={{ fontFamily: 'monospace', color: '#78716c' }}>{emp.pan_no || '—'}</span></div>
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'center' }}>
                           <button 
-                            onClick={() => handleOpenExitModal(emp)}
-                            style={{ background: '#fef2f2', border: '1px solid #fee2e2', color: '#dc2626', padding: '3px 6px', borderRadius: '4px', fontSize: '0.65rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px', fontWeight: 700 }}
-                            title="Exited / FNF Settlement"
+                            onClick={() => toggleRowExpansion(emp.id)}
+                            style={{ background: 'transparent', border: 'none', color: '#78716c', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', margin: '0 auto', fontSize: '0.7rem', fontWeight: 600 }}
                           >
-                            <LogOut size={10} /> Exit Company
+                            {expandedEmpId === emp.id ? <ChevronUp size={14} /> : <ChevronDown size={14} />} 
+                            {expandedEmpId === emp.id ? 'Close' : 'View KYC'}
                           </button>
-                          <button 
-                            onClick={() => handleDeleteEmployee(emp.id)}
-                            style={{ background: 'transparent', border: 'none', color: '#a8a29e', cursor: 'pointer' }}
-                            title="Delete Permanently"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
+                        </td>
+                        <td style={{ padding: '12px', textAlign: 'center' }}>
+                          <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
+                            <button 
+                              onClick={() => handleOpenExitModal(emp)}
+                              style={{ background: '#fef2f2', border: '1px solid #fee2e2', color: '#dc2626', padding: '4px 8px', borderRadius: '4px', fontSize: '0.65rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '2px', fontWeight: 700 }}
+                              title="Exit company and settle FNF"
+                            >
+                              <LogOut size={10} /> Exit Staff
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteEmployee(emp.id)}
+                              style={{ background: 'transparent', border: 'none', color: '#a8a29e', cursor: 'pointer' }}
+                              title="Remove Record"
+                            >
+                              <Trash2 size={12} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      {expandedEmpId === emp.id && (
+                        <tr style={{ background: '#fcfbf9' }}>
+                          <td colSpan="7" style={{ padding: '16px 24px', borderBottom: '1px solid #e7e5e4' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', gap: '24px' }}>
+                              <div>
+                                <h5 style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Personal Profile</h5>
+                                <div style={{ fontSize: '0.75rem', color: '#1c1917', lineHeight: '1.4' }}>
+                                  <div>Date of Birth: <strong>{emp.dob || 'Not logged'}</strong></div>
+                                  <div style={{ marginTop: '4px' }}>Joining Date: <strong>{emp.join_date}</strong></div>
+                                </div>
+                              </div>
+                              <div>
+                                <h5 style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Academic Details</h5>
+                                <div style={{ fontSize: '0.75rem', color: '#1c1917', lineHeight: '1.4' }}>
+                                  <div>Education / Degree:</div>
+                                  <strong>{emp.education || 'Not logged'}</strong>
+                                </div>
+                              </div>
+                              <div>
+                                <h5 style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Physical Address</h5>
+                                <div style={{ fontSize: '0.75rem', color: '#1c1917', lineHeight: '1.4', fontStyle: emp.address ? 'normal' : 'italic' }}>
+                                  {emp.address || 'No residential address logged.'}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   ))
                 )}
               </tbody>
@@ -487,31 +622,31 @@ function AdminAccounting() {
       {activeTab === 'payroll' && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.2rem', color: '#1c1917', margin: 0 }}>Monthly Salary Sheets</h3>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.2rem', color: '#1c1917', margin: 0 }}>Active Payroll sheets</h3>
             <button 
               onClick={() => setShowPayrollModal(true)}
               style={{ background: '#9d2706', border: 'none', color: '#fff', padding: '6px 14px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
-              💸 Disburse Monthly Salaries
+              💸 Disburse Salaries
             </button>
           </div>
 
-          <div className="admin-table-wrapper" style={{ background: '#fff', border: '1px solid #e7e5e4', borderRadius: '12px', padding: '8px', marginBottom: '24px' }}>
+          <div className="admin-table-wrapper" style={{ background: '#fff', border: '1px solid #e7e5e4', borderRadius: '12px', padding: '8px' }}>
             <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ textAlign: 'left', borderBottom: '1px solid #e7e5e4' }}>
                   <th style={{ padding: '12px' }}>Employee</th>
-                  <th style={{ padding: '12px' }}>Salary Month</th>
-                  <th style={{ padding: '12px' }}>Total Amount Paid</th>
+                  <th style={{ padding: '12px' }}>Month</th>
+                  <th style={{ padding: '12px' }}>Salary Cleared</th>
                   <th style={{ padding: '12px' }}>Status</th>
-                  <th style={{ padding: '12px' }}>Transaction ID</th>
+                  <th style={{ padding: '12px' }}>Bank Transaction ID</th>
                   <th style={{ padding: '12px' }}>Cleared Timestamp</th>
                 </tr>
               </thead>
               <tbody>
                 {payrollHistory.length === 0 ? (
                   <tr>
-                    <td colSpan="6" style={{ textAlign: 'center', padding: '24px', color: '#a8a29e', fontSize: '0.78rem' }}>No salary disbursements cleared yet.</td>
+                    <td colSpan="6" style={{ textAlign: 'center', padding: '24px', color: '#a8a29e', fontSize: '0.78rem' }}>No payroll payments recorded.</td>
                   </tr>
                 ) : (
                   payrollHistory.map(pay => (
@@ -535,11 +670,133 @@ function AdminAccounting() {
         </div>
       )}
 
+      {/* --- VENDOR PAYMENTS TAB --- */}
+      {activeTab === 'vendors' && (
+        <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '20px' }}>
+          {/* List of Vendors */}
+          <div style={{ background: '#fff', border: '1px solid #e7e5e4', borderRadius: '12px', padding: '16px' }}>
+            <h3 style={{ fontSize: '0.85rem', margin: '0 0 12px 0', borderBottom: '1px solid #e7e5e4', paddingBottom: '8px', color: '#1c1917', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Workshops Ledger</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {vendorsList.map(v => (
+                <div 
+                  key={v.id}
+                  onClick={() => handleSelectVendor(v)}
+                  style={{
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid',
+                    borderColor: selectedVendor?.id === v.id ? '#9d2706' : '#e7e5e4',
+                    background: selectedVendor?.id === v.id ? '#fdf8f6' : 'transparent',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <strong style={{ fontSize: '0.8rem', color: '#1c1917' }}>{v.name}</strong>
+                  <div style={{ fontSize: '0.68rem', color: '#78716c', marginTop: '2px' }}>Routing: {v.phone}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Selected Vendor Ledger Details */}
+          <div style={{ background: '#fff', border: '1px solid #e7e5e4', borderRadius: '12px', padding: '20px' }}>
+            {!selectedVendor ? (
+              <div style={{ textAlign: 'center', padding: '48px', color: '#a8a29e', fontSize: '0.78rem' }}>
+                👈 Select a workshop vendor from the sidebar list to view invoices and clear outstanding dues.
+              </div>
+            ) : (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #e7e5e4', paddingBottom: '12px' }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontFamily: "'Playfair Display', serif", fontSize: '1.25rem' }}>{selectedVendor.name} Payments Ledger</h3>
+                    <p style={{ margin: '4px 0 0 0', fontSize: '0.7rem', color: '#78716c' }}>Direct payment settlements for completed custom shoe jobs</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px', fontSize: '0.75rem' }}>
+                    <div style={{ background: '#fafaf9', padding: '6px 12px', borderRadius: '6px', border: '1px solid #e7e5e4' }}>
+                      <span style={{ color: '#78716c' }}>Total Paid: </span>
+                      <strong style={{ color: '#16a34a' }}>INR {selectedVendorDues.total_paid.toLocaleString()}</strong>
+                    </div>
+                    <div style={{ background: '#fef2f2', padding: '6px 12px', borderRadius: '6px', border: '1px solid #fee2e2' }}>
+                      <span style={{ color: '#78716c' }}>Outstanding Due: </span>
+                      <strong style={{ color: '#dc2626' }}>INR {selectedVendorDues.balance.toLocaleString()}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {loadingVendorLedger ? (
+                  <div style={{ textAlign: 'center', padding: '24px', fontSize: '0.78rem', color: '#78716c' }}>Loading invoices ledger...</div>
+                ) : vendorLedger.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '24px', fontSize: '0.78rem', color: '#a8a29e' }}>No transaction ledger lines logged for this vendor.</div>
+                ) : (
+                  <div className="admin-table-wrapper">
+                    <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr style={{ textAlign: 'left', borderBottom: '1px solid #e7e5e4' }}>
+                          <th style={{ padding: '12px' }}>Description / Date</th>
+                          <th style={{ padding: '12px' }}>Amount Due</th>
+                          <th style={{ padding: '12px' }}>Amount Paid</th>
+                          <th style={{ padding: '12px' }}>Tax split</th>
+                          <th style={{ padding: '12px' }}>Status</th>
+                          <th style={{ padding: '12px', textAlign: 'center' }}>Clear Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {vendorLedger.map(entry => {
+                          const remainingDue = parseFloat(entry.amount_due) - parseFloat(entry.amount_paid);
+                          return (
+                            <tr key={entry.id} style={{ borderBottom: '1px solid #f5f5f4' }}>
+                              <td style={{ padding: '12px' }}>
+                                <strong style={{ fontSize: '0.8rem', color: '#1c1917' }}>{entry.description || 'Custom shoe crafting'}</strong>
+                                <div style={{ fontSize: '0.68rem', color: '#78716c', marginTop: '2px' }}>{new Date(entry.created_at).toLocaleDateString('en-IN')}</div>
+                              </td>
+                              <td style={{ padding: '12px', fontSize: '0.78rem', color: '#1c1917', fontWeight: 600 }}>INR {parseFloat(entry.amount_due).toLocaleString()}</td>
+                              <td style={{ padding: '12px', fontSize: '0.78rem', color: '#16a34a', fontWeight: 600 }}>INR {parseFloat(entry.amount_paid).toLocaleString()}</td>
+                              <td style={{ padding: '12px', fontSize: '0.68rem', color: '#78716c' }}>
+                                18% GST (CGST/SGST 9% split included)
+                              </td>
+                              <td style={{ padding: '12px' }}>
+                                <span style={{
+                                  fontSize: '0.62rem',
+                                  padding: '2px 8px',
+                                  borderRadius: '4px',
+                                  fontWeight: 700,
+                                  textTransform: 'uppercase',
+                                  background: entry.payment_status === 'settled' ? '#dcfce7' : '#fee2e2',
+                                  color: entry.payment_status === 'settled' ? '#16a34a' : '#ef4444'
+                                }}>
+                                  {entry.payment_status}
+                                </span>
+                              </td>
+                              <td style={{ padding: '12px', textAlign: 'center' }}>
+                                {remainingDue > 0 ? (
+                                  <button
+                                    onClick={() => handleSettleVendorPayment(entry.id, remainingDue)}
+                                    style={{ background: '#9d2706', border: 'none', color: '#fff', padding: '4px 10px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer' }}
+                                  >
+                                    Clear Due
+                                  </button>
+                                ) : (
+                                  <span style={{ fontSize: '0.7rem', color: '#16a34a', fontWeight: 600 }}>✓ Settled</span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* --- PROCUREMENT & EXPENSES TAB --- */}
       {activeTab === 'expenses' && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.2rem', color: '#1c1917', margin: 0 }}>Materials Procurement & Corporate Outflows</h3>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.2rem', color: '#1c1917', margin: 0 }}>Materials Procurement & General Corporate Outflows</h3>
             <button 
               onClick={() => setShowExpenseModal(true)}
               style={{ background: '#9d2706', border: 'none', color: '#fff', padding: '6px 14px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
@@ -648,23 +905,40 @@ function AdminAccounting() {
         </div>
       )}
 
-      {/* --- ADD EMPLOYEE MODAL --- */}
+      {/* --- ADD EMPLOYEE MODAL (EXPANDED KYC) --- */}
       {showEmployeeModal && (
         <div className="admin-modal-overlay" onClick={() => setShowEmployeeModal(false)} style={{ zIndex: 1200 }}>
-          <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+          <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '750px', maxHeight: '90vh', overflowY: 'auto' }}>
             <button className="admin-modal-close" onClick={() => setShowEmployeeModal(false)}><X size={18} /></button>
-            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', marginBottom: '16px' }}>Register New Employee</h3>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', marginBottom: '16px' }}>Register New Employee (KYC Profiles)</h3>
             <form onSubmit={handleCreateEmployee} className="admin-form">
+              <h4 style={{ fontSize: '0.75rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #e7e5e4', paddingBottom: '4px', marginBottom: '12px' }}>General & Professional Info</h4>
               <div className="af-row">
                 <div className="af-field">
                   <label>Full Name *</label>
                   <input type="text" value={employeeForm.name} onChange={e => setEmployeeForm({...employeeForm, name: e.target.value})} required />
                 </div>
                 <div className="af-field">
-                  <label>Job Designation / Role *</label>
-                  <input type="text" placeholder="e.g. Master Shoemaker, Designer" value={employeeForm.role} onChange={e => setEmployeeForm({...employeeForm, role: e.target.value})} required />
+                  <label>Designation / Role *</label>
+                  <input type="text" placeholder="e.g. Stitcher, Cutter, Supervisor" value={employeeForm.role} onChange={e => setEmployeeForm({...employeeForm, role: e.target.value})} required />
                 </div>
               </div>
+              <div className="af-row">
+                <div className="af-field">
+                  <label>Monthly Salary (INR) *</label>
+                  <input type="number" value={employeeForm.salary} onChange={e => setEmployeeForm({...employeeForm, salary: e.target.value})} required />
+                </div>
+                <div className="af-field">
+                  <label>Joining Date</label>
+                  <input type="date" value={employeeForm.join_date} onChange={e => setEmployeeForm({...employeeForm, join_date: e.target.value})} />
+                </div>
+                <div className="af-field">
+                  <label>Date of Birth</label>
+                  <input type="date" value={employeeForm.dob} onChange={e => setEmployeeForm({...employeeForm, dob: e.target.value})} />
+                </div>
+              </div>
+
+              <h4 style={{ fontSize: '0.75rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #e7e5e4', paddingBottom: '4px', marginTop: '16px', marginBottom: '12px' }}>Contact Details & Academics</h4>
               <div className="af-row">
                 <div className="af-field">
                   <label>Phone Number *</label>
@@ -674,23 +948,43 @@ function AdminAccounting() {
                   <label>Email Address *</label>
                   <input type="email" value={employeeForm.email} onChange={e => setEmployeeForm({...employeeForm, email: e.target.value})} required />
                 </div>
+                <div className="af-field">
+                  <label>Education / Degree</label>
+                  <input type="text" placeholder="e.g. High School, Leather Tech Diploma" value={employeeForm.education} onChange={e => setEmployeeForm({...employeeForm, education: e.target.value})} />
+                </div>
+              </div>
+              <div className="af-field">
+                <label>Physical Residential Address</label>
+                <input type="text" placeholder="Enter complete home address details" value={employeeForm.address} onChange={e => setEmployeeForm({...employeeForm, address: e.target.value})} />
+              </div>
+
+              <h4 style={{ fontSize: '0.75rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #e7e5e4', paddingBottom: '4px', marginTop: '16px', marginBottom: '12px' }}>Government KYC IDs & Emergency Contacts</h4>
+              <div className="af-row">
+                <div className="af-field">
+                  <label>Aadhaar Number</label>
+                  <input type="text" placeholder="12-digit Aadhaar UID" value={employeeForm.aadhaar_no} onChange={e => setEmployeeForm({...employeeForm, aadhaar_no: e.target.value})} />
+                </div>
+                <div className="af-field">
+                  <label>PAN Number</label>
+                  <input type="text" placeholder="10-digit PAN ID" value={employeeForm.pan_no} onChange={e => setEmployeeForm({...employeeForm, pan_no: e.target.value})} />
+                </div>
               </div>
               <div className="af-row">
                 <div className="af-field">
-                  <label>Monthly Base Salary (INR) *</label>
-                  <input type="number" value={employeeForm.salary} onChange={e => setEmployeeForm({...employeeForm, salary: e.target.value})} required />
+                  <label>Emergency Contact Name</label>
+                  <input type="text" value={employeeForm.emergency_name} onChange={e => setEmployeeForm({...employeeForm, emergency_name: e.target.value})} />
                 </div>
                 <div className="af-field">
-                  <label>Joining Date</label>
-                  <input type="date" value={employeeForm.join_date} onChange={e => setEmployeeForm({...employeeForm, join_date: e.target.value})} />
+                  <label>Emergency Contact Phone</label>
+                  <input type="text" value={employeeForm.emergency_phone} onChange={e => setEmployeeForm({...employeeForm, emergency_phone: e.target.value})} />
                 </div>
               </div>
 
-              <h4 style={{ marginTop: '16px', fontSize: '0.8rem', color: '#1c1917', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #e7e5e4', paddingBottom: '6px' }}>Bank Transfer Details</h4>
+              <h4 style={{ fontSize: '0.75rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #e7e5e4', paddingBottom: '4px', marginTop: '16px', marginBottom: '12px' }}>Bank Transfer Specs</h4>
               <div className="af-row">
                 <div className="af-field">
                   <label>Bank Name</label>
-                  <input type="text" placeholder="SBI, HDFC, etc." value={employeeForm.bank_name} onChange={e => setEmployeeForm({...employeeForm, bank_name: e.target.value})} />
+                  <input type="text" placeholder="HDFC, SBI, ICICI, etc." value={employeeForm.bank_name} onChange={e => setEmployeeForm({...employeeForm, bank_name: e.target.value})} />
                 </div>
                 <div className="af-field">
                   <label>Account Number</label>
@@ -702,7 +996,7 @@ function AdminAccounting() {
                 </div>
               </div>
               
-              <button type="submit" className="admin-btn-primary" style={{ marginTop: '16px', width: '100%' }}>Create Employee Profile</button>
+              <button type="submit" className="admin-btn-primary" style={{ marginTop: '20px', width: '100%' }}>Register Employee KYC Profile</button>
             </form>
           </div>
         </div>
