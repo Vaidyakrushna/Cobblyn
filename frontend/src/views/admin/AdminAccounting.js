@@ -187,6 +187,47 @@ function AdminAccounting() {
     }
   };
 
+  const [newAssetForms, setNewAssetForms] = useState({});
+
+  const getAssetForm = (empId) => newAssetForms[empId] || { asset_type: 'corporate_email', name: '', serial_no: '' };
+  
+  const updateAssetForm = (empId, fields) => {
+    setNewAssetForms(prev => ({
+      ...prev,
+      [empId]: { ...getAssetForm(empId), ...fields }
+    }));
+  };
+
+  const handleAssignAsset = async (e, empId) => {
+    e.preventDefault();
+    const form = getAssetForm(empId);
+    if (!form.name || !form.name.trim()) {
+      alert("Please provide the asset name or email address.");
+      return;
+    }
+    try {
+      await api.request(`/admin/accounting/employees/${empId}/assets`, {
+        method: 'POST',
+        body: JSON.stringify(form)
+      });
+      updateAssetForm(empId, { name: '', serial_no: '' });
+      fetchEmployeesData();
+    } catch (err) {
+      alert("Failed to assign asset: " + err.message);
+    }
+  };
+
+  const handleToggleAsset = async (empId, index) => {
+    try {
+      await api.request(`/admin/accounting/employees/${empId}/assets/${index}`, {
+        method: 'PUT'
+      });
+      fetchEmployeesData();
+    } catch (err) {
+      alert("Failed to toggle asset status: " + err.message);
+    }
+  };
+
   // Create Employee
   const handleCreateEmployee = async (e) => {
     e.preventDefault();
@@ -361,12 +402,6 @@ function AdminAccounting() {
           style={{ padding: '12px 18px', background: 'transparent', border: 'none', borderBottom: activeTab === 'summary' ? '3px solid #9d2706' : 'none', color: activeTab === 'summary' ? '#9d2706' : '#78716c', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
         >
           📊 Financial Summary
-        </button>
-        <button 
-          onClick={() => setActiveTab('directory')}
-          style={{ padding: '12px 18px', background: 'transparent', border: 'none', borderBottom: activeTab === 'directory' ? '3px solid #9d2706' : 'none', color: activeTab === 'directory' ? '#9d2706' : '#78716c', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
-        >
-          👥 Staff Directory (HR)
         </button>
         <button 
           onClick={() => setActiveTab('payroll')}
@@ -584,26 +619,120 @@ function AdminAccounting() {
                       {expandedEmpId === emp.id && (
                         <tr style={{ background: '#fcfbf9' }}>
                           <td colSpan="7" style={{ padding: '16px 24px', borderBottom: '1px solid #e7e5e4' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', gap: '24px' }}>
-                              <div>
-                                <h5 style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Personal Profile</h5>
-                                <div style={{ fontSize: '0.75rem', color: '#1c1917', lineHeight: '1.4' }}>
-                                  <div>Date of Birth: <strong>{emp.dob || 'Not logged'}</strong></div>
-                                  <div style={{ marginTop: '4px' }}>Joining Date: <strong>{emp.join_date}</strong></div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '32px' }}>
+                              {/* Left: KYC Details */}
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div>
+                                  <h5 style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Personal Profile</h5>
+                                  <div style={{ fontSize: '0.75rem', color: '#1c1917', lineHeight: '1.4' }}>
+                                    <div>Date of Birth: <strong>{emp.dob || 'Not logged'}</strong></div>
+                                    <div style={{ marginTop: '4px' }}>Joining Date: <strong>{emp.join_date}</strong></div>
+                                  </div>
+                                </div>
+                                <div>
+                                  <h5 style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Academic Details</h5>
+                                  <div style={{ fontSize: '0.75rem', color: '#1c1917', lineHeight: '1.4' }}>
+                                    <div>Education / Degree:</div>
+                                    <strong>{emp.education || 'Not logged'}</strong>
+                                  </div>
+                                </div>
+                                <div>
+                                  <h5 style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Physical Address</h5>
+                                  <div style={{ fontSize: '0.75rem', color: '#1c1917', lineHeight: '1.4', fontStyle: emp.address ? 'normal' : 'italic' }}>
+                                    {emp.address || 'No residential address logged.'}
+                                  </div>
                                 </div>
                               </div>
-                              <div>
-                                <h5 style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Academic Details</h5>
-                                <div style={{ fontSize: '0.75rem', color: '#1c1917', lineHeight: '1.4' }}>
-                                  <div>Education / Degree:</div>
-                                  <strong>{emp.education || 'Not logged'}</strong>
+
+                              {/* Right: Assets Management */}
+                              <div style={{ borderLeft: '1px solid #e7e5e4', paddingLeft: '24px' }}>
+                                <h5 style={{ margin: '0 0 12px 0', fontSize: '0.72rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Assigned Company Assets</h5>
+                                
+                                {/* List of assets */}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                                  {(!emp.assets || emp.assets.length === 0) ? (
+                                    <div style={{ fontSize: '0.72rem', color: '#a8a29e', fontStyle: 'italic' }}>No assets currently assigned to this employee.</div>
+                                  ) : (
+                                    emp.assets.map((asset, idx) => (
+                                      <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#fff', border: '1px solid #e7e5e4', padding: '8px 12px', borderRadius: '6px' }}>
+                                        <div style={{ fontSize: '0.75rem' }}>
+                                          <span style={{ fontWeight: 600, color: '#1c1917' }}>
+                                            {asset.asset_type === 'corporate_email' ? '📧 Email ID: ' : asset.asset_type === 'laptop' ? '💻 Laptop: ' : asset.asset_type === 'tools' ? '🔧 Tools: ' : '📦 '}
+                                            {asset.name}
+                                          </span>
+                                          {asset.serial_no && <span style={{ color: '#78716c', fontSize: '0.68rem', fontFamily: 'monospace', marginLeft: '6px' }}>(S/N: {asset.serial_no})</span>}
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                          <span style={{
+                                            fontSize: '0.62rem',
+                                            padding: '2px 6px',
+                                            borderRadius: '4px',
+                                            fontWeight: 700,
+                                            textTransform: 'uppercase',
+                                            background: asset.status === 'assigned' ? '#fee2e2' : '#dcfce7',
+                                            color: asset.status === 'assigned' ? '#ef4444' : '#16a34a'
+                                          }}>
+                                            {asset.status}
+                                          </span>
+                                          {asset.status === 'assigned' && (
+                                            <button
+                                              onClick={() => handleToggleAsset(emp.id, idx)}
+                                              style={{ background: 'transparent', border: 'none', color: '#9d2706', fontSize: '0.68rem', fontWeight: 600, cursor: 'pointer' }}
+                                            >
+                                              {asset.asset_type === 'corporate_email' ? 'Close Email' : 'Recover'}
+                                            </button>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))
+                                  )}
                                 </div>
-                              </div>
-                              <div>
-                                <h5 style={{ margin: '0 0 6px 0', fontSize: '0.7rem', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Physical Address</h5>
-                                <div style={{ fontSize: '0.75rem', color: '#1c1917', lineHeight: '1.4', fontStyle: emp.address ? 'normal' : 'italic' }}>
-                                  {emp.address || 'No residential address logged.'}
-                                </div>
+
+                                {/* Assign Asset Inline Form */}
+                                <form onSubmit={(e) => handleAssignAsset(e, emp.id)} style={{ background: '#fafaf9', border: '1px solid #e7e5e4', padding: '12px', borderRadius: '8px' }}>
+                                  <h6 style={{ margin: '0 0 8px 0', fontSize: '0.7rem', color: '#44403c', textTransform: 'uppercase' }}>Assign New Asset</h6>
+                                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.5fr 1fr auto', gap: '8px', alignItems: 'end' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                      <label style={{ fontSize: '0.62rem', color: '#78716c' }}>Asset Type</label>
+                                      <select
+                                        value={getAssetForm(emp.id).asset_type}
+                                        onChange={(e) => updateAssetForm(emp.id, { asset_type: e.target.value })}
+                                        style={{ padding: '4px 8px', border: '1px solid #e7e5e4', borderRadius: '4px', fontSize: '0.7rem' }}
+                                      >
+                                        <option value="corporate_email">Corporate Email</option>
+                                        <option value="laptop">Laptop / PC</option>
+                                        <option value="tools">Machinery / Tools</option>
+                                        <option value="other">Other Asset</option>
+                                      </select>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                      <label style={{ fontSize: '0.62rem', color: '#78716c' }}>Asset Name / Email</label>
+                                      <input
+                                        type="text"
+                                        placeholder="e.g. Dell PC or email@cob.com"
+                                        value={getAssetForm(emp.id).name}
+                                        onChange={(e) => updateAssetForm(emp.id, { name: e.target.value })}
+                                        style={{ padding: '4px 8px', border: '1px solid #e7e5e4', borderRadius: '4px', fontSize: '0.7rem' }}
+                                      />
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                      <label style={{ fontSize: '0.62rem', color: '#78716c' }}>Serial / Ref No.</label>
+                                      <input
+                                        type="text"
+                                        placeholder="Optional serial number"
+                                        value={getAssetForm(emp.id).serial_no}
+                                        onChange={(e) => updateAssetForm(emp.id, { serial_no: e.target.value })}
+                                        style={{ padding: '4px 8px', border: '1px solid #e7e5e4', borderRadius: '4px', fontSize: '0.7rem' }}
+                                      />
+                                    </div>
+                                    <button
+                                      type="submit"
+                                      style={{ background: '#9d2706', border: 'none', color: '#fff', padding: '6px 12px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 600, cursor: 'pointer' }}
+                                    >
+                                      Assign
+                                    </button>
+                                  </div>
+                                </form>
                               </div>
                             </div>
                           </td>
@@ -1011,6 +1140,21 @@ function AdminAccounting() {
             <p style={{ fontSize: '0.75rem', color: '#78716c', marginBottom: '16px' }}>Finalize exit files for **{selectedExitEmployee.name}** ({selectedExitEmployee.employee_id})</p>
             
             <form onSubmit={handleSettleExit} className="admin-form">
+              {selectedExitEmployee.assets && selectedExitEmployee.assets.filter(a => a.status === 'assigned').length > 0 && (
+                <div style={{ background: '#fff9db', border: '1px solid #ffe3e3', padding: '12px', borderRadius: '8px', marginBottom: '16px' }}>
+                  <strong style={{ fontSize: '0.75rem', color: '#d32f2f', display: 'block', marginBottom: '6px' }}>⚠️ Unreturned Corporate Assets:</strong>
+                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.72rem', color: '#44403c', lineHeight: '1.4' }}>
+                    {selectedExitEmployee.assets.filter(a => a.status === 'assigned').map((asset, idx) => (
+                      <li key={idx}>
+                        <strong>[{asset.asset_type.toUpperCase()}]</strong> {asset.name} {asset.serial_no ? `(S/N: ${asset.serial_no})` : ''}
+                      </li>
+                    ))}
+                  </ul>
+                  <span style={{ fontSize: '0.65rem', color: '#78716c', display: 'block', marginTop: '6px', fontStyle: 'italic' }}>
+                    * These assets will be marked recovered/closed automatically on finalizing exit clearance.
+                  </span>
+                </div>
+              )}
               <div className="af-row">
                 <div className="af-field">
                   <label>Exit Date *</label>

@@ -61,6 +61,12 @@ class EmployeeExit(BaseModel):
     fnf_amount: float
     notes: Optional[str] = ""
 
+class AssetCreate(BaseModel):
+    asset_type: str  # corporate_email, laptop, tools, other
+    name: str
+    serial_no: Optional[str] = ""
+    assigned_date: Optional[str] = None
+
 class ExpenseCreate(BaseModel):
     item_name: str
     expense_type: str  # material_procurement, product_purchase, accessories_purchase, other
@@ -305,6 +311,16 @@ async def settle_employee_exit(id: str, exit_payload: EmployeeExit, request: Req
         }
         await db.procurement_expenses.insert_one(fnf_expense)
         
+    # Settle all unreturned assets
+    assets = emp.get("assets", [])
+    for asset in assets:
+        if asset.get("status") == "assigned":
+            if asset.get("asset_type") == "corporate_email":
+                asset["status"] = "closed"
+            else:
+                asset["status"] = "recovered"
+            asset["returned_date"] = exit_payload.exit_date
+
     # Update employee details
     update_data = {
         "status": "exited",
@@ -312,10 +328,59 @@ async def settle_employee_exit(id: str, exit_payload: EmployeeExit, request: Req
         "fnf_settled": True,
         "fnf_amount": exit_payload.fnf_amount,
         "exit_notes": exit_payload.notes,
+        "assets": assets,
         "updated_at": datetime.now(timezone.utc).isoformat()
     }
     await db.employees.update_one({"_id": ObjectId(id)}, {"$set": update_data})
-    return {"message": f"Full & Final exit settlement completed for {emp['name']}."}
+    return {"message": f"Full & Final exit settlement completed for {emp['name']}. Assigned corporate emails closed and assets recovered."}
+
+@router.post("/employees/{id}/assets")
+async def assign_employee_asset(id: str, asset: AssetCreate, request: Request):
+    await require_admin(request)
+    if not ObjectId.is_valid(id):
+        raise HTTPException(status_code=400, detail="Invalid employee ID")
+        
+    emp = await db.employees.find_one({"_id": ObjectId(id)})
+    if not emp:
+        raise HTTPException(status_code=404, detail="Employee not found")
+        
+    doc = asset.model_dump()
+    doc["status"] = "assigned"
+    doc["assigned_date"] = doc["assigned_date"] or datetime.now(timezone.utc).isoformat()[:10]
+    
+    await db.employees.update_one(
+        {"_id": ObjectId(id)},
+        {"$push": {"assets": doc}}
+    )
+    return {"message": f"Asset '{asset.name}' assigned to {emp['name']} successfully."}
+
+@router.put("/employees/{id}/assets/{index}")
+async def update_employee_asset(id: str, index: int, request: Request):
+    await require_admin(request)
+    if not ObjectId.is_valid(id):
+        raise HTTPException(status_code=400, detail="Invalid employee ID")
+        
+    emp = await db.employees.find_one({"_id": ObjectId(id)})
+    if not emp:
+        raise HTTPException(status_code=404, detail="Employee not found")
+        
+    assets = emp.get("assets", [])
+    if index < 0 or index >= len(assets):
+        raise HTTPException(status_code=400, detail="Invalid asset index")
+        
+    asset = assets[index]
+    if asset.get("asset_type") == "corporate_email":
+        asset["status"] = "closed" if asset["status"] == "assigned" else "assigned"
+    else:
+        asset["status"] = "recovered" if asset["status"] == "assigned" else "assigned"
+        
+    asset["returned_date"] = datetime.now(timezone.utc).isoformat()[:10] if asset["status"] in ("recovered", "closed") else None
+    
+    await db.employees.update_one(
+        {"_id": ObjectId(id)},
+        {"$set": {"assets": assets}}
+    )
+    return {"message": "Asset status updated successfully.", "asset": asset}
 
 @router.delete("/employees/{id}")
 async def delete_employee(id: str, request: Request):
