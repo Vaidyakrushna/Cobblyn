@@ -1168,7 +1168,11 @@ function AdminAccounting() {
                           </td>
                           <td style={{ padding: '12px' }}>
                             <span style={{ fontSize: '0.62rem', background: '#f5f5f4', padding: '2px 8px', borderRadius: '4px', fontWeight: 600, color: '#44403c', border: '1px solid #e7e5e4' }}>
-                              {exp.expense_type}
+                              {exp.expense_type === 'material_procurement' ? 'Material Procurement' :
+                               exp.expense_type === 'product_purchase' ? 'Direct Product Purchase' :
+                               exp.expense_type === 'accessories_purchase' ? 'Accessories Purchase' :
+                               exp.expense_type === 'logistics_payment' ? 'Logistics & Freight' :
+                               'Other Operating'}
                             </span>
                           </td>
                           <td style={{ padding: '12px', fontSize: '0.75rem', color: '#44403c' }}>{exp.supplier || '—'}</td>
@@ -1506,6 +1510,7 @@ function AdminAccounting() {
                     <option value="material_procurement">Material Procurement</option>
                     <option value="product_purchase">Direct Product Purchase</option>
                     <option value="accessories_purchase">Accessories Purchase</option>
+                    <option value="logistics_payment">Logistics & Freight Payouts</option>
                     <option value="other">Other Operating Expenses</option>
                   </select>
                 </div>

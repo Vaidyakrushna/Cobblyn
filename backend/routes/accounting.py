@@ -148,6 +148,7 @@ async def get_financial_summary(request: Request, start_date: Optional[str] = No
     material_expenses = 0.0
     product_expenses = 0.0
     accessory_expenses = 0.0
+    logistics_expenses = 0.0
     other_expenses = 0.0
     procurement_gst_paid = 0.0
     
@@ -168,6 +169,8 @@ async def get_financial_summary(request: Request, start_date: Optional[str] = No
             product_expenses += amt
         elif etype == "accessories_purchase":
             accessory_expenses += amt
+        elif etype == "logistics_payment":
+            logistics_expenses += amt
         else:
             other_expenses += amt
             
@@ -201,7 +204,7 @@ async def get_financial_summary(request: Request, start_date: Optional[str] = No
     internal_factory_cost = material_expenses + total_payroll + mat_receipts_cost
     external_vendor_cost = vendor_payout_paid
     
-    net_profit = total_sales - (vendor_payout_paid + material_expenses + product_expenses + accessory_expenses + other_expenses + total_payroll)
+    net_profit = total_sales - (vendor_payout_paid + material_expenses + product_expenses + accessory_expenses + logistics_expenses + other_expenses + total_payroll)
         
     return {
         "sales": {
@@ -232,8 +235,9 @@ async def get_financial_summary(request: Request, start_date: Optional[str] = No
             "product_purchase": round(product_expenses, 2),
             "accessories_purchase": round(accessory_expenses, 2),
             "payroll": round(total_payroll, 2),
+            "logistics": round(logistics_expenses, 2),
             "other": round(other_expenses, 2),
-            "total_expenses": round(material_expenses + mat_receipts_cost + product_expenses + accessory_expenses + total_payroll + other_expenses, 2)
+            "total_expenses": round(material_expenses + mat_receipts_cost + product_expenses + accessory_expenses + total_payroll + logistics_expenses + other_expenses, 2)
         },
         "net_profit": round(net_profit, 2)
     }

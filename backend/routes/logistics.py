@@ -8,9 +8,46 @@ router = APIRouter(prefix="/api/admin/logistics", tags=["logistics"])
 
 db = None
 
+async def seed_courier_partners():
+    count = await db.courier_partners.count_documents({})
+    if count == 0:
+        default_couriers = [
+            {"name": "Shiprocket", "model": "prepaid", "wallet_balance": 5000.0, "outstanding_dues": 0.0, "created_at": datetime.now(timezone.utc).isoformat()},
+            {"name": "Delhivery", "model": "prepaid", "wallet_balance": 2500.0, "outstanding_dues": 0.0, "created_at": datetime.now(timezone.utc).isoformat()},
+            {"name": "Blue Dart", "model": "postpaid", "wallet_balance": 0.0, "outstanding_dues": 0.0, "created_at": datetime.now(timezone.utc).isoformat()},
+            {"name": "DHL Express", "model": "postpaid", "wallet_balance": 0.0, "outstanding_dues": 0.0, "created_at": datetime.now(timezone.utc).isoformat()}
+        ]
+        await db.courier_partners.insert_many(default_couriers)
+        
+        recharges = [
+            {
+                "expense_type": "logistics_payment",
+                "amount": 5000.0,
+                "expense_date": datetime.now(timezone.utc).isoformat(),
+                "supplier_name": "Shiprocket",
+                "notes": "Initial wallet balance seed",
+                "gst_amount": 5000.0 - (5000.0 / 1.18)
+            },
+            {
+                "expense_type": "logistics_payment",
+                "amount": 2500.0,
+                "expense_date": datetime.now(timezone.utc).isoformat(),
+                "supplier_name": "Delhivery",
+                "notes": "Initial wallet balance seed",
+                "gst_amount": 2500.0 - (2500.0 / 1.18)
+            }
+        ]
+        await db.procurement_expenses.insert_many(recharges)
+
 def set_db(database):
     global db
     db = database
+    import asyncio
+    try:
+        loop = asyncio.get_running_loop()
+        loop.create_task(seed_courier_partners())
+    except RuntimeError:
+        pass
 
 async def require_admin(request: Request):
     from auth_utils import get_current_user
@@ -62,6 +99,16 @@ class ReturnCreate(BaseModel):
     customer_name: str
     reason: str
     fit_adjustments: Optional[str] = ""
+    notes: Optional[str] = ""
+
+class CourierCreate(BaseModel):
+    name: str
+    model: str  # prepaid, postpaid
+    wallet_balance: Optional[float] = 0.0
+    outstanding_dues: Optional[float] = 0.0
+
+class CourierPay(BaseModel):
+    amount: float
     notes: Optional[str] = ""
 
 # --- Endpoints ---
@@ -168,6 +215,17 @@ async def register_shipment(order_id: str, payload: OutboundRegister, request: R
         "delivered_at": None
     }
     await db.outbound_shipments.insert_one(shipment_doc)
+    
+    # Adjust courier wallet/outstanding dues
+    carrier = await db.courier_partners.find_one({"name": payload.carrier_name})
+    if carrier:
+        c_id = carrier.get("_id")
+        c_model = carrier.get("model", "prepaid")
+        charges = float(payload.shipping_charges or 0.0)
+        if c_model == "prepaid":
+            await db.courier_partners.update_one({"_id": c_id}, {"$inc": {"wallet_balance": -charges}})
+        else:
+            await db.courier_partners.update_one({"_id": c_id}, {"$inc": {"outstanding_dues": charges}})
     
     query_id = ObjectId(order_id) if ObjectId.is_valid(order_id) else order_id
     await db.orders.update_one(
@@ -290,3 +348,50 @@ async def update_return_status(id: str, status: str, request: Request):
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Return record not found")
     return {"message": "Return status updated successfully."}
+
+# 5. Courier Partners & Billing Accounts
+@router.get("/couriers")
+async def list_couriers(request: Request):
+    await require_admin(request)
+    cursor = db.courier_partners.find({}).sort("created_at", -1)
+    results = []
+    async for doc in cursor:
+        results.append(serialize(doc))
+    return {"couriers": results}
+
+@router.post("/couriers")
+async def create_courier(payload: CourierCreate, request: Request):
+    await require_admin(request)
+    doc = payload.model_dump()
+    doc["created_at"] = datetime.now(timezone.utc).isoformat()
+    await db.courier_partners.insert_one(doc)
+    return {"message": "Courier partner created successfully."}
+
+@router.post("/couriers/{courier_id}/pay")
+async def pay_courier(courier_id: str, payload: CourierPay, request: Request):
+    await require_admin(request)
+    c_id = ObjectId(courier_id) if ObjectId.is_valid(courier_id) else courier_id
+    
+    courier = await db.courier_partners.find_one({"_id": c_id})
+    if not courier:
+        raise HTTPException(status_code=404, detail="Courier partner not found")
+        
+    c_model = courier.get("model", "prepaid")
+    c_name = courier.get("name")
+    
+    expense_doc = {
+        "expense_type": "logistics_payment",
+        "amount": float(payload.amount),
+        "expense_date": datetime.now(timezone.utc).isoformat(),
+        "supplier_name": c_name,
+        "notes": payload.notes or f"Logistics payment ({c_model.upper()})",
+        "gst_amount": float(payload.amount) - (float(payload.amount) / 1.18)
+    }
+    await db.procurement_expenses.insert_one(expense_doc)
+    
+    if c_model == "prepaid":
+        await db.courier_partners.update_one({"_id": c_id}, {"$inc": {"wallet_balance": float(payload.amount)}})
+    else:
+        await db.courier_partners.update_one({"_id": c_id}, {"$inc": {"outstanding_dues": -float(payload.amount)}})
+        
+    return {"message": f"Payment of {payload.amount} recorded for {c_name}."}

@@ -23,6 +23,7 @@ function AdminLogistics() {
 
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [couriers, setCouriers] = useState([]);
 
   // Forms
   const [showHandoverModal, setShowHandoverModal] = useState(false);
@@ -50,6 +51,13 @@ function AdminLogistics() {
   const [returnForm, setReturnForm] = useState({
     order_id: '', customer_name: '', reason: '', fit_adjustments: '', notes: ''
   });
+
+  const [showCourierModal, setShowCourierModal] = useState(false);
+  const [courierForm, setCourierForm] = useState({ name: '', model: 'prepaid', wallet_balance: '0', outstanding_dues: '0' });
+
+  const [showPayCourierModal, setShowPayCourierModal] = useState(false);
+  const [selectedCourier, setSelectedCourier] = useState(null);
+  const [payCourierForm, setPayCourierForm] = useState({ amount: '', notes: '' });
 
   // Fetch Logic
   const fetchSummary = useCallback(async () => {
@@ -124,6 +132,15 @@ function AdminLogistics() {
     }
   }, []);
 
+  const fetchCouriers = useCallback(async () => {
+    try {
+      const data = await api.request('/admin/logistics/couriers');
+      setCouriers(data.couriers || []);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
   const loadAllData = useCallback(async () => {
     setLoading(true);
     await Promise.all([
@@ -134,15 +151,57 @@ function AdminLogistics() {
       fetchReturns(),
       fetchRawMaterials(),
       fetchWorkshops(),
-      fetchOrders()
+      fetchOrders(),
+      fetchCouriers()
     ]);
     setLoading(false);
-  }, [fetchSummary, fetchHandovers, fetchShipments, fetchInbound, fetchReturns, fetchRawMaterials, fetchWorkshops, fetchOrders]);
+  }, [fetchSummary, fetchHandovers, fetchShipments, fetchInbound, fetchReturns, fetchRawMaterials, fetchWorkshops, fetchOrders, fetchCouriers]);
 
   useEffect(() => {
     setMounted(true);
     loadAllData();
   }, []);
+
+  const handleCreateCourier = async (e) => {
+    e.preventDefault();
+    try {
+      await api.request('/admin/logistics/couriers', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: courierForm.name,
+          model: courierForm.model,
+          wallet_balance: parseFloat(courierForm.wallet_balance || '0'),
+          outstanding_dues: parseFloat(courierForm.outstanding_dues || '0')
+        })
+      });
+      setShowCourierModal(false);
+      setCourierForm({ name: '', model: 'prepaid', wallet_balance: '0', outstanding_dues: '0' });
+      fetchCouriers();
+    } catch (err) {
+      alert("Failed to create courier partner: " + err.message);
+    }
+  };
+
+  const handlePayCourier = async (e) => {
+    e.preventDefault();
+    if (!selectedCourier) return;
+    try {
+      await api.request(`/admin/logistics/couriers/${selectedCourier.id}/pay`, {
+        method: 'POST',
+        body: JSON.stringify({
+          amount: parseFloat(payCourierForm.amount),
+          notes: payCourierForm.notes
+        })
+      });
+      setShowPayCourierModal(false);
+      setSelectedCourier(null);
+      setPayCourierForm({ amount: '', notes: '' });
+      fetchCouriers();
+      fetchSummary();
+    } catch (err) {
+      alert("Failed to register payment: " + err.message);
+    }
+  };
 
   // Handover Handlers
   const handleCreateHandover = async (e) => {
@@ -407,6 +466,12 @@ function AdminLogistics() {
           style={{ padding: '12px 18px', background: 'transparent', border: 'none', borderBottom: activeTab === 'returns' ? '3px solid #9d2706' : 'none', color: activeTab === 'returns' ? '#9d2706' : '#78716c', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
         >
           🔄 Reverse Returns & Exchanges
+        </button>
+        <button 
+          onClick={() => setActiveTab('couriers')}
+          style={{ padding: '12px 18px', background: 'transparent', border: 'none', borderBottom: activeTab === 'couriers' ? '3px solid #9d2706' : 'none', color: activeTab === 'couriers' ? '#9d2706' : '#78716c', fontWeight: 700, fontSize: '0.82rem', cursor: 'pointer' }}
+        >
+          💳 Courier Ledgers
         </button>
       </div>
 
@@ -757,6 +822,94 @@ function AdminLogistics() {
         </div>
       )}
 
+      {/* 5. COURIER LEDGERS TAB */}
+      {activeTab === 'couriers' && (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.2rem', color: '#1c1917', margin: 0 }}>Courier Partners, Wallets & Invoices</h3>
+            <button 
+              onClick={() => setShowCourierModal(true)}
+              style={{ background: '#9d2706', border: 'none', color: '#fff', padding: '6px 14px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+            >
+              <Plus size={14} /> Register Courier Partner
+            </button>
+          </div>
+
+          <div className="admin-table-wrapper" style={{ background: '#fff', border: '1px solid #e7e5e4', borderRadius: '12px', padding: '8px' }}>
+            <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ textAlign: 'left', borderBottom: '1px solid #e7e5e4' }}>
+                  <th style={{ padding: '12px' }}>Courier Partner</th>
+                  <th style={{ padding: '12px' }}>Billing Model</th>
+                  <th style={{ padding: '12px' }}>Current Balance / Outstanding Dues</th>
+                  <th style={{ padding: '12px' }}>Created Date</th>
+                  <th style={{ padding: '12px', textAlign: 'center' }}>Ledger Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {couriers.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" style={{ textAlign: 'center', padding: '24px', color: '#a8a29e', fontSize: '0.78rem' }}>No courier partners registered.</td>
+                  </tr>
+                ) : (
+                  couriers.map(c => (
+                    <tr key={c.id} style={{ borderBottom: '1px solid #f5f5f4' }}>
+                      <td style={{ padding: '12px' }}>
+                        <strong style={{ fontSize: '0.82rem', color: '#1c1917' }}>{c.name}</strong>
+                      </td>
+                      <td style={{ padding: '12px', fontSize: '0.78rem' }}>
+                        <span style={{
+                          fontSize: '0.62rem',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          fontWeight: 700,
+                          textTransform: 'uppercase',
+                          background: c.model === 'prepaid' ? '#eff6ff' : '#fffbeb',
+                          color: c.model === 'prepaid' ? '#2563eb' : '#d97706'
+                        }}>
+                          {c.model === 'prepaid' ? 'Prepaid Wallet' : 'Postpaid Billing'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px', fontSize: '0.8rem', fontWeight: 600 }}>
+                        {c.model === 'prepaid' ? (
+                          <span style={{ color: c.wallet_balance > 500 ? '#16a34a' : '#ef4444' }}>
+                            Wallet: INR {c.wallet_balance.toLocaleString()}
+                          </span>
+                        ) : (
+                          <span style={{ color: c.outstanding_dues > 0 ? '#d97706' : '#78716c' }}>
+                            Unbilled Dues: INR {c.outstanding_dues.toLocaleString()}
+                          </span>
+                        )}
+                      </td>
+                      <td style={{ padding: '12px', fontSize: '0.75rem', color: '#78716c' }}>
+                        {new Date(c.created_at).toLocaleDateString('en-IN')}
+                      </td>
+                      <td style={{ padding: '12px', textAlign: 'center' }}>
+                        <button
+                          onClick={() => { setSelectedCourier(c); setPayCourierForm({ amount: '', notes: '' }); setShowPayCourierModal(true); }}
+                          style={{
+                            background: c.model === 'prepaid' ? '#2563eb' : '#9d2706',
+                            border: 'none',
+                            color: '#fff',
+                            padding: '4px 10px',
+                            borderRadius: '4px',
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {c.model === 'prepaid' ? 'Recharge Wallet' : 'Settle Invoice'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* --- MODALS BLOCK --- */}
 
       {/* 1. DISPATCH MATERIALS TO ARTISANS MODAL */}
@@ -902,11 +1055,12 @@ function AdminLogistics() {
                 <div className="af-field">
                   <label>Courier Partner *</label>
                   <select value={shipmentForm.carrier_name} onChange={e => setShipmentForm({...shipmentForm, carrier_name: e.target.value})} required>
-                    <option value="Shiprocket">Shiprocket (Aggregator)</option>
-                    <option value="Delhivery">Delhivery</option>
-                    <option value="Blue Dart">Blue Dart</option>
-                    <option value="DHL Express">DHL Express</option>
-                    <option value="FedEx">FedEx</option>
+                    <option value="">-- Choose Courier Carrier --</option>
+                    {couriers.map(c => (
+                      <option key={c.id} value={c.name}>
+                        {c.name} ({c.model === 'prepaid' ? `Prepaid - Bal: INR ${c.wallet_balance.toLocaleString()}` : `Postpaid - Dues: INR ${c.outstanding_dues.toLocaleString()}`})
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="af-field">
@@ -1027,6 +1181,66 @@ function AdminLogistics() {
               </div>
 
               <button type="submit" className="admin-btn-primary" style={{ width: '100%', marginTop: '12px' }}>Register Return File</button>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Register Courier Partner Modal */}
+      {showCourierModal && (
+        <div className="admin-modal-overlay" onClick={() => setShowCourierModal(false)} style={{ zIndex: 1200 }}>
+          <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <button className="admin-modal-close" onClick={() => setShowCourierModal(false)}><X size={18} /></button>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', marginBottom: '16px' }}>Register Courier Partner</h3>
+            <form onSubmit={handleCreateCourier} className="admin-form">
+              <div className="af-field">
+                <label>Courier Name *</label>
+                <input type="text" placeholder="e.g. FedEx, Blue Dart, Shiprocket" value={courierForm.name} onChange={e => setCourierForm({...courierForm, name: e.target.value})} required />
+              </div>
+              <div className="af-field" style={{ margin: '12px 0' }}>
+                <label>Billing Account Model *</label>
+                <select value={courierForm.model} onChange={e => setCourierForm({...courierForm, model: e.target.value})} required>
+                  <option value="prepaid">Prepaid Wallet Account</option>
+                  <option value="postpaid">Postpaid Consolidated Account</option>
+                </select>
+              </div>
+              {courierForm.model === 'prepaid' ? (
+                <div className="af-field">
+                  <label>Initial Wallet Balance (INR)</label>
+                  <input type="number" step="any" value={courierForm.wallet_balance} onChange={e => setCourierForm({...courierForm, wallet_balance: e.target.value})} />
+                </div>
+              ) : (
+                <div className="af-field">
+                  <label>Initial Unbilled Dues (INR)</label>
+                  <input type="number" step="any" value={courierForm.outstanding_dues} onChange={e => setCourierForm({...courierForm, outstanding_dues: e.target.value})} />
+                </div>
+              )}
+              <button type="submit" className="admin-btn-primary" style={{ width: '100%', marginTop: '16px' }}>Register Partner</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Pay Courier / Settle Invoice Modal */}
+      {showPayCourierModal && selectedCourier && (
+        <div className="admin-modal-overlay" onClick={() => { setShowPayCourierModal(false); setSelectedCourier(null); }} style={{ zIndex: 1200 }}>
+          <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <button className="admin-modal-close" onClick={() => { setShowPayCourierModal(false); setSelectedCourier(null); }}><X size={18} /></button>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', marginBottom: '8px' }}>
+              {selectedCourier.model === 'prepaid' ? 'Recharge Courier Wallet' : 'Settle Courier Invoice'}
+            </h3>
+            <p style={{ fontSize: '0.75rem', color: '#78716c', marginBottom: '16px' }}>
+              Courier: <strong>{selectedCourier.name}</strong> ({selectedCourier.model === 'prepaid' ? `Prepaid Balance: INR ${selectedCourier.wallet_balance}` : `Postpaid Dues: INR ${selectedCourier.outstanding_dues}`})
+            </p>
+            <form onSubmit={handlePayCourier} className="admin-form">
+              <div className="af-field">
+                <label>Amount Paid (INR) *</label>
+                <input type="number" step="any" min="1" placeholder="Enter amount" value={payCourierForm.amount} onChange={e => setPayCourierForm({...payCourierForm, amount: e.target.value})} required />
+              </div>
+              <div className="af-field" style={{ marginTop: '12px' }}>
+                <label>Payment Notes / Transaction ID</label>
+                <textarea rows="2" placeholder="UPI reference, Bank transfer ID, wallet slip..." value={payCourierForm.notes} onChange={e => setPayCourierForm({...payCourierForm, notes: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #e7e5e4', borderRadius: '6px', fontSize: '0.78rem' }} />
+              </div>
+              <button type="submit" className="admin-btn-primary" style={{ width: '100%', marginTop: '16px' }}>Confirm Payment & Sync Ledger</button>
             </form>
           </div>
         </div>
