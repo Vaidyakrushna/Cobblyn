@@ -45,6 +45,8 @@ class OutboundRegister(BaseModel):
     tracking_no: str
     shipping_charges: Optional[float] = 0.0
     estimated_delivery: Optional[str] = None
+    pickup_type: str = "factory"  # factory, vendor
+    pickup_vendor_id: Optional[str] = None
     notes: Optional[str] = ""
 
 class InboundCreate(BaseModel):
@@ -141,6 +143,15 @@ async def register_shipment(order_id: str, payload: OutboundRegister, request: R
     if not order:
         order = await db.orders.find_one({"id": order_id})
         
+    pickup_vendor_name = None
+    if payload.pickup_type == "vendor" and payload.pickup_vendor_id:
+        v_id = payload.pickup_vendor_id
+        vendor = await db.vendors.find_one({"_id": ObjectId(v_id) if ObjectId.is_valid(v_id) else v_id})
+        if not vendor:
+            vendor = await db.vendors.find_one({"id": v_id})
+        if vendor:
+            pickup_vendor_name = vendor.get("name")
+
     shipment_doc = {
         "order_id": order_id,
         "customer_name": order.get("shipping_address", {}).get("name", "Customer") if order else "Customer",
@@ -148,6 +159,9 @@ async def register_shipment(order_id: str, payload: OutboundRegister, request: R
         "tracking_no": payload.tracking_no,
         "shipping_charges": payload.shipping_charges,
         "estimated_delivery": payload.estimated_delivery,
+        "pickup_type": payload.pickup_type,
+        "pickup_vendor_id": payload.pickup_vendor_id,
+        "pickup_vendor_name": pickup_vendor_name,
         "status": "in_transit",
         "notes": payload.notes,
         "created_at": datetime.now(timezone.utc).isoformat(),

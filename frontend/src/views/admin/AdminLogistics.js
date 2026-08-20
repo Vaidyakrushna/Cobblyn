@@ -38,7 +38,7 @@ function AdminLogistics() {
 
   const [showShipmentModal, setShowShipmentModal] = useState(false);
   const [shipmentForm, setShipmentForm] = useState({
-    order_id: '', carrier_name: 'Shiprocket', tracking_no: '', shipping_charges: '0', estimated_delivery: '', notes: ''
+    order_id: '', carrier_name: 'Shiprocket', tracking_no: '', shipping_charges: '0', estimated_delivery: '', notes: '', pickup_type: 'factory', pickup_vendor_id: ''
   });
 
   const [showInboundModal, setShowInboundModal] = useState(false);
@@ -217,11 +217,13 @@ function AdminLogistics() {
           tracking_no: shipmentForm.tracking_no,
           shipping_charges: parseFloat(shipmentForm.shipping_charges || '0'),
           estimated_delivery: shipmentForm.estimated_delivery || null,
+          pickup_type: shipmentForm.pickup_type,
+          pickup_vendor_id: shipmentForm.pickup_type === 'vendor' ? shipmentForm.pickup_vendor_id : null,
           notes: shipmentForm.notes
         })
       });
       setShowShipmentModal(false);
-      setShipmentForm({ order_id: '', carrier_name: 'Shiprocket', tracking_no: '', shipping_charges: '0', estimated_delivery: '', notes: '' });
+      setShipmentForm({ order_id: '', carrier_name: 'Shiprocket', tracking_no: '', shipping_charges: '0', estimated_delivery: '', notes: '', pickup_type: 'factory', pickup_vendor_id: '' });
       fetchShipments();
       fetchSummary();
     } catch (err) {
@@ -510,6 +512,7 @@ function AdminLogistics() {
                 <tr style={{ textAlign: 'left', borderBottom: '1px solid #e7e5e4' }}>
                   <th style={{ padding: '12px' }}>Order Reference & Customer</th>
                   <th style={{ padding: '12px' }}>Courier Partner</th>
+                  <th style={{ padding: '12px' }}>Pickup Point</th>
                   <th style={{ padding: '12px' }}>Tracking number</th>
                   <th style={{ padding: '12px' }}>Est. Delivery Date</th>
                   <th style={{ padding: '12px' }}>Transit Status</th>
@@ -530,6 +533,13 @@ function AdminLogistics() {
                         <strong style={{ fontSize: '0.82rem', color: '#1c1917' }}>{s.customer_name}</strong>
                       </td>
                       <td style={{ padding: '12px', fontSize: '0.78rem', color: '#44403c' }}>{s.carrier_name}</td>
+                      <td style={{ padding: '12px', fontSize: '0.75rem' }}>
+                        {s.pickup_type === 'vendor' ? (
+                          <span style={{ color: '#9d2706', fontWeight: 600 }}>🏪 Direct: {s.pickup_vendor_name || 'Vendor'}</span>
+                        ) : (
+                          <span style={{ color: '#78716c' }}>🏭 Factory Warehouse</span>
+                        )}
+                      </td>
                       <td style={{ padding: '12px', fontSize: '0.72rem', color: '#78716c', fontFamily: 'monospace' }}>{s.tracking_no}</td>
                       <td style={{ padding: '12px', fontSize: '0.75rem', color: '#78716c' }}>{s.estimated_delivery ? new Date(s.estimated_delivery).toLocaleDateString('en-IN') : '—'}</td>
                       <td style={{ padding: '12px' }}>
@@ -679,6 +689,7 @@ function AdminLogistics() {
                 <tr style={{ textAlign: 'left', borderBottom: '1px solid #e7e5e4' }}>
                   <th style={{ padding: '12px' }}>Order ID & Customer</th>
                   <th style={{ padding: '12px' }}>Reason for Return</th>
+                  <th style={{ padding: '12px' }}>Return Target</th>
                   <th style={{ padding: '12px' }}>Custom Fit Adjustments required</th>
                   <th style={{ padding: '12px' }}>Registered Date</th>
                   <th style={{ padding: '12px' }}>Status</th>
@@ -698,6 +709,9 @@ function AdminLogistics() {
                         <strong style={{ fontSize: '0.82rem', color: '#1c1917' }}>{ret.customer_name}</strong>
                       </td>
                       <td style={{ padding: '12px', fontSize: '0.78rem', color: '#44403c' }}>{ret.reason}</td>
+                      <td style={{ padding: '12px', fontSize: '0.72rem' }}>
+                        <span style={{ background: '#f0fdf4', color: '#16a34a', border: '1px solid #b2f2bb', padding: '2px 6px', borderRadius: '4px', fontWeight: 600 }}>🏭 Factory QC</span>
+                      </td>
                       <td style={{ padding: '12px', fontSize: '0.75rem', color: '#9d2706', fontStyle: 'italic', fontWeight: 600 }}>{ret.fit_adjustments || 'No adjustments noted.'}</td>
                       <td style={{ padding: '12px', fontSize: '0.75rem', color: '#78716c' }}>{new Date(ret.created_at).toLocaleDateString('en-IN')}</td>
                       <td style={{ padding: '12px' }}>
@@ -842,6 +856,48 @@ function AdminLogistics() {
                 </select>
               </div>
 
+              <div className="af-field" style={{ margin: '12px 0' }}>
+                <label>Pickup Location Source *</label>
+                <div style={{ display: 'flex', gap: '20px', marginTop: '6px' }}>
+                  <label style={{ fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: 600 }}>
+                    <input 
+                      type="radio" 
+                      name="pickup_type" 
+                      value="factory" 
+                      checked={shipmentForm.pickup_type === 'factory'} 
+                      onChange={() => setShipmentForm({...shipmentForm, pickup_type: 'factory', pickup_vendor_id: ''})} 
+                    />
+                    🏭 Factory Warehouse (Default)
+                  </label>
+                  <label style={{ fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontWeight: 600 }}>
+                    <input 
+                      type="radio" 
+                      name="pickup_type" 
+                      value="vendor" 
+                      checked={shipmentForm.pickup_type === 'vendor'} 
+                      onChange={() => setShipmentForm({...shipmentForm, pickup_type: 'vendor'})} 
+                    />
+                    🏪 Direct Vendor Workshop
+                  </label>
+                </div>
+              </div>
+
+              {shipmentForm.pickup_type === 'vendor' && (
+                <div className="af-field" style={{ marginBottom: '12px' }}>
+                  <label>Select Dispatch Workshop *</label>
+                  <select 
+                    value={shipmentForm.pickup_vendor_id} 
+                    onChange={e => setShipmentForm({...shipmentForm, pickup_vendor_id: e.target.value})} 
+                    required={shipmentForm.pickup_type === 'vendor'}
+                  >
+                    <option value="">-- Choose Workshop --</option>
+                    {workshops.map(v => (
+                      <option key={v.id} value={v.id}>{v.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div className="af-row">
                 <div className="af-field">
                   <label>Courier Partner *</label>
@@ -937,6 +993,13 @@ function AdminLogistics() {
             <button className="admin-modal-close" onClick={() => setShowReturnModal(false)}><X size={18} /></button>
             <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', marginBottom: '16px' }}>Register Return & Refit Request</h3>
             <form onSubmit={handleRegisterReturn} className="admin-form">
+              <div style={{ background: '#f0fdf4', border: '1px solid #b2f2bb', padding: '10px 14px', borderRadius: '8px', marginBottom: '16px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <span style={{ fontSize: '1.2rem' }}>🏭</span>
+                <div>
+                  <strong style={{ fontSize: '0.75rem', color: '#16a34a', display: 'block' }}>Return Target Location: Factory Warehouse (Locked)</strong>
+                  <span style={{ fontSize: '0.65rem', color: '#78716c' }}>Regardless of pickup origin, returned custom items must route back to the factory for inspection, resizing, and quality assurance.</span>
+                </div>
+              </div>
               <div className="af-row">
                 <div className="af-field">
                   <label>Order ID Reference *</label>
