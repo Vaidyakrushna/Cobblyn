@@ -56,7 +56,11 @@ function AdminAccounting() {
   });
 
   const [showPayrollModal, setShowPayrollModal] = useState(false);
-  const [payrollForm, setPayrollForm] = useState({ month: '' });
+  const [payrollForm, setPayrollForm] = useState({ month: '', bonuses: {} });
+
+  const [showAppraisalModal, setShowAppraisalModal] = useState(false);
+  const [selectedAppraisalEmp, setSelectedAppraisalEmp] = useState(null);
+  const [appraisalForm, setAppraisalForm] = useState({ new_salary: '', effective_date: '', notes: '' });
 
   const [showExitModal, setShowExitModal] = useState(false);
   const [selectedExitEmployee, setSelectedExitEmployee] = useState(null);
@@ -205,6 +209,26 @@ function AdminAccounting() {
       ...prev,
       [empId]: { ...getAssetForm(empId), ...fields }
     }));
+  };
+
+  const handleCreateAppraisal = async (e) => {
+    e.preventDefault();
+    if (!selectedAppraisalEmp) return;
+    try {
+      await api.request(`/admin/accounting/employees/${selectedAppraisalEmp.id}/appraisal`, {
+        method: 'POST',
+        body: JSON.stringify({
+          new_salary: parseFloat(appraisalForm.new_salary),
+          effective_date: appraisalForm.effective_date,
+          notes: appraisalForm.notes
+        })
+      });
+      setShowAppraisalModal(false);
+      setSelectedAppraisalEmp(null);
+      fetchEmployeesData();
+    } catch (err) {
+      alert("Failed to process salary appraisal: " + err.message);
+    }
   };
 
   const handleAssignAsset = async (e, empId) => {
@@ -406,7 +430,7 @@ function AdminAccounting() {
       });
       alert(res.message);
       setShowPayrollModal(false);
-      setPayrollForm({ month: '' });
+      setPayrollForm({ month: '', bonuses: {} });
       fetchEmployeesData();
       fetchSummary();
     } catch (err) {
@@ -477,6 +501,12 @@ function AdminAccounting() {
               style={{ padding: '8px 16px', background: 'transparent', border: 'none', borderBottom: hrSubTab === 'assets' ? '3px solid #9d2706' : 'none', color: hrSubTab === 'assets' ? '#9d2706' : '#78716c', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }}
             >
               💻 Company Assets Tracker
+            </button>
+            <button 
+              onClick={() => setHrSubTab('exits')}
+              style={{ padding: '8px 16px', background: 'transparent', border: 'none', borderBottom: hrSubTab === 'exits' ? '3px solid #9d2706' : 'none', color: hrSubTab === 'exits' ? '#9d2706' : '#78716c', fontWeight: 700, fontSize: '0.78rem', cursor: 'pointer' }}
+            >
+              💼 Exited & FnF Settlements
             </button>
           </div>
 
@@ -567,7 +597,7 @@ function AdminAccounting() {
                         {expandedEmpId === emp.id && (
                           <tr style={{ background: '#fcfbf9' }}>
                             <td colSpan="7" style={{ padding: '16px 24px', borderBottom: '1px solid #e7e5e4' }}>
-                              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '32px' }}>
+                              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '24px' }}>
                                 {/* Left: KYC Details */}
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                   <div>
@@ -590,6 +620,38 @@ function AdminAccounting() {
                                       {emp.address || 'No residential address logged.'}
                                     </div>
                                   </div>
+                                </div>
+
+                                {/* Center: Salary & Appraisals */}
+                                <div style={{ borderLeft: '1px solid #e7e5e4', paddingLeft: '20px' }}>
+                                  <h5 style={{ margin: '0 0 12px 0', fontSize: '0.72rem', color: '#9d2706', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Salary & Appraisals</h5>
+                                  <div style={{ fontSize: '0.78rem', color: '#1c1917', marginBottom: '12px' }}>
+                                    Current Salary: <strong>INR {parseFloat(emp.salary || 0).toLocaleString()} /mo</strong>
+                                  </div>
+                                  
+                                  {/* Appraisal Log History */}
+                                  <div style={{ maxHeight: '120px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '16px' }}>
+                                    {(!emp.appraisals || emp.appraisals.length === 0) ? (
+                                      <div style={{ fontSize: '0.7rem', color: '#a8a29e', fontStyle: 'italic' }}>No appraisals logged yet.</div>
+                                    ) : (
+                                      emp.appraisals.map((apr, idx) => (
+                                        <div key={idx} style={{ background: '#fff', border: '1px solid #e7e5e4', padding: '6px 10px', borderRadius: '4px', fontSize: '0.7rem' }}>
+                                          <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}>
+                                            <span style={{ color: '#16a34a' }}>→ INR {apr.new_salary.toLocaleString()}</span>
+                                            <span style={{ color: '#78716c' }}>{apr.effective_date}</span>
+                                          </div>
+                                          {apr.notes && <div style={{ color: '#78716c', marginTop: '2px', fontStyle: 'italic' }}>"{apr.notes}"</div>}
+                                        </div>
+                                      ))
+                                    )}
+                                  </div>
+                                  
+                                  <button
+                                    onClick={() => { setSelectedAppraisalEmp(emp); setAppraisalForm({ new_salary: '', effective_date: new Date().toISOString().split('T')[0], notes: '' }); setShowAppraisalModal(true); }}
+                                    style={{ background: '#fafaf9', border: '1px solid #dcdad6', color: '#1c1917', padding: '6px 12px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', width: '100%', justifyContent: 'center' }}
+                                  >
+                                    ➕ Process Salary Increase
+                                  </button>
                                 </div>
 
                                 {/* Right: Assets Management */}
@@ -812,6 +874,55 @@ function AdminAccounting() {
                   </div>
                   <button type="submit" className="admin-btn-primary" style={{ width: '100%', marginTop: '12px' }}>Allocate & Log Asset</button>
                 </form>
+              </div>
+            </div>
+          )}
+
+          {hrSubTab === 'exits' && (
+            <div>
+              <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.2rem', color: '#1c1917', marginBottom: '16px' }}>Exited Staff & Settlement Archives</h3>
+              <div className="admin-table-wrapper" style={{ background: '#fff', border: '1px solid #e7e5e4', borderRadius: '12px', padding: '8px' }}>
+                <table className="admin-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ textAlign: 'left', borderBottom: '1px solid #e7e5e4' }}>
+                      <th style={{ padding: '12px' }}>Employee ID & Name</th>
+                      <th style={{ padding: '12px' }}>Role</th>
+                      <th style={{ padding: '12px' }}>Exit Date</th>
+                      <th style={{ padding: '12px' }}>Settlement (FnF) Amount</th>
+                      <th style={{ padding: '12px' }}>Status / Settlement Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {employees.filter(e => e.status === 'exited').length === 0 ? (
+                      <tr>
+                        <td colSpan="5" style={{ textAlign: 'center', padding: '24px', color: '#a8a29e', fontSize: '0.78rem' }}>No exited employees recorded.</td>
+                      </tr>
+                    ) : (
+                      employees.filter(e => e.status === 'exited').map(emp => (
+                        <tr key={emp.id} style={{ borderBottom: '1px solid #f5f5f4' }}>
+                          <td style={{ padding: '12px' }}>
+                            <div style={{ fontSize: '0.65rem', fontFamily: 'monospace', color: '#78716c' }}>{emp.employee_id}</div>
+                            <strong style={{ fontSize: '0.82rem', color: '#1c1917' }}>{emp.name}</strong>
+                            <div style={{ fontSize: '0.7rem', color: '#a8a29e' }}>{emp.phone}</div>
+                          </td>
+                          <td style={{ padding: '12px', fontSize: '0.78rem', color: '#78716c' }}>{emp.role}</td>
+                          <td style={{ padding: '12px', fontSize: '0.78rem', color: '#78716c' }}>{emp.exit_date || 'N/A'}</td>
+                          <td style={{ padding: '12px', fontSize: '0.8rem', fontWeight: 700, color: '#1c1917' }}>
+                            INR {emp.fnf_amount ? emp.fnf_amount.toLocaleString() : '0.00'}
+                          </td>
+                          <td style={{ padding: '12px', fontSize: '0.72rem', color: '#44403c' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#16a34a', fontWeight: 700 }}>
+                              <CheckCircle size={12} /> Full & Final Settled
+                            </div>
+                            {emp.exit_notes && (
+                              <div style={{ color: '#78716c', marginTop: '4px', fontStyle: 'italic' }}>"{emp.exit_notes}"</div>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           )}
@@ -1588,15 +1699,78 @@ function AdminAccounting() {
           <div className="admin-modal" onClick={e => e.stopPropagation()}>
             <button className="admin-modal-close" onClick={() => setShowPayrollModal(false)}><X size={18} /></button>
             <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', marginBottom: '16px' }}>Disburse Monthly Payroll</h3>
-            <form onSubmit={handleDisbursePayroll} className="admin-form">
+            <form onSubmit={handleDisbursePayroll} className="admin-form" style={{ maxWidth: '550px' }}>
               <div className="af-field">
                 <label>Month & Year *</label>
-                <input type="text" placeholder="e.g. September 2026" value={payrollForm.month} onChange={e => setPayrollForm({month: e.target.value})} required />
+                <input type="text" placeholder="e.g. September 2026" value={payrollForm.month} onChange={e => setPayrollForm({ ...payrollForm, month: e.target.value })} required />
               </div>
-              <p style={{ fontSize: '0.75rem', color: '#78716c', lineHeight: '1.5', background: '#fafaf9', borderLeft: '3px solid #ca8a04', padding: '8px 12px', borderRadius: '4px', margin: '12px 0 20px 0' }}>
+
+              <div style={{ marginTop: '16px', marginBottom: '16px' }}>
+                <label style={{ fontSize: '0.78rem', fontWeight: 700, color: '#1c1917', display: 'block', marginBottom: '8px' }}>Include Year-end / Festive Bonuses (Optional)</label>
+                <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #e7e5e4', borderRadius: '8px', padding: '8px', background: '#fafaf9' }}>
+                  {employees.filter(e => e.status === 'active').map(emp => (
+                    <div key={emp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', borderBottom: '1px solid #f5f5f4' }}>
+                      <div>
+                        <strong style={{ fontSize: '0.78rem', color: '#1c1917', display: 'block' }}>{emp.name}</strong>
+                        <span style={{ fontSize: '0.68rem', color: '#78716c' }}>Base Salary: INR {parseFloat(emp.salary).toLocaleString()}</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '0.68rem', color: '#78716c' }}>Bonus: INR</span>
+                        <input 
+                          type="number" 
+                          placeholder="0" 
+                          value={payrollForm.bonuses[emp.id] || ''} 
+                          onChange={e => {
+                            const val = e.target.value;
+                            setPayrollForm(prev => ({
+                              ...prev,
+                              bonuses: {
+                                ...prev.bonuses,
+                                [emp.id]: val ? parseFloat(val) : 0.0
+                              }
+                            }));
+                          }}
+                          style={{ width: '90px', padding: '4px 6px', border: '1px solid #e7e5e4', borderRadius: '4px', fontSize: '0.72rem', textAlign: 'right' }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <p style={{ fontSize: '0.72rem', color: '#78716c', lineHeight: '1.4', background: '#fffbeb', borderLeft: '3px solid #ca8a04', padding: '8px 12px', borderRadius: '4px', margin: '12px 0' }}>
                 💡 Salary calculations run **strictly** for active staff in the directory. Exited or FnF settled staff are excluded.
               </p>
-              <button type="submit" className="admin-btn-primary" style={{ width: '100%' }}>Disburse Salaries Now</button>
+              <button type="submit" className="admin-btn-primary" style={{ width: '100%', marginTop: '12px' }}>Disburse Salaries Now</button>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Salary Appraisal Modal */}
+      {showAppraisalModal && selectedAppraisalEmp && (
+        <div className="admin-modal-overlay" onClick={() => { setShowAppraisalModal(false); setSelectedAppraisalEmp(null); }} style={{ zIndex: 1200 }}>
+          <div className="admin-modal" onClick={e => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+            <button className="admin-modal-close" onClick={() => { setShowAppraisalModal(false); setSelectedAppraisalEmp(null); }}><X size={18} /></button>
+            <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.25rem', marginBottom: '8px' }}>Log Salary Appraisal</h3>
+            <p style={{ fontSize: '0.78rem', color: '#78716c', marginBottom: '16px' }}>
+              Employee: <strong>{selectedAppraisalEmp.name}</strong> ({selectedAppraisalEmp.role} • Current: INR {parseFloat(selectedAppraisalEmp.salary).toLocaleString()}/mo)
+            </p>
+            <form onSubmit={handleCreateAppraisal} className="admin-form">
+              <div className="af-row">
+                <div className="af-field">
+                  <label>New Appraised Salary (INR/mo) *</label>
+                  <input type="number" step="any" min="1" placeholder="e.g. 45000" value={appraisalForm.new_salary} onChange={e => setAppraisalForm({...appraisalForm, new_salary: e.target.value})} required />
+                </div>
+                <div className="af-field">
+                  <label>Effective Date *</label>
+                  <input type="date" value={appraisalForm.effective_date} onChange={e => setAppraisalForm({...appraisalForm, effective_date: e.target.value})} required />
+                </div>
+              </div>
+              <div className="af-field" style={{ marginTop: '12px' }}>
+                <label>Appraisal Performance Notes / Remarks</label>
+                <textarea rows="3" placeholder="Specify promotion criteria, yearly increment details, or performance remarks..." value={appraisalForm.notes} onChange={e => setAppraisalForm({...appraisalForm, notes: e.target.value})} style={{ width: '100%', padding: '8px', border: '1px solid #e7e5e4', borderRadius: '6px', fontSize: '0.78rem' }} />
+              </div>
+              <button type="submit" className="admin-btn-primary" style={{ width: '100%', marginTop: '16px' }}>Approve & Settle Increment</button>
             </form>
           </div>
         </div>

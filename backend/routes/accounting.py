@@ -78,8 +78,14 @@ class ExpenseCreate(BaseModel):
     expense_date: Optional[str] = None
     material_id: Optional[str] = None  # Linkage to raw material inventory
 
+class EmployeeAppraisal(BaseModel):
+    new_salary: float
+    effective_date: str
+    notes: Optional[str] = ""
+
 class PayrollDisburse(BaseModel):
     month: str  # e.g. "August 2026"
+    bonuses: Optional[dict] = None  # Key: Employee ID (str), Value: float bonus amount
 
 def serialize(doc):
     doc["id"] = str(doc.pop("_id"))
@@ -338,6 +344,36 @@ async def settle_employee_exit(id: str, exit_payload: EmployeeExit, request: Req
     await db.employees.update_one({"_id": ObjectId(id)}, {"$set": update_data})
     return {"message": f"Full & Final exit settlement completed for {emp['name']}. Assigned corporate emails closed and assets recovered."}
 
+@router.post("/employees/{id}/appraisal")
+async def log_employee_appraisal(id: str, payload: EmployeeAppraisal, request: Request):
+    await require_admin(request)
+    if not ObjectId.is_valid(id):
+        raise HTTPException(status_code=400, detail="Invalid employee ID")
+        
+    emp = await db.employees.find_one({"_id": ObjectId(id)})
+    if not emp:
+        raise HTTPException(status_code=404, detail="Employee not found")
+        
+    if emp.get("status") == "exited":
+        raise HTTPException(status_code=400, detail="Cannot appraise an exited employee")
+        
+    appraisal_record = {
+        "old_salary": float(emp.get("salary", 0.0)),
+        "new_salary": float(payload.new_salary),
+        "effective_date": payload.effective_date,
+        "notes": payload.notes,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.employees.update_one(
+        {"_id": ObjectId(id)},
+        {
+            "$set": {"salary": float(payload.new_salary), "updated_at": datetime.now(timezone.utc).isoformat()},
+            "$push": {"appraisals": appraisal_record}
+        }
+    )
+    return {"message": f"Salary appraisal processed successfully for {emp['name']}.", "appraisal": appraisal_record}
+
 @router.post("/employees/{id}/assets")
 async def assign_employee_asset(id: str, asset: AssetCreate, request: Request):
     await require_admin(request)
@@ -426,12 +462,24 @@ async def disburse_monthly_payroll(payload: PayrollDisburse, request: Request):
     disbursed_records = []
     for emp in employees:
         txn_ref = "PAYROLL-" + uuid_hash()
+        
+        bonus_amt = 0.0
+        if payload.bonuses:
+            emp_id_str = str(emp["_id"])
+            if emp_id_str in payload.bonuses:
+                bonus_amt = float(payload.bonuses[emp_id_str])
+            elif emp["name"] in payload.bonuses:
+                bonus_amt = float(payload.bonuses[emp["name"]])
+                
+        base_sal = float(emp.get("salary", 0.0))
         record = {
             "employee_id": ObjectId(emp["_id"]),
             "employee_name": emp["name"],
             "role": emp["role"],
             "month": month,
-            "amount": float(emp["salary"]),
+            "amount": base_sal + bonus_amt,
+            "base_salary": base_sal,
+            "bonus": bonus_amt,
             "status": "paid",
             "paid_at": datetime.now(timezone.utc).isoformat(),
             "txn_ref": txn_ref
