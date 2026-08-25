@@ -75,6 +75,7 @@ export default function BespokePage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [nonServiceablePin, setNonServiceablePin] = useState('');
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -108,7 +109,13 @@ export default function BespokePage() {
       setSubmitted(true);
       setFormData(initialForm);
     } catch (err) {
-      setError(err.message || 'Could not schedule visit. Please try again.');
+      const errMsg = err.message || '';
+      if (errMsg.includes('not serve pin code') || errMsg.includes('do not serve pin code') || errMsg.includes('non-serviceable')) {
+        setNonServiceablePin(formData.pinCode);
+        setFormData(initialForm);
+      } else {
+        setError(errMsg || 'Could not schedule visit. Please try again.');
+      }
     }
     setSubmitting(false);
   };
@@ -331,6 +338,25 @@ export default function BespokePage() {
                 <button type="button" className="bespoke-btn-another" onClick={() => setSubmitted(false)} data-testid="visit-schedule-another">
                   Schedule Another Visit
                 </button>
+              </div>
+            ) : nonServiceablePin ? (
+              <div className="bespoke-success-card" data-testid="visit-non-serviceable" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', minHeight: 480 }}>
+                <div style={{ fontSize: 56, color: '#ca8a04', marginBottom: 16 }}>📍</div>
+                <h3 style={{ color: '#111827', fontSize: '1.4rem', fontWeight: 600, fontFamily: "'Playfair Display', serif", marginBottom: '12px' }}>Service Unavailable</h3>
+                <p style={{ marginTop: 8, marginBottom: 32, fontSize: '0.92rem', color: '#4b5563', lineHeight: '1.6' }}>
+                  Thank you. We have noted your interest; however, we do not provide service in <strong>{nonServiceablePin}</strong> yet. We are growing fast and will send you an intimation as soon as we start our service in your area.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
+                  <Link href="/men" className="bespoke-btn-signup" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '12px 24px', background: '#9d2706', color: '#fff', textDecoration: 'none', borderRadius: '6px', fontWeight: 700, fontSize: '0.88rem' }}>
+                    Shop Crafted Products
+                  </Link>
+                  <Link href="/customize" className="bespoke-btn-another" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '12px 24px', background: 'transparent', color: '#1a1a1a', border: '1px solid #1a1a1a', textDecoration: 'none', borderRadius: '6px', fontWeight: 700, fontSize: '0.88rem', margin: 0 }}>
+                    Customization
+                  </Link>
+                  <button type="button" onClick={() => setNonServiceablePin('')} style={{ background: 'none', border: 'none', color: '#4b5563', textDecoration: 'underline', fontSize: '0.82rem', cursor: 'pointer', marginTop: '8px' }}>
+                    Try another PIN code
+                  </button>
+                </div>
               </div>
             ) : (
               <form className="bespoke-form-card bespoke-form-card-v2" onSubmit={handleSubmit} data-testid="schedule-visit-form">
