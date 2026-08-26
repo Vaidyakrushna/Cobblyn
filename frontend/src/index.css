@@ -9536,3 +9536,98 @@ body:has(.customize-page) footer {
   border-bottom: 1px solid rgba(10, 10, 10, 0.15) !important;
 }
 
+/* PDP PREMIUM REDESIGN OVERRIDES */
+.pdp-product-name {
+  font-family: 'Montserrat', sans-serif !important;
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.05em !important;
+  text-transform: uppercase !important;
+  line-height: 1.25 !important;
+  color: var(--black) !important;
+}
+
+.pdp-price-woodland {
+  font-family: 'Montserrat', sans-serif !important;
+  font-size: 1.6rem !important;
+  font-weight: 600 !important;
+  color: var(--accent) !important;
+  margin-bottom: 20px !important;
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 8px !important;
+}
+
+.pdp-price-note {
+  font-size: 0.72rem !important;
+  font-family: 'Montserrat', sans-serif !important;
+  color: var(--mid-grey) !important;
+  font-weight: 300 !important;
+  letter-spacing: 0.05em !important;
+}
+
+.pdp-product-description {
+  font-size: 0.88rem !important;
+  color: rgba(10, 10, 10, 0.7) !important;
+  line-height: 1.7 !important;
+  margin: 16px 0 24px 0 !important;
+  font-weight: 300 !important;
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+.pdp-delivery-block {
+  margin-top: 28px !important;
+  padding: 24px !important;
+  border: 1px solid var(--light-grey) !important;
+  background: #F5F6F4 !important; /* Soft brand gray */
+  border-radius: 2px !important;
+}
+
+.pdp-add-cart-btn {
+  background: var(--black) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.25em !important;
+}
+
+.pdp-add-cart-btn:hover {
+  background: var(--accent) !important;
+}
+
+.pdp-swatch.active {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--white), 0 0 0 3px var(--accent) !important;
+}
+
+.pdp-size-box {
+  border-radius: 2px !important;
+  font-weight: 500 !important;
+  transition: all 0.2s ease !important;
+  border-color: var(--light-grey) !important;
+}
+
+.pdp-size-box:hover:not(.out-of-stock) {
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  background: rgba(157, 39, 6, 0.02) !important;
+}
+
+.pdp-size-box.active {
+  background: var(--black) !important;
+  border-color: var(--black) !important;
+  color: var(--white) !important;
+}
+
+.pdp-tabs-container button {
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
