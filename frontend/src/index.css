@@ -9492,3 +9492,47 @@ body:has(.customize-page) footer {
     box-shadow: 0 0 0 0 rgba(157, 39, 6, 0);
   }
 }
+
+/* ──────────────────────────────────────────────────────────
+   🎨 GRAY BACKGROUND TEST OVERRIDES (Bespoke Atelier & Cobblyn Magic)
+   Delete or comment out this block to revert back to black background.
+   ────────────────────────────────────────────────────────── */
+.custom-section {
+  background: #F5F6F4 !important;
+  color: var(--black) !important;
+}
+.custom-desc {
+  color: rgba(10, 10, 10, 0.7) !important;
+}
+.custom-step-desc {
+  color: rgba(10, 10, 10, 0.6) !important;
+}
+#studio {
+  background: #F5F6F4 !important;
+}
+.studio-right {
+  background: #F5F6F4 !important;
+  color: var(--black) !important;
+}
+.studio-subtitle {
+  color: var(--black) !important;
+}
+.studio-text {
+  color: rgba(10, 10, 10, 0.7) !important;
+}
+.studio-feat-title {
+  color: var(--black) !important;
+}
+.studio-feat-desc {
+  color: rgba(10, 10, 10, 0.6) !important;
+}
+.studio-link {
+  color: var(--black) !important;
+}
+#studio .section-title {
+  color: var(--black) !important;
+}
+.studio-feat {
+  border-bottom: 1px solid rgba(10, 10, 10, 0.15) !important;
+}
+

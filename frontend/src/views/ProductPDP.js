@@ -38,6 +38,7 @@ const ProductPDP = ({ gender = 'men' }) => {
   const [cartInterstitial, setCartInterstitial] = useState(false);
   const [cartTotal, setCartTotal] = useState(0);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState('features');
 
   // Feature B: Sizing Fit Profiler States
   const [showFitProfiler, setShowFitProfiler] = useState(false);
@@ -262,6 +263,25 @@ const ProductPDP = ({ gender = 'men' }) => {
             <span className="pdp-price-note">(Inclusive of all taxes)</span>
           </div>
 
+          {product.description && (
+            <p className="pdp-product-description" style={{ fontSize: '0.88rem', color: '#4B5563', lineHeight: '1.6', margin: '16px 0 24px 0', fontWeight: '300' }}>
+              {product.description}
+            </p>
+          )}
+
+          {product.features && product.features.length > 0 && (
+            <div className="pdp-product-highlights" style={{ margin: '0 0 24px 0' }}>
+              <label className="pdp-block-label" style={{ display: 'block', fontSize: '10px', fontWeight: '700', color: '#4B5563', textTransform: 'uppercase', marginBottom: '8px' }}>
+                Key Highlights
+              </label>
+              <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700 font-light" style={{ fontSize: '0.82rem', lineHeight: '1.5', color: '#4B5563' }}>
+                {product.features.map((feature, idx) => (
+                  <li key={idx}>{feature}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <div className="pdp-section-block">
             <label className="pdp-block-label">Available Colors</label>
             <div className="pdp-color-swatches">
@@ -446,73 +466,122 @@ const ProductPDP = ({ gender = 'men' }) => {
             </Link>
           )}
 
-          <div className="pdp-accordions">
-            <div className="pdp-accordion-item">
-              <button className="pdp-accordion-header" onClick={() => toggleSection('details')} data-testid="accordion-details">
-                <span>Product Details</span>
-                <ChevronDown size={18} className={openSections.details ? 'rotate-180' : ''} />
-              </button>
-              {openSections.details && (
-                <div className="pdp-accordion-body">
-                  <div className="pdp-specs-table">
-                    {Object.entries(product.specifications || {}).map(([key, value]) => (
-                      <div key={key} className="pdp-spec-row">
-                        <span className="spec-key">{key}</span>
-                        <span className="spec-val">{value}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="pdp-features-list">
-                    <h4>Key Features</h4>
-                    <ul>{(product.features || []).map((f, i) => <li key={i}>{f}</li>)}</ul>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="pdp-accordion-item">
-              <button className="pdp-accordion-header" onClick={() => toggleSection('care')} data-testid="accordion-care">
-                <span>Care Instructions</span>
-                <ChevronDown size={18} className={openSections.care ? 'rotate-180' : ''} />
-              </button>
-              {openSections.care && (
-                <div className="pdp-accordion-body">
-                  <ul className="pdp-policy-list">
-                    <li>Keep your product dry, avoid getting it wet or damp</li>
-                    <li>To clean, simply wipe with a dry cloth</li>
-                    <li>Use shoe trees to maintain shape when not in use</li>
-                    <li>Apply leather conditioner every 2-3 months</li>
-                    <li>Store in the provided dust bag away from direct sunlight</li>
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <div className="pdp-accordion-item">
-              <button className="pdp-accordion-header" onClick={() => toggleSection('shipping')} data-testid="accordion-shipping">
-                <span>Shipping & Return Policy</span>
-                <ChevronDown size={18} className={openSections.shipping ? 'rotate-180' : ''} />
-              </button>
-              {openSections.shipping && (
-                <div className="pdp-accordion-body">
-                  <ul className="pdp-policy-list">
-                    <li>Free shipping across India on all orders</li>
-                    <li>Standard delivery within 3-5 business days</li>
-                    <li>Bespoke orders delivered in 15-20 business days</li>
-                    <li>15-day hassle-free return and exchange policy</li>
-                    <li>Full refund on unused products returned in original packaging</li>
-                  </ul>
-                </div>
-              )}
-            </div>
-          </div>
-
           <div className="pdp-trust-badges">
             <div className="trust-badge"><Shield size={20} /><span>Authentic Quality</span></div>
             <div className="trust-badge"><RotateCcw size={20} /><span>Easy Returns</span></div>
             <div className="trust-badge"><Award size={20} /><span>Handcrafted</span></div>
             <div className="trust-badge"><Truck size={20} /><span>Free Shipping</span></div>
           </div>
+        </div>
+      </div>
+
+      {/* Tabbed Product Information (Woodland Inspired) */}
+      <div className="pdp-tabs-container border-b border-gray-200 pb-12 mb-16">
+        <div className="flex border-b border-gray-200 overflow-x-auto scrollbar-none">
+          <button
+            onClick={() => setActiveTab('features')}
+            className={`py-4 px-6 text-xs sm:text-sm font-semibold tracking-widest uppercase border-b-2 whitespace-nowrap transition-all duration-300 ${
+              activeTab === 'features' ? 'border-[#9d2706] text-[#9d2706]' : 'border-transparent text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            Specifications
+          </button>
+          <button
+            onClick={() => setActiveTab('care')}
+            className={`py-4 px-6 text-xs sm:text-sm font-semibold tracking-widest uppercase border-b-2 whitespace-nowrap transition-all duration-300 ${
+              activeTab === 'care' ? 'border-[#9d2706] text-[#9d2706]' : 'border-transparent text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            Care Instructions
+          </button>
+          <button
+            onClick={() => setActiveTab('shipping')}
+            className={`py-4 px-6 text-xs sm:text-sm font-semibold tracking-widest uppercase border-b-2 whitespace-nowrap transition-all duration-300 ${
+              activeTab === 'shipping' ? 'border-[#9d2706] text-[#9d2706]' : 'border-transparent text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            Shipping & Return Policies
+          </button>
+          <button
+            onClick={() => setActiveTab('faqs')}
+            className={`py-4 px-6 text-xs sm:text-sm font-semibold tracking-widest uppercase border-b-2 whitespace-nowrap transition-all duration-300 ${
+              activeTab === 'faqs' ? 'border-[#9d2706] text-[#9d2706]' : 'border-transparent text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            FAQs
+          </button>
+        </div>
+
+        <div className="pt-8">
+          {activeTab === 'features' && (
+            <div className="max-w-2xl space-y-6 animate-fadeIn">
+              <h3 className="font-serif text-lg font-semibold tracking-wider text-[#1a1a1a]">Specifications</h3>
+              <div className="border border-gray-100 rounded-sm overflow-hidden">
+                {Object.entries(product.specifications || {}).map(([key, value], idx) => (
+                  <div key={key} className={`flex justify-between p-4 text-sm ${idx % 2 === 0 ? 'bg-[#FAF9F6]' : 'bg-white'}`}>
+                    <span className="font-semibold text-gray-600">{key}</span>
+                    <span className="text-gray-900">{value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'care' && (
+            <div className="max-w-3xl space-y-6 animate-fadeIn">
+              <h3 className="font-serif text-lg font-semibold tracking-wider text-[#1a1a1a]">Leather & Fabric Maintenance</h3>
+              <p className="text-sm text-gray-600 font-light leading-relaxed">
+                Our bespoke shoes are built to mold to your stride, developing a rich personal character. To preserve the durability and unique hand-dyed patina, follow these simple care steps:
+              </p>
+              <ul className="list-decimal pl-5 space-y-3 text-sm text-gray-700 leading-relaxed font-light">
+                <li>Keep your product dry; avoid getting it wet or exposing it to damp conditions.</li>
+                <li>To clean dust or dirt, wipe gently with a clean, dry microfiber cloth.</li>
+                <li>Insert cedar wood shoe trees when not in use to maintain shape and absorb moisture.</li>
+                <li>Apply premium natural leather conditioner every 2-3 months to keep the hide nourished.</li>
+                <li>Store in the provided organic cotton dust bag, away from direct heat and sunlight.</li>
+              </ul>
+            </div>
+          )}
+
+          {activeTab === 'shipping' && (
+            <div className="max-w-3xl space-y-6 animate-fadeIn">
+              <h3 className="font-serif text-lg font-semibold tracking-wider text-[#1a1a1a]">Fulfillment & Remake Guarantee</h3>
+              <p className="text-sm text-gray-600 font-light leading-relaxed">
+                We take extreme care in crafting and delivering your items. Our standard terms ensure a transparent experience:
+              </p>
+              <ul className="list-disc pl-5 space-y-3 text-sm text-gray-700 leading-relaxed font-light">
+                <li><strong>Free Shipping</strong>: Complimentary shipping across India on all online orders.</li>
+                <li><strong>Standard Dispatch</strong>: In-stock styles ship within 24 hours and arrive in 3-5 business days.</li>
+                <li><strong>Bespoke Crafting</strong>: Custom requests require 15-20 business days of artisanal work before dispatch.</li>
+                <li><strong>15-Day Return/Exchange</strong>: Hassle-free exchanges and returns on all standard purchases.</li>
+                <li><strong>Bespoke Fit Promise</strong>: If custom-sized shoes do not fit perfectly, we remake them free of charge.</li>
+              </ul>
+            </div>
+          )}
+
+          {activeTab === 'faqs' && (
+            <div className="max-w-3xl space-y-6 animate-fadeIn">
+              <h3 className="font-serif text-lg font-semibold tracking-wider text-[#1a1a1a]">Frequently Asked Questions</h3>
+              <div className="space-y-6 pt-2">
+                <div className="space-y-1">
+                  <h4 className="text-sm font-semibold tracking-wider uppercase text-gray-900">Q: How long does the custom crafting process take?</h4>
+                  <p className="text-sm text-gray-600 font-light leading-relaxed">A: Because each pair is shaped and lasted by hand by our master cobblers, custom orders require 4-6 weeks of bench work to complete and cure.</p>
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-semibold tracking-wider uppercase text-gray-900">Q: Can these Goodyear-welted shoes be resold?</h4>
+                  <p className="text-sm text-gray-600 font-light leading-relaxed">A: Yes! All our premium shoes feature genuine Goodyear-welting. The outsole is stitched to a leather welt instead of glued directly, allowing any skilled cobbler to replace the sole infinitely.</p>
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-semibold tracking-wider uppercase text-gray-900">Q: What happens if my custom shoes don't fit?</h4>
+                  <p className="text-sm text-gray-600 font-light leading-relaxed">A: We offer a complimentary remake guarantee for sizing. If the fit is not impeccable, our private fitting concierge will coordinate with you to adjust the lasts and remake the pair.</p>
+                </div>
+                <div className="space-y-1">
+                  <h4 className="text-sm font-semibold tracking-wider uppercase text-gray-900">Q: How do I select the right width?</h4>
+                  <p className="text-sm text-gray-600 font-light leading-relaxed">A: You can use our "Find My Fit" sizing concierge widget in the size selector, or select a home fitting session to have our representative measure your dimensions in person.</p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
