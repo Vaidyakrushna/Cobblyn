@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Package, Layers, Calculator, ShoppingCart, Users,
   MessageSquare, Warehouse, Factory, CalendarCheck, Image as ImageIcon,
   Tag, RotateCcw, BarChart3, Shield, ChevronRight, Briefcase, UserCog,
-  FolderTree, ShoppingBag, Cpu, Star, Sliders, Coins, CreditCard, Truck
+  FolderTree, ShoppingBag, Cpu, Star, Sliders, Coins, CreditCard, Truck, Compass
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -18,6 +18,7 @@ const NAV_STRUCTURE = [
     { to: '/admin/products', icon: <Package size={16} />, label: 'Products' },
     { to: '/admin/accessories', icon: <ShoppingBag size={16} />, label: 'Accessories' },
     { to: '/admin/categories', icon: <FolderTree size={16} />, label: 'Categories' },
+    { to: '/admin/navigation', icon: <Compass size={16} />, label: 'Header Navigation' },
     { to: '/admin/banners', icon: <ImageIcon size={16} />, label: 'Banners' },
     { to: '/admin/customizer', icon: <Sliders size={16} />, label: 'Customizer Studio' },
     { to: '/admin/materials', icon: <Layers size={16} />, label: 'Material Library' },

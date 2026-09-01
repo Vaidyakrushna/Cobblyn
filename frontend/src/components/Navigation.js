@@ -1,5 +1,5 @@
 "use client";
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -8,7 +8,140 @@ import SearchOverlay from './SearchOverlay';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api';
 
+const defaultNavItems = [
+  {
+    title: 'Men',
+    nav_type: 'mega_menu',
+    href: '/men',
+    columns: [
+      {
+        title: 'Style',
+        links: [
+          { label: 'Oxford', href: '/men/style/oxford' },
+          { label: 'Loafer', href: '/men/style/loafer' },
+          { label: 'Monk Strap', href: '/men/style/monk-strap' },
+          { label: 'Desert Boot/Chukka Boots', href: '/men/style/desert-boot' },
+          { label: 'Derby', href: '/men/style/derby' },
+          { label: 'Jutis', href: '/men/style/jutis' },
+          { label: 'Mojaris', href: '/men/style/mojaris' },
+          { label: 'Boat', href: '/men/style/boat' },
+        ]
+      },
+      {
+        title: 'Occasion',
+        links: [
+          { label: 'Office', href: '/men/occasion/office' },
+          { label: 'Casual', href: '/men/occasion/casual' },
+          { label: 'Daily Wear', href: '/men/occasion/daily-wear' },
+          { label: 'Party', href: '/men/occasion/party' },
+          { label: 'Wedding', href: '/men/occasion/wedding' },
+          { label: 'Travel', href: '/men/occasion/travel' },
+        ]
+      },
+      {
+        title: 'Explore',
+        links: [
+          { label: 'Ready to ship', href: '/men?tag=ready-to-ship' },
+          { label: 'Schedule Visit', href: '/bespoke' },
+          { label: 'Customisation', href: '/customize/men' },
+        ]
+      }
+    ],
+    featured_card: {
+      enabled: true,
+      image_url: '/wf-nav-men.png',
+      badge_text: 'New Arrival',
+      title: 'Classic Oxfords',
+      cta_text: 'Shop Now →',
+      link_url: '/men'
+    }
+  },
+  {
+    title: 'Women',
+    nav_type: 'mega_menu',
+    href: '/women',
+    columns: [
+      {
+        title: 'Style',
+        links: [
+          { label: 'Ballerina', href: '/women/style/ballerina' },
+          { label: 'Boots', href: '/women/style/boots' },
+          { label: 'Loafers', href: '/women/style/loafers' },
+          { label: 'Jutis', href: '/women/style/jutis' },
+          { label: 'Peep Toes', href: '/women/style/peep-toes' },
+        ]
+      },
+      {
+        title: 'Occasion',
+        links: [
+          { label: 'Office', href: '/women/occasion/office' },
+          { label: 'Casual', href: '/women/occasion/casual' },
+          { label: 'Daily Wear', href: '/women/occasion/daily-wear' },
+          { label: 'Party', href: '/women/occasion/party' },
+          { label: 'Wedding', href: '/women/occasion/wedding' },
+          { label: 'Travel', href: '/women/occasion/travel' },
+        ]
+      },
+      {
+        title: 'Explore',
+        links: [
+          { label: 'Ready to ship', href: '/women?tag=ready-to-ship' },
+          { label: 'Schedule Visit', href: '/bespoke' },
+          { label: 'Customisation', href: '/customize/women' },
+        ]
+      }
+    ],
+    featured_card: {
+      enabled: true,
+      image_url: '/wf-nav-women.png',
+      badge_text: 'Trending',
+      title: 'Evening Heels',
+      cta_text: 'Shop Evening →',
+      link_url: '/women'
+    }
+  },
+  {
+    title: 'Customize',
+    nav_type: 'direct_link',
+    href: '/customize'
+  },
+  {
+    title: 'Luxe Collection',
+    nav_type: 'direct_link',
+    href: '/luxe-collection'
+  },
+  {
+    title: 'Accessories',
+    nav_type: 'dropdown',
+    href: '/accessories',
+    columns: [
+      {
+        title: 'Categories',
+        links: [
+          { label: 'View All', href: '/accessories', is_highlighted: true },
+          { label: 'Belts', href: '/accessories/belts' },
+          { label: 'Socks', href: '/accessories/socks' },
+          { label: 'Wallets & Card Holders', href: '/accessories/wallets' },
+          { label: 'Lace', href: '/accessories/lace' },
+          { label: 'Key Rings', href: '/accessories/key-rings' },
+          { label: 'Travel Kit', href: '/accessories/travel-kit' },
+          { label: 'Shoe Care', href: '/accessories/shoe-care' },
+        ]
+      }
+    ],
+    featured_card: {
+      enabled: true,
+      image_url: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80&fit=crop',
+      badge_text: 'New In',
+      title: 'Premium Accessories',
+      cta_text: 'Explore →',
+      link_url: '/accessories'
+    }
+  }
+];
+
 const Navigation = () => {
+  const [navItems, setNavItems] = useState(defaultNavItems);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -17,6 +150,17 @@ const Navigation = () => {
   const [cartCount, setCartCount] = useState(0);
   const router = useRouter();
   const userMenuRef = useRef(null);
+
+  // Fetch dynamic navigation items from API
+  useEffect(() => {
+    api.request('/navigation')
+      .then(res => {
+        if (res && res.items && res.items.length > 0) {
+          setNavItems(res.items);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Fetch counts
   useEffect(() => {
@@ -45,44 +189,6 @@ const Navigation = () => {
     };
   }, [isAuthenticated]);
 
-  const menSubmenu = {
-    style: [
-      { label: 'Oxford', slug: 'oxford' }, { label: 'Loafer', slug: 'loafer' },
-      { label: 'Monk Strap', slug: 'monk-strap' }, { label: 'Desert Boot/Chukka Boots', slug: 'desert-boot' },
-      { label: 'Derby', slug: 'derby' }, { label: 'Jutis', slug: 'jutis' },
-      { label: 'Mojaris', slug: 'mojaris' }, { label: 'Boat', slug: 'boat' },
-    ],
-    occasion: [
-      { label: 'Office', slug: 'office' }, { label: 'Casual', slug: 'casual' },
-      { label: 'Daily Wear', slug: 'daily-wear' }, { label: 'Party', slug: 'party' },
-      { label: 'Wedding', slug: 'wedding' }, { label: 'Travel', slug: 'travel' },
-    ]
-  };
-
-  const womenSubmenu = {
-    style: [
-      { label: 'Ballerina', slug: 'ballerina' }, { label: 'Boots', slug: 'boots' },
-      { label: 'Loafers', slug: 'loafers' }, { label: 'Jutis', slug: 'jutis' },
-      { label: 'Peep Toes', slug: 'peep-toes' },
-    ],
-    occasion: [
-      { label: 'Office', slug: 'office' }, { label: 'Casual', slug: 'casual' },
-      { label: 'Daily Wear', slug: 'daily-wear' }, { label: 'Party', slug: 'party' },
-      { label: 'Wedding', slug: 'wedding' }, { label: 'Travel', slug: 'travel' },
-    ]
-  };
-
-  const accessoriesSubmenu = [
-    { label: 'View All',              href: '/accessories' },
-    { label: 'Belts',                 href: '/accessories/belts' },
-    { label: 'Socks',                 href: '/accessories/socks' },
-    { label: 'Wallets & Card Holders',href: '/accessories/wallets' },
-    { label: 'Lace',                  href: '/accessories/lace' },
-    { label: 'Key Rings',             href: '/accessories/key-rings' },
-    { label: 'Travel Kit',            href: '/accessories/travel-kit' },
-    { label: 'Shoe Care',             href: '/accessories/shoe-care' },
-  ];
-
   const handleLogout = async () => {
     setUserMenuOpen(false);
     await logout();
@@ -108,105 +214,101 @@ const Navigation = () => {
         </div>
 
         <ul className="nav-links nav-links-left">
-          <li onMouseEnter={() => setActiveDropdown('men')} onMouseLeave={() => setActiveDropdown(null)}>
-            <Link href="/men" data-testid="nav-link-men">Men <ChevronDown size={14} className="ml-1" /></Link>
-            {activeDropdown === 'men' && (
-              <div className="dropdown" data-testid="men-submenu">
-                <div className="dropdown-inner">
-                  <div>
-                    <div className="dropdown-title">Style</div>
-                    <ul className="dropdown-list">{menSubmenu.style.map((item) => (<li key={item.slug}><Link href={`/men/style/${item.slug}`}>{item.label}</Link></li>))}</ul>
-                  </div>
-                  <div>
-                    <div className="dropdown-title">Occasion</div>
-                    <ul className="dropdown-list">{menSubmenu.occasion.map((item) => (<li key={item.slug}><Link href={`/men/occasion/${item.slug}`}>{item.label}</Link></li>))}</ul>
-                  </div>
-                  <div>
-                    <div className="dropdown-title">Explore</div>
-                    <ul className="dropdown-list">
-                      <li><Link href="/men?tag=ready-to-ship">Ready to ship</Link></li>
-                      <li><Link href="/bespoke">Schedule Visit</Link></li>
-                      <li><Link href="/customize/men">Customisation</Link></li>
-                    </ul>
-                  </div>
-                  <div className="dd-creative">
-                    <img src="/wf-nav-men.png" alt="Classic Oxfords" />
-                    <div className="dd-creative-overlay">
-                      <div className="dd-creative-label">New Arrival</div>
-                      <div className="dd-creative-title">Classic Oxfords</div>
-                      <div className="dd-creative-cta">Shop Now →</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </li>
-          <li onMouseEnter={() => setActiveDropdown('women')} onMouseLeave={() => setActiveDropdown(null)}>
-            <Link href="/women" data-testid="nav-link-women">Women <ChevronDown size={14} className="ml-1" /></Link>
-            {activeDropdown === 'women' && (
-              <div className="dropdown" data-testid="women-submenu">
-                <div className="dropdown-inner">
-                  <div>
-                    <div className="dropdown-title">Style</div>
-                    <ul className="dropdown-list">{womenSubmenu.style.map((item) => (<li key={item.slug}><Link href={`/women/style/${item.slug}`}>{item.label}</Link></li>))}</ul>
-                  </div>
-                  <div>
-                    <div className="dropdown-title">Occasion</div>
-                    <ul className="dropdown-list">{womenSubmenu.occasion.map((item) => (<li key={item.slug}><Link href={`/women/occasion/${item.slug}`}>{item.label}</Link></li>))}</ul>
-                  </div>
-                  <div>
-                    <div className="dropdown-title">Explore</div>
-                    <ul className="dropdown-list">
-                      <li><Link href="/women?tag=ready-to-ship">Ready to ship</Link></li>
-                      <li><Link href="/bespoke">Schedule Visit</Link></li>
-                      <li><Link href="/customize/women">Customisation</Link></li>
-                    </ul>
-                  </div>
-                  <div className="dd-creative">
-                    <img src="/wf-nav-women.png" alt="Evening Heels" />
-                    <div className="dd-creative-overlay">
-                      <div className="dd-creative-label">Trending</div>
-                      <div className="dd-creative-title">Evening Heels</div>
-                      <div className="dd-creative-cta">Shop Evening →</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </li>
-          <li>
-            <Link href="/customize" data-testid="nav-link-customize">Customize</Link>
-          </li>
-          <li><Link href="/luxe-collection" data-testid="nav-link-luxe-collection">Luxe Collection</Link></li>
-          <li onMouseEnter={() => setActiveDropdown('accessories')} onMouseLeave={() => setActiveDropdown(null)}>
-            <Link href="/accessories" data-testid="nav-link-accessories">Accessories <ChevronDown size={14} className="ml-1" /></Link>
-            {activeDropdown === 'accessories' && (
-              <div className="dropdown dropdown-accessories" data-testid="accessories-submenu" style={{ minWidth: '500px', left: 'auto', right: 0, transform: 'none' }}>
-                <div className="dropdown-inner">
-                  <div>
-                    <div className="dropdown-title">Categories</div>
-                    <ul className="dropdown-list">
-                      {accessoriesSubmenu.map((item) => (
-                        <li key={item.href}>
-                          <Link href={item.href}
-                            style={item.label === 'View All' ? { color: 'var(--accent)', fontWeight: 600 } : {}}
-                          >{item.label}</Link>
-                        </li>
+          {navItems.map((item, idx) => {
+            const itemKey = item.id || item.title || idx;
+            const testIdSlug = (item.title || 'item').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+            if (item.nav_type === 'direct_link') {
+              return (
+                <li key={itemKey}>
+                  <Link href={item.href || '/'} data-testid={`nav-link-${testIdSlug}`}>
+                    {item.title}
+                    {item.badge && (
+                      <span style={{ fontSize: '0.6rem', marginLeft: '5px', background: 'var(--accent)', color: '#fff', padding: '1px 5px', borderRadius: '4px', verticalAlign: 'middle', textTransform: 'uppercase', fontWeight: 700 }}>
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              );
+            }
+
+            const hasDropdown = item.columns && item.columns.length > 0;
+            const isDropdown = item.nav_type === 'dropdown';
+
+            return (
+              <li
+                key={itemKey}
+                onMouseEnter={() => setActiveDropdown(itemKey)}
+                onMouseLeave={() => setActiveDropdown(null)}
+              >
+                <Link href={item.href || '/'} data-testid={`nav-link-${testIdSlug}`}>
+                  {item.title}
+                  {item.badge && (
+                    <span style={{ fontSize: '0.6rem', marginLeft: '5px', background: 'var(--accent)', color: '#fff', padding: '1px 5px', borderRadius: '4px', verticalAlign: 'middle', textTransform: 'uppercase', fontWeight: 700 }}>
+                      {item.badge}
+                    </span>
+                  )}
+                  {hasDropdown && <ChevronDown size={14} className="ml-1" />}
+                </Link>
+
+                {hasDropdown && activeDropdown === itemKey && (
+                  <div
+                    className={`dropdown ${isDropdown ? 'dropdown-accessories' : ''}`}
+                    data-testid={`${testIdSlug}-submenu`}
+                    style={isDropdown ? { minWidth: '480px', left: 'auto', right: 0, transform: 'none' } : {}}
+                  >
+                    <div className="dropdown-inner">
+                      {(item.columns || []).map((col, cIdx) => (
+                        <div key={cIdx}>
+                          <div className="dropdown-title">{col.title}</div>
+                          <ul className="dropdown-list">
+                            {(col.links || []).map((link, lIdx) => (
+                              <li key={lIdx}>
+                                <Link
+                                  href={link.href}
+                                  style={link.is_highlighted ? { color: 'var(--accent)', fontWeight: 600 } : {}}
+                                >
+                                  {link.label}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       ))}
-                    </ul>
-                  </div>
-                  <div className="dd-creative" style={{ width: '240px' }}>
-                    <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80&fit=crop" alt="Premium Accessories" />
-                    <div className="dd-creative-overlay">
-                      <div className="dd-creative-label">New In</div>
-                      <div className="dd-creative-title">Premium Accessories</div>
-                      <div className="dd-creative-cta">Explore →</div>
+
+                      {item.featured_card && item.featured_card.enabled && (
+                        <div className="dd-creative" style={isDropdown ? { width: '220px' } : {}}>
+                          {item.featured_card.image_url ? (
+                            <img src={item.featured_card.image_url} alt={item.featured_card.title || item.title} />
+                          ) : (
+                            <div style={{ width: '100%', height: '100%', background: '#1c1917' }} />
+                          )}
+                          <div className="dd-creative-overlay">
+                            {item.featured_card.badge_text && (
+                              <div className="dd-creative-label">{item.featured_card.badge_text}</div>
+                            )}
+                            <div className="dd-creative-title">{item.featured_card.title || item.title}</div>
+                            {item.featured_card.link_url ? (
+                              <Link
+                                href={item.featured_card.link_url}
+                                className="dd-creative-cta"
+                                style={{ textDecoration: 'none', color: '#fff' }}
+                              >
+                                {item.featured_card.cta_text || 'Shop Now →'}
+                              </Link>
+                            ) : (
+                              <div className="dd-creative-cta">{item.featured_card.cta_text || 'Shop Now →'}</div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
-              </div>
-            )}
-          </li>
+                )}
+              </li>
+            );
+          })}
         </ul>
 
         <div className="nav-right">
@@ -257,4 +359,3 @@ const Navigation = () => {
 };
 
 export default Navigation;
-
