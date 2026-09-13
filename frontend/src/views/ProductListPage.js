@@ -373,6 +373,32 @@ const ProductListContent = ({ gender, title, subtitle, filterType: filterTypePro
     }
   };
 
+  const renderHeroHeading = () => {
+    if (pageTitle.includes(' — ')) {
+      const parts = pageTitle.split(' — ');
+      return (
+        <>
+          {parts[0]}
+          <br />
+          <em>{parts[1]}</em>
+        </>
+      );
+    }
+    const words = pageTitle.trim().split(/\s+/);
+    if (words.length > 1) {
+      const first = words.slice(0, -1).join(' ');
+      const last = words[words.length - 1];
+      return (
+        <>
+          {first}
+          <br />
+          <em>{last}</em>
+        </>
+      );
+    }
+    return pageTitle;
+  };
+
   const getProductLink = (product) => {
     const id = product.numericId || product.id;
     return `/products/${id}`;
@@ -393,10 +419,9 @@ const ProductListContent = ({ gender, title, subtitle, filterType: filterTypePro
 
           <div className="plp-hero-body">
             <div className="plp-hero-atelier-tag">
-              <span className="atelier-dot" />
               COBCULT ATELIER · HAND-LASTED BENCHWORK
             </div>
-            <h1 className="plp-hero-heading">{pageTitle}</h1>
+            <h1 className="plp-hero-heading">{renderHeroHeading()}</h1>
             <p className="plp-hero-subtext">
               {subtitle || "Artisanal bench-crafted footwear, shaped from full-grain European calfskin and finished with hand-burnished patina."}
             </p>
