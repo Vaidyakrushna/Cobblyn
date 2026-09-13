@@ -99,11 +99,44 @@ async def get_products(
 
 @router.get("/{product_id}")
 async def get_product(product_id: str):
+    doc = None
     try:
         doc = await db.products.find_one({"_id": ObjectId(product_id)})
     except Exception:
-        # Fallback: try finding by numeric id field
-        doc = await db.products.find_one({"numericId": int(product_id)})
+        pass
+
+    if not doc:
+        try:
+            num_id = int(product_id)
+            doc = await db.products.find_one({"$or": [{"numericId": num_id}, {"id": num_id}, {"id": str(num_id)}]})
+        except Exception:
+            pass
+
+    if not doc:
+        doc = await db.products.find_one({"$or": [{"id": product_id}, {"articleCode": product_id}, {"sku": product_id}]})
+
+    if not doc:
+        # Fallback: fetch from live cobcult.com so live product IDs seamlessly render locally!
+        import urllib.request, json
+        try:
+            url = f"https://cobcult.com/api/products/{product_id}"
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=5) as res:
+                if res.status == 200:
+                    live_data = json.loads(res.read().decode('utf-8'))
+                    prod = live_data.get("product")
+                    if prod:
+                        prod["numericId"] = prod.get("id")
+                        if "sku" in prod and "articleCode" not in prod:
+                            prod["articleCode"] = prod["sku"]
+                        if "price" in prod and isinstance(prod["price"], (int, float)):
+                            prod["price"] = int(prod["price"])
+                        # Store in local MongoDB
+                        insert_res = await db.products.insert_one(prod)
+                        doc = await db.products.find_one({"_id": insert_res.inserted_id})
+        except Exception as e:
+            pass
+
     if not doc:
         raise HTTPException(status_code=404, detail="Product not found")
         

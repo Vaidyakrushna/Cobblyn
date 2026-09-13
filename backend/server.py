@@ -197,7 +197,8 @@ async def startup():
     start_worker()
 
     # Write test credentials
-    creds_path = Path("/app/memory/test_credentials.md")
+    creds_dir = ROOT_DIR.parent / "memory" if (ROOT_DIR.parent / "memory").exists() else Path("/app/memory")
+    creds_path = creds_dir / "test_credentials.md"
     creds_path.parent.mkdir(parents=True, exist_ok=True)
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@cobblyn.com")
     admin_password = os.environ.get("ADMIN_PASSWORD", "Cobblyn@2026")
@@ -217,6 +218,8 @@ async def startup():
         f"- GET /api/wishlist\n- POST /api/wishlist/add\n- DELETE /api/wishlist/remove\n- GET /api/wishlist/check/:product_id\n"
     )
     logger.info("Test credentials written")
+
+# Trigger reload for products route update
 
 
 @app.on_event("shutdown")
