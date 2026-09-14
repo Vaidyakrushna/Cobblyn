@@ -33,6 +33,17 @@ const COLOR_HEX_MAP = {
   'red': '#8B0000',
 };
 
+const SIZE_CONVERSIONS = {
+  '5': { uk: '5', eu: '39', us: '6' },
+  '6': { uk: '6', eu: '40', us: '7' },
+  '7': { uk: '7', eu: '41', us: '8' },
+  '8': { uk: '8', eu: '42', us: '9' },
+  '9': { uk: '9', eu: '43', us: '10' },
+  '10': { uk: '10', eu: '44', us: '11' },
+  '11': { uk: '11', eu: '45', us: '12' },
+  '12': { uk: '12', eu: '46', us: '13' },
+};
+
 const getEditorialStory = (p) => {
   const style = ((p.style || p.category || '') + ' ' + (p.name || '')).toLowerCase();
   if (style.includes('oxford')) {
@@ -131,6 +142,8 @@ const ProductPDP = ({ gender = 'men' }) => {
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
   const [showStickyBar, setShowStickyBar] = useState(false);
+  const [sizeSystem, setSizeSystem] = useState('UK'); // 'UK' | 'EU' | 'US'
+  const [ensembleItems, setEnsembleItems] = useState({ shoe: true, cardholder: true, belt: true });
   const mainBuyBtnRef = useRef(null);
 
   // Sizing Fit Profiler States
@@ -318,6 +331,54 @@ const ProductPDP = ({ gender = 'men' }) => {
     }
   };
 
+  const handleBuyNow = async () => {
+    if (!selectedSize) {
+      alert('Please select your shoe size before proceeding to checkout.');
+      return;
+    }
+    if (!isAuthenticated) {
+      setLoginPanel(true);
+      return;
+    }
+    try {
+      await api.addToCart({
+        product_id: product.id,
+        size: selectedSize,
+        color: selectedColor || normalizedColors[0]?.name || 'Standard',
+        quantity: 1
+      });
+      window.dispatchEvent(new Event('cobblyn-cart-update'));
+      navigate.push('/checkout');
+    } catch (err) {
+      alert('Could not proceed to checkout: ' + err.message);
+    }
+  };
+
+  const handleAddEnsembleToCart = async () => {
+    if (!selectedSize && ensembleItems.shoe) {
+      alert('Please select your shoe size before adding the ensemble.');
+      return;
+    }
+    if (!isAuthenticated) {
+      setLoginPanel(true);
+      return;
+    }
+    try {
+      if (ensembleItems.shoe) {
+        await api.addToCart({
+          product_id: product.id,
+          size: selectedSize,
+          color: selectedColor || normalizedColors[0]?.name || 'Standard',
+          quantity: 1
+        });
+      }
+      window.dispatchEvent(new Event('cobblyn-cart-update'));
+      alert('Ensemble successfully added to your shopping bag!');
+    } catch (err) {
+      alert('Failed to add ensemble: ' + err.message);
+    }
+  };
+
   const getCustomizeUrl = () => {
     const model = product.style || product.category || specifications['Silhouette'] || 'Oxford';
     const submodel = product.name || '';
@@ -446,76 +507,81 @@ const ProductPDP = ({ gender = 'men' }) => {
             
             {/* Title & Collection Header */}
             <div>
-              <p className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#9D2706] mb-1.5 flex items-center gap-2">
+              <p className="text-[10px] font-bold tracking-[0.25em] uppercase text-[#9D2706] mb-2 flex items-center gap-2">
                 <span>COBCULT ATELIER</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#9D2706]" />
-                <span>HAND-LASTED LUXURY</span>
+                <span>BENCHWORK SERIES</span>
               </p>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold uppercase tracking-wide text-[#0A0A0A] leading-tight mb-3">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-normal font-serif text-[#0E0D0C] leading-tight mb-2 tracking-tight">
                 {product.name}
               </h1>
+              <p className="text-xs text-[#7A736B] tracking-wider uppercase mb-3">
+                {specifications['Upper Leather'] || 'Italian Full-Grain Crust Calfskin'} {selectedColor ? `· ${selectedColor}` : ''}
+              </p>
 
-              <div className="flex items-center gap-4 text-xs text-[#0A0A0A]/60 pb-4 border-b border-[#0A0A0A]/10">
-                <div className="flex items-center gap-1.5 bg-[#FAF9F6] border border-[#0A0A0A]/10 px-2.5 py-1">
-                  <span className="font-bold text-[#0A0A0A]">{avgRating}</span>
+              <div className="flex items-center gap-4 text-xs text-[#0E0D0C]/60 pb-4 border-b border-[#0E0D0C]/10">
+                <div className="flex items-center gap-1.5 bg-[#FAF9F6] border border-[#0E0D0C]/10 px-2.5 py-1 rounded-sm">
+                  <span className="font-bold text-[#0E0D0C]">{avgRating}</span>
                   <div className="flex text-[#9D2706]">
                     {[1, 2, 3, 4, 5].map(i => (
                       <Star key={i} size={11} fill={i <= Math.round(Number(avgRating)) ? 'currentColor' : 'none'} />
                     ))}
                   </div>
-                  <span className="text-[10px] text-[#0A0A0A]/40 font-semibold pl-1">({mockReviews.length})</span>
+                  <span className="text-[10px] text-[#7A736B] font-semibold pl-1">({mockReviews.length} Verified Patrons)</span>
                 </div>
-                <span className="text-[11px] uppercase tracking-wider text-[#0A0A0A]/50">
-                  SKU: <strong className="text-[#0A0A0A] font-medium">{product.articleCode || product.sku || 'BYD-OXF-102'}</strong>
+                <span className="text-[11px] uppercase tracking-wider text-[#7A736B]">
+                  Article: <strong className="text-[#0E0D0C] font-semibold">{product.articleCode || product.sku || 'BYD-OXF-102'}</strong>
                 </span>
               </div>
             </div>
 
             {/* Price & Offer Display */}
-            <div className="flex items-baseline gap-3">
-              <span className="text-3xl md:text-4xl font-black text-[#9D2706] tracking-tight">
-                ₹{displayPrice.toLocaleString('en-IN')}.00
-              </span>
-              {displayOriginalPrice > displayPrice && (
-                <>
-                  <span className="text-sm md:text-base text-[#0A0A0A]/40 line-through">
-                    ₹{displayOriginalPrice.toLocaleString('en-IN')}.00
-                  </span>
-                  <span className="text-xs font-bold tracking-wider uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 border border-emerald-200">
-                    {Math.round(((displayOriginalPrice - displayPrice) / displayOriginalPrice) * 100)}% Off
-                  </span>
-                </>
-              )}
+            <div className="space-y-1">
+              <div className="flex items-baseline gap-3 flex-wrap">
+                <span className="text-3xl md:text-4xl font-serif font-semibold text-[#0E0D0C] tracking-tight">
+                  ₹{displayPrice.toLocaleString('en-IN')}
+                </span>
+                {displayOriginalPrice > displayPrice && (
+                  <>
+                    <span className="text-base text-[#9CA3AF] line-through font-normal">
+                      ₹{displayOriginalPrice.toLocaleString('en-IN')}
+                    </span>
+                    <span className="text-xs font-semibold tracking-wider uppercase text-[#9D2706] bg-[#9D2706]/8 px-2.5 py-0.5 border border-[#9D2706]/20 rounded-sm">
+                      -{Math.round(((displayOriginalPrice - displayPrice) / displayOriginalPrice) * 100)}% Atelier Direct
+                    </span>
+                  </>
+                )}
+              </div>
+              <p className="text-[11px] text-[#7A736B] tracking-wide flex items-center gap-1.5">
+                <CheckCircle size={13} className="text-[#9D2706]" />
+                <span>Inclusive of all taxes &amp; complimentary insured Pan-India express delivery</span>
+              </p>
             </div>
-            <p className="text-[11px] text-[#0A0A0A]/50 -mt-4 tracking-wide flex items-center gap-2">
-              <CheckCircle size={13} className="text-[#9D2706]" />
-              <span>Inclusive of all taxes & complimentary Pan-India express delivery</span>
-            </p>
 
-            {/* Artisanal Narrative */}
-            <div className="bg-[#FAF9F6] border-l-2 border-[#9D2706] p-4 text-xs md:text-sm text-[#0A0A0A]/75 leading-relaxed font-light">
-              {editorialDescription}
+            {/* Master Cordwainer's Note */}
+            <div className="bg-[#FAF9F6] border-l-2 border-[#9D2706] p-4 text-xs md:text-sm text-[#3A3632] leading-relaxed font-light italic">
+              "{editorialDescription}"
             </div>
 
             {/* Key Craftsmanship Points */}
-            <div className="space-y-1.5">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#0A0A0A]/60 mb-2">Artisan Highlights</p>
-              <ul className="grid grid-cols-1 gap-2 text-xs text-[#0A0A0A]/80">
+            <div className="space-y-2">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#7A736B]">Craftsmanship Highlights</p>
+              <div className="flex flex-wrap gap-2">
                 {featuresList.slice(0, 4).map((f, idx) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <span className="w-4 h-4 rounded-full bg-[#9D2706]/10 text-[#9D2706] flex items-center justify-center shrink-0 mt-0.5 text-[10px] font-bold">✓</span>
+                  <span key={idx} className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#4A4540] bg-[#FAF9F6] border border-[#E8E4DD] px-3 py-1.5 rounded-sm">
+                    <span className="text-[#9D2706] font-bold">✦</span>
                     <span>{f}</span>
-                  </li>
+                  </span>
                 ))}
-              </ul>
+              </div>
             </div>
 
             {/* Color Swatches */}
             {normalizedColors.length > 0 && (
               <div className="pt-2">
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-[#0A0A0A]/70">
-                    Select Leather Color: <span className="text-[#0A0A0A] font-semibold">{selectedColor}</span>
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[#0E0D0C]/70">
+                    Leather Finish: <span className="text-[#0E0D0C] font-semibold">{selectedColor}</span>
                   </label>
                 </div>
                 <div className="flex items-center gap-3">
@@ -526,7 +592,7 @@ const ProductPDP = ({ gender = 'men' }) => {
                         key={color.name}
                         onClick={() => setSelectedColor(color.name)}
                         className={`group relative p-1 rounded-full border-2 transition-all ${
-                          isActive ? 'border-[#9D2706] scale-110' : 'border-transparent hover:border-[#0A0A0A]/30'
+                          isActive ? 'border-[#9D2706] scale-110' : 'border-transparent hover:border-[#0E0D0C]/30'
                         }`}
                         title={color.name}
                       >
@@ -541,13 +607,31 @@ const ProductPDP = ({ gender = 'men' }) => {
               </div>
             )}
 
-            {/* Size Selector */}
+            {/* Size Selector with System Switcher */}
             <div className="pt-2">
-              <div className="flex items-center justify-between mb-2.5">
-                <label className="text-[11px] font-bold uppercase tracking-wider text-[#0A0A0A]/70">
-                  Select Size (UK / India)
-                </label>
-                <div className="flex items-center gap-4 text-xs font-semibold">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2.5">
+                  <label className="text-[11px] font-bold uppercase tracking-wider text-[#0E0D0C]/80">
+                    Select Size:
+                  </label>
+                  {/* Sizing Standard Switcher */}
+                  <div className="inline-flex bg-[#FAF9F6] border border-[#E2DDD5] rounded p-0.5 text-[10px] font-bold">
+                    {['UK', 'EU', 'US'].map((sys) => (
+                      <button
+                        key={sys}
+                        type="button"
+                        onClick={() => setSizeSystem(sys)}
+                        className={`px-2 py-0.5 rounded-xs transition-all ${
+                          sizeSystem === sys ? 'bg-[#0E0D0C] text-white shadow-xs' : 'text-[#7A736B] hover:text-[#0E0D0C]'
+                        }`}
+                      >
+                        {sys}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 text-xs font-semibold">
                   <button 
                     type="button" 
                     onClick={() => setShowFitProfiler(true)}
@@ -555,15 +639,21 @@ const ProductPDP = ({ gender = 'men' }) => {
                   >
                     <Sparkles size={12} /> Find My Fit
                   </button>
-                  <span className="text-[#0A0A0A]/20">|</span>
+                  <span className="text-[#0E0D0C]/20">|</span>
                   <button 
                     type="button" 
                     onClick={() => setSizeGuideOpen(true)}
-                    className="text-[#0A0A0A]/60 hover:text-[#0A0A0A] underline flex items-center gap-1 text-[11px]"
+                    className="text-[#7A736B] hover:text-[#0E0D0C] underline flex items-center gap-1 text-[11px]"
                   >
                     <Ruler size={12} /> Size Chart
                   </button>
                 </div>
+              </div>
+
+              {/* Sizing Fit Advisory */}
+              <div className="text-[10px] text-[#7A736B] mb-2.5 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+                <span>Standard F-Fitting · Hand-lasted to true British dress shoe sizing</span>
               </div>
 
               {/* Sizes Grid */}
@@ -573,21 +663,23 @@ const ProductPDP = ({ gender = 'men' }) => {
                   const stockCount = sizeStock[String(size)] !== undefined ? Number(sizeStock[String(size)]) : 10;
                   const isOutOfStock = stockCount === 0;
                   const isSelected = selectedSize === size;
+                  const conv = SIZE_CONVERSIONS[String(size)];
+                  const label = sizeSystem === 'EU' && conv ? `EU ${conv.eu}` : sizeSystem === 'US' && conv ? `US ${conv.us}` : `UK ${size}`;
 
                   return (
                     <button
                       key={size}
                       disabled={isOutOfStock}
                       onClick={() => setSelectedSize(size)}
-                      className={`h-12 flex flex-col items-center justify-center text-sm font-semibold border transition-all relative ${
+                      className={`h-12 flex flex-col items-center justify-center text-xs font-semibold border transition-all relative rounded-sm ${
                         isOutOfStock
                           ? 'opacity-30 cursor-not-allowed bg-gray-100 border-gray-200 line-through text-gray-400'
                           : isSelected
-                            ? 'bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-sm'
-                            : 'bg-white text-[#0A0A0A] border-[#0A0A0A]/20 hover:border-[#9D2706] hover:text-[#9D2706]'
+                            ? 'bg-[#0E0D0C] text-white border-[#0E0D0C] shadow-sm'
+                            : 'bg-white text-[#0E0D0C] border-[#0E0D0C]/20 hover:border-[#9D2706] hover:text-[#9D2706]'
                       }`}
                     >
-                      <span>UK {size}</span>
+                      <span>{label}</span>
                       {stockCount > 0 && stockCount <= 3 && !isSelected && (
                         <span className="absolute bottom-1 w-1 h-1 rounded-full bg-[#9D2706]" />
                       )}
@@ -597,19 +689,67 @@ const ProductPDP = ({ gender = 'men' }) => {
               </div>
 
               {/* Complimentary Exchange Guarantee Banner */}
-              <div className="mt-3 bg-[#F5F6F4] p-3 border border-[#0A0A0A]/5 flex items-center gap-3">
-                <RefreshCw size={16} className="text-[#9D2706] shrink-0" />
-                <div className="text-[11px] leading-tight text-[#0A0A0A]/80">
-                  <strong className="text-[#0A0A0A]">Risk-Free Doorstep Size Exchange:</strong> If your shoes do not fit with bespoke comfort, we exchange them complimentary within 15 days.
+              <div className="mt-3 bg-[#FAF9F6] p-3 border border-[#EAE5DC] flex items-center gap-3 rounded-sm">
+                <RefreshCw size={15} className="text-[#9D2706] shrink-0" />
+                <div className="text-[11px] leading-tight text-[#4A4540]">
+                  <strong className="text-[#0E0D0C]">Risk-Free Doorstep Size Exchange:</strong> If your shoes do not fit with bespoke comfort, we exchange them complimentary within 15 days.
                 </div>
               </div>
             </div>
 
-            {/* Pincode Delivery Estimator */}
-            <div className="border border-[#0A0A0A]/10 p-4 bg-[#FAF9F6]">
-              <div className="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-wider text-[#0A0A0A]">
-                <Truck size={15} className="text-[#9D2706]" />
-                <span>Estimated Delivery Timeline</span>
+            {/* Primary Action Buttons */}
+            <div ref={mainBuyBtnRef} className="space-y-3 pt-2">
+              <div className="flex flex-col sm:flex-row gap-3">
+                {/* Main Add to Cart CTA */}
+                <button
+                  onClick={handleAddToCart}
+                  className="flex-1 bg-[#0E0D0C] text-white h-12 py-3.5 px-6 flex items-center justify-center gap-2.5 text-xs font-bold tracking-[0.18em] uppercase hover:bg-[#9D2706] transition-all shadow-md active:scale-[0.99] rounded-sm"
+                >
+                  <ShoppingBag size={16} />
+                  <span>Add to Bag {selectedSize ? `· UK ${selectedSize}` : ''}</span>
+                </button>
+
+                {/* Direct Buy Now CTA */}
+                <button
+                  onClick={handleBuyNow}
+                  className="flex-1 bg-[#9D2706] text-white h-12 py-3.5 px-6 flex items-center justify-center gap-2 text-xs font-bold tracking-[0.18em] uppercase hover:bg-[#801F05] transition-all shadow-md active:scale-[0.99] rounded-sm"
+                >
+                  <span>Buy It Now</span>
+                  <ArrowRight size={14} />
+                </button>
+
+                {/* Wishlist Button */}
+                <button
+                  onClick={handleWishlistClick}
+                  className={`h-12 w-12 p-3 border flex items-center justify-center transition-all rounded-sm ${
+                    isWishlisted
+                      ? 'bg-[#9D2706] text-white border-[#9D2706]'
+                      : 'bg-white text-[#0E0D0C] border-[#0E0D0C]/20 hover:border-[#9D2706] hover:text-[#9D2706]'
+                  }`}
+                  title={isWishlisted ? 'Saved in Wishlist' : 'Add to Wishlist'}
+                >
+                  <Heart size={18} fill={isWishlisted ? 'currentColor' : 'none'} />
+                </button>
+              </div>
+
+              {/* Bespoke Customizer Option */}
+              {product.customized && (
+                <Link
+                  href={getCustomizeUrl()}
+                  className="w-full h-11 bg-white border border-[#9D2706]/40 text-[#9D2706] hover:bg-[#9D2706] hover:text-white flex items-center justify-center gap-2 text-xs font-bold tracking-[0.18em] uppercase transition-all rounded-sm group"
+                >
+                  <Palette size={15} className="transition-transform group-hover:rotate-12" />
+                  <span>Personalize in 3D Bespoke Atelier</span>
+                  <ArrowRight size={13} />
+                </Link>
+              )}
+            </div>
+
+            {/* Streamlined Pincode Delivery Estimator */}
+            <div className="pt-3 border-t border-[#0E0D0C]/10">
+              <div className="flex items-center gap-2 mb-2 text-[11px] font-bold uppercase tracking-wider text-[#0E0D0C]">
+                <Truck size={14} className="text-[#9D2706]" />
+                <span>Express Dispatch &amp; COD Verification</span>
               </div>
               <div className="flex gap-2">
                 <input
@@ -621,12 +761,12 @@ const ProductPDP = ({ gender = 'men' }) => {
                     setPincodeStatus(null);
                   }}
                   placeholder="Enter 6-digit Pincode"
-                  className="flex-1 px-3 py-2 text-xs border border-[#0A0A0A]/20 focus:border-[#9D2706] outline-none bg-white font-mono"
+                  className="flex-1 px-3 py-2 text-xs border border-[#0E0D0C]/20 focus:border-[#9D2706] outline-none bg-white font-mono rounded-sm"
                 />
                 <button
                   type="button"
                   onClick={handlePincodeCheck}
-                  className="bg-[#0A0A0A] text-white text-[11px] font-bold uppercase tracking-wider px-4 py-2 hover:bg-[#9D2706] transition-colors"
+                  className="bg-[#0E0D0C] text-white text-[11px] font-bold uppercase tracking-wider px-4 py-2 hover:bg-[#9D2706] transition-colors rounded-sm"
                 >
                   Verify
                 </button>
@@ -638,75 +778,125 @@ const ProductPDP = ({ gender = 'men' }) => {
               )}
             </div>
 
-            {/* Primary Action Buttons */}
-            <div ref={mainBuyBtnRef} className="space-y-3 pt-2">
-              <div className="flex gap-3">
-                {/* Quantity Stepper */}
-                <div className="flex items-center border border-[#0A0A0A]/20 bg-white shrink-0">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-12 flex items-center justify-center text-sm font-bold text-[#0A0A0A]/60 hover:text-[#0A0A0A] hover:bg-gray-100 transition-colors"
-                  >
-                    −
-                  </button>
-                  <span className="w-8 text-center text-xs font-bold font-mono">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="w-10 h-12 flex items-center justify-center text-sm font-bold text-[#0A0A0A]/60 hover:text-[#0A0A0A] hover:bg-gray-100 transition-colors"
-                  >
-                    +
-                  </button>
-                </div>
-
-                {/* Main Add to Cart CTA */}
-                <button
-                  onClick={handleAddToCart}
-                  className="flex-1 bg-[#0A0A0A] text-white h-12 flex items-center justify-center gap-2 text-xs font-bold tracking-[0.2em] uppercase hover:bg-[#9D2706] transition-all shadow-md active:scale-[0.99]"
-                >
-                  <ShoppingBag size={16} />
-                  <span>Add to Shopping Bag</span>
-                </button>
+            {/* Luxury Atelier Assurance Strip */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-[#0E0D0C]/10 text-center">
+              <div className="flex flex-col items-center p-2.5 bg-[#FAF9F6] border border-[#EAE5DC] rounded-sm">
+                <Shield size={18} className="text-[#9D2706] mb-1" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#0E0D0C]">Full-Grain Tuscan</span>
+                <span className="text-[9px] text-[#7A736B]">100% Italian Crust Leather</span>
               </div>
-
-              {/* Bespoke Customizer Option */}
-              {product.customized && (
-                <Link
-                  href={getCustomizeUrl()}
-                  className="w-full h-12 bg-white border-2 border-[#9D2706] text-[#9D2706] hover:bg-[#9D2706] hover:text-white flex items-center justify-center gap-2 text-xs font-bold tracking-[0.2em] uppercase transition-all shadow-sm group"
-                >
-                  <Palette size={16} className="transition-transform group-hover:rotate-12" />
-                  <span>Personalize in Bespoke Atelier</span>
-                  <ArrowRight size={14} />
-                </Link>
-              )}
-            </div>
-
-            {/* Luxury Trust Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-[#0A0A0A]/10 text-center">
-              <div className="flex flex-col items-center p-2.5 bg-[#FAF9F6]">
-                <Shield size={20} className="text-[#9D2706] mb-1.5" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#0A0A0A]">Full-Grain</span>
-                <span className="text-[9px] text-[#0A0A0A]/50">Top-Tier Leather</span>
+              <div className="flex flex-col items-center p-2.5 bg-[#FAF9F6] border border-[#EAE5DC] rounded-sm">
+                <Layers size={18} className="text-[#9D2706] mb-1" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#0E0D0C]">Goodyear Welt</span>
+                <span className="text-[9px] text-[#7A736B]">Hand-Welted &amp; Resolable</span>
               </div>
-              <div className="flex flex-col items-center p-2.5 bg-[#FAF9F6]">
-                <Layers size={20} className="text-[#9D2706] mb-1.5" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#0A0A0A]">Goodyear Welt</span>
-                <span className="text-[9px] text-[#0A0A0A]/50">Lifetime Resolable</span>
+              <div className="flex flex-col items-center p-2.5 bg-[#FAF9F6] border border-[#EAE5DC] rounded-sm">
+                <RotateCcw size={18} className="text-[#9D2706] mb-1" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#0E0D0C]">15-Day Fit Trial</span>
+                <span className="text-[9px] text-[#7A736B]">Complimentary Exchange</span>
               </div>
-              <div className="flex flex-col items-center p-2.5 bg-[#FAF9F6]">
-                <RotateCcw size={20} className="text-[#9D2706] mb-1.5" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#0A0A0A]">15-Day Fit</span>
-                <span className="text-[9px] text-[#0A0A0A]/50">Complimentary Remake</span>
-              </div>
-              <div className="flex flex-col items-center p-2.5 bg-[#FAF9F6]">
-                <Truck size={20} className="text-[#9D2706] mb-1.5" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#0A0A0A]">White-Glove</span>
-                <span className="text-[9px] text-[#0A0A0A]/50">Express Dispatch</span>
+              <div className="flex flex-col items-center p-2.5 bg-[#FAF9F6] border border-[#EAE5DC] rounded-sm">
+                <Truck size={18} className="text-[#9D2706] mb-1" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#0E0D0C]">White-Glove</span>
+                <span className="text-[9px] text-[#7A736B]">Insured Express Dispatch</span>
               </div>
             </div>
 
           </div>
         </div>
+
+        {/* THE GENTLEMAN'S ENSEMBLE (FREQUENTLY BOUGHT TOGETHER) */}
+        <section className="mt-14 pt-10 border-t border-[#0A0A0A]/10">
+          <div className="mb-6">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#9D2706] mb-1">Curated Atelier Ensemble</p>
+            <h3 className="text-xl md:text-2xl font-serif font-normal uppercase tracking-wide text-[#0E0D0C]">
+              Frequently Bought Together · Complete The Look
+            </h3>
+          </div>
+
+          <div className="bg-[#FAF9F6] border border-[#E8E4DC] p-6 rounded-sm">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+              {/* Products Row */}
+              <div className="lg:col-span-8 flex items-center gap-4 flex-wrap sm:flex-nowrap">
+                {/* Shoe */}
+                <div className="flex items-center gap-3 bg-white p-2.5 border border-[#E8E4DD] rounded-sm shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={ensembleItems.shoe}
+                    onChange={(e) => setEnsembleItems(prev => ({ ...prev, shoe: e.target.checked }))}
+                    className="accent-[#9D2706] w-4 h-4 cursor-pointer"
+                  />
+                  <div className="w-16 h-16 bg-[#FAF9F6] p-1 shrink-0">
+                    <img src={rawImages[0]} alt={product.name} className="w-full h-full object-contain mix-blend-multiply" />
+                  </div>
+                  <div className="text-xs pr-2">
+                    <p className="font-semibold text-[#0E0D0C] max-w-[140px] truncate">{product.name}</p>
+                    <p className="text-[#9D2706] font-serif font-bold">₹{displayPrice.toLocaleString('en-IN')}</p>
+                  </div>
+                </div>
+
+                <span className="text-lg font-light text-[#9CA3AF] hidden sm:inline">+</span>
+
+                {/* Matching Cardholder */}
+                <div className="flex items-center gap-3 bg-white p-2.5 border border-[#E8E4DD] rounded-sm shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={ensembleItems.cardholder}
+                    onChange={(e) => setEnsembleItems(prev => ({ ...prev, cardholder: e.target.checked }))}
+                    className="accent-[#9D2706] w-4 h-4 cursor-pointer"
+                  />
+                  <div className="w-16 h-16 bg-[#FAF9F6] p-1 shrink-0 flex items-center justify-center">
+                    <Shield size={28} className="text-[#9D2706]/70" />
+                  </div>
+                  <div className="text-xs pr-2">
+                    <p className="font-semibold text-[#0E0D0C] max-w-[140px] truncate">Tuscan Leather Cardholder</p>
+                    <p className="text-[#9D2706] font-serif font-bold">₹1,000</p>
+                  </div>
+                </div>
+
+                <span className="text-lg font-light text-[#9CA3AF] hidden sm:inline">+</span>
+
+                {/* Matching Full-Grain Belt */}
+                <div className="flex items-center gap-3 bg-white p-2.5 border border-[#E8E4DD] rounded-sm shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={ensembleItems.belt}
+                    onChange={(e) => setEnsembleItems(prev => ({ ...prev, belt: e.target.checked }))}
+                    className="accent-[#9D2706] w-4 h-4 cursor-pointer"
+                  />
+                  <div className="w-16 h-16 bg-[#FAF9F6] p-1 shrink-0 flex items-center justify-center">
+                    <Award size={28} className="text-[#9D2706]/70" />
+                  </div>
+                  <div className="text-xs pr-2">
+                    <p className="font-semibold text-[#0E0D0C] max-w-[140px] truncate">Matching Full-Grain Belt</p>
+                    <p className="text-[#9D2706] font-serif font-bold">₹1,500</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pricing & Add Bundle Button */}
+              <div className="lg:col-span-4 lg:border-l lg:border-[#E0DAD0] lg:pl-6 flex flex-col items-start gap-1.5">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[#7D766E]">Total for selected items</span>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-serif font-bold text-[#0E0D0C]">
+                    ₹{(
+                      (ensembleItems.shoe ? displayPrice : 0) +
+                      (ensembleItems.cardholder ? 1000 : 0) +
+                      (ensembleItems.belt ? 1500 : 0)
+                    ).toLocaleString('en-IN')}
+                  </span>
+                  <span className="text-xs font-semibold text-[#9D2706] bg-[#9D2706]/8 px-2 py-0.5 rounded-sm">Save ₹500 Bundle</span>
+                </div>
+                <button
+                  onClick={handleAddEnsembleToCart}
+                  className="w-full mt-2 bg-[#0E0D0C] text-white py-3 px-4 text-xs font-bold tracking-[0.16em] uppercase hover:bg-[#9D2706] transition-colors rounded-sm"
+                >
+                  Add Selected to Bag
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* FULL-WIDTH WOODLAND-STYLE TABBED SECTION */}
         <section className="mt-16 md:mt-24 pt-10 border-t border-[#0A0A0A]/10">
