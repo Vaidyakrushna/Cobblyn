@@ -48,6 +48,7 @@ from routes import vip as vip_routes
 from routes import accounting as accounting_routes
 from routes import logistics as logistics_routes
 from routes import navigation as navigation_routes
+from routes import customizer as customizer_routes
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -91,6 +92,7 @@ vip_routes.set_db(db)
 accounting_routes.set_db(db)
 logistics_routes.set_db(db)
 navigation_routes.set_db(db)
+customizer_routes.set_db(db)
 
 
 app = FastAPI()
@@ -158,6 +160,7 @@ app.include_router(vip_routes.router)
 app.include_router(accounting_routes.router)
 app.include_router(logistics_routes.router)
 app.include_router(navigation_routes.router)
+app.include_router(customizer_routes.router)
 
 
 # ---- Rate limiting (slowapi) ----

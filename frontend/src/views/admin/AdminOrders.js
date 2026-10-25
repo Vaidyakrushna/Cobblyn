@@ -326,6 +326,24 @@ const AdminOrders = () => {
                           </select>
                         </div>
                       </div>
+                      {item.custom_options && (
+                        <div style={{ marginTop: '10px', padding: '8px 12px', background: '#fffbeb', border: '1px solid #fef3c7', borderRadius: '6px', fontSize: '0.72rem' }}>
+                          <div style={{ fontWeight: 700, color: '#b45309', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '4px' }}>
+                            ✨ Bespoke Anatomical Last Specs (Cobbler Guide)
+                          </div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', color: '#78350f' }}>
+                            <div>Width: <strong>{item.custom_options.foot_width || 'Standard (E)'}</strong></div>
+                            <div>Arch: <strong>{item.custom_options.arch_type || 'Normal Arch'}</strong></div>
+                            <div>Instep: <strong>{item.custom_options.instep_type || 'Standard'}</strong></div>
+                            <div>Monogram: <strong>{item.custom_options.monogram ? `[${item.custom_options.monogram}]` : 'None'}</strong></div>
+                          </div>
+                          {item.custom_options.special_fit && item.custom_options.special_fit.length > 0 && (
+                            <div style={{ marginTop: '4px', color: '#92400e' }}>
+                              Special Accommodations: <strong>{item.custom_options.special_fit.join(', ')}</strong>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

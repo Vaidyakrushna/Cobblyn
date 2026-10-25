@@ -495,8 +495,164 @@ const get2DShoeImage = (model, submodel) => {
   }
   return '/shoe-oxford.png';
 };
+/* ─── FIT & ANATOMICAL DYNAMICS DATA ─────────────────────── */
+
+const archProfiles = [
+  {
+    id: 'flat',
+    name: 'Flat / Low Arch',
+    sublabel: 'Full Ground Contact',
+    bioDesc: 'The inner sole touches the ground completely with little to no medial cutout.',
+    artisanNote: 'Cobblers reinforce the tempered steel shank and sculpt gentle medial arch support to prevent overpronation and foot fatigue.',
+    renderSvg: (active) => (
+      <svg viewBox="0 0 60 90" width="30" height="45" fill={active ? '#C9A84C' : '#9ca3af'}>
+        <ellipse cx="20" cy="11" rx="5.5" ry="7" />
+        <ellipse cx="31" cy="13" rx="4" ry="5.5" />
+        <ellipse cx="40" cy="17" rx="3.5" ry="5" />
+        <ellipse cx="47" cy="22" rx="3" ry="4.5" />
+        <ellipse cx="52" cy="28" rx="2.5" ry="3.5" />
+        <path d="M 14 24 C 22 22, 48 25, 52 35 C 54 44, 49 56, 47 68 C 45 78, 42 88, 30 88 C 18 88, 16 78, 16 68 C 16 56, 12 36, 14 24 Z" opacity="0.9" />
+      </svg>
+    )
+  },
+  {
+    id: 'normal',
+    name: 'Normal / Medium Arch',
+    sublabel: 'Balanced Bio-Curve',
+    bioDesc: 'Natural anatomical inward curve connecting heel and ball by approx. 50% width.',
+    artisanNote: 'Built on Cobcult’s authentic Italian dress last with granulated cork filler that molds to your unique pressure points within 3–5 wears.',
+    renderSvg: (active) => (
+      <svg viewBox="0 0 60 90" width="30" height="45" fill={active ? '#C9A84C' : '#9ca3af'}>
+        <ellipse cx="20" cy="11" rx="5.5" ry="7" />
+        <ellipse cx="31" cy="13" rx="4" ry="5.5" />
+        <ellipse cx="40" cy="17" rx="3.5" ry="5" />
+        <ellipse cx="47" cy="22" rx="3" ry="4.5" />
+        <ellipse cx="52" cy="28" rx="2.5" ry="3.5" />
+        <path d="M 14 24 C 22 22, 48 25, 52 35 C 54 43, 44 47, 37 48 C 30 48, 20 34, 14 24 Z" opacity="0.9" />
+        <path d="M 44 44 C 47 48, 47 58, 45 66 C 44 72, 41 76, 40 80 C 37 80, 36 56, 38 46 Z" opacity="0.9" />
+        <path d="M 20 68 C 26 65, 40 65, 42 70 C 43 78, 40 88, 30 88 C 18 88, 16 78, 20 68 Z" opacity="0.9" />
+      </svg>
+    )
+  },
+  {
+    id: 'high',
+    name: 'High Arch (Cavus)',
+    sublabel: 'Hollow Medial Bridge',
+    bioDesc: 'Very narrow outer contact band; distinct hollow gap underneath the inner arch.',
+    artisanNote: 'Artisans insert targeted dual-density arch-fill bridge cushioning to distribute pressure evenly away from heel strike and ball of foot.',
+    renderSvg: (active) => (
+      <svg viewBox="0 0 60 90" width="30" height="45" fill={active ? '#C9A84C' : '#9ca3af'}>
+        <ellipse cx="20" cy="11" rx="5.5" ry="7" />
+        <ellipse cx="31" cy="13" rx="4" ry="5.5" />
+        <ellipse cx="40" cy="17" rx="3.5" ry="5" />
+        <ellipse cx="47" cy="22" rx="3" ry="4.5" />
+        <ellipse cx="52" cy="28" rx="2.5" ry="3.5" />
+        <path d="M 14 24 C 22 22, 48 25, 52 35 C 54 42, 38 44, 28 38 C 18 32, 12 28, 14 24 Z" opacity="0.9" />
+        <path d="M 45 44 C 47 50, 46 58, 44 64 C 42 64, 42 52, 44 44 Z" opacity="0.6" />
+        <path d="M 20 68 C 26 65, 40 65, 42 70 C 43 78, 40 88, 30 88 C 18 88, 16 78, 20 68 Z" opacity="0.9" />
+      </svg>
+    )
+  }
+];
+
+const widthProfiles = [
+  {
+    id: 'narrow',
+    label: 'Narrow (D)',
+    title: 'Slender Forefoot',
+    desc: 'Slim metatarsal girth. We trim last waist volume to eliminate collar gaping & leather buckling.',
+    renderSvg: (active) => (
+      <svg viewBox="0 0 60 80" width="28" height="38" fill="none" stroke={active ? '#C9A84C' : '#9ca3af'} strokeWidth="2.2">
+        <path d="M 22 8 C 30 8, 36 15, 36 28 C 36 42, 34 54, 33 68 C 32 74, 27 76, 22 76 C 17 76, 12 74, 11 68 C 10 54, 10 42, 10 28 C 10 15, 14 8, 22 8 Z" />
+        <line x1="11" y1="30" x2="35" y2="30" strokeDasharray="2 2" strokeWidth="1.5" />
+      </svg>
+    )
+  },
+  {
+    id: 'standard',
+    label: 'Standard (E)',
+    title: 'Balanced Italian Last',
+    desc: 'Standard anatomical girth fitting ~80% of clients comfortably with zero break-in pinch.',
+    renderSvg: (active) => (
+      <svg viewBox="0 0 60 80" width="28" height="38" fill="none" stroke={active ? '#C9A84C' : '#9ca3af'} strokeWidth="2.2">
+        <path d="M 24 8 C 34 8, 41 15, 41 28 C 41 42, 37 54, 36 68 C 35 74, 30 76, 24 76 C 18 76, 13 74, 12 68 C 11 54, 9 42, 9 28 C 9 15, 14 8, 24 8 Z" />
+        <line x1="10" y1="30" x2="40" y2="30" strokeDasharray="2 2" strokeWidth="1.5" />
+      </svg>
+    )
+  },
+  {
+    id: 'wide',
+    label: 'Wide (EE)',
+    title: 'Roomy Ball Girth',
+    desc: 'Expanded ball & toe girth. Relieves outer 5th toe pressure points without sizing up in length.',
+    renderSvg: (active) => (
+      <svg viewBox="0 0 60 80" width="28" height="38" fill="none" stroke={active ? '#C9A84C' : '#9ca3af'} strokeWidth="2.2">
+        <path d="M 26 8 C 38 8, 46 15, 46 28 C 46 42, 39 54, 38 68 C 37 74, 32 76, 26 76 C 20 76, 15 74, 14 68 C 13 54, 8 42, 8 28 C 8 15, 14 8, 26 8 Z" />
+        <line x1="9" y1="30" x2="45" y2="30" strokeDasharray="2 2" strokeWidth="1.5" />
+      </svg>
+    )
+  },
+  {
+    id: 'extra_wide',
+    label: 'Extra Wide (EEE)',
+    title: 'High-Volume Forefoot',
+    desc: 'Maximal forefoot volume & relaxed waist. Accommodates broad feet and custom orthotic inserts.',
+    renderSvg: (active) => (
+      <svg viewBox="0 0 60 80" width="28" height="38" fill="none" stroke={active ? '#C9A84C' : '#9ca3af'} strokeWidth="2.2">
+        <path d="M 28 8 C 42 8, 50 15, 50 28 C 50 42, 41 54, 40 68 C 39 74, 34 76, 28 76 C 22 76, 15 74, 14 68 C 13 54, 6 42, 6 28 C 6 15, 14 8, 28 8 Z" />
+        <line x1="7" y1="30" x2="49" y2="30" strokeDasharray="2 2" strokeWidth="1.5" />
+      </svg>
+    )
+  }
+];
+
+const instepProfiles = [
+  {
+    id: 'low',
+    name: 'Low Instep',
+    sublabel: 'Shallow Bridge Bone',
+    desc: 'Laces tend to touch or overlap completely. We shave the last cone for a tailored, snug closure.',
+    renderSvg: (active) => (
+      <svg viewBox="0 0 70 40" width="38" height="22" fill="none" stroke={active ? '#C9A84C' : '#9ca3af'} strokeWidth="2.2">
+        <path d="M 6 32 C 20 32, 32 30, 44 23 C 54 17, 62 16, 66 16" strokeLinecap="round" />
+        <path d="M 6 35 L 66 35" strokeWidth="1.5" strokeOpacity="0.4" />
+      </svg>
+    )
+  },
+  {
+    id: 'standard',
+    name: 'Standard Instep',
+    sublabel: 'Balanced Bridge',
+    desc: 'Natural instep curve allowing the ideal 0.5 to 1.0 cm V-gap between oxford eyelet facings.',
+    renderSvg: (active) => (
+      <svg viewBox="0 0 70 40" width="38" height="22" fill="none" stroke={active ? '#C9A84C' : '#9ca3af'} strokeWidth="2.2">
+        <path d="M 6 32 C 18 32, 30 28, 40 18 C 50 11, 58 11, 66 13" strokeLinecap="round" />
+        <path d="M 6 35 L 66 35" strokeWidth="1.5" strokeOpacity="0.4" />
+      </svg>
+    )
+  },
+  {
+    id: 'high',
+    name: 'High Instep',
+    sublabel: 'Prominent Bridge Bone',
+    desc: 'Laces flare open widely or pinch the top of your foot. We elevate the last cone and throat angle.',
+    renderSvg: (active) => (
+      <svg viewBox="0 0 70 40" width="38" height="22" fill="none" stroke={active ? '#C9A84C' : '#9ca3af'} strokeWidth="2.2">
+        <path d="M 6 32 C 18 32, 28 25, 38 10 C 48 4, 56 6, 66 10" strokeLinecap="round" />
+        <path d="M 6 35 L 66 35" strokeWidth="1.5" strokeOpacity="0.4" />
+      </svg>
+    )
+  }
+];
+
+const specialFitOptions = [
+  { id: 'bunion', label: 'Bunion / Joint Relief', desc: 'Pre-stretched ball-joint pocket on the medial 1st metatarsal' },
+  { id: 'heel_slip', label: 'Anti-Heel Slip Contouring', desc: 'Snug tapered heel counter lined with friction grip suede' },
+  { id: 'orthotics', label: 'Orthotic Insole Allowance', desc: 'Removable 4mm cork footbed to swap with your custom orthotics' }
+];
+
 /* ─── STEP LABELS ─────────────────────────────────────────── */
-const steps = ['Gender', 'Model', 'Submodel', 'Leather', 'Color', 'Sole', 'Size', 'Summary'];
+const steps = ['Gender', 'Model', 'Submodel', 'Leather', 'Color', 'Sole', 'Fit & Size', 'Summary'];
 
 /* ─── COMPONENT ──────────────────────────────────────────── */
 const CustomizePage = () => {
@@ -541,28 +697,110 @@ const CustomizePage = () => {
         setDbProducts(prodData.products || []);
         
         const matData = await api.getMaterials();
-        setDbMaterials(matData.materials || []);
+        const mats = matData.materials || [];
+        setDbMaterials(mats);
+
+        // Inject dynamic backend materials into activeLeathers, activeSoles, activeColors
+        const backendLeathers = mats
+          .filter(m => m.category === 'leather' || m.category === 'texture')
+          .map(m => ({
+            name: m.name,
+            desc: m.description || (m.price_modifier > 0 ? `+ ₹${m.price_modifier}` : 'Included'),
+            swatch: m.color_hex || '#C9A84C',
+            price_modifier: m.price_modifier || 0,
+            available: m.available
+          }));
+
+        const backendSoles = mats
+          .filter(m => m.category === 'sole')
+          .map(m => ({
+            name: m.name,
+            desc: m.description || (m.price_modifier > 0 ? `+ ₹${m.price_modifier}` : 'Included'),
+            price_modifier: m.price_modifier || 0,
+            available: m.available
+          }));
+
+        const backendColors = mats
+          .filter(m => m.color_hex)
+          .map(m => ({
+            name: m.name,
+            hex: m.color_hex,
+            price_modifier: m.price_modifier || 0
+          }));
+
+        if (backendLeathers.length > 0) {
+          setActiveLeathers(prev => {
+            const merged = [...prev];
+            backendLeathers.forEach(bl => {
+              if (!merged.some(x => x.name.toLowerCase() === bl.name.toLowerCase())) {
+                merged.push(bl);
+              }
+            });
+            return merged;
+          });
+        }
+
+        if (backendSoles.length > 0) {
+          setActiveSoles(prev => {
+            const merged = [...prev];
+            backendSoles.forEach(bs => {
+              if (!merged.some(x => x.name.toLowerCase() === bs.name.toLowerCase())) {
+                merged.push(bs);
+              }
+            });
+            return merged;
+          });
+        }
+
+        if (backendColors.length > 0) {
+          setActiveColors(prev => {
+            const merged = [...prev];
+            backendColors.forEach(bc => {
+              if (!merged.some(x => x.name.toLowerCase() === bc.name.toLowerCase())) {
+                merged.push(bc);
+              }
+            });
+            return merged;
+          });
+        }
       } catch (err) {
         console.error('Error fetching dynamic DB customizer data:', err);
       }
     };
     fetchDbData();
 
-    // Sync catalog and submodels from localStorage
-    if (typeof window !== 'undefined') {
+    // Fetch authoritative customizer catalog & submodels from backend
+    const fetchCustomizerCatalog = async () => {
       try {
-        const savedSub = localStorage.getItem('byond_customizer_submodels');
-        if (savedSub) {
-          setActiveSubmodels(JSON.parse(savedSub));
+        const catRes = await api.getCustomizerCatalog();
+        if (catRes) {
+          if (catRes.catalog) {
+            setActiveModels(catRes.catalog);
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('byond_customizer_catalog', JSON.stringify(catRes.catalog));
+            }
+          }
+          if (catRes.submodels) {
+            setActiveSubmodels(catRes.submodels);
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('byond_customizer_submodels', JSON.stringify(catRes.submodels));
+            }
+          }
         }
-        const savedCat = localStorage.getItem('byond_customizer_catalog');
-        if (savedCat) {
-          setActiveModels(JSON.parse(savedCat));
+      } catch (err) {
+        console.error('Failed to load customizer catalog from backend:', err);
+        // Fallback to localStorage if offline/network issue
+        if (typeof window !== 'undefined') {
+          try {
+            const savedSub = localStorage.getItem('byond_customizer_submodels');
+            if (savedSub) setActiveSubmodels(JSON.parse(savedSub));
+            const savedCat = localStorage.getItem('byond_customizer_catalog');
+            if (savedCat) setActiveModels(JSON.parse(savedCat));
+          } catch (e) {}
         }
-      } catch (e) {
-        console.error('Failed to parse catalog/submodels from localStorage:', e);
       }
-    }
+    };
+    fetchCustomizerCatalog();
   }, []);
 
   const getFilteredLeathers = () => {
@@ -586,8 +824,51 @@ const CustomizePage = () => {
   };
   
   const [step, setStep]     = useState(0);
-  const [config, setConfig] = useState({ gender: '', model: '', submodel: '', leather: '', color: '', sole: '', size: '8', monogram: '' });
+  const [config, setConfig] = useState({ 
+    gender: '', 
+    model: '', 
+    submodel: '', 
+    leather: '', 
+    color: '', 
+    sole: '', 
+    size: '8', 
+    footWidth: 'Standard (E)',
+    archType: 'Normal / Medium Arch',
+    instepType: 'Standard Instep',
+    specialFit: [],
+    monogram: '' 
+  });
   const [instagramModal, setInstagramModal] = useState(false);
+  const [showWetTestModal, setShowWetTestModal] = useState(false);
+
+  const toggleSpecialFit = (label) => {
+    setConfig(prev => {
+      const current = prev.specialFit || [];
+      const exists = current.includes(label);
+      return {
+        ...prev,
+        specialFit: exists ? current.filter(x => x !== label) : [...current, label]
+      };
+    });
+  };
+
+  // Resolve shoe image: priority is submodel uploaded img -> model uploaded img -> 2D silhouette fallback
+  const resolveShoeImage = (model, submodel) => {
+    if (!model) return '/shoe-oxford.png';
+    const subListKey = (config.gender === 'women' && model === 'Boots') ? 'WomenBoots' : model;
+    const subList = activeSubmodels[subListKey] || activeSubmodels[model] || [];
+    
+    if (submodel) {
+      const sm = subList.find(s => s.name?.toLowerCase() === submodel.toLowerCase());
+      if (sm && sm.img) return sm.img;
+    }
+
+    const allModels = [...(activeModels.men || []), ...(activeModels.women || [])];
+    const m = allModels.find(x => x.name?.toLowerCase() === model.toLowerCase());
+    if (m && m.img && (!submodel || submodel.toLowerCase() === m.name.toLowerCase())) return m.img;
+
+    return get2DShoeImage(model, submodel);
+  };
   
   // Bespoke customizer visual states
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -697,7 +978,17 @@ const CustomizePage = () => {
         product_id: prodId,
         size: String(config.size || '8'), // Dynamic customer size selection
         color: config.color || 'Black',
-        quantity: 1
+        quantity: 1,
+        custom_options: {
+          submodel: config.submodel,
+          leather: config.leather,
+          sole: config.sole,
+          monogram: config.monogram || '',
+          foot_width: config.footWidth || 'Standard (E)',
+          arch_type: config.archType || 'Normal / Medium Arch',
+          instep_type: config.instepType || 'Standard Instep',
+          special_fit: config.specialFit || []
+        }
       });
       setToastMsg('🛒 Bespoke shoe added to cart! Redirecting to checkout bag...');
       setTimeout(() => {
@@ -793,6 +1084,10 @@ const CustomizePage = () => {
           color: color || '',
           sole: sole || '',
           size: size || '8',
+          footWidth: params.get('footWidth') || 'Standard (E)',
+          archType: params.get('archType') || 'Normal / Medium Arch',
+          instepType: params.get('instepType') || 'Standard Instep',
+          specialFit: params.get('specialFit') ? params.get('specialFit').split(',') : [],
           monogram: monogram || ''
         });
         setStep(7); // Jump directly to Summary (now step 7)
@@ -842,7 +1137,7 @@ const CustomizePage = () => {
       return;
     }
     
-    const imageUrl = get2DShoeImage(config.model, config.submodel);
+    const imageUrl = resolveShoeImage(config.model, config.submodel);
     
     const newDesign = {
       id: 'BYOND-SAVED-' + Math.floor(100000 + Math.random() * 900000),
@@ -854,6 +1149,10 @@ const CustomizePage = () => {
       color: config.color,
       sole: config.sole,
       size: config.size || '8',
+      footWidth: config.footWidth || 'Standard (E)',
+      archType: config.archType || 'Normal / Medium Arch',
+      instepType: config.instepType || 'Standard Instep',
+      specialFit: config.specialFit || [],
       monogram: config.monogram || '',
       image: imageUrl
     };
@@ -937,7 +1236,7 @@ const CustomizePage = () => {
     // 4. Brand Logo
     ctx.fillStyle = '#ffffff';
     ctx.font = '400 90px "Playfair Display", serif';
-    ctx.fillText('BYOND', 540, 290);
+    ctx.fillText('COBCULT', 540, 290);
     
     // Draw small gold dot below logo
     ctx.fillStyle = '#C9A84C';
@@ -945,7 +1244,7 @@ const CustomizePage = () => {
     ctx.arc(540, 340, 5, 0, Math.PI * 2);
     ctx.fill();
 
-    const imageUrl = get2DShoeImage(config.model, config.submodel);
+    const imageUrl = resolveShoeImage(config.model, config.submodel);
     
     const img = new Image();
     img.crossOrigin = 'anonymous';
@@ -1221,7 +1520,7 @@ const CustomizePage = () => {
                     onClick={() => { setConfig(prev => ({ ...prev, model: m.name, submodel: '' })); setStep(2); }}
                     data-testid={`model-${m.name.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    <img src={get2DShoeImage(m.name)} alt={m.name} style={{ objectFit: 'contain', padding: '16px', background: '#fff' }} />
+                    <img src={m.img || resolveShoeImage(m.name)} alt={m.name} style={{ objectFit: 'contain', padding: '16px', background: '#fff' }} />
                     <div className="model-info">
                       <h3>{m.name}</h3>
                       <p>{m.desc}</p>
@@ -1276,7 +1575,7 @@ const CustomizePage = () => {
                       <div className="submodel-check"><Check size={14} strokeWidth={3} /></div>
                     )}
                     <div className="submodel-img-wrap" style={{ background: '#fff' }}>
-                      <img src={get2DShoeImage(config.model, sm.name)} alt={sm.name} style={{ objectFit: 'contain', padding: '16px' }} />
+                      <img src={sm.img || resolveShoeImage(config.model, sm.name)} alt={sm.name} style={{ objectFit: 'contain', padding: '16px' }} />
                       <div className="submodel-img-overlay" />
                     </div>
                     <div className="submodel-info">
@@ -1324,7 +1623,7 @@ const CustomizePage = () => {
             }}>
               
               <img 
-                src={get2DShoeImage(config.model, config.submodel)} 
+                src={resolveShoeImage(config.model, config.submodel)} 
                 alt="Bespoke Shoe Preview" 
                 style={{ 
                   width: '100%', 
@@ -1530,57 +1829,350 @@ const CustomizePage = () => {
                 style={{ width: '100%', padding: '12px 16px', background: step === 6 ? '#111' : '#FAF9F6', border: '1px solid #e7e5e4', borderLeft: step === 6 ? '4px solid #C9A84C' : '1px solid #e7e5e4', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', transition: 'all 0.3s ease' }}
               >
                 <div style={{ textAlign: 'left' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: step === 6 ? '#fff' : '#1c1917' }}>Fitting &amp; Sizing</span>
-                  {config.size && (
-                    <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 600, color: step === 6 ? '#C9A84C' : '#78716c', marginTop: '2px' }}>UK Size {config.size}</span>
-                  )}
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: step === 6 ? '#fff' : '#1c1917' }}>Fitting &amp; Anatomical Dynamics</span>
+                  <span style={{ display: 'block', fontSize: '0.68rem', fontWeight: 600, color: step === 6 ? '#C9A84C' : '#78716c', marginTop: '2px' }}>
+                    UK {config.size || '8'} · {config.footWidth || 'Standard (E)'} · {config.archType ? config.archType.split('/')[0].trim() : 'Normal Arch'}
+                  </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', color: step === 6 ? '#C9A84C' : '#78716c' }}>
                   {step === 6 ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </div>
               </button>
 
-              <div style={{ maxHeight: step === 6 ? '1000px' : '0px', overflow: 'hidden', transition: 'max-height 0.4s ease', background: '#fff', border: '1px solid #e7e5e4', borderTop: 'none' }}>
+              <div style={{ maxHeight: step === 6 ? '3200px' : '0px', overflow: 'hidden', transition: 'max-height 0.4s ease', background: '#fff', border: '1px solid #e7e5e4', borderTop: 'none' }}>
                 <div style={{ padding: '24px 20px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: '700', color: '#78716c', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Select Your Size (UK)</span>
-                    <button 
-                      type="button" 
-                      onClick={() => setShowFitProfiler(true)}
-                      style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#C9A84C', fontSize: '0.72rem', textDecoration: 'underline', fontWeight: '600' }}
-                    >
-                      🔍 Find My Size
-                    </button>
+                  
+                  {/* Section 1: Foot Length (UK Sizes) */}
+                  <div style={{ marginBottom: '22px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                      <div>
+                        <span style={{ fontSize: '0.72rem', fontWeight: '700', color: '#1c1917', textTransform: 'uppercase', letterSpacing: '0.05em' }}>1. Foot Length (UK Size)</span>
+                        <span style={{ fontSize: '0.68rem', color: '#78716c', marginLeft: '6px' }}>Selected: <strong style={{ color: '#C9A84C' }}>UK {config.size || '8'}</strong></span>
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={() => setShowFitProfiler(true)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#C9A84C', fontSize: '0.72rem', textDecoration: 'underline', fontWeight: '600' }}
+                      >
+                        🔍 Sizing Concierge
+                      </button>
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      {['6', '7', '8', '9', '10', '11', '12'].map((sz) => (
+                        <button
+                          key={sz}
+                          type="button"
+                          onClick={() => setConfig(prev => ({ ...prev, size: String(sz) }))}
+                          style={{
+                            width: '46px',
+                            height: '46px',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            border: config.size === String(sz) ? '2px solid #C9A84C' : '1px solid #E5E7EB',
+                            backgroundColor: config.size === String(sz) ? '#FAF9F6' : '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '0.85rem',
+                            fontWeight: config.size === String(sz) ? '700' : '500',
+                            color: config.size === String(sz) ? '#C9A84C' : '#1c1917',
+                            transition: 'all 0.2s ease',
+                          }}
+                        >
+                          {sz}
+                        </button>
+                      ))}
+                    </div>
                   </div>
 
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                    {['6', '7', '8', '9', '10', '11', '12'].map((sz) => (
-                      <button
-                        key={sz}
-                        onClick={() => pick('size', String(sz), 7)}
+                  {/* Section 2: Foot Arch Dynamics */}
+                  <div style={{ marginBottom: '22px', borderTop: '1px solid #f3f4f6', paddingTop: '18px' }}>
+                    {/* Educational Banner */}
+                    <div style={{
+                      background: 'linear-gradient(135deg, #1c1917 0%, #2b2622 100%)',
+                      border: '1px solid rgba(201, 168, 76, 0.35)',
+                      borderRadius: '10px',
+                      padding: '12px 16px',
+                      marginBottom: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '12px',
+                      boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '1.4rem' }}>👣</span>
+                        <div>
+                          <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#C9A84C', letterSpacing: '0.02em' }}>Not sure which arch type you have?</div>
+                          <div style={{ fontSize: '0.68rem', color: '#d6d3d1' }}>Take the 2-Minute Wet Footprint Test with water &amp; paper.</div>
+                        </div>
+                      </div>
+                      <button 
+                        type="button"
+                        onClick={() => setShowWetTestModal(true)}
                         style={{
-                          width: '46px',
-                          height: '46px',
-                          borderRadius: '8px',
+                          background: '#C9A84C',
+                          color: '#111',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '7px 12px',
+                          fontSize: '0.68rem',
+                          fontWeight: 700,
                           cursor: 'pointer',
-                          border: config.size === String(sz) ? '2px solid #C9A84C' : '1px solid #E5E7EB',
-                          backgroundColor: config.size === String(sz) ? '#FAF9F6' : 'transparent',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '0.85rem',
-                          fontWeight: config.size === String(sz) ? '700' : '500',
-                          color: config.size === String(sz) ? '#C9A84C' : '#1c1917',
-                          transition: 'all 0.2s ease',
+                          whiteSpace: 'nowrap',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.04em'
                         }}
                       >
-                        {sz}
+                        Educate Me →
                       </button>
-                    ))}
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: '700', color: '#1c1917', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        2. Arch Type Dynamics (Plantar Curve)
+                      </span>
+                      <span style={{ fontSize: '0.68rem', color: '#C9A84C', fontWeight: 600 }}>{config.archType}</span>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '10px' }}>
+                      {archProfiles.map(arch => {
+                        const isSelected = config.archType === arch.name;
+                        return (
+                          <div
+                            key={arch.id}
+                            onClick={() => setConfig(prev => ({ ...prev, archType: arch.name }))}
+                            style={{
+                              border: isSelected ? '2px solid #C9A84C' : '1px solid #e7e5e4',
+                              backgroundColor: isSelected ? '#FAF9F6' : '#fff',
+                              borderRadius: '10px',
+                              padding: '14px 12px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              textAlign: 'center',
+                              position: 'relative',
+                              transition: 'all 0.2s ease',
+                              boxShadow: isSelected ? '0 4px 15px rgba(201,168,76,0.12)' : 'none'
+                            }}
+                          >
+                            {isSelected && (
+                              <div style={{ position: 'absolute', top: '8px', right: '8px', background: '#C9A84C', color: '#fff', borderRadius: '50%', width: '16px', height: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Check size={10} strokeWidth={3} />
+                              </div>
+                            )}
+                            <div style={{ margin: '4px 0 8px' }}>
+                              {arch.renderSvg(isSelected)}
+                            </div>
+                            <h4 style={{ margin: '0 0 2px 0', fontSize: '0.8rem', fontWeight: 700, color: isSelected ? '#1c1917' : '#333' }}>
+                              {arch.name}
+                            </h4>
+                            <span style={{ fontSize: '0.64rem', color: '#C9A84C', fontWeight: 600, marginBottom: '6px' }}>
+                              {arch.sublabel}
+                            </span>
+                            <p style={{ margin: '0 0 8px 0', fontSize: '0.66rem', color: '#78716c', lineHeight: 1.35 }}>
+                              {arch.bioDesc}
+                            </p>
+                            <div style={{ marginTop: 'auto', paddingTop: '6px', borderTop: '1px dashed #e7e5e4', fontSize: '0.62rem', color: '#9ca3af', fontStyle: 'italic', textAlign: 'left', width: '100%' }}>
+                              <strong style={{ color: '#C9A84C', fontStyle: 'normal' }}>Atelier: </strong>{arch.artisanNote}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
 
-                  <p style={{ margin: '14px 0 0 0', fontSize: '0.68rem', color: '#78716c', lineHeight: 1.4 }}>
-                    Each BYOND shoe is individually lasted to your size selection. Standard fits accommodate D (medium) widths comfortably.
+                  {/* Section 3: Foot Width Profile */}
+                  <div style={{ marginBottom: '22px', borderTop: '1px solid #f3f4f6', paddingTop: '18px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: '700', color: '#1c1917', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        3. Foot Width Profile (Metatarsal Girth)
+                      </span>
+                      <span style={{ fontSize: '0.68rem', color: '#C9A84C', fontWeight: 600 }}>{config.footWidth}</span>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(4, 1fr)', gap: '10px' }}>
+                      {widthProfiles.map(w => {
+                        const isSelected = config.footWidth === w.label;
+                        return (
+                          <div
+                            key={w.id}
+                            onClick={() => setConfig(prev => ({ ...prev, footWidth: w.label }))}
+                            style={{
+                              border: isSelected ? '2px solid #C9A84C' : '1px solid #e7e5e4',
+                              backgroundColor: isSelected ? '#FAF9F6' : '#fff',
+                              borderRadius: '10px',
+                              padding: '12px 10px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              textAlign: 'center',
+                              position: 'relative',
+                              transition: 'all 0.2s ease',
+                              boxShadow: isSelected ? '0 4px 15px rgba(201,168,76,0.12)' : 'none'
+                            }}
+                          >
+                            {isSelected && (
+                              <div style={{ position: 'absolute', top: '6px', right: '6px', background: '#C9A84C', color: '#fff', borderRadius: '50%', width: '14px', height: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Check size={9} strokeWidth={3} />
+                              </div>
+                            )}
+                            <div style={{ margin: '4px 0 6px' }}>
+                              {w.renderSvg(isSelected)}
+                            </div>
+                            <h4 style={{ margin: '0 0 2px 0', fontSize: '0.78rem', fontWeight: 700, color: isSelected ? '#1c1917' : '#333' }}>
+                              {w.label}
+                            </h4>
+                            <span style={{ fontSize: '0.62rem', color: '#C9A84C', fontWeight: 600, marginBottom: '4px' }}>
+                              {w.title}
+                            </span>
+                            <p style={{ margin: 0, fontSize: '0.64rem', color: '#78716c', lineHeight: 1.3 }}>
+                              {w.desc}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Section 4: Instep Profile */}
+                  <div style={{ marginBottom: '22px', borderTop: '1px solid #f3f4f6', paddingTop: '18px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                      <span style={{ fontSize: '0.72rem', fontWeight: '700', color: '#1c1917', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        4. Instep Profile (Bridge Bone &amp; Lace Gap)
+                      </span>
+                      <span style={{ fontSize: '0.68rem', color: '#C9A84C', fontWeight: 600 }}>{config.instepType}</span>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '10px' }}>
+                      {instepProfiles.map(instep => {
+                        const isSelected = config.instepType === instep.name;
+                        return (
+                          <div
+                            key={instep.id}
+                            onClick={() => setConfig(prev => ({ ...prev, instepType: instep.name }))}
+                            style={{
+                              border: isSelected ? '2px solid #C9A84C' : '1px solid #e7e5e4',
+                              backgroundColor: isSelected ? '#FAF9F6' : '#fff',
+                              borderRadius: '10px',
+                              padding: '12px 10px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              textAlign: 'center',
+                              position: 'relative',
+                              transition: 'all 0.2s ease',
+                              boxShadow: isSelected ? '0 4px 15px rgba(201,168,76,0.12)' : 'none'
+                            }}
+                          >
+                            {isSelected && (
+                              <div style={{ position: 'absolute', top: '6px', right: '6px', background: '#C9A84C', color: '#fff', borderRadius: '50%', width: '14px', height: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Check size={9} strokeWidth={3} />
+                              </div>
+                            )}
+                            <div style={{ margin: '4px 0 6px' }}>
+                              {instep.renderSvg(isSelected)}
+                            </div>
+                            <h4 style={{ margin: '0 0 2px 0', fontSize: '0.78rem', fontWeight: 700, color: isSelected ? '#1c1917' : '#333' }}>
+                              {instep.name}
+                            </h4>
+                            <span style={{ fontSize: '0.62rem', color: '#C9A84C', fontWeight: 600, marginBottom: '4px' }}>
+                              {instep.sublabel}
+                            </span>
+                            <p style={{ margin: 0, fontSize: '0.64rem', color: '#78716c', lineHeight: 1.3 }}>
+                              {instep.desc}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Section 5: Special Comfort Considerations */}
+                  <div style={{ marginBottom: '20px', borderTop: '1px solid #f3f4f6', paddingTop: '18px' }}>
+                    <span style={{ display: 'block', fontSize: '0.72rem', fontWeight: '700', color: '#1c1917', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                      5. Special Comfort Accommodations (Optional)
+                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {specialFitOptions.map(opt => {
+                        const isChecked = (config.specialFit || []).includes(opt.label);
+                        return (
+                          <div
+                            key={opt.id}
+                            onClick={() => toggleSpecialFit(opt.label)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '10px',
+                              padding: '10px 14px',
+                              borderRadius: '8px',
+                              border: isChecked ? '1.5px solid #C9A84C' : '1px solid #e7e5e4',
+                              backgroundColor: isChecked ? '#FAF9F6' : '#fff',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <div style={{
+                              width: '18px',
+                              height: '18px',
+                              borderRadius: '4px',
+                              border: isChecked ? '1.5px solid #C9A84C' : '1.5px solid #d1d5db',
+                              backgroundColor: isChecked ? '#C9A84C' : 'transparent',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              color: '#fff',
+                              flexShrink: 0
+                            }}>
+                              {isChecked && <Check size={12} strokeWidth={3} />}
+                            </div>
+                            <div>
+                              <div style={{ fontSize: '0.75rem', fontWeight: 700, color: isChecked ? '#1c1917' : '#374151' }}>
+                                {opt.label}
+                              </div>
+                              <div style={{ fontSize: '0.66rem', color: '#78716c' }}>
+                                {opt.desc}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Confirmation Button to proceed to Step 7 */}
+                  <button
+                    type="button"
+                    onClick={() => setStep(7)}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      background: '#111',
+                      color: '#C9A84C',
+                      border: '1px solid #C9A84C',
+                      borderRadius: '8px',
+                      fontWeight: 700,
+                      fontSize: '0.78rem',
+                      letterSpacing: '0.05em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      marginTop: '12px',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    Confirm Fit Profile &amp; Review Summary <ArrowRight size={14} />
+                  </button>
+
+                  <p style={{ margin: '14px 0 0 0', fontSize: '0.68rem', color: '#78716c', lineHeight: 1.4, textAlign: 'center' }}>
+                    Each Cobcult bespoke pair is hand-lasted to your unique foot metrics by our master cordwainers.
                   </p>
                 </div>
               </div>
@@ -1603,7 +2195,7 @@ const CustomizePage = () => {
                 </div>
               </button>
 
-              <div style={{ maxHeight: step === 7 ? '1200px' : '0px', overflow: 'hidden', transition: 'max-height 0.4s ease', background: '#fff', border: '1px solid #e7e5e4', borderTop: 'none' }}>
+              <div style={{ maxHeight: step === 7 ? '1400px' : '0px', overflow: 'hidden', transition: 'max-height 0.4s ease', background: '#fff', border: '1px solid #e7e5e4', borderTop: 'none' }}>
                 <div style={{ padding: '24px 20px' }}>
                   
                   {/* Summary spec details rows */}
@@ -1629,8 +2221,26 @@ const CustomizePage = () => {
                     </div>
                     <div className="summary-row">
                       <span className="summary-label">Fitting Size</span>
-                      <strong className="summary-value" style={{ color: '#1c1917' }}>UK {config.size || 'Not Selected'}</strong>
+                      <strong className="summary-value" style={{ color: '#1c1917' }}>UK {config.size || '8'}</strong>
                     </div>
+                    <div className="summary-row">
+                      <span className="summary-label">Foot Width</span>
+                      <strong className="summary-value" style={{ color: '#1c1917' }}>{config.footWidth || 'Standard (E)'}</strong>
+                    </div>
+                    <div className="summary-row">
+                      <span className="summary-label">Arch Dynamics</span>
+                      <strong className="summary-value" style={{ color: '#1c1917' }}>{config.archType || 'Normal / Medium Arch'}</strong>
+                    </div>
+                    <div className="summary-row">
+                      <span className="summary-label">Instep Profile</span>
+                      <strong className="summary-value" style={{ color: '#1c1917' }}>{config.instepType || 'Standard Instep'}</strong>
+                    </div>
+                    {config.specialFit && config.specialFit.length > 0 && (
+                      <div className="summary-row">
+                        <span className="summary-label">Special Comfort</span>
+                        <strong className="summary-value" style={{ color: '#C9A84C' }}>{config.specialFit.join(', ')}</strong>
+                      </div>
+                    )}
                     {config.monogram && (
                       <div className="summary-row">
                         <span className="summary-label">Outsole Monogram</span>
@@ -1725,13 +2335,13 @@ const CustomizePage = () => {
             <div id="story-card-preview" style={{ width: '220px', height: '390px', background: '#1c1c1e', border: '1px solid #C9A84C', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', position: 'relative', overflow: 'hidden' }}>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '0.45rem', color: '#C9A84C', letterSpacing: '0.2em', textTransform: 'uppercase' }}>B E S P O K E   C R A F T</div>
-                <div style={{ fontSize: '1rem', fontWeight: 600, color: '#fff', fontFamily: 'Playfair Display, serif', marginTop: '6px' }}>BYOND</div>
+                <div style={{ fontSize: '1rem', fontWeight: 600, color: '#fff', fontFamily: 'Playfair Display, serif', marginTop: '6px' }}>COBCULT</div>
               </div>
 
               {/* Mockup image */}
               <div style={{ width: '100%', height: '130px', borderRadius: '8px', border: '1px solid #C9A84C', overflow: 'hidden', margin: '8px 0' }}>
                 <img 
-                  src={get2DShoeImage(config.model, config.submodel)} 
+                  src={resolveShoeImage(config.model, config.submodel)} 
                   alt="Shoe" 
                   style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '8px', background: '#fff' }} 
                 />
@@ -1852,10 +2462,14 @@ const CustomizePage = () => {
                   </p>
                   <button 
                     onClick={() => {
-                      setConfig(prev => ({ ...prev, size: String(Math.floor(fitResult)) }));
+                      setConfig(prev => ({ 
+                        ...prev, 
+                        size: String(Math.floor(fitResult)),
+                        footWidth: fitWidth === 'Wide' ? 'Wide (EE)' : fitWidth === 'Narrow' ? 'Narrow (D)' : 'Standard (E)'
+                      }));
                       setShowFitProfiler(false);
                       setFitResult(null);
-                      setStep(7);
+                      setStep(6);
                     }}
                     style={{ width: '100%', padding: '10px', background: '#C9A84C', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '700', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}
                   >
@@ -1863,6 +2477,104 @@ const CustomizePage = () => {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Educational Wet Footprint Test Modal */}
+      {showWetTestModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)', zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div className="glass-dark-gilded" style={{ maxWidth: '680px', width: '100%', maxHeight: '90vh', overflowY: 'auto', border: '1px solid rgba(201, 168, 76, 0.4)', borderRadius: '16px', padding: '28px 32px', position: 'relative' }}>
+            <button onClick={() => setShowWetTestModal(false)} style={{ position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', cursor: 'pointer', color: '#a1a1aa' }}>
+              <X size={20} />
+            </button>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <span style={{ fontSize: '2rem' }}>👣</span>
+              <h3 style={{ fontFamily: 'Playfair Display, serif', fontSize: '1.4rem', color: '#fff', margin: '6px 0 0 0', fontStyle: 'italic' }}>The 2-Minute Wet Footprint Test</h3>
+              <p style={{ fontSize: '12px', color: '#a1a1aa', margin: '6px auto 0', maxWidth: '480px' }}>
+                Discover your exact arch dynamics at home. Your footprint reveals how body weight is distributed across the shoe sole.
+              </p>
+            </div>
+
+            {/* 3 Simple Steps Banner */}
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '10px', marginBottom: '20px' }}>
+              <div style={{ background: '#1c1c1e', border: '1px solid #333', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
+                <div style={{ color: '#C9A84C', fontWeight: 700, fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '4px' }}>Step 1: Moisten</div>
+                <div style={{ fontSize: '0.7rem', color: '#d1d5db' }}>Lightly dampen the sole of your bare foot with water or a damp cloth.</div>
+              </div>
+              <div style={{ background: '#1c1c1e', border: '1px solid #333', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
+                <div style={{ color: '#C9A84C', fontWeight: 700, fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '4px' }}>Step 2: Step Down</div>
+                <div style={{ fontSize: '0.7rem', color: '#d1d5db' }}>Step firmly onto a blank sheet of dark paper, cardboard, or dry smooth surface.</div>
+              </div>
+              <div style={{ background: '#1c1c1e', border: '1px solid #333', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
+                <div style={{ color: '#C9A84C', fontWeight: 700, fontSize: '0.72rem', textTransform: 'uppercase', marginBottom: '4px' }}>Step 3: Match &amp; Pick</div>
+                <div style={{ fontSize: '0.7rem', color: '#d1d5db' }}>Step off and compare your wet imprint to the 3 profiles below.</div>
+              </div>
+            </div>
+
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '10px', textAlign: 'center' }}>
+              Match Your Footprint &amp; Select Below:
+            </div>
+
+            {/* 3 Clickable Educational Footprints */}
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '14px' }}>
+              {archProfiles.map((arch) => {
+                const isCurrent = config.archType === arch.name;
+                return (
+                  <div 
+                    key={arch.id} 
+                    style={{ 
+                      background: isCurrent ? 'rgba(201, 168, 76, 0.12)' : '#1c1c1e', 
+                      border: isCurrent ? '2px solid #C9A84C' : '1px solid #333', 
+                      borderRadius: '10px', 
+                      padding: '16px', 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      alignItems: 'center', 
+                      textAlign: 'center',
+                      position: 'relative'
+                    }}
+                  >
+                    {isCurrent && (
+                      <div style={{ position: 'absolute', top: '8px', right: '8px', background: '#C9A84C', color: '#111', borderRadius: '50%', width: '18px', height: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Check size={11} strokeWidth={3} />
+                      </div>
+                    )}
+                    <div style={{ margin: '8px 0 12px 0' }}>
+                      {arch.renderSvg(true)}
+                    </div>
+                    <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#fff', marginBottom: '2px' }}>{arch.name}</div>
+                    <div style={{ fontSize: '0.65rem', color: '#C9A84C', fontWeight: 600, marginBottom: '6px' }}>{arch.sublabel}</div>
+                    <div style={{ fontSize: '0.68rem', color: '#a1a1aa', lineHeight: 1.4, marginBottom: '12px' }}>{arch.bioDesc}</div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConfig(prev => ({ ...prev, archType: arch.name }));
+                        setShowWetTestModal(false);
+                        setToastMsg(`👣 Arch type set to: ${arch.name}`);
+                        setTimeout(() => setToastMsg(''), 2500);
+                      }}
+                      style={{
+                        marginTop: 'auto',
+                        width: '100%',
+                        padding: '8px',
+                        background: isCurrent ? '#C9A84C' : 'transparent',
+                        color: isCurrent ? '#111' : '#C9A84C',
+                        border: '1px solid #C9A84C',
+                        borderRadius: '6px',
+                        fontSize: '0.68rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em'
+                      }}
+                    >
+                      {isCurrent ? 'Selected Arch' : 'Select This Profile'}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

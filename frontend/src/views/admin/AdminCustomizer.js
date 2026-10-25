@@ -201,8 +201,25 @@ const AdminCustomizer = () => {
 
   const conditionFields = ['material', 'style', 'sole_type', 'construction', 'color', 'category', 'gender'];
 
+  const syncCatalogToBackend = async (catData, subData) => {
+    try {
+      await api.saveCustomizerCatalog({ catalog: catData, submodels: subData });
+    } catch (err) {
+      console.error('Failed to sync catalog to backend:', err);
+      showToast(`⚠️ Saved locally, backend note: ${err.message}`);
+    }
+  };
+
+  const syncStepsToBackend = async (stepsData) => {
+    try {
+      await api.saveCustomizerSteps({ steps: stepsData });
+    } catch (err) {
+      console.error('Failed to sync steps to backend:', err);
+    }
+  };
+
   useEffect(() => {
-    // Load persisted flow settings if any
+    // Load local storage cache first for instant responsiveness
     const savedSteps = localStorage.getItem('byond_customizer_steps');
     if (savedSteps) {
       try { setSteps(JSON.parse(savedSteps)); } catch (e) {}
@@ -210,36 +227,44 @@ const AdminCustomizer = () => {
     const savedCatalog = localStorage.getItem('byond_customizer_catalog');
     if (savedCatalog) {
       try {
-        const parsed = JSON.parse(savedCatalog);
-        const merged = { men: [...defaultCatalog.men], women: [...defaultCatalog.women] };
-        
-        parsed.men?.forEach(pItem => {
-          if (!merged.men.some(mItem => mItem.name.toLowerCase() === pItem.name.toLowerCase())) {
-            merged.men.push(pItem);
-          }
-        });
-        parsed.women?.forEach(pItem => {
-          if (!merged.women.some(mItem => mItem.name.toLowerCase() === pItem.name.toLowerCase())) {
-            merged.women.push(pItem);
-          }
-        });
-        setCatalog(merged);
-        localStorage.setItem('byond_customizer_catalog', JSON.stringify(merged));
-      } catch (e) {
-        setCatalog(defaultCatalog);
-      }
-    } else {
-      setCatalog(defaultCatalog);
-      localStorage.setItem('byond_customizer_catalog', JSON.stringify(defaultCatalog));
+        setCatalog(JSON.parse(savedCatalog));
+      } catch (e) {}
     }
     const savedSubmodels = localStorage.getItem('byond_customizer_submodels');
     if (savedSubmodels) {
       try { setSubmodels(JSON.parse(savedSubmodels)); } catch (e) {}
-    } else {
-      setSubmodels(defaultSubmodels);
-      localStorage.setItem('byond_customizer_submodels', JSON.stringify(defaultSubmodels));
     }
 
+    // Fetch authoritative backend state from MongoDB
+    const loadBackendCustomizerData = async () => {
+      try {
+        const catRes = await api.getCustomizerCatalog();
+        if (catRes) {
+          if (catRes.catalog) {
+            setCatalog(catRes.catalog);
+            localStorage.setItem('byond_customizer_catalog', JSON.stringify(catRes.catalog));
+          }
+          if (catRes.submodels) {
+            setSubmodels(catRes.submodels);
+            localStorage.setItem('byond_customizer_submodels', JSON.stringify(catRes.submodels));
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load customizer catalog from backend:', err);
+      }
+
+      try {
+        const stepRes = await api.getCustomizerSteps();
+        if (stepRes && stepRes.steps) {
+          setSteps(stepRes.steps);
+          localStorage.setItem('byond_customizer_steps', JSON.stringify(stepRes.steps));
+        }
+      } catch (err) {
+        console.error('Failed to load customizer steps from backend:', err);
+      }
+    };
+
+    loadBackendCustomizerData();
     fetchAssets();
     fetchRules();
   }, []);
@@ -255,6 +280,7 @@ const AdminCustomizer = () => {
     updated[index].visible = !updated[index].visible;
     setSteps(updated);
     localStorage.setItem('byond_customizer_steps', JSON.stringify(updated));
+    syncStepsToBackend(updated);
     showToast(`✨ Flow step visibility updated for ${updated[index].label}`);
   };
 
@@ -268,6 +294,7 @@ const AdminCustomizer = () => {
     updated[targetIdx] = temp;
     setSteps(updated);
     localStorage.setItem('byond_customizer_steps', JSON.stringify(updated));
+    syncStepsToBackend(updated);
     showToast(`✨ Stepper sequence updated successfully!`);
   };
 
@@ -295,6 +322,7 @@ const AdminCustomizer = () => {
     }
     setCatalog(updatedCatalog);
     localStorage.setItem('byond_customizer_catalog', JSON.stringify(updatedCatalog));
+    syncCatalogToBackend(updatedCatalog, submodels);
     setShowCatalogModal(false);
     showToast('✨ Model Catalog updated successfully!');
   };
@@ -305,6 +333,7 @@ const AdminCustomizer = () => {
     updatedCatalog[gender].splice(index, 1);
     setCatalog(updatedCatalog);
     localStorage.setItem('byond_customizer_catalog', JSON.stringify(updatedCatalog));
+    syncCatalogToBackend(updatedCatalog, submodels);
     showToast('🗑️ Model deleted from catalog.');
   };
 
@@ -358,6 +387,7 @@ const AdminCustomizer = () => {
     } else {
       setSubmodelForm({ name: '', desc: '', tag: '', img: '' });
     }
+    setShowCatalogModal(false);
     setShowSubmodelModal(true);
   };
 
@@ -378,6 +408,7 @@ const AdminCustomizer = () => {
 
     setSubmodels(updated);
     localStorage.setItem('byond_customizer_submodels', JSON.stringify(updated));
+    syncCatalogToBackend(catalog, updated);
     setShowSubmodelModal(false);
     showToast('✨ Style & Submodels updated successfully!');
   };
@@ -388,6 +419,7 @@ const AdminCustomizer = () => {
     updated[selectedModel].splice(index, 1);
     setSubmodels(updated);
     localStorage.setItem('byond_customizer_submodels', JSON.stringify(updated));
+    syncCatalogToBackend(catalog, updated);
     showToast('🗑️ Submodel variant deleted.');
   };
 

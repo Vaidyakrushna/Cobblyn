@@ -39,14 +39,19 @@ const CustomizationSection = () => {
         </Link>
       </div>
 
-      <div className="custom-video-wrap">
-        <img src="/wf-custom.png" alt="Customization Video" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        <button className="play-btn" aria-label="Play video" onClick={() => alert("🎥 Playing Cobblyn Artisan Craftsmanship documentary...")}>
-          <svg viewBox="0 0 24 24" width="28" height="28"><path d="M8 5v14l11-7z" fill="white" /></svg>
-        </button>
-        <div className="video-label">
-          <div className="video-label-text">The Art of Handcrafting</div>
-          <div className="video-label-sub">Inside the Cobblyn Atelier</div>
+      <div className="custom-video-wrap" style={{ position: 'relative', overflow: 'hidden', borderRadius: '12px' }}>
+        <video 
+          src="/customization_guide/cobcult_customization_flow_walkthrough.mp4" 
+          poster="/customization_guide/cobcult_customization_journey_infographic.png"
+          autoPlay 
+          loop 
+          muted 
+          playsInline 
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+        />
+        <div className="video-label" style={{ pointerEvents: 'none' }}>
+          <div className="video-label-text">Interactive Customization Flow</div>
+          <div className="video-label-sub">Inside the CobCult Atelier</div>
         </div>
       </div>
     </section>

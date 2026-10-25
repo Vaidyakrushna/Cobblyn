@@ -354,6 +354,12 @@ export const api = {
   addPincodeSettings: (data) => apiFetch('/api/visits/settings/pincodes', { method: 'POST', body: JSON.stringify(data) }),
   updatePincodeSettings: (pinCode, data) => apiFetch(`/api/visits/settings/pincodes/${pinCode}`, { method: 'PUT', body: JSON.stringify(data) }),
   deletePincodeSettings: (pinCode) => apiFetch(`/api/visits/settings/pincodes/${pinCode}`, { method: 'DELETE' }),
+
+  // Customizer
+  getCustomizerCatalog: () => apiFetch('/api/customizer/catalog'),
+  saveCustomizerCatalog: (data) => apiFetch('/api/customizer/catalog', { method: 'POST', body: JSON.stringify(data) }),
+  getCustomizerSteps: () => apiFetch('/api/customizer/steps'),
+  saveCustomizerSteps: (data) => apiFetch('/api/customizer/steps', { method: 'POST', body: JSON.stringify(data) }),
 };
 
 export default api;

@@ -106,6 +106,26 @@ const CartPage = () => {
                       <span className="meta-divider">|</span>
                       <span>Color: <strong>{item.color}</strong></span>
                     </div>
+                    {item.custom_options && (
+                      <div style={{ marginTop: '8px', padding: '6px 10px', background: '#FAF9F6', borderRadius: '6px', border: '1px solid #e7e5e4', fontSize: '0.72rem', color: '#57534e' }}>
+                        <div style={{ fontWeight: 700, color: '#C9A84C', fontSize: '0.66rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '2px' }}>
+                          ✨ Bespoke Fit Dynamics
+                        </div>
+                        <div>
+                          Width: <strong>{item.custom_options.foot_width || 'Standard (E)'}</strong> · Arch: <strong>{item.custom_options.arch_type || 'Normal Arch'}</strong> · Instep: <strong>{item.custom_options.instep_type || 'Standard'}</strong>
+                        </div>
+                        {item.custom_options.special_fit && item.custom_options.special_fit.length > 0 && (
+                          <div style={{ marginTop: '2px', color: '#78716c', fontSize: '0.68rem' }}>
+                            Special: {item.custom_options.special_fit.join(', ')}
+                          </div>
+                        )}
+                        {item.custom_options.monogram && (
+                          <div style={{ marginTop: '2px', color: '#C9A84C', fontWeight: 600, fontSize: '0.68rem' }}>
+                            Gold Monogram: [{item.custom_options.monogram}]
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="cart-card-actions">
                     <div className="cart-qty-control">

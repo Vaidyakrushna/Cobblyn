@@ -107,7 +107,7 @@ async def delete_asset(asset_id: str, request: Request):
         raise HTTPException(status_code=404, detail="Asset not found")
     return {"message": "Asset deleted"}
 
-@router.get("/cdn/{filename}")
+@router.api_route("/cdn/{filename}", methods=["GET", "HEAD"])
 async def serve_cdn_asset(filename: str):
     """
     High-performance CDN-caching proxy for customizable shoe textures & materials.

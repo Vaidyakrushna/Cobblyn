@@ -18,6 +18,7 @@ class CartItemAdd(BaseModel):
     size: str
     color: str
     quantity: int = Field(1, gt=0)
+    custom_options: Optional[dict] = None
 
 
 class CartItemUpdate(BaseModel):
@@ -68,6 +69,7 @@ async def get_cart(request: Request):
                 "size": item["size"],
                 "color": item["color"],
                 "quantity": item["quantity"],
+                "custom_options": item.get("custom_options"),
                 "item_total": item_total
             })
 
@@ -80,23 +82,30 @@ async def add_to_cart(item: CartItemAdd, request: Request):
     user = await get_current_user(request, db)
     user_id = user["_id"]
 
+    item_dict = {
+        "product_id": item.product_id,
+        "size": item.size,
+        "color": item.color,
+        "quantity": item.quantity,
+    }
+    if item.custom_options:
+        item_dict["custom_options"] = item.custom_options
+
     cart = await db.carts.find_one({"user_id": user_id})
     if not cart:
         await db.carts.insert_one({
             "user_id": user_id,
-            "items": [{
-                "product_id": item.product_id,
-                "size": item.size,
-                "color": item.color,
-                "quantity": item.quantity
-            }]
+            "items": [item_dict]
         })
         return {"message": "Item added to cart"}
 
-    # Check if item already exists (same product + size + color)
+    # Check if item already exists (same product + size + color + custom_options)
     existing_idx = None
     for idx, ci in enumerate(cart.get("items", [])):
-        if ci["product_id"] == item.product_id and ci["size"] == item.size and ci["color"] == item.color:
+        if (ci["product_id"] == item.product_id and 
+            ci["size"] == item.size and 
+            ci["color"] == item.color and 
+            ci.get("custom_options") == item.custom_options):
             existing_idx = idx
             break
 
@@ -108,12 +117,7 @@ async def add_to_cart(item: CartItemAdd, request: Request):
     else:
         await db.carts.update_one(
             {"user_id": user_id},
-            {"$push": {"items": {
-                "product_id": item.product_id,
-                "size": item.size,
-                "color": item.color,
-                "quantity": item.quantity
-            }}}
+            {"$push": {"items": item_dict}}
         )
     return {"message": "Item added to cart"}
 

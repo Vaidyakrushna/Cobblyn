@@ -76,6 +76,12 @@ const OrderConfirmation = () => {
                 <div className="order-item-info">
                   <h4>{item.name}</h4>
                   <p>Size: {item.size} | Color: {item.color} | Qty: {item.quantity}</p>
+                  {item.custom_options && (
+                    <div style={{ fontSize: '11px', color: '#C9A84C', fontWeight: 600, marginTop: '3px' }}>
+                      ✨ Bespoke Fit: {item.custom_options.foot_width || 'Standard'} · {item.custom_options.arch_type ? item.custom_options.arch_type.split('/')[0].trim() : 'Normal Arch'} · {item.custom_options.instep_type || 'Standard'}
+                      {item.custom_options.special_fit && item.custom_options.special_fit.length > 0 && ` (${item.custom_options.special_fit.join(', ')})`}
+                    </div>
+                  )}
                 </div>
                 <span className="order-item-price">â‚¹{(item.price * item.quantity).toLocaleString()}</span>
               </div>
