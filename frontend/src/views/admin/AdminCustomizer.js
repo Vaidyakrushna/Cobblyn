@@ -245,8 +245,8 @@ const AdminCustomizer = () => {
             localStorage.setItem('byond_customizer_catalog', JSON.stringify(catRes.catalog));
           }
           if (catRes.submodels) {
-            setSubmodels(catRes.submodels);
-            localStorage.setItem('byond_customizer_submodels', JSON.stringify(catRes.submodels));
+            setSubmodels(prev => ({ ...defaultSubmodels, ...catRes.submodels }));
+            localStorage.setItem('byond_customizer_submodels', JSON.stringify({ ...defaultSubmodels, ...catRes.submodels }));
           }
         }
       } catch (err) {

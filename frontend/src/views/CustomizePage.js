@@ -781,9 +781,9 @@ const CustomizePage = () => {
             }
           }
           if (catRes.submodels) {
-            setActiveSubmodels(catRes.submodels);
+            setActiveSubmodels(prev => ({ ...submodels, ...catRes.submodels }));
             if (typeof window !== 'undefined') {
-              localStorage.setItem('byond_customizer_submodels', JSON.stringify(catRes.submodels));
+              localStorage.setItem('byond_customizer_submodels', JSON.stringify({ ...submodels, ...catRes.submodels }));
             }
           }
         }
@@ -852,18 +852,29 @@ const CustomizePage = () => {
     });
   };
 
+  // Safe count of styles for a given model card (handles WomenBoots cleanly)
+  const getModelStylesCount = (modelName) => {
+    if (!activeSubmodels) return 0;
+    if (config.gender === 'women' && modelName === 'Boots') {
+      const wBoots = activeSubmodels['WomenBoots'] || activeSubmodels['Boots'] || [];
+      return wBoots.length;
+    }
+    const list = activeSubmodels[modelName] || [];
+    return list.length;
+  };
+
   // Resolve shoe image: priority is submodel uploaded img -> model uploaded img -> 2D silhouette fallback
   const resolveShoeImage = (model, submodel) => {
     if (!model) return '/shoe-oxford.png';
     const subListKey = (config.gender === 'women' && model === 'Boots') ? 'WomenBoots' : model;
-    const subList = activeSubmodels[subListKey] || activeSubmodels[model] || [];
+    const subList = activeSubmodels?.[subListKey] || activeSubmodels?.[model] || [];
     
     if (submodel) {
       const sm = subList.find(s => s.name?.toLowerCase() === submodel.toLowerCase());
       if (sm && sm.img) return sm.img;
     }
 
-    const allModels = [...(activeModels.men || []), ...(activeModels.women || [])];
+    const allModels = [...(activeModels?.men || []), ...(activeModels?.women || [])];
     const m = allModels.find(x => x.name?.toLowerCase() === model.toLowerCase());
     if (m && m.img && (!submodel || submodel.toLowerCase() === m.name.toLowerCase())) return m.img;
 
@@ -1350,10 +1361,10 @@ const CustomizePage = () => {
 
   // Resolve the correct submodel list based on gender + model
   const getSubmodels = () => {
-    if (!config.model) return [];
+    if (!config.model || !activeSubmodels) return [];
     // Women's Boots use 'WomenBoots' key to avoid collision with Men's Boots
     if (config.model === 'Boots' && config.gender === 'women') {
-      return activeSubmodels['WomenBoots'] || [];
+      return activeSubmodels['WomenBoots'] || activeSubmodels['Boots'] || [];
     }
     return activeSubmodels[config.model] || [];
   };
@@ -1524,7 +1535,7 @@ const CustomizePage = () => {
                     <div className="model-info">
                       <h3>{m.name}</h3>
                       <p>{m.desc}</p>
-                      <span className="model-count">{(config.gender === 'women' && m.name === 'Boots' ? activeSubmodels['WomenBoots'] : activeSubmodels[m.name] || []).length} styles →</span>
+                      <span className="model-count">{getModelStylesCount(m.name)} styles →</span>
                     </div>
                   </button>
                 ))}

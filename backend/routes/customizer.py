@@ -62,12 +62,16 @@ DEFAULT_SUBMODELS = {
         {"name": "Plain Toe Blucher", "desc": "The open-lacing derby stripped to essentials.", "tag": "Most Versatile", "img": "/shoe-derby.png"},
         {"name": "Cap Toe Derby", "desc": "A stitched toe cap elevates the relaxed derby lacing.", "tag": "Bestseller", "img": "/shoe-derby-captoe.png"},
         {"name": "Longwing Derby", "desc": "The W-shaped broguing extends all the way to the heel.", "tag": "Most American", "img": "/shoe-derby.png"},
-        {"name": "Wingtip Derby", "desc": "Full brogue detailing on open-laced construction.", "tag": "", "img": "/shoe-derby-wingtip.png"}
+        {"name": "Wingtip Derby", "desc": "Full brogue detailing on open-laced construction.", "tag": "", "img": "/shoe-derby-wingtip.png"},
+        {"name": "Norwegian Derby", "desc": "Rugged storm welt with split-toe or moc-toe stitching.", "tag": "Most Rugged", "img": "/shoe-derby.png"}
     ],
     "Loafer": [
         {"name": "Penny Loafer", "desc": "The definitive loafer — a saddle strap across the vamp with the iconic penny slot.", "tag": "Most Classic", "img": "/shoe-loafer-penny.png"},
         {"name": "Horsebit Loafer", "desc": "Gold-tone horsebit hardware on the instep — the quintessential Italian loafer.", "tag": "Most Iconic", "img": "/shoe-loafer-horsebit.png"},
-        {"name": "Tassel Loafer", "desc": "Leather tassels swing with every step. Ivy League heritage, forever in style.", "tag": "Bestseller", "img": "/shoe-loafer-tassel.png"}
+        {"name": "Tassel Loafer", "desc": "Leather tassels swing with every step. Ivy League heritage, forever in style.", "tag": "Bestseller", "img": "/shoe-loafer-tassel.png"},
+        {"name": "Driving Loafer", "desc": "Rubber pebble sole wraps up the heel.", "tag": "Most Casual", "img": "/shoe-loafer.png"},
+        {"name": "String Loafer", "desc": "Woven leather string bow on the vamp.", "tag": "Most Relaxed", "img": "/shoe-loafer.png"},
+        {"name": "Dress Slipper", "desc": "Flat-soled evening slipper with velvet or patent.", "tag": "Most Formal", "img": "/shoe-loafer.png"}
     ],
     "Monk Strap": [
         {"name": "Single Monk", "desc": "One buckle, one strap — powerful restraint.", "tag": "Most Popular", "img": "/shoe-monk-single.png"},
@@ -76,10 +80,61 @@ DEFAULT_SUBMODELS = {
     ],
     "Boots": [
         {"name": "Chelsea Boot", "desc": "Elastic side gussets, no laces.", "tag": "Bestseller", "img": "/shoe-boot-chelsea.png"},
-        {"name": "Chukka Boot", "desc": "Open-laced two or three-eyelet ankle boot.", "tag": "Most Casual", "img": "/shoe-boot-chukka.png"}
+        {"name": "Chukka Boot", "desc": "Open-laced two or three-eyelet ankle boot.", "tag": "Most Casual", "img": "/shoe-boot-chukka.png"},
+        {"name": "Jodhpur Boot", "desc": "Ankle strap with buckle — equestrian heritage.", "tag": "Most Heritage", "img": "/shoe-boot.png"},
+        {"name": "Cap Toe Boot", "desc": "Formal boot with a stitched toe cap.", "tag": "Most Formal", "img": "/shoe-boot.png"},
+        {"name": "Wingtip Boot", "desc": "Full broguing on a boot silhouette.", "tag": "Most Distinctive", "img": "/shoe-boot.png"},
+        {"name": "Balmoral Boot", "desc": "Closed lacing with seamed vamp.", "tag": "Most Refined", "img": "/shoe-boot.png"},
+        {"name": "Zipper Boot", "desc": "Side-zip closure for effortless wear.", "tag": "", "img": "/shoe-boot.png"}
+    ],
+    "Jutis": [
+        {"name": "Classic Juti", "desc": "Traditional pointed-toe juti with hand embroidery.", "tag": "Most Traditional", "img": "/shoe-juti.png"},
+        {"name": "Nagra", "desc": "Rounded toe with curled tip — Rajasthani heritage.", "tag": "Regional Heritage", "img": "/shoe-juti.png"},
+        {"name": "Kolhapuri Juti", "desc": "Open-weave leather with floral embossing.", "tag": "", "img": "/shoe-juti.png"},
+        {"name": "Mojari", "desc": "Fully embroidered upper with mirror-work.", "tag": "Most Festive", "img": "/shoe-juti.png"}
+    ],
+    "Ballerina": [
+        {"name": "Classic Flat", "desc": "The essential ballet flat — soft round toe, comfortable last.", "tag": "Bestseller", "img": "/shoe-flat.png"},
+        {"name": "D'Orsay Flat", "desc": "Open sides reveal the arch — a feminine silhouette.", "tag": "Most Elegant", "img": "/shoe-flat.png"},
+        {"name": "Pointed Toe Flat", "desc": "A sharp elongated toe gives the classic flat a fashion-forward edge.", "tag": "Most Modern", "img": "/shoe-flat-pointed.png"},
+        {"name": "Bow Ballet", "desc": "A satin or leather bow at the vamp — playful luxury.", "tag": "", "img": "/shoe-flat.png"}
+    ],
+    "WomenBoots": [
+        {"name": "Ankle Boot", "desc": "A clean ankle silhouette that pairs with everything.", "tag": "Bestseller", "img": "/shoe-boot.png"},
+        {"name": "Chelsea Ankle Boot", "desc": "Elastic side panels for slip-on ease — polished without the fuss.", "tag": "Most Comfortable", "img": "/shoe-boot-chelsea.png"},
+        {"name": "Block Heel Boot", "desc": "Sturdy block heel for all-day support.", "tag": "Most Practical", "img": "/shoe-boot.png"},
+        {"name": "Kitten Heel Boot", "desc": "A slender 4–5 cm heel — understated, feminine.", "tag": "Most Refined", "img": "/shoe-boot.png"}
+    ],
+    "Loafers": [
+        {"name": "Penny Loafer", "desc": "The classic saddle-strap loafer in women's sizing.", "tag": "Most Classic", "img": "/shoe-loafer-penny.png"},
+        {"name": "Platform Loafer", "desc": "Chunky platform sole adds height with maximum comfort.", "tag": "Most Trendy", "img": "/shoe-loafer.png"},
+        {"name": "Horsebit Loafer", "desc": "Gold-tone hardware on a women's silhouette.", "tag": "Bestseller", "img": "/shoe-loafer-horsebit.png"},
+        {"name": "Tassel Loafer", "desc": "Playful leather tassels with a feminine last.", "tag": "", "img": "/shoe-loafer-tassel.png"}
+    ],
+    "Peep Toes": [
+        {"name": "Kitten Heel Peep Toe", "desc": "Delicate 4–5 cm heel with an open toe.", "tag": "Most Elegant", "img": "/shoe-heel.png"},
+        {"name": "Block Heel Peep Toe", "desc": "Peep-toe styling on a stable block heel — glamorous yet walkable.", "tag": "Bestseller", "img": "/shoe-heel.png"},
+        {"name": "Slingback Peep Toe", "desc": "An adjustable heel strap keeps the shoe secure.", "tag": "Most Comfortable", "img": "/shoe-heel.png"}
+    ],
+    "Desert Boot/Chukka Boots": [
+        {"name": "Suede Desert Boot", "desc": "Classic crepe sole with soft suede upper.", "tag": "Most Classic", "img": "/shoe-boot-chukka.png"},
+        {"name": "Leather Chukka", "desc": "Premium leather finish with a smart dress sole.", "tag": "Dress Casual", "img": "/shoe-boot-chukka.png"}
+    ],
+    "Wing Tip": [
+        {"name": "Brogue Wingtip", "desc": "Full wingtip broguing with decorative toe medallion.", "tag": "Bestseller", "img": "/shoe-oxford-wingtip.png"},
+        {"name": "Longwing Brogue", "desc": "Classic styling where the wingtip seam extends to heel.", "tag": "Heritage", "img": "/shoe-oxford-wingtip.png"}
     ],
     "Mule": [
-        {"name": "Leather Mule Slipper", "desc": "Backless slip-on leather slide with low stacked heel.", "tag": "New Arrival", "img": "http://localhost:8000/api/assets/cdn/d18cc43eaba149cdb51a152097ae6d0d.png"}
+        {"name": "Leather Mule Slipper", "desc": "Backless slip-on leather slide with low stacked heel.", "tag": "New Arrival", "img": "http://localhost:8000/api/assets/cdn/d18cc43eaba149cdb51a152097ae6d0d.png"},
+        {"name": "Suede Venetian Mule", "desc": "Ultra-soft backless venetian suede slide for high comfort.", "tag": "Casual Luxury", "img": "/shoe-loafer.png"}
+    ],
+    "Mojaris": [
+        {"name": "Pointed Sherwani Mojari", "desc": "Traditional pointed mojari with curled front tip.", "tag": "Ceremonial", "img": "/shoe-juti.png"},
+        {"name": "Velvet Embroidered Mojari", "desc": "Rich velvet upper with detailed zardozi hand embroidery.", "tag": "Royal Collection", "img": "/shoe-juti.png"}
+    ],
+    "Boat": [
+        {"name": "Classic Boat Shoe", "desc": "Premium oiled leather with white siped rubber soles.", "tag": "Nautical Classic", "img": "/shoe-loafer.png"},
+        {"name": "Suede Deck Shoe", "desc": "Soft suede slip-on deck shoe for warm weather.", "tag": "Summer Casual", "img": "/shoe-loafer.png"}
     ]
 }
 
