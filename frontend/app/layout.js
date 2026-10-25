@@ -10,8 +10,8 @@ import Footer from '../src/components/Footer';
 import ConciergeWidget from '../src/components/ConciergeWidget';
 
 export const metadata = {
-  title: 'Cobblyn | Luxury Handcrafted Footwear',
-  description: 'Cobblyn Shoes - Bespoke luxury footwear handcrafted with timeless design.',
+  title: 'CobCult | Luxury Handcrafted Footwear',
+  description: 'CobCult Shoes - Bespoke luxury footwear handcrafted with timeless design.',
 };
 
 export const viewport = {

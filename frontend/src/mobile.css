@@ -102,6 +102,10 @@
   .nav-logo a {
     font-size: 1.2rem;
   }
+  .cobcult-nav-logo {
+    height: 25px;
+    max-width: 140px;
+  }
   .nav-right {
     gap: 12px;
   }

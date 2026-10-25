@@ -125,7 +125,16 @@ const AdminLayout = ({ children }) => {
     <div className="admin-layout" data-testid="admin-layout">
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header">
-          <h2>{user.role === 'factory_worker' ? 'BYOND Factory' : 'BYOND Admin'}</h2>
+          <Link href="/admin" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+            <img 
+              src="/logo/cobcult-logo-white.png" 
+              alt="CobCult" 
+              style={{ height: '24px', width: 'auto', objectFit: 'contain' }}
+            />
+            <span style={{ fontSize: '0.62rem', color: '#9D2706', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', background: 'rgba(157,39,6,0.15)', padding: '2px 6px', borderRadius: '4px' }}>
+              {user.role === 'factory_worker' ? 'Factory' : 'Atelier'}
+            </span>
+          </Link>
         </div>
         <nav className="admin-nav" data-testid="admin-nav">
           {NAV_STRUCTURE.map((node) => {

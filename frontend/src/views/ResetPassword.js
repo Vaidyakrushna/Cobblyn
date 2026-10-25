@@ -85,7 +85,13 @@ export default function ResetPassword() {
         {/* ── Left Brand Panel ── */}
         <div className="auth-brand-panel">
           <div className="auth-brand-content">
-            <h1 className="auth-brand-logo">BY<span className="text-accent">O</span>ND</h1>
+            <Link href="/" style={{ display: 'inline-block', marginBottom: '16px' }}>
+              <img 
+                src="/logo/cobcult-logo-white.png" 
+                alt="CobCult" 
+                style={{ height: '42px', width: 'auto', objectFit: 'contain' }}
+              />
+            </Link>
             <p className="auth-brand-tagline">Crafted Beyond the Ordinary</p>
 
             <div className="auth-benefits">

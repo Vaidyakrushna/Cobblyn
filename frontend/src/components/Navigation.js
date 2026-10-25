@@ -210,7 +210,14 @@ const Navigation = () => {
     <>
       <nav className="main-nav" data-testid="main-navigation">
         <div className="nav-logo">
-          <Link href="/" data-testid="logo-link">C<span className="text-accent">O</span>BBLYN</Link>
+          <Link href="/" data-testid="logo-link" style={{ display: 'flex', alignItems: 'center' }}>
+            <img 
+              src="/logo/cobcult-logo.png" 
+              alt="CobCult" 
+              style={{ height: '32px', width: 'auto', objectFit: 'contain' }}
+              className="cobcult-nav-logo"
+            />
+          </Link>
         </div>
 
         <ul className="nav-links nav-links-left">

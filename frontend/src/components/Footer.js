@@ -15,8 +15,13 @@ const Footer = () => {
     <footer data-testid="footer">
       <div className="footer-main">
         <div>
-          <div className="footer-brand-logo">
-            C<span className="text-accent">O</span>BCULT
+          <div className="footer-brand-logo" style={{ marginBottom: '16px' }}>
+            <img 
+              src="/logo/cobcult-logo-white.png" 
+              alt="CobCult" 
+              style={{ height: '34px', width: 'auto', objectFit: 'contain' }}
+              className="cobcult-footer-logo"
+            />
           </div>
           <p className="footer-tagline">Crafted Beyond the Ordinary</p>
           <div className="footer-socials">
